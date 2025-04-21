@@ -112,7 +112,7 @@ const AshtakavargaPage = () => {
 
     const ashtakavargaData = displayNatalResult?.ashtakavarga;
     const bhinnaData = ashtakavargaData?.bhinna;
-    const sarvaData = ashtakavargaData?.sarva; // This is the array of 12 scores
+    const sarvaData = ashtakavargaData?.sarva?.scores;
 
     const ashtakavargaPlanets = PLANET_ORDER.filter(p =>
         ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"].includes(p)
