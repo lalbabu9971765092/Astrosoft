@@ -38,6 +38,11 @@ const SharedInputLayout = () => {
     const [isSavingChart, setIsSavingChart] = useState(false);
     const [savingChartError, setSavingChartError] = useState(null);
     const [showLoadModal, setShowLoadModal] = useState(false);
+    // --- Add these new state variables for deletion ---
+    const [isDeletingChart, setIsDeletingChart] = useState(false);
+    const [deletingChartId, setDeletingChartId] = useState(null); // Track which chart is being deleted
+    const [deletingChartError, setDeletingChartError] = useState(null);
+    // --- End new state variables ---
 
     // --- Effects (Keep existing effects) ---
     useEffect(() => {
@@ -57,7 +62,7 @@ const SharedInputLayout = () => {
                     const lon = position.coords.longitude;
                     const formattedCoords = `${lat.toFixed(6)},${lon.toFixed(6)}`;
                     setCoords(formattedCoords);
-                    setPlaceName("Current Location"); // Consider translating this default if needed
+                    setPlaceName(t('sharedLayout.currentLocationDefault', "Current Location")); // Translate default
                     setIsFetchingLocation(false);
                 },
                 (geoError) => {
@@ -73,7 +78,7 @@ const SharedInputLayout = () => {
         }
         fetchSavedCharts();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [t]); // Add t to dependency array if error messages are translated here
+    }, [t]); // Add t to dependency array
 
     useEffect(() => {
         if (calculationInputParams?.date) {
@@ -96,7 +101,7 @@ const SharedInputLayout = () => {
 
     // Geocoding Handler
     const handleFindCoordinates = useCallback(async () => {
-        if (!placeName.trim() || placeName === "Current Location") {
+        if (!placeName.trim() || placeName === t('sharedLayout.currentLocationDefault', "Current Location")) {
             alert(t('sharedLayout.alertEnterPlace')); // Translate alert
             return;
         }
@@ -105,8 +110,10 @@ const SharedInputLayout = () => {
         setLocationError(null);
         setCoords('');
         try {
+            // IMPORTANT: Add your User-Agent details
+            const userAgent = 'AstrologyWebApp/1.0 (your-contact@example.com)'; // Replace with your app name and contact
             const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(placeName)}&format=json&limit=1&addressdetails=1`;
-            const response = await axios.get(url, { headers: { 'User-Agent': 'AstrologyWebApp/1.0 (your-contact@example.com)' } });
+            const response = await axios.get(url, { headers: { 'User-Agent': userAgent } });
             if (response.data && response.data.length > 0) {
                 const { lat, lon, display_name } = response.data[0];
                 const latNum = parseFloat(lat);
@@ -137,9 +144,10 @@ const SharedInputLayout = () => {
         setKpResult(null);
         setCalculationInputParams(null);
 
-        const dateTimeValidation = validateAndFormatDateTime(date);
+        // Pass 't' for translated validation errors
+        const dateTimeValidation = validateAndFormatDateTime(date, t);
         if (!dateTimeValidation.isValid) { setError(dateTimeValidation.error); setIsLoading(false); return; }
-        const coordsValidation = parseAndValidateCoords(coords);
+        const coordsValidation = parseAndValidateCoords(coords, t);
         if (!coordsValidation.isValid) { setError(coordsValidation.error); setIsLoading(false); return; }
 
         const { formattedDate } = dateTimeValidation;
@@ -156,14 +164,14 @@ const SharedInputLayout = () => {
             let errors = [];
             if (mainResponse.error) {
                 console.error("Main calculation API error:", mainResponse.error.response?.data || mainResponse.error.message || mainResponse.error);
-                errors.push(`Main Calc: ${mainResponse.error.response?.data?.error || mainResponse.error.message || "Failed."}`);
+                errors.push(`Main Calc: ${mainResponse.error.response?.data?.error || mainResponse.error.message || t('sharedLayout.calculationFailedGeneric')}`);
                 setMainResult(null);
             } else {
                 setMainResult(mainResponse.data);
             }
             if (kpResponse.error) {
                 console.error("KP Significator API error:", kpResponse.error.response?.data || kpResponse.error.message || kpResponse.error);
-                errors.push(`KP Significators: ${kpResponse.error.response?.data?.error || kpResponse.error.message || "Failed."}`);
+                errors.push(`KP Significators: ${kpResponse.error.response?.data?.error || kpResponse.error.message || t('sharedLayout.kpCalculationFailedGeneric')}`);
                 setKpResult(null);
             } else {
                 setKpResult({ ...kpResponse.data, inputParameters: currentInputParams });
@@ -210,6 +218,7 @@ const SharedInputLayout = () => {
     const fetchSavedCharts = useCallback(async () => {
         setIsLoadingSavedCharts(true);
         setSavedChartsError(null);
+        setDeletingChartError(null); // Clear delete errors when refreshing
         try {
             console.log("Fetching saved charts from API...");
             const response = await api.get('/charts');
@@ -229,12 +238,13 @@ const SharedInputLayout = () => {
             alert(t('sharedLayout.alertInvalidName')); // Translate alert
             return;
         }
-        const dateTimeValidation = validateAndFormatDateTime(date);
+        // Pass 't' for translated validation errors
+        const dateTimeValidation = validateAndFormatDateTime(date, t);
         if (!dateTimeValidation.isValid) {
             alert(t('sharedLayout.alertInvalidDateTime', { error: dateTimeValidation.error })); // Translate alert
             return;
         }
-        const coordsValidation = parseAndValidateCoords(coords);
+        const coordsValidation = parseAndValidateCoords(coords, t);
         if (!coordsValidation.isValid) {
             alert(t('sharedLayout.alertInvalidCoords', { error: coordsValidation.error })); // Translate alert
             return;
@@ -256,10 +266,10 @@ const SharedInputLayout = () => {
             console.log("Saving chart data via API:", chartDataToSave);
             const response = await api.post('/charts', chartDataToSave);
             console.log("Chart saved successfully via API:", response.data);
-            fetchSavedCharts();
+            fetchSavedCharts(); // Refresh the list after saving
         } catch (err) {
             console.error("Error saving chart via API:", err);
-            const errorMsg = err.response?.data?.error || err.message || "Failed to save chart.";
+            const errorMsg = err.response?.data?.error || err.message || t('sharedLayout.saveChartFailedGeneric');
             setSavingChartError(errorMsg);
             alert(t('sharedLayout.saveChartErrorAlert', { message: errorMsg })); // Translate alert
         } finally {
@@ -278,20 +288,57 @@ const SharedInputLayout = () => {
             try {
                 const loadedDateObj = new Date(chartToLoad.date);
                 if (!isNaN(loadedDateObj.getTime())) {
-                    formattedLoadDate = chartToLoad.date.slice(0, 16);
+                    // Ensure it's in YYYY-MM-DDTHH:MM format for the input
+                    const localDate = new Date(loadedDateObj.getTime() - loadedDateObj.getTimezoneOffset() * 60000);
+                    formattedLoadDate = localDate.toISOString().slice(0, 16);
                 } else { console.error("Invalid date format in loaded chart data:", chartToLoad.date); }
             } catch (e) { console.error("Error formatting loaded date:", e); }
         }
         setDate(formattedLoadDate);
         setCoords(`${chartToLoad.latitude?.toFixed(6) || ''},${chartToLoad.longitude?.toFixed(6) || ''}`);
         setPlaceName(chartToLoad.placeName || '');
+        // Reset results and errors to trigger recalculation
         setMainResult(null);
         setKpResult(null);
         setError(null);
         setLocationError(null);
         setCalculationInputParams(null);
-        setShowLoadModal(false);
+        setShowLoadModal(false); // Close modal after selection
+        setDeletingChartError(null); // Clear delete error on load
+        // Recalculation will be triggered by the useEffect watching date/coords changes
     }, []);
+
+    // --- Add Delete Handler ---
+    const handleDeleteChart = useCallback(async (chartIdToDelete, event) => {
+        event.stopPropagation(); // Prevent modal from closing when clicking the button
+
+        // Optional: Add a confirmation dialog
+        if (!window.confirm(t('sharedLayout.deleteConfirmPrompt', { chartId: chartIdToDelete }))) {
+            return; // User cancelled
+        }
+
+        setIsDeletingChart(true);
+        setDeletingChartId(chartIdToDelete); // Set which chart is being deleted
+        setDeletingChartError(null); // Clear previous delete errors
+
+        try {
+            console.log(`Attempting to delete chart with ID: ${chartIdToDelete}`);
+            await api.delete(`/charts/${chartIdToDelete}`); // Use DELETE method
+            console.log(`Chart ${chartIdToDelete} deleted successfully.`);
+            // Refresh the list of saved charts after successful deletion
+            fetchSavedCharts();
+        } catch (err) {
+            console.error(`Error deleting chart ${chartIdToDelete}:`, err);
+            const errorMsg = err.response?.data?.error || err.message || t('sharedLayout.deleteChartFailedGeneric');
+            setDeletingChartError(t('sharedLayout.deleteChartErrorSpecific', { chartId: chartIdToDelete, message: errorMsg }));
+            // Optionally, display an alert or keep the error message in the modal
+            // alert(t('sharedLayout.deleteChartErrorAlert', { message: errorMsg }));
+        } finally {
+            setIsDeletingChart(false);
+            setDeletingChartId(null); // Reset deleting ID
+            // Keep deletingChartError visible until the next action or modal close
+        }
+    }, [fetchSavedCharts, t]); // Add t to dependency array
 
     // --- Memos ---
     const locationForGocharTool = useMemo(() => {
@@ -314,7 +361,7 @@ const SharedInputLayout = () => {
                 <div className="top-strip-section birth-rectification-tool-section">
                     {calculationInputParams?.date && adjustedBirthDateTimeString ? (
                         <TimeAdjustmentTool
-                            key={calculationInputParams.date}
+                            key={calculationInputParams.date} // Use original date as key
                             initialDateTimeString={calculationInputParams.date}
                             onDateTimeChange={handleBirthTimeChange}
                             label={t('sharedLayout.rectificationToolLabel')} // Translate label
@@ -360,7 +407,7 @@ const SharedInputLayout = () => {
                                 <label htmlFor="date-input">{t('sharedLayout.dateTimeLabel')}</label>
                                 <input
                                     id="date-input" type="datetime-local" value={date}
-                                    onChange={(e) => setDate(e.target.value)} required aria-required="true" step="1"
+                                    onChange={(e) => setDate(e.target.value)} required aria-required="true" step="1" // Ensure step="1" for seconds if needed by backend
                                     disabled={isLoading || isGeocoding || isFetchingLocation || isSavingChart}
                                 />
                             </div>
@@ -379,7 +426,7 @@ const SharedInputLayout = () => {
                             </div>
                             <div className="button-container find-coords-button">
                                 <button type="button" onClick={handleFindCoordinates}
-                                    disabled={isGeocoding || isLoading || isFetchingLocation || isSavingChart || !placeName.trim() || placeName === "Current Location"}
+                                    disabled={isGeocoding || isLoading || isFetchingLocation || isSavingChart || !placeName.trim() || placeName === t('sharedLayout.currentLocationDefault', "Current Location")}
                                     title={t('sharedLayout.findCoordsTitle')} // Translate title
                                 >
                                     {isGeocoding ? t('sharedLayout.findingCoordsButton') : t('sharedLayout.findCoordsButton')}
@@ -418,7 +465,7 @@ const SharedInputLayout = () => {
                                 </button>
                             </div>
                             <div className="save-load-button-container">
-                                <button type="button" onClick={() => setShowLoadModal(true)} disabled={isLoadingSavedCharts || isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
+                                <button type="button" onClick={() => { setShowLoadModal(true); fetchSavedCharts(); /* Refresh list on open */ }} disabled={isLoadingSavedCharts || isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
                                     {isLoadingSavedCharts ? t('sharedLayout.loadingListButton') : t('sharedLayout.loadChartButton')}
                                 </button>
                             </div>
@@ -428,7 +475,7 @@ const SharedInputLayout = () => {
                          {isLoading && <div className="main-loader small-loader" aria-live="polite">{t('sharedLayout.calculatingButton')}</div>}
                          {error && <p className="error-text small-error calculation-error" role="alert">{t('sharedLayout.calculationErrorPrefix')}: {error}</p>}
                          {savingChartError && <p className="error-text small-error save-load-error" role="alert">{t('sharedLayout.saveErrorPrefix')}: {savingChartError}</p>}
-                         {savedChartsError && <p className="error-text small-error save-load-error" role="alert">{t('sharedLayout.loadErrorPrefix')}: {savedChartsError}</p>}
+                         {/* savedChartsError is displayed inside the modal */}
                     </form>
                 </div>
 
@@ -436,7 +483,7 @@ const SharedInputLayout = () => {
                 <div className="top-strip-section transit-adjustment-tool-section">
                     {locationForGocharTool.lat !== null && locationForGocharTool.lon !== null && adjustedGocharDateTimeString ? (
                         <TimeAdjustmentTool
-                            key={adjustedGocharDateTimeString.substring(0,10)}
+                            key={adjustedGocharDateTimeString.substring(0,10)} // Key based on date part
                             initialDateTimeString={adjustedGocharDateTimeString}
                             onDateTimeChange={handleGocharTimeChange}
                             label={t('sharedLayout.gocharToolLabel')} // Translate label
@@ -450,19 +497,36 @@ const SharedInputLayout = () => {
 
             {/* Load Chart Modal */}
             {showLoadModal && (
-                <div className="modal-overlay" onClick={() => setShowLoadModal(false)}>
+                <div className="modal-overlay" onClick={() => { setShowLoadModal(false); setDeletingChartError(null); /* Clear delete error on close */ }}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <h3>{t('sharedLayout.loadModalTitle')}</h3>
                         {isLoadingSavedCharts && <div className="loader">{t('sharedLayout.loadModalLoading')}</div>}
+                        {/* Display general loading error */}
                         {savedChartsError && <p className="error-text">{savedChartsError}</p>}
+                        {/* Display specific deletion error */}
+                        {deletingChartError && <p className="error-text">{deletingChartError}</p>}
+
                         {!isLoadingSavedCharts && !savedChartsError && (
                             savedCharts.length > 0 ? (
                                 <ul className="saved-charts-list">
                                     {savedCharts.map(chart => (
-                                        <li key={chart.id} onClick={() => handleLoadChart(chart)}>
-                                            <strong>{chart.name}</strong> ({t(`sharedLayout.gender${chart.gender}`) || chart.gender || 'N/A'}) {/* Translate gender */}
-                                            <br />
-                                            <small>{new Date(chart.date).toLocaleString()} - {chart.placeName}</small>
+                                        <li key={chart.id}>
+                                            {/* Make the main part clickable to load */}
+                                            <div className="chart-info" onClick={() => handleLoadChart(chart)}>
+                                                <strong>{chart.name}</strong> ({t(`sharedLayout.gender${chart.gender}`) || chart.gender || t('utils.notAvailable', 'N/A')}) {/* Translate gender */}
+                                                <br />
+                                                <small>{new Date(chart.date).toLocaleString()} - {chart.placeName}</small>
+                                            </div>
+                                            {/* Add Delete Button */}
+                                            <button
+                                                className="delete-chart-button"
+                                                onClick={(e) => handleDeleteChart(chart.id, e)}
+                                                disabled={isDeletingChart && deletingChartId === chart.id} // Disable only the button being processed
+                                                title={t('sharedLayout.deleteButtonTitle', { chartName: chart.name })}
+                                            >
+                                                {/* Show loading text or delete icon/text */}
+                                                {isDeletingChart && deletingChartId === chart.id ? t('sharedLayout.deletingButton') : t('sharedLayout.deleteButton')}
+                                            </button>
                                         </li>
                                     ))}
                                 </ul>
@@ -470,7 +534,7 @@ const SharedInputLayout = () => {
                                 <p>{t('sharedLayout.loadModalNoCharts')}</p>
                             )
                         )}
-                        <button onClick={() => setShowLoadModal(false)} className="modal-close-button">{t('sharedLayout.loadModalCloseButton')}</button>
+                        <button onClick={() => { setShowLoadModal(false); setDeletingChartError(null); /* Clear delete error on close */ }} className="modal-close-button">{t('sharedLayout.loadModalCloseButton')}</button>
                     </div>
                 </div>
             )}
@@ -484,15 +548,17 @@ const SharedInputLayout = () => {
                     error,
                     calculationInputParams,
                     adjustedBirthDateTimeString,
-                    handleBirthTimeChange,
+                    handleBirthTimeChange, // Pass handler if needed by children
                     adjustedGocharDateTimeString,
-                    handleGocharTimeChange,
+                    handleGocharTimeChange, // Pass handler if needed by children
                     locationForGocharTool,
+                    // Pass current input values if children need them directly
                     currentName: name,
                     currentGender: gender,
                     currentDate: date,
                     currentCoords: coords,
                     currentPlaceName: placeName,
+                    // Pass loading states if children need to react
                     isGeocoding,
                     isFetchingLocation
                  }} />

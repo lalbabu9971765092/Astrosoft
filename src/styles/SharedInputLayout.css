@@ -1,228 +1,409 @@
-/* src/SharedInputLayout.css */
+/* src/styles/SharedInputLayout.css */
 
-/* Main container for the whole layout */
+/* --- Main Layout Container --- */
 .shared-layout-container {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh; /* Ensure it takes full viewport height */
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden; /* Prevent scrolling on the main container */
 }
 
-/* --- Top Horizontal Strip --- */
+/* --- Top Strip --- */
 .top-strip {
-    display: flex;
-    justify-content: space-between; /* Distribute space between sections */
-    align-items: flex-start; /* Align items to the top */
-    padding: 8px 15px; /* Reduced vertical padding */
-    background-color: #f0f2f5; /* Light background for the strip */
-    border-bottom: 1px solid #d9d9d9;
-    gap: 15px; /* Space between sections */
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* Align items to the top */
+  padding: 10px;
+  background-color: #f8f9fa; /* Light background for the strip */
+  border-bottom: 1px solid #dee2e6;
+  flex-shrink: 0; /* Prevent strip from shrinking */
+  gap: 15px; /* Add space between sections */
+  overflow-x: auto; /* Allow horizontal scrolling if content overflows */
+  overflow-y: hidden;
 }
 
-/* Styling for each section within the top strip */
 .top-strip-section {
-    flex: 1; /* Allow sections to grow and shrink */
-    padding: 8px; /* Reduced padding within sections */
-    background-color: #fff; /* White background for sections */
-    border: 1px solid #e8e8e8;
-    border-radius: 6px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    min-width: 280px; /* Minimum width before wrapping */
-    box-sizing: border-box;
+  flex: 1; /* Allow sections to grow */
+  min-width: 280px; /* Minimum width for each section */
+  padding: 5px;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* Specific adjustments for the input form section */
+/* Specific section styling if needed */
+.birth-rectification-tool-section,
+.transit-adjustment-tool-section {
+  flex-basis: 25%; /* Give slightly less space initially */
+  max-width: 300px; /* Max width for tools */
+}
+
 .input-form-section {
-    /* Add specific styles if needed, maybe slightly more flex-grow */
-    flex-grow: 1.2; /* Give it slightly more space if needed */
-}
-
-/* --- Input Form Styles (within top strip) --- */
-/* Reuse styles from AstrologyForm.css but make them more compact */
-.input-form-section .astrology-form-container {
-    padding: 0; /* Remove extra padding if reusing container */
-}
-
-.input-form-section form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px; /* Reduced gap between input groups */
-}
-
-.input-form-section .input-group {
-    display: flex;
-    flex-direction: column; /* Stack label and input */
-    /* Or use flex-direction: row; align-items: center; for side-by-side */
-    gap: 3px; /* Reduced gap between label and input */
-}
-
-.input-form-section .input-group label {
-    font-size: 0.8em; /* Smaller label */
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 0; /* Remove bottom margin */
-}
-
-.input-form-section .input-group input[type="datetime-local"],
-.input-form-section .input-group input[type="text"] {
-    padding: 5px 8px; /* Reduced padding */
-    font-size: 0.9em; /* Slightly smaller font */
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    width: 100%; /* Take full width of container */
-}
-
-.input-form-section .button-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 2px; /* Small space above button */
-}
-
-.input-form-section .button-container button,
-.input-form-section .submit-button-container button {
-    padding: 4px 10px; /* Reduced padding */
-    font-size: 0.85em; /* Smaller font */
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    white-space: nowrap; /* Prevent wrapping */
-}
-.input-form-section .button-container button:disabled,
-.input-form-section .submit-button-container button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-.input-form-section .button-container button:hover:not(:disabled),
-.input-form-section .submit-button-container button:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-.input-form-section .submit-button-container {
-    margin-top: 5px; /* Reduced margin */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.input-form-section .hint-text,
-.input-form-section .error-text {
-    font-size: 0.75em; /* Smaller hint/error text */
-    margin-top: 2px;
-}
-.input-form-section .small-error {
-    margin-top: 2px;
-}
-
-/* --- Time Adjustment Tool Styles (within top strip) --- */
-.birth-rectification-tool-section .time-adjustment-tool,
-.transit-adjustment-tool-section .time-adjustment-tool {
-    padding: 0; /* Remove extra padding if TimeAdjustmentTool has its own */
-}
-
-.birth-rectification-tool-section .tool-label,
-.transit-adjustment-tool-section .tool-label {
-    font-size: 0.9em; /* Smaller tool label */
-    margin-bottom: 5px;
-    text-align: center;
-    font-weight: bold;
-    color: #333;
-}
-
-.birth-rectification-tool-section .current-time-display,
-.transit-adjustment-tool-section .current-time-display {
-    font-size: 0.85em; /* Smaller time display */
-    text-align: center;
-    margin-bottom: 8px;
-    word-break: break-word; /* Prevent long dates overflowing */
-}
-.birth-rectification-tool-section .current-time-display strong,
-.transit-adjustment-tool-section .current-time-display strong {
-    color: #0056b3;
-}
-
-.birth-rectification-tool-section .adjustment-controls,
-.transit-adjustment-tool-section .adjustment-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 5px; /* Reduced gap between control groups */
-    align-items: center; /* Center controls */
-}
-
-.birth-rectification-tool-section .control-group,
-.transit-adjustment-tool-section .control-group {
-    display: flex;
-    align-items: center;
-    gap: 4px; /* Reduced gap within control group */
-}
-.birth-rectification-tool-section .control-group span,
-.transit-adjustment-tool-section .control-group span {
-    font-size: 0.8em;
-    width: 50px; /* Give labels a fixed width */
-    text-align: right;
-    margin-right: 5px;
-}
-
-.birth-rectification-tool-section .control-group button,
-.transit-adjustment-tool-section .control-group button,
-.birth-rectification-tool-section .reset-button,
-.transit-adjustment-tool-section .reset-button {
-    padding: 2px 6px; /* Smaller buttons */
-    font-size: 0.8em;
-    min-width: 35px; /* Ensure buttons have some width */
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-}
-.birth-rectification-tool-section .reset-button,
-.transit-adjustment-tool-section .reset-button {
-    margin-top: 5px;
-    background-color: #dc3545;
+  flex-basis: 50%; /* Give more space to the main form */
+  max-width: 600px;
 }
 
 .tool-placeholder {
-    font-size: 0.85em;
-    color: #666;
-    text-align: center;
-    padding: 10px;
+  font-size: 0.9em;
+  color: #6c757d;
+  text-align: center;
+  padding: 20px 10px;
+  border: 1px dashed #ced4da;
+  border-radius: 4px;
+  background-color: #f8f9fa;
+  height: 100%; /* Try to fill the section height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Astrology Form Styles (within top strip) --- */
+/* Re-include or reference styles from AstrologyForm.css if needed, */
+/* but basic layout styles are here */
+.astrology-form-container {
+  padding: 15px;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 10px; /* Space between items in a row */
+  margin-bottom: 12px; /* Space between rows */
+  align-items: flex-end; /* Align items to the bottom (useful for buttons) */
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allow input groups to grow */
+}
+
+.input-group.full-width {
+  flex-basis: 100%;
+}
+
+.input-group.half-width {
+  flex-basis: calc(50% - 5px); /* Adjust for gap */
+  min-width: 120px; /* Prevent becoming too small */
+}
+
+.input-group label {
+  margin-bottom: 4px;
+  font-size: 0.85em;
+  font-weight: bold;
+  color: #495057;
+}
+
+.input-group input[type="text"],
+.input-group input[type="datetime-local"],
+.input-group input[type="number"],
+.input-group select {
+  padding: 8px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9em;
+  width: 100%; /* Take full width of the group */
+  box-sizing: border-box; /* Include padding and border in width */
+}
+
+.input-group input:disabled,
+.input-group select:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+.input-group .hint-text,
+.input-group .error-text {
+  font-size: 0.75em;
+  margin-top: 3px;
+}
+
+.input-group .loading-text {
+  color: #007bff;
+}
+
+.small-error {
+  font-size: 0.8em;
+  color: #dc3545;
+  margin-top: 4px;
+}
+.small-hint {
+   font-size: 0.8em;
+   color: #6c757d;
+   margin-top: 4px;
+}
+
+/* Specific group adjustments */
+.place-group {
+  flex-grow: 3; /* Give more space to place input */
+}
+
+.button-container {
+  display: flex;
+  align-items: center; /* Vertically center button and loader */
+  height: 35px; /* Match input height approx */
+}
+
+.find-coords-button button,
+.action-buttons-row button {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  transition: background-color 0.2s ease;
+  white-space: nowrap; /* Prevent button text wrapping */
+}
+
+.find-coords-button button:hover:not(:disabled),
+.action-buttons-row button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.find-coords-button button:disabled,
+.action-buttons-row button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.action-buttons-row {
+  justify-content: space-around; /* Distribute buttons */
+  margin-top: 15px;
+}
+
+.save-load-button-container button,
+.submit-button-container button {
+   width: 100%; /* Make buttons fill their container */
+}
+
+.save-load-button-container button {
+  background-color: #17a2b8; /* Teal for save/load */
+}
+.save-load-button-container button:hover:not(:disabled) {
+  background-color: #117a8b;
 }
 
 
-/* --- Main Content Area --- */
-.content-area {
-    flex-grow: 1; /* Allow content area to take remaining vertical space */
-    padding: 15px; /* Padding around the main content */
-    background-color: #ffffff; /* White background for content */
-    overflow-y: auto; /* Allow scrolling if content overflows */
-}
-
-/* --- Loader Styles --- */
+/* --- Loaders --- */
 .loader {
-    border: 3px solid #f3f3f3; /* Light grey */
-    border-top: 3px solid #3498db; /* Blue */
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    animation: spin 1s linear infinite;
-    display: inline-block; /* Make it inline */
-    vertical-align: middle; /* Align with text/buttons */
+  border: 4px solid #f3f3f3; /* Light grey */
+  border-top: 4px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite;
+  margin: 10px auto; /* Center loader */
 }
+
 .small-loader {
-    width: 14px;
-    height: 14px;
-    border-width: 2px;
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+  margin: 0 5px; /* Adjust margin for inline display */
+  display: inline-block; /* For inline display */
+  vertical-align: middle;
 }
-.main-loader { /* Loader specifically for main calculation status */
-    margin-left: 10px;
+.tiny-loader {
+  width: 12px;
+  height: 12px;
+  border-width: 2px;
+  margin: 0 5px;
+  display: inline-block;
+  vertical-align: middle;
 }
+
+.main-loader { /* Loader shown below the form */
+  margin: 10px 0;
+  text-align: center; /* Center the loader container */
+}
+.main-loader .small-loader { /* Style the actual loader within */
+   margin: 0 auto; /* Center the loader itself */
+   display: block;
+}
+
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- Error Text --- */
+.error-text {
+  color: #dc3545; /* Red for errors */
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+
+.calculation-error, .save-load-error {
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* --- Content Area --- */
+.content-area {
+  flex-grow: 1; /* Takes remaining vertical space */
+  padding: 15px;
+  overflow-y: auto; /* Allow scrolling ONLY in the content area */
+  background-color: #fff;
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure modal is on top */
+}
+
+.modal-content {
+  background-color: white;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh; /* Limit height */
+  overflow-y: auto; /* Allow scrolling within modal content */
+  position: relative; /* For positioning close button if needed */
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.modal-close-button {
+  display: block; /* Make it a block element */
+  margin: 20px auto 0; /* Center button horizontally, add top margin */
+  padding: 8px 16px;
+  background-color: #6c757d; /* Grey */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.modal-close-button:hover {
+  background-color: #5a6268;
+}
+
+/* --- Saved Charts List Styles (Inside Modal) --- */
+.saved-charts-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px; /* Limit list height */
+  /* overflow-y: auto; Already handled by modal-content */
+}
+
+.saved-charts-list li {
+  display: flex; /* Use flexbox to align items */
+  justify-content: space-between; /* Push button to the right */
+  align-items: center; /* Vertically center items */
+  padding: 12px 8px; /* Increased padding */
+  border-bottom: 1px solid #eee;
+  cursor: pointer; /* Indicate the main part is clickable */
+  transition: background-color 0.2s ease;
+}
+
+.saved-charts-list li:hover {
+  background-color: #f0f0f0;
+}
+
+.saved-charts-list li .chart-info {
+  flex-grow: 1; /* Allow chart info to take available space */
+  margin-right: 15px; /* Increased space between info and button */
+  line-height: 1.4; /* Improve readability */
+}
+
+.saved-charts-list li .chart-info strong {
+  color: #0056b3; /* Make name stand out */
+}
+
+.saved-charts-list li .chart-info small {
+  color: #6c757d; /* Grey for date/place */
+  font-size: 0.85em;
+}
+
+/* --- Delete Button Styles (Inside Modal List) --- */
+.delete-chart-button {
+  padding: 5px 10px; /* Slightly larger padding */
+  font-size: 0.85em; /* Slightly larger font */
+  background-color: #dc3545; /* Red color for delete */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0; /* Prevent button from shrinking */
+  margin-left: 10px; /* Ensure some space if chart-info shrinks */
+}
+
+.delete-chart-button:hover:not(:disabled) {
+  background-color: #c82333; /* Darker red on hover */
+}
+
+.delete-chart-button:disabled {
+  background-color: #adb5bd; /* Lighter grey when disabled */
+  cursor: not-allowed;
+}
+
+/* Style for delete error message inside modal */
+.modal-content .error-text {
+    color: #dc3545; /* Match delete button color */
+    margin-bottom: 15px; /* Space below error */
+    font-size: 0.9em;
+    text-align: center; /* Center error message */
+    border: 1px solid #f5c6cb; /* Light red border */
+    background-color: #f8d7da; /* Light red background */
+    padding: 8px;
+    border-radius: 4px;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+  .top-strip {
+    flex-direction: column; /* Stack sections vertically */
+    align-items: stretch; /* Stretch sections to full width */
+    overflow-x: hidden;
+    overflow-y: auto; /* Allow vertical scroll if needed */
+    max-height: 50vh; /* Limit height on small screens */
+  }
+
+  .top-strip-section {
+    max-width: none; /* Remove max-width */
+    flex-basis: auto; /* Reset basis */
+  }
+
+  .form-row {
+    flex-direction: column; /* Stack inputs within a row */
+    align-items: stretch; /* Stretch inputs */
+    gap: 8px;
+  }
+
+  .input-group.half-width {
+    flex-basis: 100%; /* Full width on small screens */
+  }
+
+  .action-buttons-row {
+     flex-direction: column; /* Stack action buttons */
+     gap: 10px;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 15px;
+  }
 }
