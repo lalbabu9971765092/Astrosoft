@@ -213,7 +213,7 @@ const SharedInputLayout = () => {
         try {
             console.log("Fetching saved charts from API...");
             const response = await api.get('/charts');
-            setSavedCharts(response.data || []);
+            setSavedCharts(response.data?.charts || []);
         } catch (err) {
             console.error("Error fetching saved charts:", err);
             setSavedChartsError(t('sharedLayout.loadChartsFailed', { message: err.response?.data?.error || err.message || "Failed." })); // Translate error
