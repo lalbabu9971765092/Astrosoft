@@ -1,0 +1,298 @@
+/* src/AstrologyForm.css */
+
+/* --- General Result Display & Layout --- */
+.astrology-results-display {
+  /* Styles for the overall container if needed */
+}
+
+.astrology-results-display.three-column-layout {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 20px; /* Space between columns */
+  padding: 15px;
+  align-items: flex-start; /* Align items to the top */
+  margin-top: 20px; /* Space below the input form */
+}
+
+.results-column {
+  flex: 1; /* Each column tries to take equal space */
+  min-width: 320px; /* Increased min-width to better accommodate 300px charts + padding */
+  background-color: #ffffff;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  /* Ensure columns don't shrink below their min-width easily */
+  flex-shrink: 0;
+}
+
+.column-title {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    font-size: 1.4em;
+}
+
+/* --- Result Sections & Text --- */
+.result-section {
+  margin-bottom: 20px;
+}
+.result-section:last-child {
+  margin-bottom: 0;
+}
+
+.result-sub-title {
+  font-size: 1.1em;
+  color: #444;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+}
+
+.result-text {
+  margin-bottom: 5px;
+  line-height: 1.5;
+  font-size: 0.95em;
+  color: #333;
+}
+
+.dasha-balance strong {
+    color: #0056b3;
+}
+
+/* --- Tables --- */
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 10px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+  font-size: 0.9em;
+}
+
+.results-table th,
+.results-table td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.results-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Column width hints (adjust as needed) */
+.col-house, .col-planet { width: 60px; font-weight: bold; }
+.col-dms, .col-kp-coords, .col-degree { width: 100px; }
+.col-nakshatra { width: 120px; }
+.col-nak-lord, .col-sub-lord, .col-sub-sub-lord, .col-rashi-lord { width: 80px; }
+.col-rashi { width: 90px; }
+
+/* --- Chart Styles (For DiamondChart.jsx) --- */
+
+/* Container for MULTIPLE charts within a column */
+.charts-container {
+  display: flex;
+  flex-direction: column; /* Stack charts vertically */
+  align-items: center; /* Center charts horizontally within the container */
+  gap: 30px; /* Increased space BETWEEN charts */
+  margin-bottom: 25px;
+  padding: 10px 0;
+  border-bottom: 1px dashed #eee; /* Separator below charts */
+}
+
+/* Container for a SINGLE chart (title + SVG) */
+.birth-chart-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Allow container to take width */
+  max-width: 350px; /* Optional: Limit max width if needed */
+}
+
+.chart-title { /* Style for the H4 above the SVG */
+    margin-top: 0;
+    margin-bottom: 8px; /* Slightly more space below title */
+    color: #555;
+    font-size: 1.1em; /* Slightly larger title */
+    font-weight: bold;
+    text-align: center;
+}
+
+.diamond-chart-svg {
+  /* SVG container itself */
+  max-width: 100%; /* Ensure SVG scales down */
+  height: auto; /* Maintain aspect ratio */
+  /* The actual size is controlled by the 'size' prop passed to DiamondChart */
+}
+
+.chart-border {
+  fill: none;
+  stroke: #333;
+  stroke-width: 1.5; /* Make border slightly thicker */
+}
+
+.chart-line {
+  fill: none;
+  stroke: #777; /* Slightly darker internal lines */
+  stroke-width: 1;
+}
+
+/* Text centering relies on text-anchor and dominant-baseline set in SVG component */
+.chart-rashi-number {
+  font-family: sans-serif;
+  /* font-size is set dynamically in component */
+  fill: #777; /* Slightly darker grey */
+  /* text-anchor: middle; */ /* Handled in component */
+  /* dominant-baseline: middle; */ /* Handled in component */
+  user-select: none;
+}
+
+.chart-planet-text {
+  font-family: sans-serif;
+  /* font-size is set dynamically in component */
+  font-weight: bold;
+  fill: #0056b3; /* Keep blue */
+  /* text-anchor: middle; */ /* Handled in component */
+  /* dominant-baseline: middle; */ /* Handled in component */
+  user-select: none;
+  /* Consider adding letter-spacing if symbols are too close */
+  /* letter-spacing: 0.5px; */
+}
+
+/* Placeholder style */
+.birth-chart-placeholder {
+  border: 1px dashed #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #999;
+  font-size: 0.9em;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  /* Ensure placeholder respects chart size */
+  /* width and height are set inline in the component */
+}
+
+
+/* --- Gochar Styles --- */
+.gochar-details-content {
+    /* Add specific styles if needed */
+}
+
+.right-column .result-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #eee;
+}
+.right-column .result-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+.right-column .result-sub-title {
+    color: #2a7a2a;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+.right-column .result-text {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #444;
+}
+
+/* --- Loaders & Errors --- */
+.main-loader {
+  padding: 30px;
+  text-align: center;
+  font-style: italic;
+  color: #555;
+}
+
+.error-text {
+    color: #d9534f;
+    font-weight: bold;
+    padding: 10px;
+    border: 1px solid #d9534f;
+    border-radius: 4px;
+    background-color: #f2dede;
+    margin: 10px 0;
+}
+.error-text.small-error {
+    font-size: 0.9em;
+    padding: 8px;
+    margin-top: 10px;
+    border: none;
+    background-color: transparent;
+}
+.error-text.main-error {
+    margin: 20px 15px;
+    width: auto;
+}
+
+.info-text {
+    padding: 20px;
+    text-align: center;
+    color: #555;
+    font-style: italic;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1024px) {
+  .results-column {
+    min-width: 290px; /* Adjust min-width for slightly smaller screens */
+  }
+}
+
+@media (max-width: 992px) { /* Adjust breakpoint for stacking */
+  .astrology-results-display.three-column-layout {
+     /* Change to 2 columns + 1 full width, or just stack earlier */
+     /* Example: Stack middle column first */
+  }
+   .results-column.left-column,
+   .results-column.right-column {
+      flex-basis: calc(50% - 10px); /* Try to keep 2 columns */
+      min-width: unset; /* Remove min-width when controlling basis */
+   }
+    .results-column.middle-column {
+      flex-basis: 100%; /* Middle takes full width */
+      order: -1; /* Move middle column (often charts) to the top */
+      margin-bottom: 20px; /* Add space below middle when stacked */
+    }
+}
+
+
+@media (max-width: 700px) { /* Stack all to 1 column */
+  .astrology-results-display.three-column-layout {
+    flex-direction: column; /* Stack all columns */
+    gap: 15px;
+  }
+  .results-column {
+    flex-basis: 100%; /* Full width when stacked */
+    order: 0 !important; /* Reset order */
+    margin-bottom: 0;
+    min-width: unset; /* Remove min-width */
+  }
+  .charts-container {
+      gap: 25px; /* Adjust gap for stacked charts */
+  }
+  .results-table th,
+  .results-table td {
+      white-space: normal; /* Allow wrapping in tables */
+  }
+}
+

@@ -1,0 +1,93 @@
+/* src/TimeAdjustmentTool.css */
+.time-adjustment-tool {
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.time-adjustment-tool-placeholder {
+    padding: 15px;
+    color: #888;
+    font-style: italic;
+}
+.time-adjustment-tool-placeholder.error {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+
+.tool-label {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #333;
+    text-align: center;
+}
+
+.current-time-display {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 1em;
+    background-color: #eee;
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.current-time-display strong {
+    color: #0056b3; /* Darker blue */
+}
+
+.adjustment-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between control groups */
+    align-items: center; /* Center groups horizontally */
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Space between label and buttons */
+    width: 100%; /* Make groups take full width */
+    justify-content: center; /* Center buttons within the group */
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+}
+
+.control-group span {
+    font-weight: bold;
+    min-width: 60px; /* Ensure labels align somewhat */
+    text-align: right;
+    margin-right: 5px;
+}
+
+.control-group button,
+.reset-button {
+    padding: 5px 10px;
+    font-size: 0.9em;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-radius: 3px;
+    min-width: 40px; /* Minimum button width */
+    text-align: center;
+}
+
+.control-group button:hover,
+.reset-button:hover {
+    background-color: #f0f0f0;
+    border-color: #bbb;
+}
+
+.reset-button {
+    margin-top: 10px;
+    background-color: #ffc107; /* Warning color for reset */
+    border-color: #dda600;
+    font-weight: bold;
+}
+
+.reset-button:hover {
+    background-color: #e0a800;
+}
+

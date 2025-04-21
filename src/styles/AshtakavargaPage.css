@@ -1,0 +1,169 @@
+/* src/AshtakavargaPage.css */
+
+.ashtakavarga-page {
+  /* Inherits styles from result-container potentially */
+}
+
+.ashtakavarga-page .result-title {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.ashtakavarga-page .result-section {
+  margin-bottom: 30px;
+}
+
+.ashtakavarga-page .input-summary {
+  max-width: 450px; /* Slightly wider summary */
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  padding: 12px 15px; /* More padding */
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border: 1px solid #eee;
+}
+.ashtakavarga-page .input-summary .result-sub-title {
+    border-bottom: none;
+    margin-bottom: 5px;
+    font-size: 1em; /* Adjust size */
+}
+.ashtakavarga-page .input-summary p {
+    margin: 2px 0;
+    font-size: 0.9em;
+}
+
+/* SAV Table Styles (Kept for reference, but not used for chart) */
+.sav-table-wrapper {
+  max-width: 800px; /* Limit width */
+  margin: 10px auto; /* Center the table */
+  overflow-x: auto;
+  border: 1px solid #ddd; /* Add border to wrapper */
+  border-radius: 4px;
+}
+.sav-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.sav-table th,
+.sav-table td {
+  text-align: center;
+  padding: 8px 5px; /* Adjust padding */
+  min-width: 45px; /* Ensure columns have minimum width */
+  border: 1px solid #eee;
+}
+.sav-table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+.sav-table th:last-child, /* Total column header */
+.sav-table td:last-child { /* Total column value */
+    font-weight: bold;
+    background-color: #f0f0f0; /* Highlight total column */
+}
+
+/* --- SAV Section Styles --- */
+.sav-section {
+  display: flex;          /* Use flexbox */
+  justify-content: center; /* Center child horizontally */
+  align-items: center;    /* Center child vertically (optional) */
+  margin-bottom: 30px;    /* Keep existing margin */
+}
+
+/* Optional: Ensure the SAV chart container doesn't take full width if not needed */
+.sav-section .birth-chart-container {
+  /* max-width: 400px; */ /* Match the new size prop if needed, but flex centering handles it */
+}
+
+
+/* General Table Styles (if not already global) */
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.results-table th,
+.results-table td {
+  border: 1px solid #ddd;
+}
+.results-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+/* Info/Error Text */
+.info-text {
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+    margin-top: 10px;
+}
+.small-info {
+    font-size: 0.9em;
+}
+.error-text {
+    color: #dc3545;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+}
+.chart-key-info {
+  text-align: center;
+  font-size: 0.9em;
+  color: #555;
+  margin-top: -15px; /* Adjust to position below title */
+  margin-bottom: 25px;
+}
+/* --- BAV Chart Grid Styles (4+3 Layout & Centered) --- */
+.bav-chart-grid {
+  display: grid; /* Use CSS Grid */
+  grid-template-columns: repeat(4, 1fr); /* Create 4 equal columns */
+  gap: 25px; /* Increased spacing between charts (rows and columns) */
+  margin-top: 15px;
+  justify-items: center; /* Center items within their grid cell */
+
+  /* --- Modifications for Centering --- */
+  /* Calculate max-width: (chart width * 4) + (gap * 3) */
+  /* Example: (300px * 4) + (25px * 3) = 1200px + 75px = 1275px */
+  max-width: 1275px; /* Set max-width based on 4 charts + gaps */
+  margin-left: auto; /* Center the grid block */
+  margin-right: auto; /* Center the grid block */
+  /* --- End Modifications --- */
+}
+
+/* Style individual chart containers within the grid */
+.bav-chart-grid .birth-chart-container {
+  width: 100%; /* Make container take full width of the grid cell */
+  max-width: 300px; /* Ensure charts don't get too large, match size prop */
+  /* border: 1px dashed lightgray; */ /* Optional border for debugging */
+}
+
+/* Adjust title size for smaller BAV charts */
+.bav-chart-grid .chart-title {
+  font-size: 0.95em; /* Slightly larger title for bigger charts */
+  margin-bottom: 5px;
+  white-space: nowrap; /* Prevent title from wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%; /* Title max width matches container */
+}
+
+/* Responsive adjustment: Switch to 2 columns on smaller screens */
+@media (max-width: 1350px) { /* Adjust breakpoint based on new max-width */
+  .bav-chart-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    /* Recalculate max-width for 2 columns */
+    /* Example: (300px * 2) + 25px = 625px */
+    max-width: 625px;
+  }
+}
+
+/* Responsive adjustment: Switch to 1 column on very small screens */
+@media (max-width: 700px) { /* Adjust breakpoint as needed */
+  .bav-chart-grid {
+    grid-template-columns: 1fr; /* 1 column */
+    max-width: 350px; /* Max width for a single column, slightly larger than chart */
+  }
+  .bav-chart-grid .birth-chart-container {
+     max-width: 300px; /* Match chart size */
+  }
+}

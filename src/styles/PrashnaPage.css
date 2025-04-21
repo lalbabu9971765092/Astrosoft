@@ -1,0 +1,314 @@
+/* src/styles/PrashnaPage.css */
+
+/* --- Main Page Container --- */
+.prashna-page {
+  padding: 20px;
+  max-width: 1600px; /* Keep wide max-width */
+  margin: 0 auto;
+  font-family: sans-serif;
+  box-sizing: border-box; /* Good practice */
+}
+
+.prashna-page h1 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+/* --- Controls Section --- */
+.prashna-controls {
+  background-color: #f8f9fa;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Spacing between rows/elements */
+}
+
+/* --- Form Rows and Input Groups --- */
+.prashna-controls .form-row {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 15px; /* Spacing between items in a row */
+  align-items: center; /* Align items vertically */
+}
+
+.prashna-controls .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px; /* Spacing between label and input */
+  flex: 1; /* Allow groups to grow */
+  min-width: 150px; /* Minimum width before wrapping */
+}
+
+.prashna-controls .input-group.half-width {
+  flex-basis: calc(50% - 8px); /* Adjust basis considering gap */
+}
+
+.prashna-controls .input-group.full-width {
+  flex-basis: 100%;
+}
+
+.prashna-controls .input-group label {
+  font-weight: bold;
+  font-size: 0.9em;
+  color: #495057;
+}
+
+.prashna-controls input[type="text"],
+.prashna-controls input[type="number"],
+.prashna-controls input[type="datetime-local"],
+.prashna-controls select,
+.prashna-controls textarea {
+  padding: 8px 10px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 1em;
+  width: 100%; /* Make inputs fill their container */
+  box-sizing: border-box; /* Include padding and border in width */
+}
+
+.prashna-controls textarea {
+  resize: vertical; /* Allow vertical resize */
+  min-height: 40px;
+}
+
+.prashna-controls input:disabled,
+.prashna-controls select:disabled,
+.prashna-controls textarea:disabled {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+}
+
+/* Specific styling for place/coords groups if needed */
+.prashna-controls .place-group {
+  flex-grow: 3; /* Give place name more space */
+}
+.prashna-controls .find-coords-button {
+  flex-grow: 1;
+  align-self: flex-end; /* Align button to bottom of row */
+  padding-bottom: 2px; /* Align baseline with input */
+}
+
+/* --- Buttons --- */
+.prashna-controls button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95em;
+  transition: background-color 0.2s ease;
+}
+
+.prashna-controls button:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.prashna-controls .calculate-button {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+.prashna-controls .calculate-button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.prashna-controls .action-buttons-row {
+  justify-content: center; /* Center the main calculate button */
+  margin-top: 10px;
+}
+
+.prashna-controls .button-container button,
+.prashna-controls .input-group button {
+  background-color: #6c757d;
+  color: white;
+  width: 100%; /* Make buttons fill container */
+}
+.prashna-controls .button-container button:hover:not(:disabled),
+.prashna-controls .input-group button:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+/* --- Input Summary & Event Selector --- */
+/* These might not be used directly on Prashna page, but kept for consistency */
+.input-summary.small-summary {
+  font-size: 0.85em;
+  color: #555;
+  background-color: #eef;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #cce;
+  margin-bottom: 10px; /* Add some space below */
+}
+
+.life-event-selector.small-selector {
+  margin-bottom: 10px; /* Add space below */
+}
+.life-event-selector label {
+  font-weight: bold;
+  margin-right: 8px;
+}
+.life-event-selector select {
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* --- Results Area --- */
+.prashna-results {
+  margin-top: 30px; /* Consistent margin */
+}
+
+.prashna-results-area {
+  border-top: 2px solid #eee;
+  padding-top: 20px;
+}
+
+/* --- Two Column Layout for Results (Default: Wide Screens > 992px) --- */
+.two-column-layout {
+  display: grid;
+  /* Define column widths using fractions (1 part vs 3 parts) */
+  grid-template-columns: 1fr 3fr; /* First column gets 1 part, second gets 3 parts */
+  gap: 0px; /* Explicitly set gap to 0 */
+  align-items: flex-start; /* Align items to the top */
+}
+
+.results-column {
+  box-sizing: border-box; /* Ensure padding/border are included in width */
+  /* Check for unwanted padding/margin */
+  /* padding: 0; */ /* Uncomment to test if padding is the issue */
+  /* margin: 0; */  /* Uncomment to test if margin is the issue */
+}
+
+/* Column 1: Chart & Tables */
+.two-column-layout .results-column:nth-child(1) {
+  min-width: 260px; /* Minimum width constraint */
+  max-width: 600px; /* Optional: Limit max width */
+  /* Consider adding padding *inside* this column if needed for content */
+  /* padding: 15px; */
+}
+
+/* Column 2: KP Significators */
+.two-column-layout .results-column:nth-child(2) {
+  min-width: 900px; /* Minimum width constraint */
+  /* Consider adding padding *inside* this column if needed for content */
+  /* padding: 15px; */
+}
+
+
+.results-column h3.result-sub-title {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #444;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+  /* Ensure margin doesn't create unwanted space if columns are adjacent */
+  /* margin-left: 15px; */ /* Example: Add margin only if needed */
+  /* margin-right: 15px; */
+}
+
+/* --- Chart and Table Wrappers --- */
+.prashna-chart-wrapper {
+  display: flex;
+  justify-content: center; /* Center the chart */
+  margin-bottom: 20px;
+}
+
+.prashna-tables-wrapper .result-section {
+  margin-bottom: 20px;
+}
+
+.prashna-tables-wrapper .table-wrapper {
+  max-height: 400px; /* Limit table height if needed */
+  overflow-y: auto;
+}
+
+/* --- General Helper Styles --- */
+.loader {
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+  color: #666;
+}
+.small-loader {
+  padding: 5px;
+  font-size: 0.9em;
+}
+.error-text {
+  color: #dc3545;
+  font-weight: bold;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+.small-error {
+  font-size: 0.85em;
+  padding: 5px 8px;
+  margin-top: 5px;
+}
+.info-text {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 15px;
+}
+
+/* --- Responsive Adjustments --- */
+
+/* Medium Screens (<= 992px): Switch to Flexbox, roughly equal columns */
+@media (max-width: 992px) {
+  .two-column-layout {
+    /* Switch layout method */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px; /* Reintroduce gap for flex layout */
+    /* Remove grid-template-columns */
+    grid-template-columns: none;
+  }
+
+  /* Apply flex properties to make columns wrap and be roughly equal */
+   .two-column-layout .results-column:nth-child(1),
+   .two-column-layout .results-column:nth-child(2) {
+      flex-grow: 1;
+      flex-shrink: 1;
+      /* This makes columns roughly equal width on this screen size */
+      flex-basis: 45%;
+      /* Adjust min-width for this breakpoint if needed */
+      min-width: 300px;
+      max-width: none; /* Remove max-width from first column */
+   }
+}
+
+/* Small Screens (<= 768px): Stack columns vertically */
+@media (max-width: 768px) {
+  .two-column-layout {
+    /* Ensure flex is still active from previous media query or set it */
+    display: flex;
+    flex-direction: column; /* Stack the columns */
+    gap: 30px; /* Keep or adjust gap for stacked layout */
+  }
+
+   /* Ensure columns take full width when stacked */
+   .two-column-layout .results-column:nth-child(1),
+   .two-column-layout .results-column:nth-child(2) {
+      flex-grow: 1;
+      flex-shrink: 1;
+      flex-basis: 100%; /* Full width */
+      min-width: unset; /* Remove min-width when stacked */
+      max-width: none; /* Remove max-width */
+   }
+}
+
+/* Reuse KP Significator Grid Styles (ensure KpSignificatorsPage.css is imported or copy styles here) */
+/* Example: */
+/* .significators-grid { ... } */
+/* .significator-grid-item { ... } */
+/* .favorable-house { color: green; font-weight: bold; } */
+/* .unfavorable-house { color: red; font-weight: bold; } */
+/* .neutral-house { color: inherit; } */
+

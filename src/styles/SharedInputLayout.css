@@ -1,0 +1,228 @@
+/* src/SharedInputLayout.css */
+
+/* Main container for the whole layout */
+.shared-layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensure it takes full viewport height */
+}
+
+/* --- Top Horizontal Strip --- */
+.top-strip {
+    display: flex;
+    justify-content: space-between; /* Distribute space between sections */
+    align-items: flex-start; /* Align items to the top */
+    padding: 8px 15px; /* Reduced vertical padding */
+    background-color: #f0f2f5; /* Light background for the strip */
+    border-bottom: 1px solid #d9d9d9;
+    gap: 15px; /* Space between sections */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+}
+
+/* Styling for each section within the top strip */
+.top-strip-section {
+    flex: 1; /* Allow sections to grow and shrink */
+    padding: 8px; /* Reduced padding within sections */
+    background-color: #fff; /* White background for sections */
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    min-width: 280px; /* Minimum width before wrapping */
+    box-sizing: border-box;
+}
+
+/* Specific adjustments for the input form section */
+.input-form-section {
+    /* Add specific styles if needed, maybe slightly more flex-grow */
+    flex-grow: 1.2; /* Give it slightly more space if needed */
+}
+
+/* --- Input Form Styles (within top strip) --- */
+/* Reuse styles from AstrologyForm.css but make them more compact */
+.input-form-section .astrology-form-container {
+    padding: 0; /* Remove extra padding if reusing container */
+}
+
+.input-form-section form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Reduced gap between input groups */
+}
+
+.input-form-section .input-group {
+    display: flex;
+    flex-direction: column; /* Stack label and input */
+    /* Or use flex-direction: row; align-items: center; for side-by-side */
+    gap: 3px; /* Reduced gap between label and input */
+}
+
+.input-form-section .input-group label {
+    font-size: 0.8em; /* Smaller label */
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 0; /* Remove bottom margin */
+}
+
+.input-form-section .input-group input[type="datetime-local"],
+.input-form-section .input-group input[type="text"] {
+    padding: 5px 8px; /* Reduced padding */
+    font-size: 0.9em; /* Slightly smaller font */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    width: 100%; /* Take full width of container */
+}
+
+.input-form-section .button-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px; /* Small space above button */
+}
+
+.input-form-section .button-container button,
+.input-form-section .submit-button-container button {
+    padding: 4px 10px; /* Reduced padding */
+    font-size: 0.85em; /* Smaller font */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    white-space: nowrap; /* Prevent wrapping */
+}
+.input-form-section .button-container button:disabled,
+.input-form-section .submit-button-container button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+.input-form-section .button-container button:hover:not(:disabled),
+.input-form-section .submit-button-container button:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.input-form-section .submit-button-container {
+    margin-top: 5px; /* Reduced margin */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.input-form-section .hint-text,
+.input-form-section .error-text {
+    font-size: 0.75em; /* Smaller hint/error text */
+    margin-top: 2px;
+}
+.input-form-section .small-error {
+    margin-top: 2px;
+}
+
+/* --- Time Adjustment Tool Styles (within top strip) --- */
+.birth-rectification-tool-section .time-adjustment-tool,
+.transit-adjustment-tool-section .time-adjustment-tool {
+    padding: 0; /* Remove extra padding if TimeAdjustmentTool has its own */
+}
+
+.birth-rectification-tool-section .tool-label,
+.transit-adjustment-tool-section .tool-label {
+    font-size: 0.9em; /* Smaller tool label */
+    margin-bottom: 5px;
+    text-align: center;
+    font-weight: bold;
+    color: #333;
+}
+
+.birth-rectification-tool-section .current-time-display,
+.transit-adjustment-tool-section .current-time-display {
+    font-size: 0.85em; /* Smaller time display */
+    text-align: center;
+    margin-bottom: 8px;
+    word-break: break-word; /* Prevent long dates overflowing */
+}
+.birth-rectification-tool-section .current-time-display strong,
+.transit-adjustment-tool-section .current-time-display strong {
+    color: #0056b3;
+}
+
+.birth-rectification-tool-section .adjustment-controls,
+.transit-adjustment-tool-section .adjustment-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Reduced gap between control groups */
+    align-items: center; /* Center controls */
+}
+
+.birth-rectification-tool-section .control-group,
+.transit-adjustment-tool-section .control-group {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Reduced gap within control group */
+}
+.birth-rectification-tool-section .control-group span,
+.transit-adjustment-tool-section .control-group span {
+    font-size: 0.8em;
+    width: 50px; /* Give labels a fixed width */
+    text-align: right;
+    margin-right: 5px;
+}
+
+.birth-rectification-tool-section .control-group button,
+.transit-adjustment-tool-section .control-group button,
+.birth-rectification-tool-section .reset-button,
+.transit-adjustment-tool-section .reset-button {
+    padding: 2px 6px; /* Smaller buttons */
+    font-size: 0.8em;
+    min-width: 35px; /* Ensure buttons have some width */
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+.birth-rectification-tool-section .reset-button,
+.transit-adjustment-tool-section .reset-button {
+    margin-top: 5px;
+    background-color: #dc3545;
+}
+
+.tool-placeholder {
+    font-size: 0.85em;
+    color: #666;
+    text-align: center;
+    padding: 10px;
+}
+
+
+/* --- Main Content Area --- */
+.content-area {
+    flex-grow: 1; /* Allow content area to take remaining vertical space */
+    padding: 15px; /* Padding around the main content */
+    background-color: #ffffff; /* White background for content */
+    overflow-y: auto; /* Allow scrolling if content overflows */
+}
+
+/* --- Loader Styles --- */
+.loader {
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    display: inline-block; /* Make it inline */
+    vertical-align: middle; /* Align with text/buttons */
+}
+.small-loader {
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+}
+.main-loader { /* Loader specifically for main calculation status */
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,292 @@
+/* src/AstrologyFormContent.css */
+
+/* Main layout for the 3 columns */
+.astrology-form-content {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping */
+    gap: 20px; /* Space between columns */
+    padding: 15px;
+    background-color: #f8f9fa; /* Light background for the content area */
+    align-items: flex-start; /* Align columns to the top */
+}
+
+/* Styling for each column */
+.results-column {
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Space between sections within a column */
+    box-sizing: border-box; /* Include padding/border in width calculation */
+}
+
+/* Column widths (1:2:1 ratio intended) */
+.left-column {
+    flex: 1 1 25%; /* Grow:1, Shrink:1, Basis:25% */
+    min-width: 270px; /* Minimum width */
+}
+
+.middle-column {
+    flex: 2 1 45%; /* Grow:2, Shrink:1, Basis:45% */
+    min-width: 450px; /* Minimum width to accommodate charts better */
+}
+
+.right-column {
+    flex: 1 1 25%; /* Grow:1, Shrink:1, Basis:25% */
+    min-width: 270px; /* Minimum width */
+}
+
+/* Column Title Styling */
+.column-title {
+    text-align: center;
+    margin-top: 0; /* Remove default top margin */
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 1.3em;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* --- Styles for 2x2 Chart Grid --- */
+.charts-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Responsive 2 columns */
+    gap: 15px; /* Space between chart cells */
+    margin-bottom: 20px; /* Space below the chart grid */
+}
+
+.chart-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center chart horizontally */
+    justify-content: flex-start; /* Align content to top */
+    padding: 10px; /* Adjusted padding */
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #fdfdfd;
+    min-height: 280px; /* Ensure cells have some minimum height, adjust as needed */
+    box-sizing: border-box;
+}
+
+/* Style the DiamondChart container within a cell */
+.chart-cell .birth-chart-container {
+   width: 100%; /* Make chart container take cell width */
+   max-width: 250px; /* Max width of the chart itself */
+   margin: 0 auto; /* Center container if cell is wider */
+}
+.chart-cell .birth-chart-container h4 { /* Chart Title */
+    margin-bottom: 5px;
+    text-align: center;
+    font-size: 0.85em; /* Smaller title for grid */
+    font-weight: bold;
+    color: #444;
+}
+.chart-cell .diamond-chart-svg {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Remove extra space below SVG */
+    margin: 0 auto; /* Center SVG if container is wider */
+}
+
+/* Placeholder style for when chart data is missing */
+.chart-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #888;
+    font-size: 0.9em;
+    padding: 20px;
+    min-height: 250px; /* Match chart size */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* --- Existing styles for sections, tables, etc. --- */
+.result-section {
+    border-top: 1px solid #f0f0f0;
+    padding-top: 15px;
+}
+.result-section:first-of-type { /* Remove top border for the first section */
+    border-top: none;
+    padding-top: 0;
+}
+
+.input-summary p {
+    margin: 4px 0;
+    font-size: 0.9em;
+    line-height: 1.3;
+}
+.input-summary strong {
+    color: #555;
+}
+
+.result-sub-title {
+    margin-bottom: 10px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #555;
+}
+.result-text {
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+.table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    border: 1px solid #eee; /* Add border to wrapper for clarity */
+    border-radius: 4px;
+}
+.small-table .results-table {
+    font-size: 0.85em;
+}
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0; /* Remove margin if wrapper has it */
+}
+.results-table th,
+.results-table td {
+    border: 1px solid #ddd;
+    padding: 4px 6px;
+    text-align: left;
+    white-space: nowrap;
+}
+.results-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    position: sticky; /* Keep header sticky within wrapper */
+    top: 0;
+    z-index: 1;
+}
+.results-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Loading/Error/Placeholder styles */
+.loading-overlay, .error-overlay {
+    position: fixed; /* Cover the whole viewport */
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3em;
+    z-index: 100; /* Ensure it's on top */
+    text-align: center;
+    padding: 20px;
+}
+.error-overlay { color: red; }
+.placeholder-message {
+    text-align: center;
+    padding: 50px;
+    color: #666;
+    font-size: 1.1em;
+    margin-top: 30px;
+}
+.info-text { color: #666; font-size: 0.9em; }
+.error-text { color: #dc3545; font-size: 0.9em; }
+.small-error { font-size: 0.8em; }
+
+/* Basic loader styles (you might replace with a spinner component) */
+.loader {
+    border: 4px solid #f3f3f3; /* Light grey */
+    border-top: 4px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 10px auto; /* Center loader */
+}
+.small-loader {
+    width: 16px;
+    height: 16px;
+    border-width: 2px;
+    margin: 0 5px; /* Adjust margin for inline use */
+    display: inline-block; /* For inline use */
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Dosha Styles */
+.dosha-details .result-text {
+    display: flex; /* Align label and status */
+    justify-content: space-between; /* Space out label and status */
+    align-items: center;
+    margin-bottom: 4px; /* Adjust spacing */
+}
+
+.dosha-status {
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.dosha-present {
+    color: #dc3545; /* Red */
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #dc3545;
+}
+
+.dosha-absent {
+    color: #28a745; /* Green */
+    background-color: #d4edda; /* Light green background */
+    border: 1px solid #28a745;
+}
+
+.dosha-na,
+.dosha-error {
+    color: #6c757d; /* Grey */
+    background-color: #e9ecef; /* Light grey background */
+    border: 1px solid #adb5bd;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1100px) { /* Breakpoint where 3 columns might get tight */
+    .left-column, .right-column {
+        flex-basis: calc(50% - 10px); /* Make side columns take half width */
+        min-width: unset; /* Remove min-width */
+    }
+    .middle-column {
+        flex-basis: 100%; /* Make middle column full width */
+        order: -1; /* Move middle column (charts) to the top */
+        min-width: unset; /* Remove min-width */
+    }
+    .charts-grid-2x2 {
+        /* Ensure grid still works well when middle column is full width */
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
+
+@media (max-width: 700px) { /* Stack all to 1 column */
+  .astrology-form-content {
+    flex-direction: column; /* Stack all columns */
+    gap: 15px;
+  }
+  .results-column {
+    flex-basis: 100% !important; /* Full width when stacked, override previous basis */
+    order: 0 !important; /* Reset order */
+    margin-bottom: 0;
+    min-width: unset; /* Remove min-width */
+  }
+  .charts-grid-2x2 {
+      grid-template-columns: 1fr; /* Single column for charts */
+      gap: 10px;
+  }
+  .chart-cell {
+      min-height: unset; /* Remove min-height */
+  }
+  .results-table th,
+  .results-table td {
+      white-space: normal; /* Allow wrapping in tables */
+  }
+}

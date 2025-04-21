@@ -1,0 +1,96 @@
+/* src/App.css */
+
+.App {
+  /* text-align: center; */ /* Removed default centering for better layout control */
+  /* Optional: Add some padding at the top if the nav is fixed or overlaps */
+  /* padding-top: 60px; */
+}
+
+/* --- Navigation Styles --- */
+.main-nav {
+  background-color: #f0f0f0; /* Light grey background */
+  padding: 10px 0;
+  margin-bottom: 20px; /* Space below the nav */
+  border-bottom: 1px solid #ccc; /* Subtle border */
+  /* position: fixed; */ /* Uncomment if you want a fixed navbar */
+  /* top: 0; */
+  /* left: 0; */
+  /* width: 100%; */
+  /* z-index: 1000; */ /* Ensure it's above other content if fixed */
+}
+
+.main-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center; /* Center the links */
+  gap: 25px; /* Space between links */
+}
+
+.main-nav li {
+  display: inline; /* Keep items in a row */
+}
+
+.main-nav a {
+  text-decoration: none;
+  color: #333; /* Dark grey text */
+  font-weight: bold;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.main-nav a:hover {
+  background-color: #ddd; /* Slightly darker grey on hover */
+  color: #000;
+}
+
+/* Consider using NavLink from react-router-dom for active styling */
+/* Example:
+   import { NavLink } from 'react-router-dom';
+   ...
+   <li><NavLink to="/" className={({ isActive }) => isActive ? 'active-link' : ''}>Main</NavLink></li>
+   ...
+   .main-nav a.active-link { background-color: #ccc; }
+*/
+/* --- End Navigation Styles --- */
+
+
+/* --- Default Create React App Styles (Keep or Remove as needed) --- */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* --- End Default Styles --- */
+

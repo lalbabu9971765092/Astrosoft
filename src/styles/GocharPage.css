@@ -1,0 +1,196 @@
+/* GocharPage.css */
+
+.gochar-page .result-title {
+  margin-bottom: 25px; /* More space below title */
+  text-align: center;
+}
+
+/* --- Three-Column Layout --- */
+.gochar-layout-container {
+  display: flex;
+  justify-content: space-between; /* Distribute space */
+  align-items: flex-start; /* Align columns to the top */
+  gap: 20px; /* Space between columns */
+  width: 100%;
+  margin-top: 15px; /* Space above the layout */
+}
+
+.gochar-column {
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: #fdfdfd;
+  box-sizing: border-box;
+}
+
+/* Column Widths */
+.gochar-column-natal,
+.gochar-column-transit {
+  flex: 1 1 25%; /* Grow:1, Shrink:1, Basis:25% */
+  max-width: 320px; /* Increased max-width slightly */
+  min-width: 260px; /* Adjusted minimum width */
+}
+
+.gochar-column-chart {
+  flex: 2 1 45%; /* Grow:2, Shrink:1, Basis:45% */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0; /* Adjust padding for chart column */
+  border: none; /* Remove border/background from chart column itself */
+  background-color: transparent;
+  min-width: 300px; /* Ensure chart column has some min width */
+}
+/* --- End Three-Column Layout --- */
+
+
+/* Styles for content within columns */
+.gochar-column .result-section {
+  margin-bottom: 0; /* Remove bottom margin inside columns */
+  border: none; /* Remove internal borders */
+  padding: 0; /* Remove internal padding */
+  background-color: transparent; /* Make transparent */
+}
+
+.gochar-column .result-sub-title {
+  margin-top: 0;
+  font-size: 1.1em;
+  color: #555;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  margin-bottom: 15px; /* Increased margin */
+}
+
+.gochar-column .input-summary p {
+    margin-bottom: 6px;
+    font-size: 0.9em;
+    line-height: 1.4; /* Improve readability */
+}
+
+/* Styles for the planet degree tables */
+.planet-degree-table-section {
+  margin-top: 15px;
+}
+
+.small-sub-title {
+  font-size: 1em;
+  margin-bottom: 8px; /* Increased margin */
+  color: #666;
+  text-align: center; /* Center table titles */
+  border-bottom: none; /* Remove border from small titles */
+}
+
+.table-wrapper.small-table {
+  max-height: 300px; /* Increased height */
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  margin-top: 5px;
+  border-radius: 4px; /* Add rounding */
+}
+
+.results-table.planet-degrees {
+  font-size: 0.85em;
+  width: 100%; /* Ensure table fills wrapper */
+  border-collapse: collapse;
+}
+
+.results-table.planet-degrees th,
+.results-table.planet-degrees td {
+  padding: 5px 8px; /* Increased padding */
+  border: 1px solid #eee; /* Lighter border */
+  white-space: nowrap; /* Keep nowrap for alignment */
+}
+.results-table.planet-degrees th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+.results-table.planet-degrees td:last-child {
+    text-align: right; /* Align degrees to the right */
+}
+.results-table.planet-degrees tbody tr:nth-child(even) {
+    background-color: #fdfdfd; /* Subtle striping */
+}
+
+
+/* Chart Area Styling (within the middle column) */
+.gochar-chart-area {
+  width: 100%;
+  max-width: 500px; /* Match chart size */
+  margin: 0 auto; /* Center if column is wider */
+}
+
+/* Placeholder for chart area */
+.chart-placeholder-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 500px; /* Match chart size */
+    min-height: 300px; /* Give placeholder some height */
+    margin: 0 auto;
+    background-color: #f8f9fa;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    color: #6c757d;
+    text-align: center;
+}
+
+
+/* Tiny Loaders/Errors for info sections */
+.tiny-loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+    margin: 5px auto;
+    display: block; /* Make block to center with auto margin */
+}
+
+.tiny-error {
+    font-size: 0.8em;
+    color: #dc3545;
+    margin-top: 5px;
+    text-align: center;
+}
+
+/* Keyframes for spin animation */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments for the new layout */
+@media (max-width: 992px) { /* Stack columns */
+  .gochar-layout-container {
+    flex-direction: column; /* Stack columns */
+    align-items: center; /* Center items when stacked */
+  }
+  .gochar-column-natal,
+  .gochar-column-transit {
+    max-width: 700px; /* Allow info columns to be wider when stacked */
+    width: 100%; /* Take full width */
+    flex-basis: auto; /* Reset basis */
+  }
+  .gochar-column-chart {
+    order: -1; /* Move chart to the top when stacked */
+    width: 100%;
+    flex-basis: auto; /* Reset basis */
+  }
+}
+
+@media (max-width: 500px) { /* Adjustments for very small screens */
+    .gochar-column-natal,
+    .gochar-column-transit {
+        min-width: unset; /* Remove min-width */
+    }
+    .results-table.planet-degrees {
+        font-size: 0.8em; /* Smaller font in tables */
+    }
+     .results-table.planet-degrees th,
+    .results-table.planet-degrees td {
+        padding: 3px 5px; /* Tighter padding */
+    }
+}
