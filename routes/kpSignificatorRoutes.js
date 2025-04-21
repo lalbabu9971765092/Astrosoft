@@ -1,0 +1,205 @@
+// routes/kpSignificatorRoutes.js
+import express from 'express'; // Changed
+import { body, validationResult } from 'express-validator'; // Changed
+
+// --- Import Logger ---
+import logger from '../utils/logger.js'; // Added logger import
+
+// --- Import Shared Utilities ---
+import { // Changed
+    RASHI_LORDS,
+    PLANET_ORDER,
+    normalizeAngle,
+    getJulianDateUT,
+    calculateAyanamsa,
+    calculateHousesAndAscendant,
+    calculatePlanetaryPositions,
+    getRashiDetails,
+    calculateAspects,
+    getHouseOfPlanet // Ensure this is exported from planetaryUtils or kpUtils
+} from '../utils/index.js'; // Assuming utils/index.js exports everything
+
+const router = express.Router();
+
+// --- Helper Function for Error Handling ---
+function handleRouteError(res, error, routeName, inputData = {}) {
+    // Use logger instead of console.error
+    logger.error(`Error in ${routeName} route: ${error.message}`, {
+        routeName,
+        // input: inputData, // Be cautious logging full input in production
+        error: error.stack || error // Log stack trace
+    });
+
+    const statusCode = error.status || 500;
+    const isProduction = process.env.NODE_ENV === 'production';
+    const errorMessage = (isProduction && statusCode === 500)
+        ? "An internal server error occurred. Please try again later."
+        : error.message || "An internal server error occurred.";
+
+    // Avoid sending stack trace in production response
+    const errorResponse = { error: errorMessage };
+    if (!isProduction && error.stack) {
+        errorResponse.stack = error.stack.split('\n'); // Optionally include stack in dev
+    }
+
+    res.status(statusCode).json(errorResponse);
+}
+
+
+// --- KP Significator Specific Helper Functions ---
+// Moved getHouseOfPlanet to planetaryUtils.js
+
+function getHousesRuledByPlanet(planetName, siderealCuspStartDegrees) {
+    const ruledHouses = new Set();
+    if (!planetName || !Array.isArray(siderealCuspStartDegrees) || siderealCuspStartDegrees.length !== 12) {
+        return [];
+    }
+    const ruledRashiIndices = [];
+    RASHI_LORDS.forEach((lord, index) => {
+        if (lord === planetName) {
+            ruledRashiIndices.push(index);
+        }
+    });
+    if (ruledRashiIndices.length === 0) {
+        return [];
+    }
+    for (let i = 0; i < 12; i++) {
+        const cuspStartDeg = siderealCuspStartDegrees[i];
+        if (isNaN(cuspStartDeg)) continue;
+        const cuspRashiDetails = getRashiDetails(cuspStartDeg);
+        if (cuspRashiDetails && ruledRashiIndices.includes(cuspRashiDetails.index)) {
+            ruledHouses.add(i + 1);
+        }
+    }
+    return Array.from(ruledHouses).sort((a, b) => a - b);
+}
+
+function formatHouseNumbers(houses) {
+    if (!houses) return "";
+    const houseArray = Array.isArray(houses) ? houses : Array.from(houses);
+    if (houseArray.length === 0) return "";
+    const numericHouses = houseArray.map(Number).filter(n => !isNaN(n));
+    return numericHouses.sort((a, b) => a - b).join(', ');
+}
+
+function getEntitySignifications(entityName, allPlanetData, siderealCuspStartDegrees, aspectingPlanets = []) {
+    const entityData = allPlanetData[entityName];
+    const result = {
+        name: entityName, occupiedHouses: "", ownedHouses: "",
+        signLordOwnedHouses: "", aspectingOwnedHouses: "",
+    };
+    if (!entityData || typeof entityData.longitude !== 'number' || isNaN(entityData.longitude)) {
+        logger.warn(`No valid position data found for entity: ${entityName}`); // Use logger
+        return result;
+    }
+    const isNode = entityName === 'Rahu' || entityName === 'Ketu';
+    const houseOccupied = getHouseOfPlanet(entityData.longitude, siderealCuspStartDegrees);
+    result.occupiedHouses = houseOccupied !== null ? String(houseOccupied) : "";
+    if (isNode) {
+        const signLord = entityData.rashiLord;
+        if (signLord && signLord !== "N/A" && signLord !== "Error") {
+            const signLordHouses = getHousesRuledByPlanet(signLord, siderealCuspStartDegrees);
+            result.signLordOwnedHouses = formatHouseNumbers(signLordHouses);
+        }
+    } else {
+        const housesOwned = getHousesRuledByPlanet(entityName, siderealCuspStartDegrees);
+        result.ownedHouses = formatHouseNumbers(housesOwned);
+    }
+    if (isNode && aspectingPlanets.length > 0) {
+        const aspectingOwned = new Set();
+        aspectingPlanets.forEach(aspectingPlanetName => {
+            if (aspectingPlanetName !== 'Rahu' && aspectingPlanetName !== 'Ketu') {
+                 const houses = getHousesRuledByPlanet(aspectingPlanetName, siderealCuspStartDegrees);
+                 houses.forEach(h => aspectingOwned.add(h));
+            }
+        });
+        result.aspectingOwnedHouses = formatHouseNumbers(aspectingOwned);
+    }
+    return result;
+}
+
+// --- Validation Rules ---
+const kpValidation = [
+    body('date').isISO8601().withMessage('Invalid date format. Expected ISO8601 (YYYY-MM-DDTHH:MM:SS).'),
+    body('latitude').isFloat({ min: -90, max: 90 }).toFloat().withMessage('Latitude must be a number between -90 and 90.'),
+    body('longitude').isFloat({ min: -180, max: 180 }).toFloat().withMessage('Longitude must be a number between -180 and 180.')
+];
+
+// --- Route Definition ---
+router.post('/', kpValidation, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+        const { date } = req.body;
+        const latNum = req.body.latitude;
+        const lonNum = req.body.longitude;
+
+        logger.info(`Starting KP Significator calculation for date=${date}, lat=${latNum}, lon=${lonNum}`); // Use logger
+
+        const { julianDayUT, utcDate } = getJulianDateUT(date, lonNum);
+        const ayanamsa = calculateAyanamsa(julianDayUT);
+        const { tropicalCusps, tropicalAscendant } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
+
+        // --- ADD NULL CHECK HERE ---
+        if (!tropicalCusps) {
+            // Throw an error if cusps couldn't be calculated (even after fallback)
+            throw new Error("Failed to calculate house cusps, cannot proceed with KP significator calculation.");
+        }
+        // --- END NULL CHECK ---
+        const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
+        const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
+        const siderealPositions = planetaryPositions.sidereal;
+        const aspects = calculateAspects(siderealPositions);
+
+        const kpSignificatorsDetailed = [];
+        PLANET_ORDER.forEach(planetName => {
+            const planetSignificatorData = {
+                name: planetName, occupiedHouses: "", ownedHouses: "",
+                signLordOwnedHouses: "", aspectingOwnedHouses: "",
+                nakshatraLord: null, subLord: null,
+            };
+            const planetInfo = siderealPositions[planetName];
+            if (!planetInfo || typeof planetInfo.longitude !== 'number' || isNaN(planetInfo.longitude)) {
+                logger.warn(`Skipping detailed significators for ${planetName}: Missing base data.`); // Use logger
+                planetSignificatorData.nakshatraLord = { name: planetInfo?.nakLord || "N/A" };
+                planetSignificatorData.subLord = { name: planetInfo?.subLord || "N/A" };
+                kpSignificatorsDetailed.push(planetSignificatorData);
+                return;
+            }
+            const nakLordName = planetInfo.nakLord;
+            const subLordName = planetInfo.subLord;
+            const planetAspects = aspects[planetName] || [];
+            const planetData = getEntitySignifications(planetName, siderealPositions, siderealCuspStartDegrees, planetAspects);
+            planetSignificatorData.occupiedHouses = planetData.occupiedHouses;
+            planetSignificatorData.ownedHouses = planetData.ownedHouses;
+            planetSignificatorData.signLordOwnedHouses = planetData.signLordOwnedHouses;
+            planetSignificatorData.aspectingOwnedHouses = planetData.aspectingOwnedHouses;
+            if (nakLordName && nakLordName !== "N/A" && nakLordName !== "Error") {
+                 const nlAspects = aspects[nakLordName] || [];
+                 planetSignificatorData.nakshatraLord = getEntitySignifications(nakLordName, siderealPositions, siderealCuspStartDegrees, nlAspects);
+            } else {
+                 planetSignificatorData.nakshatraLord = { name: nakLordName || "N/A" };
+            }
+            if (subLordName && subLordName !== "N/A" && subLordName !== "Error") {
+                 const slAspects = aspects[subLordName] || [];
+                 planetSignificatorData.subLord = getEntitySignifications(subLordName, siderealPositions, siderealCuspStartDegrees, slAspects);
+            } else {
+                 planetSignificatorData.subLord = { name: subLordName || "N/A" };
+            }
+            kpSignificatorsDetailed.push(planetSignificatorData);
+        });
+
+        const responsePayload = {
+            inputParameters: { date, latitude: latNum, longitude: lonNum, utcDate: utcDate.toISOString(), julianDayUT, ayanamsa },
+            kpSignificatorsData: kpSignificatorsDetailed,
+        };
+        logger.info(`KP Significator calculation successful for date=${date}`); // Use logger
+        res.json(responsePayload);
+    } catch (error) {
+        handleRouteError(res, error, '/kp-significators', req.body);
+    }
+});
+
+export default router; // Changed
