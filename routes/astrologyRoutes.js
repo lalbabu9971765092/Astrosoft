@@ -1,7 +1,7 @@
 // routes/astrologyRoutes.js
 import express from 'express'; // Using import syntax
 import mongoose from 'mongoose';
-import { body, query, validationResult } from 'express-validator';
+import { body, query, param, validationResult } from 'express-validator';
 import Chart from '../models/Chart.js';
 // --- Import Logger ---
 import logger from '../utils/logger.js';
