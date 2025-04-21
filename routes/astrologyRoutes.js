@@ -294,7 +294,38 @@ router.get('/charts', paginationValidation, async (req, res) => {
         handleRouteError(res, error, 'GET /charts');
     }
 });
+router.delete('/charts/:id', deleteChartValidation, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
 
+    try {
+        const chartId = req.params.id; // ID is validated as MongoId
+
+        logger.info(`Attempting to delete chart with ID: ${chartId}`);
+
+        const deletedChart = await Chart.findByIdAndDelete(chartId);
+
+        if (!deletedChart) {
+            logger.warn(`Chart not found for deletion with ID: ${chartId}`);
+            return res.status(404).json({ error: 'Chart not found.' });
+        }
+
+        logger.info(`Successfully deleted chart: ${deletedChart.name} (ID: ${chartId})`);
+
+        // Respond with success
+        // Option 1: 200 OK with a message
+        res.status(200).json({ message: `Chart '${deletedChart.name}' deleted successfully.` });
+
+        // Option 2: 204 No Content (often used for DELETE success)
+        // res.status(204).send();
+
+    } catch (error) {
+        // Use the centralized error handler
+        handleRouteError(res, error, `DELETE /charts/${req.params.id}`, { id: req.params.id });
+    }
+});
 
 // --- Route: Calculate Prashna Chart based on Number ---
 router.post('/calculate-prashna-number', prashnaValidation, async (req, res) => {
