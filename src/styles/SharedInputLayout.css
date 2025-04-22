@@ -407,3 +407,113 @@
     padding: 15px;
   }
 }
+
+
+/* --- Collapse Functionality --- */
+
+.input-form-section {
+    position: relative; /* Needed for absolute positioning of the button */
+    transition: max-height 0.5s ease-out, padding-top 0.5s ease-out, padding-bottom 0.5s ease-out, opacity 0.3s ease-out 0.1s, border-width 0.5s ease-out; /* Smooth transition */
+    max-height: 1000px; /* Adjust if your form is taller */
+    overflow: hidden; /* Hide content when collapsing */
+    opacity: 1;
+    padding-top: 10px; /* Example padding */
+    padding-bottom: 30px; /* Ensure space below form content for button */
+    border: 1px solid #ddd; /* Example border */
+    margin-bottom: 15px; /* Example margin */
+}
+
+.input-form-section.collapsed {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    border-width: 0; /* Collapse border */
+    margin-bottom: 0; /* Collapse margin */
+    transition: max-height 0.4s ease-in, padding-top 0.4s ease-in, padding-bottom 0.4s ease-in, opacity 0.2s ease-in, border-width 0.4s ease-in; /* Faster collapse */
+}
+
+/* Style the toggle button */
+.collapse-toggle-button {
+    position: absolute;
+    bottom: 5px; /* Position near the bottom border */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10; /* Ensure it's above the collapsing content */
+    padding: 3px 8px;
+    font-size: 1em; /* Adjust icon size */
+    line-height: 1; /* Ensure icon vertical alignment */
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: background-color 0.2s, bottom 0.5s ease-out; /* Transition bottom position */
+    color: #555;
+}
+.collapse-toggle-button:hover {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+/* Adjust button position when collapsed */
+.input-form-section.collapsed .collapse-toggle-button {
+    bottom: -15px; /* Move button down slightly when collapsed */
+    /* Or adjust based on how you want it to look when collapsed */
+}
+
+
+/* Ensure the form itself is hidden when collapsed */
+.input-form-section.collapsed form {
+    visibility: hidden;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+
+/* Adjust top-strip layout if needed */
+.top-strip {
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+    gap: 15px; /* Adjust gap as needed */
+    padding: 10px;
+    background-color: #f8f9fa; /* Light background */
+    border-bottom: 1px solid #dee2e6;
+    position: relative;
+    flex-wrap: wrap;
+}
+
+.top-strip-section {
+    flex: 1;
+    min-width: 280px; /* Adjust min-width */
+    background-color: #fff; /* Give sections a background */
+    padding: 10px 15px; /* Add padding */
+    border-radius: 4px; /* Rounded corners */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow */
+}
+
+/* Specific width for the central input section */
+.input-form-section {
+    flex-basis: 45%; /* Adjust percentage */
+    flex-grow: 1.5; /* Allow it to take slightly more space */
+}
+
+/* Adjust other sections */
+.birth-rectification-tool-section,
+.transit-adjustment-tool-section {
+    flex-basis: 25%;
+    flex-grow: 1;
+}
+
+/* --- End Collapse Functionality --- */
