@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 // --- Import Icons ---
-import { FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FaChevronUp, FaChevronDown, FaEdit } from 'react-icons/fa'; // Added FaEdit for collapsed state
 // --- Import Styles ---
 import '../styles/SharedInputLayout.css';
 import '../styles/AstrologyForm.css'; // Keep if styles are shared
@@ -21,6 +21,7 @@ const SharedInputLayout = () => {
     const { t } = useTranslation();
 
     // --- State ---
+    // ... (all your existing state variables: date, coords, placeName, isLoading, etc.) ...
     const [date, setDate] = useState('');
     const [coords, setCoords] = useState('');
     const [placeName, setPlaceName] = useState('');
@@ -46,10 +47,11 @@ const SharedInputLayout = () => {
     const [deletingChartId, setDeletingChartId] = useState(null);
     const [deletingChartError, setDeletingChartError] = useState(null);
 
-    // *** NEW STATE for Collapse Functionality ***
-    const [isInputCollapsed, setIsInputCollapsed] = useState(false);
+    // *** RENAMED STATE for clarity ***
+    const [isTopStripCollapsed, setIsTopStripCollapsed] = useState(false);
 
-    // --- Effects ---
+    // --- Effects (Keep existing effects) ---
+    // ... (useEffect for initial load, useEffect for adjustedBirthDateTimeString) ...
     useEffect(() => {
         // Set initial date/time input to current local time
         const now = new Date();
@@ -99,9 +101,11 @@ const SharedInputLayout = () => {
         }
     }, [calculationInputParams]);
 
-    // --- Handlers ---
-    // Geocoding Handler
-    const handleFindCoordinates = useCallback(async () => {
+
+    // --- Handlers (Keep existing handlers) ---
+    // ... (handleFindCoordinates, handleCalculateAll, handleBirthTimeChange, handleGocharTimeChange, fetchSavedCharts, handleSaveChart, handleLoadChart, handleDeleteChart) ...
+     // Geocoding Handler
+     const handleFindCoordinates = useCallback(async () => {
         if (!placeName.trim() || placeName === t('sharedLayout.currentLocationDefault', "Current Location")) {
             alert(t('sharedLayout.alertEnterPlace'));
             return;
@@ -287,6 +291,7 @@ const SharedInputLayout = () => {
         } finally { setIsDeletingChart(false); setDeletingChartId(null); }
     }, [fetchSavedCharts, t]);
 
+
     // --- Memos ---
     const locationForGocharTool = useMemo(() => {
         const coordsValidation = parseAndValidateCoords(coords);
@@ -300,15 +305,33 @@ const SharedInputLayout = () => {
     }, [coords, calculationInputParams]);
 
     // --- NEW: Toggle Handler ---
-    const toggleInputCollapse = () => {
-        setIsInputCollapsed(prev => !prev);
+    const toggleTopStripCollapse = () => {
+        setIsTopStripCollapsed(prev => !prev);
     };
 
     // --- RENDER ---
     return (
         <div className="shared-layout-container">
-            {/* Top Strip */}
-            <div className="top-strip">
+            {/* Top Strip - Apply collapsed class here */}
+            <div
+                id="top-strip-controls" // Add ID for aria-controls
+                className={`top-strip ${isTopStripCollapsed ? 'collapsed' : ''}`}
+            >
+                {/* --- ADD GLOBAL TOGGLE BUTTON --- */}
+                <button
+                    onClick={toggleTopStripCollapse}
+                    className="top-strip-toggle-button"
+                    title={isTopStripCollapsed ? t('sharedLayout.expandInputs') : t('sharedLayout.collapseInputs')}
+                    aria-expanded={!isTopStripCollapsed}
+                    aria-controls="top-strip-controls" // Controls the whole strip
+                >
+                    {isTopStripCollapsed ? <FaEdit /> : <FaChevronUp />} {/* Edit icon when collapsed */}
+                    <span className="sr-only"> {/* Screen reader text */}
+                        {isTopStripCollapsed ? t('sharedLayout.expandInputs') : t('sharedLayout.collapseInputs')}
+                    </span>
+                </button>
+
+                {/* --- Existing Sections (will be hidden by CSS when collapsed) --- */}
                 {/* Birth Time Rectification Tool */}
                 <div className="top-strip-section birth-rectification-tool-section">
                     {calculationInputParams?.date && adjustedBirthDateTimeString ? (
@@ -324,14 +347,10 @@ const SharedInputLayout = () => {
                     )}
                 </div>
 
-                {/* Input Form Section - ADD CONDITIONAL CLASS and ID */}
-                <div
-                    id="main-input-form-section" // Add ID for aria-controls
-                    className={`top-strip-section input-form-section astrology-form-container ${isInputCollapsed ? 'collapsed' : ''}`}
-                >
-                    {/* --- Existing Form --- */}
+                {/* Input Form Section */}
+                <div className="top-strip-section input-form-section astrology-form-container">
+                    {/* Form content remains the same */}
                     <form onSubmit={handleCalculateAll} noValidate>
-                        {/* Form content remains the same */}
                         {/* Row 1: Name & Gender */}
                         <div className="form-row">
                             <div className="input-group half-width">
@@ -400,19 +419,7 @@ const SharedInputLayout = () => {
                          {error && <p className="error-text small-error calculation-error" role="alert">{t('sharedLayout.calculationErrorPrefix')}: {error}</p>}
                          {savingChartError && <p className="error-text small-error save-load-error" role="alert">{t('sharedLayout.saveErrorPrefix')}: {savingChartError}</p>}
                     </form>
-                    {/* *** ADD TOGGLE BUTTON *** */}
-                    <button
-                        onClick={toggleInputCollapse}
-                        className="collapse-toggle-button"
-                        title={isInputCollapsed ? t('sharedLayout.expandInputs') : t('sharedLayout.collapseInputs')}
-                        aria-expanded={!isInputCollapsed}
-                        aria-controls="main-input-form-section" // Links button to the section it controls
-                    >
-                        {isInputCollapsed ? <FaChevronDown /> : <FaChevronUp />}
-                        <span className="sr-only"> {/* Screen reader text */}
-                            {isInputCollapsed ? t('sharedLayout.expandInputs') : t('sharedLayout.collapseInputs')}
-                        </span>
-                    </button>
+                    {/* REMOVED the individual collapse button from here */}
                 </div>
 
                 {/* Gochar Time Progression Tool */}
@@ -431,7 +438,7 @@ const SharedInputLayout = () => {
                 </div>
             </div> {/* End Top Strip */}
 
-            {/* Load Chart Modal */}
+            {/* Load Chart Modal (Keep as is) */}
             {showLoadModal && (
                 <div className="modal-overlay" onClick={() => { setShowLoadModal(false); setDeletingChartError(null); }}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -462,7 +469,7 @@ const SharedInputLayout = () => {
                 </div>
             )}
 
-            {/* Content Area */}
+            {/* Content Area (This will shift up) */}
             <div className="content-area">
                 <Outlet context={{
                     mainResult, kpResult, isLoading, error, calculationInputParams,

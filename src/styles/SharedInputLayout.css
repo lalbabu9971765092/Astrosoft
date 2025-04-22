@@ -10,237 +10,84 @@
 
 /* --- Top Strip --- */
 .top-strip {
+  position: relative; /* Needed for positioning the toggle button */
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* Align items to the top */
+  align-items: flex-start;
   padding: 10px;
-  background-color: #f8f9fa; /* Light background for the strip */
+  background-color: #f8f9fa;
   border-bottom: 1px solid #dee2e6;
   flex-shrink: 0; /* Prevent strip from shrinking */
-  gap: 15px; /* Add space between sections */
-  overflow-x: auto; /* Allow horizontal scrolling if content overflows */
-  overflow-y: hidden;
+  gap: 15px;
+  overflow: hidden; /* Hide content when collapsing */
+  transition: max-height 0.5s ease-out, padding 0.5s ease-out; /* Smooth transition */
+  max-height: 500px; /* Adjust based on your content's max expected height */
 }
 
 .top-strip-section {
-  flex: 1; /* Allow sections to grow */
-  min-width: 280px; /* Minimum width for each section */
+  flex: 1;
+  min-width: 280px;
   padding: 5px;
   border: 1px solid #e9ecef;
   border-radius: 5px;
   background-color: #fff;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: opacity 0.3s ease-out, visibility 0s linear 0.3s; /* Fade out content */
+  opacity: 1;
+  visibility: visible;
 }
 
-/* Specific section styling if needed */
+/* Specific section styling */
 .birth-rectification-tool-section,
 .transit-adjustment-tool-section {
-  flex-basis: 25%; /* Give slightly less space initially */
-  max-width: 300px; /* Max width for tools */
+  flex-basis: 25%;
+  max-width: 300px;
 }
-
 .input-form-section {
-  flex-basis: 50%; /* Give more space to the main form */
+  flex-basis: 50%;
   max-width: 600px;
 }
-
 .tool-placeholder {
-  font-size: 0.9em;
-  color: #6c757d;
-  text-align: center;
-  padding: 20px 10px;
-  border: 1px dashed #ced4da;
-  border-radius: 4px;
-  background-color: #f8f9fa;
-  height: 100%; /* Try to fill the section height */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 0.9em; color: #6c757d; text-align: center; padding: 20px 10px;
+  border: 1px dashed #ced4da; border-radius: 4px; background-color: #f8f9fa;
+  height: 100%; display: flex; align-items: center; justify-content: center;
 }
 
 /* --- Astrology Form Styles (within top strip) --- */
-/* Re-include or reference styles from AstrologyForm.css if needed, */
-/* but basic layout styles are here */
-.astrology-form-container {
-  padding: 15px;
-}
-
-.form-row {
-  display: flex;
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
-  gap: 10px; /* Space between items in a row */
-  margin-bottom: 12px; /* Space between rows */
-  align-items: flex-end; /* Align items to the bottom (useful for buttons) */
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1; /* Allow input groups to grow */
-}
-
-.input-group.full-width {
-  flex-basis: 100%;
-}
-
-.input-group.half-width {
-  flex-basis: calc(50% - 5px); /* Adjust for gap */
-  min-width: 120px; /* Prevent becoming too small */
-}
-
-.input-group label {
-  margin-bottom: 4px;
-  font-size: 0.85em;
-  font-weight: bold;
-  color: #495057;
-}
-
+.astrology-form-container { padding: 15px; }
+.form-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: flex-end; }
+.input-group { display: flex; flex-direction: column; flex-grow: 1; }
+.input-group.full-width { flex-basis: 100%; }
+.input-group.half-width { flex-basis: calc(50% - 5px); min-width: 120px; }
+.input-group label { margin-bottom: 4px; font-size: 0.85em; font-weight: bold; color: #495057; }
 .input-group input[type="text"],
 .input-group input[type="datetime-local"],
 .input-group input[type="number"],
-.input-group select {
-  padding: 8px 10px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 0.9em;
-  width: 100%; /* Take full width of the group */
-  box-sizing: border-box; /* Include padding and border in width */
-}
+.input-group select { padding: 8px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.9em; width: 100%; box-sizing: border-box; }
+.input-group input:disabled, .input-group select:disabled { background-color: #e9ecef; cursor: not-allowed; }
+.input-group .hint-text, .input-group .error-text { font-size: 0.75em; margin-top: 3px; }
+.input-group .loading-text { color: #007bff; }
+.small-error { font-size: 0.8em; color: #dc3545; margin-top: 4px; }
+.small-hint { font-size: 0.8em; color: #6c757d; margin-top: 4px; }
+.place-group { flex-grow: 3; }
+.button-container { display: flex; align-items: center; height: 35px; }
+.find-coords-button button, .action-buttons-row button { padding: 8px 12px; font-size: 0.9em; border: none; border-radius: 4px; cursor: pointer; background-color: #007bff; color: white; transition: background-color 0.2s ease; white-space: nowrap; }
+.find-coords-button button:hover:not(:disabled), .action-buttons-row button:hover:not(:disabled) { background-color: #0056b3; }
+.find-coords-button button:disabled, .action-buttons-row button:disabled { background-color: #6c757d; cursor: not-allowed; }
+.action-buttons-row { justify-content: space-around; margin-top: 15px; }
+.save-load-button-container button, .submit-button-container button { width: 100%; }
+.save-load-button-container button { background-color: #17a2b8; }
+.save-load-button-container button:hover:not(:disabled) { background-color: #117a8b; }
 
-.input-group input:disabled,
-.input-group select:disabled {
-  background-color: #e9ecef;
-  cursor: not-allowed;
-}
-
-.input-group .hint-text,
-.input-group .error-text {
-  font-size: 0.75em;
-  margin-top: 3px;
-}
-
-.input-group .loading-text {
-  color: #007bff;
-}
-
-.small-error {
-  font-size: 0.8em;
-  color: #dc3545;
-  margin-top: 4px;
-}
-.small-hint {
-   font-size: 0.8em;
-   color: #6c757d;
-   margin-top: 4px;
-}
-
-/* Specific group adjustments */
-.place-group {
-  flex-grow: 3; /* Give more space to place input */
-}
-
-.button-container {
-  display: flex;
-  align-items: center; /* Vertically center button and loader */
-  height: 35px; /* Match input height approx */
-}
-
-.find-coords-button button,
-.action-buttons-row button {
-  padding: 8px 12px;
-  font-size: 0.9em;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  background-color: #007bff;
-  color: white;
-  transition: background-color 0.2s ease;
-  white-space: nowrap; /* Prevent button text wrapping */
-}
-
-.find-coords-button button:hover:not(:disabled),
-.action-buttons-row button:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.find-coords-button button:disabled,
-.action-buttons-row button:disabled {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-.action-buttons-row {
-  justify-content: space-around; /* Distribute buttons */
-  margin-top: 15px;
-}
-
-.save-load-button-container button,
-.submit-button-container button {
-   width: 100%; /* Make buttons fill their container */
-}
-
-.save-load-button-container button {
-  background-color: #17a2b8; /* Teal for save/load */
-}
-.save-load-button-container button:hover:not(:disabled) {
-  background-color: #117a8b;
-}
-
-
-/* --- Loaders --- */
-.loader {
-  border: 4px solid #f3f3f3; /* Light grey */
-  border-top: 4px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  animation: spin 1s linear infinite;
-  margin: 10px auto; /* Center loader */
-}
-
-.small-loader {
-  width: 16px;
-  height: 16px;
-  border-width: 2px;
-  margin: 0 5px; /* Adjust margin for inline display */
-  display: inline-block; /* For inline display */
-  vertical-align: middle;
-}
-.tiny-loader {
-  width: 12px;
-  height: 12px;
-  border-width: 2px;
-  margin: 0 5px;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.main-loader { /* Loader shown below the form */
-  margin: 10px 0;
-  text-align: center; /* Center the loader container */
-}
-.main-loader .small-loader { /* Style the actual loader within */
-   margin: 0 auto; /* Center the loader itself */
-   display: block;
-}
-
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* --- Error Text --- */
-.error-text {
-  color: #dc3545; /* Red for errors */
-  font-size: 0.9em;
-  margin-top: 5px;
-}
-
-.calculation-error, .save-load-error {
-  text-align: center;
-  margin-top: 10px;
-}
+/* --- Loaders & Errors --- */
+.loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 10px auto; }
+.small-loader { width: 16px; height: 16px; border-width: 2px; margin: 0 5px; display: inline-block; vertical-align: middle; }
+.tiny-loader { width: 12px; height: 12px; border-width: 2px; margin: 0 5px; display: inline-block; vertical-align: middle; }
+.main-loader { margin: 10px 0; text-align: center; }
+.main-loader .small-loader { margin: 0 auto; display: block; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.error-text { color: #dc3545; font-size: 0.9em; margin-top: 5px; }
+.calculation-error, .save-load-error { text-align: center; margin-top: 10px; }
 
 /* --- Content Area --- */
 .content-area {
@@ -250,270 +97,121 @@
   background-color: #fff;
 }
 
-/* --- Modal Styles --- */
+/* --- Modal Styles (Keep as is) --- */
+/* ... (modal-overlay, modal-content, modal-close-button, saved-charts-list, delete-chart-button styles) ... */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* Ensure modal is on top */
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.6);
+  display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
-
 .modal-content {
-  background-color: white;
-  padding: 25px;
-  border-radius: 8px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh; /* Limit height */
-  overflow-y: auto; /* Allow scrolling within modal content */
-  position: relative; /* For positioning close button if needed */
+  background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative;
 }
-
-.modal-content h3 {
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #333;
-  text-align: center;
-}
-
+.modal-content h3 { margin-top: 0; margin-bottom: 20px; color: #333; text-align: center; }
 .modal-close-button {
-  display: block; /* Make it a block element */
-  margin: 20px auto 0; /* Center button horizontally, add top margin */
-  padding: 8px 16px;
-  background-color: #6c757d; /* Grey */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+  display: block; margin: 20px auto 0; padding: 8px 16px; background-color: #6c757d; color: white;
+  border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.2s ease;
 }
-
-.modal-close-button:hover {
-  background-color: #5a6268;
-}
-
-/* --- Saved Charts List Styles (Inside Modal) --- */
-.saved-charts-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-height: 400px; /* Limit list height */
-  /* overflow-y: auto; Already handled by modal-content */
-}
-
+.modal-close-button:hover { background-color: #5a6268; }
+.saved-charts-list { list-style: none; padding: 0; margin: 0; max-height: 400px; }
 .saved-charts-list li {
-  display: flex; /* Use flexbox to align items */
-  justify-content: space-between; /* Push button to the right */
-  align-items: center; /* Vertically center items */
-  padding: 12px 8px; /* Increased padding */
-  border-bottom: 1px solid #eee;
-  cursor: pointer; /* Indicate the main part is clickable */
-  transition: background-color 0.2s ease;
+  display: flex; justify-content: space-between; align-items: center; padding: 12px 8px;
+  border-bottom: 1px solid #eee; cursor: pointer; transition: background-color 0.2s ease;
 }
-
-.saved-charts-list li:hover {
-  background-color: #f0f0f0;
-}
-
-.saved-charts-list li .chart-info {
-  flex-grow: 1; /* Allow chart info to take available space */
-  margin-right: 15px; /* Increased space between info and button */
-  line-height: 1.4; /* Improve readability */
-}
-
-.saved-charts-list li .chart-info strong {
-  color: #0056b3; /* Make name stand out */
-}
-
-.saved-charts-list li .chart-info small {
-  color: #6c757d; /* Grey for date/place */
-  font-size: 0.85em;
-}
-
-/* --- Delete Button Styles (Inside Modal List) --- */
+.saved-charts-list li:hover { background-color: #f0f0f0; }
+.saved-charts-list li .chart-info { flex-grow: 1; margin-right: 15px; line-height: 1.4; }
+.saved-charts-list li .chart-info strong { color: #0056b3; }
+.saved-charts-list li .chart-info small { color: #6c757d; font-size: 0.85em; }
 .delete-chart-button {
-  padding: 5px 10px; /* Slightly larger padding */
-  font-size: 0.85em; /* Slightly larger font */
-  background-color: #dc3545; /* Red color for delete */
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  flex-shrink: 0; /* Prevent button from shrinking */
-  margin-left: 10px; /* Ensure some space if chart-info shrinks */
+  padding: 5px 10px; font-size: 0.85em; background-color: #dc3545; color: white; border: none;
+  border-radius: 4px; cursor: pointer; transition: background-color 0.2s ease; flex-shrink: 0; margin-left: 10px;
 }
-
-.delete-chart-button:hover:not(:disabled) {
-  background-color: #c82333; /* Darker red on hover */
-}
-
-.delete-chart-button:disabled {
-  background-color: #adb5bd; /* Lighter grey when disabled */
-  cursor: not-allowed;
-}
-
-/* Style for delete error message inside modal */
+.delete-chart-button:hover:not(:disabled) { background-color: #c82333; }
+.delete-chart-button:disabled { background-color: #adb5bd; cursor: not-allowed; }
 .modal-content .error-text {
-    color: #dc3545; /* Match delete button color */
-    margin-bottom: 15px; /* Space below error */
-    font-size: 0.9em;
-    text-align: center; /* Center error message */
-    border: 1px solid #f5c6cb; /* Light red border */
-    background-color: #f8d7da; /* Light red background */
-    padding: 8px;
-    border-radius: 4px;
+    color: #dc3545; margin-bottom: 15px; font-size: 0.9em; text-align: center;
+    border: 1px solid #f5c6cb; background-color: #f8d7da; padding: 8px; border-radius: 4px;
 }
 
-/* --- Responsive Adjustments --- */
+
+/* --- Responsive Adjustments (Keep general ones) --- */
 @media (max-width: 768px) {
+  /* Keep stacking rules for form elements if needed */
+  .form-row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .input-group.half-width { flex-basis: 100%; }
+  .action-buttons-row { flex-direction: column; gap: 10px; }
+  .modal-content { width: 95%; padding: 15px; }
+
+  /* Adjust top-strip behavior on small screens if needed */
   .top-strip {
-    flex-direction: column; /* Stack sections vertically */
-    align-items: stretch; /* Stretch sections to full width */
-    overflow-x: hidden;
-    overflow-y: auto; /* Allow vertical scroll if needed */
-    max-height: 50vh; /* Limit height on small screens */
-  }
-
-  .top-strip-section {
-    max-width: none; /* Remove max-width */
-    flex-basis: auto; /* Reset basis */
-  }
-
-  .form-row {
-    flex-direction: column; /* Stack inputs within a row */
-    align-items: stretch; /* Stretch inputs */
-    gap: 8px;
-  }
-
-  .input-group.half-width {
-    flex-basis: 100%; /* Full width on small screens */
-  }
-
-  .action-buttons-row {
-     flex-direction: column; /* Stack action buttons */
-     gap: 10px;
-  }
-
-  .modal-content {
-    width: 95%;
-    padding: 15px;
+      /* Maybe allow vertical scroll instead of horizontal if content is too tall */
+      /* overflow-y: auto; */
+      /* max-height: 70vh; */ /* Example height limit */
   }
 }
 
 
-/* --- Collapse Functionality --- */
+/* --- NEW Collapse Functionality for Top Strip --- */
 
-.input-form-section {
-    position: relative; /* Needed for absolute positioning of the button */
-    transition: max-height 0.5s ease-out, padding-top 0.5s ease-out, padding-bottom 0.5s ease-out, opacity 0.3s ease-out 0.1s, border-width 0.5s ease-out; /* Smooth transition */
-    max-height: 1000px; /* Adjust if your form is taller */
-    overflow: hidden; /* Hide content when collapsing */
-    opacity: 1;
-    padding-top: 10px; /* Example padding */
-    padding-bottom: 30px; /* Ensure space below form content for button */
-    border: 1px solid #ddd; /* Example border */
-    margin-bottom: 15px; /* Example margin */
-}
-
-.input-form-section.collapsed {
-    max-height: 0;
+.top-strip.collapsed {
+    max-height: 40px; /* Height of the collapsed bar */
     padding-top: 0;
     padding-bottom: 0;
+    border-bottom-width: 0; /* Hide border when collapsed */
+    transition: max-height 0.4s ease-in, padding 0.4s ease-in, border-width 0.4s ease-in; /* Faster collapse */
+}
+
+/* Hide sections within the collapsed strip */
+.top-strip.collapsed .top-strip-section {
     opacity: 0;
-    border-width: 0; /* Collapse border */
-    margin-bottom: 0; /* Collapse margin */
-    transition: max-height 0.4s ease-in, padding-top 0.4s ease-in, padding-bottom 0.4s ease-in, opacity 0.2s ease-in, border-width 0.4s ease-in; /* Faster collapse */
-}
-
-/* Style the toggle button */
-.collapse-toggle-button {
-    position: absolute;
-    bottom: 5px; /* Position near the bottom border */
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10; /* Ensure it's above the collapsing content */
-    padding: 3px 8px;
-    font-size: 1em; /* Adjust icon size */
-    line-height: 1; /* Ensure icon vertical alignment */
-    cursor: pointer;
-    border: 1px solid #ccc;
-    background-color: #f0f0f0;
-    border-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    transition: background-color 0.2s, bottom 0.5s ease-out; /* Transition bottom position */
-    color: #555;
-}
-.collapse-toggle-button:hover {
-    background-color: #e0e0e0;
-    color: #333;
-}
-
-/* Adjust button position when collapsed */
-.input-form-section.collapsed .collapse-toggle-button {
-    bottom: -15px; /* Move button down slightly when collapsed */
-    /* Or adjust based on how you want it to look when collapsed */
-}
-
-
-/* Ensure the form itself is hidden when collapsed */
-.input-form-section.collapsed form {
     visibility: hidden;
+    transition: opacity 0.2s ease-in, visibility 0s linear 0.2s;
+    padding: 0; /* Remove padding */
+    border: none; /* Remove border */
+    margin: 0; /* Remove margin */
+    min-width: 0; /* Allow shrinking */
+    max-width: 0; /* Allow shrinking */
 }
 
-/* Screen reader only text */
+/* Style the GLOBAL toggle button */
+.top-strip-toggle-button {
+    position: absolute;
+    top: 5px; /* Position near the top */
+    right: 10px; /* Position on the right */
+    z-index: 20; /* Ensure it's above everything in the strip */
+    padding: 4px 8px;
+    font-size: 1.1em; /* Adjust icon size */
+    line-height: 1;
+    cursor: pointer;
+    border: 1px solid #adb5bd;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    color: #495057;
+    transition: background-color 0.2s, color 0.2s;
+}
+.top-strip-toggle-button:hover {
+    background-color: #ced4da;
+    color: #343a40;
+}
+
+/* Adjust button appearance when collapsed */
+.top-strip.collapsed .top-strip-toggle-button {
+    /* Optional: Change background or position slightly if needed */
+    background-color: #f8f9fa; /* Match strip background */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Vertical centering */
+}
+
+
+/* Screen reader only text (Keep from previous example) */
 .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border-width: 0;
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
 }
 
-
-/* Adjust top-strip layout if needed */
-.top-strip {
-    display: flex;
-    align-items: flex-start; /* Align items to the top */
-    gap: 15px; /* Adjust gap as needed */
-    padding: 10px;
-    background-color: #f8f9fa; /* Light background */
-    border-bottom: 1px solid #dee2e6;
-    position: relative;
-    flex-wrap: wrap;
-}
-
-.top-strip-section {
-    flex: 1;
-    min-width: 280px; /* Adjust min-width */
-    background-color: #fff; /* Give sections a background */
-    padding: 10px 15px; /* Add padding */
-    border-radius: 4px; /* Rounded corners */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Subtle shadow */
-}
-
-/* Specific width for the central input section */
-.input-form-section {
-    flex-basis: 45%; /* Adjust percentage */
-    flex-grow: 1.5; /* Allow it to take slightly more space */
-}
-
-/* Adjust other sections */
-.birth-rectification-tool-section,
-.transit-adjustment-tool-section {
-    flex-basis: 25%;
-    flex-grow: 1;
+/* REMOVE individual collapse button styles if they exist */
+.collapse-toggle-button { /* Remove this rule if it only targeted the old button */
+   /* display: none; */ /* Or delete the rule entirely */
 }
 
 /* --- End Collapse Functionality --- */
