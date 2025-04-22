@@ -213,53 +213,50 @@ const AstrologyForm = () => {
         return degrees;
     }, [displayResult]);
 
-    // --- MODIFIED Helper to format date/time string for display USING BROWSER'S TIMEZONE ---
+    // --- CORRECTED Helper to format date/time string for display WITHOUT browser timezone conversion ---
     const formatDisplayDateTime = useCallback((localIsoString) => {
         if (!localIsoString || typeof localIsoString !== 'string') return t('utils.notAvailable', 'N/A');
 
-        try {
-            // Create a Date object. JavaScript's Date constructor often interprets
-            // YYYY-MM-DDTHH:MM:SS strings as local time in the browser's current timezone.
-            const dateObj = new Date(localIsoString);
+        // Expected format: YYYY-MM-DDTHH:MM:SS or YYYY-MM-DDTHH:MM
+        const match = localIsoString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+        if (!match) {
+            console.warn("formatDisplayDateTime: Invalid format received:", localIsoString);
+            return t('utils.invalidDate', 'Invalid Date');
+        }
 
-            if (isNaN(dateObj.getTime())) {
-                // Handle potential missing seconds if initial parsing fails (common from datetime-local)
-                if (localIsoString.length === 16 && !localIsoString.includes(':', 14)) {
-                    const dateObjWithSeconds = new Date(`${localIsoString}:00`);
-                    if (isNaN(dateObjWithSeconds.getTime())) {
-                        console.warn("formatDisplayDateTime: Invalid date string format even after adding seconds:", localIsoString);
-                        return t('utils.invalidDate', 'Invalid Date');
-                    }
-                    // Use toLocaleString to display in the browser's local timezone and locale format
-                    return dateObjWithSeconds.toLocaleString(i18n.language, {
-                        year: 'numeric', month: 'long', day: 'numeric',
-                        hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
-                        // You can adjust options like timeZoneName: 'short' if needed
-                    });
-                }
-                console.warn("formatDisplayDateTime: Invalid date string format:", localIsoString);
-                return t('utils.invalidDate', 'Invalid Date');
+        const [, year, month, day, hours, minutes, seconds = '00'] = match; // Default seconds to '00' if missing
+
+        try {
+            // Use Intl.DateTimeFormat for locale-aware formatting.
+            // We construct a UTC date purely for formatting purposes, treating the input numbers as the target local time.
+            const tempDate = new Date(Date.UTC(
+                parseInt(year, 10),
+                parseInt(month, 10) - 1, // month is 0-indexed
+                parseInt(day, 10),
+                parseInt(hours, 10),
+                parseInt(minutes, 10),
+                parseInt(seconds, 10)
+            ));
+
+            if (isNaN(tempDate.getTime())) {
+                 throw new Error("Invalid date components");
             }
 
-            // Use toLocaleString to display in the browser's local timezone and locale format
-            return dateObj.toLocaleString(i18n.language, {
-                year: 'numeric', month: 'long', day: 'numeric',
-                hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true
-                 // You can adjust options like timeZoneName: 'short' if needed
-            });
+            // *** CRITICAL: Specify timeZone: 'UTC' in options to prevent local shifts during formatting ***
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' };
+            const timeOptions = { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true, timeZone: 'UTC' };
 
+            const formattedDate = tempDate.toLocaleDateString(i18n.language, dateOptions);
+            const formattedTime = tempDate.toLocaleTimeString(i18n.language, timeOptions);
+
+            return `${formattedDate}, ${formattedTime}`;
         } catch (e) {
             console.error("Error formatting display date/time:", e, "Input:", localIsoString);
-            // Fallback to simpler formatting if Intl/Date fails unexpectedly
-            const match = localIsoString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
-            if (match) {
-                const [, year, month, day, hours, minutes, seconds = '00'] = match;
-                const H = parseInt(hours, 10);
-                const ampm = H >= 12 ? 'PM' : 'AM';
-                const displayHour = H % 12 === 0 ? 12 : H % 12;
-                return `${year}/${month}/${day}, ${displayHour}:${minutes}:${seconds} ${ampm}`;
-            }
-            return t('utils.invalidDate', 'Invalid Date');
+            // Fallback to simpler formatting if Intl fails
+            const H = parseInt(hours, 10);
+            const ampm = H >= 12 ? 'PM' : 'AM';
+            const displayHour = H % 12 === 0 ? 12 : H % 12;
+            return `${year}/${month}/${day}, ${displayHour}:${minutes}:${seconds} ${ampm}`;
         }
     }, [t, i18n.language]); // Add i18n.language as dependency
 
