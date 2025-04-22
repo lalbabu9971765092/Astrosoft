@@ -1,10 +1,10 @@
 // src/KpSignificatorGrid.jsx
 import React from 'react';
-import PropTypes from 'prop-types'; // Import PropTypes
-import { useTranslation } from 'react-i18next'; // Import the hook
-import '../styles/KpSignificatorsPage.css'; // Reuse styles or create specific ones
+import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
+import '../styles/KpSignificatorsPage.css'; // Ensure this CSS file exists and is imported
 
-// Constants (can be passed as props or defined here if static)
+// --- Constants ---
 const SIGNIFICATOR_GRID_ORDER = [
     ['Ketu', 'Moon', 'Jupiter'],
     ['Venus', 'Mars', 'Saturn'],
@@ -24,26 +24,23 @@ export const EVENT_HOUSES = { // Or pass this mapping as a prop
     'health_issues': { favorable: [5, 11], unfavorable: [1, 6, 8, 12] }, // Favorable for recovery/improvement
 };
 
-// Helper to get significance class
+// --- Helper Components (Keep RenderHouseNumbers and getHouseSignificance as is) ---
 const getHouseSignificance = (house, eventKey) => {
     const eventConfig = EVENT_HOUSES[eventKey];
-    if (!eventConfig || !house) return 'neutral-house';
+    // Add check for eventKey existence
+    if (!eventConfig || !house || !eventKey) return 'neutral-house';
     if (eventConfig.favorable.includes(house)) return 'favorable-house';
     if (eventConfig.unfavorable.includes(house)) return 'unfavorable-house';
     return 'neutral-house';
 };
 
-// Helper to render colored house numbers - MODIFIED FOR TRANSLATION
 const RenderHouseNumbers = ({ houseArray, eventKey }) => {
-    const { t } = useTranslation(); // Get t function here
-
+    const { t } = useTranslation();
     if (!Array.isArray(houseArray) || houseArray.length === 0) {
-        // Translate the placeholder for no houses
-        // Ensure 'kpSignificatorGrid.noHouses' key exists in your translation files
         return <span className="neutral-house">{t('kpSignificatorGrid.noHouses', '--')}</span>;
     }
     return houseArray.map((house, index) => (
-        <React.Fragment key={`${eventKey}-${house}-${index}`}> {/* More specific key */}
+        <React.Fragment key={`${eventKey}-${house}-${index}`}>
             <span className={getHouseSignificance(house, eventKey)}>
                 {house}
             </span>
@@ -52,21 +49,16 @@ const RenderHouseNumbers = ({ houseArray, eventKey }) => {
     ));
 };
 
-// Add PropTypes for the new helper component
 RenderHouseNumbers.propTypes = {
     houseArray: PropTypes.arrayOf(PropTypes.number),
     eventKey: PropTypes.string,
 };
 
-
+// --- Main Grid Component ---
 const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent }) => {
-    const { t } = useTranslation(); // Call the hook
+    const { t } = useTranslation();
 
-    // Check if the map is valid before trying to render the grid
     if (!significatorDetailsMap || !(significatorDetailsMap instanceof Map) || significatorDetailsMap.size === 0) {
-        // Parent component (KpSignificatorsPage) handles the main "unavailable" message
-        // Or you could return a placeholder message here if preferred
-        // return <p>{t('kpSignificatorGrid.dataUnavailable')}</p>;
         return null;
     }
 
@@ -75,51 +67,70 @@ const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent }) => {
             {FLATTENED_GRID_ORDER.map(planetName => {
                 const sigData = significatorDetailsMap.get(planetName);
 
-                // Use default structure if data is missing for a grid planet (safety net)
+                // Use default structure if data is missing (includes default favourability)
                 const displayData = sigData || {
                     name: planetName,
                     allHouses: [],
-                    nakshatraLordName: t('utils.notAvailable', 'N/A'), // Default translated N/A
+                    nakshatraLordName: t('utils.notAvailable', 'N/A'),
                     nakLordAllHouses: [],
-                    subLordName: t('utils.notAvailable', 'N/A'), // Default translated N/A
-                    subLordAllHouses: []
+                    subLordName: t('utils.notAvailable', 'N/A'),
+                    subLordAllHouses: [],
+                    score: 0,
+                    favourability: 'N/A', // Default favourability
+                    completeness: 'N/A'
                 };
 
-                // Translate the planet name for display
                 const translatedPlanetName = t(`planets.${displayData.name}`, { defaultValue: displayData.name });
-                // Translate lord names for interpolation
                 const translatedNakLordName = t(`planets.${displayData.nakshatraLordName}`, { defaultValue: displayData.nakshatraLordName });
                 const translatedSubLordName = t(`planets.${displayData.subLordName}`, { defaultValue: displayData.subLordName });
 
-                const itemClassName = `significator-grid-item`;
+                // *** START: MODIFICATION TO ADD FAVOURABILITY CLASS ***
+                let itemClassName = "significator-grid-item"; // Base class
+                // Only add favourability class if an event is selected and favourability exists
+                if (selectedEvent && displayData.favourability) {
+                    // Generate class like 'item-favourable', 'item-unfavourable', 'item-neutral', 'item-n/a'
+                    const favourabilityClass = `item-${displayData.favourability.toLowerCase().replace(/ /g, '-')}`; // Handle potential spaces if needed, ensure lowercase
+                    itemClassName += ` ${favourabilityClass}`;
+                }
+                // *** END: MODIFICATION TO ADD FAVOURABILITY CLASS ***
 
                 return (
+                    // Apply the potentially modified className here
                     <div key={planetName} className={itemClassName}>
-                        {/* Display translated planet name */}
                         <div className="significator-planet-name">{translatedPlanetName}</div>
                         <div className="significator-detail">
-                            {/* Translate label */}
                             <span className="significator-label">{t('kpSignificatorGrid.housesLabel')}</span>
                             <span className="significator-value">
                                 <RenderHouseNumbers houseArray={displayData.allHouses} eventKey={selectedEvent} />
                             </span>
                         </div>
                         <div className="significator-detail">
-                            {/* Translate label using interpolation with translated lord name */}
-                            {/* Ensure translation files have '{{lordName}}' placeholder */}
                             <span className="significator-label">{t('kpSignificatorGrid.nakLordLabel', { lordName: translatedNakLordName })}</span>
                             <span className="significator-value">
                                 <RenderHouseNumbers houseArray={displayData.nakLordAllHouses} eventKey={selectedEvent} />
                             </span>
                         </div>
                         <div className="significator-detail">
-                            {/* Translate label using interpolation with translated lord name */}
-                            {/* Ensure translation files have '{{lordName}}' placeholder */}
                             <span className="significator-label">{t('kpSignificatorGrid.subLordLabel', { lordName: translatedSubLordName })}</span>
                             <span className="significator-value">
                                 <RenderHouseNumbers houseArray={displayData.subLordAllHouses} eventKey={selectedEvent} />
                             </span>
                         </div>
+
+                        {/* Optional: Display score/completeness info */}
+                        {selectedEvent && displayData.favourability !== 'N/A' && (
+                             <div className="kp-planet-score-info">
+                                <span className={`kp-favourability ${displayData.favourability?.toLowerCase()}`}>
+                                    {t(`favourability.${displayData.favourability}`, displayData.favourability)}
+                                </span>
+                                <span className="kp-score">
+                                    ({t('kpSignificatorsPage.scoreLabel', 'Score')}: {displayData.score})
+                                </span>
+                                <span className="kp-completeness">
+                                    {t(`completeness.${displayData.completeness.replace(/[ ()]/g, '')}`, displayData.completeness)}
+                                </span>
+                            </div>
+                        )}
                     </div>
                 );
             })}
@@ -127,11 +138,9 @@ const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent }) => {
     );
 };
 
-// Add PropTypes for the main component
+// Update PropTypes to include the score/favourability fields expected in the map items
 KpSignificatorGrid.propTypes = {
-    // Ensure significatorDetailsMap is a Map instance and is required
     significatorDetailsMap: PropTypes.instanceOf(Map).isRequired,
-    // selectedEvent is a string and is required
     selectedEvent: PropTypes.string.isRequired,
 };
 
