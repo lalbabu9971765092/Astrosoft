@@ -11,7 +11,7 @@ const SIGNIFICATOR_GRID_ORDER = [
     ['Sun', 'Rahu', 'Mercury']
 ];
 const FLATTENED_GRID_ORDER = SIGNIFICATOR_GRID_ORDER.flat();
-const EVENT_HOUSES = { // Or pass this mapping as a prop
+export const EVENT_HOUSES = { // Or pass this mapping as a prop
     '': { favorable: [], unfavorable: [] }, // Default empty state
     'education': { favorable: [4, 5, 9, 11], unfavorable: [8, 12] },
     'career_start': { favorable: [2, 6, 10, 11], unfavorable: [5, 8, 12] },

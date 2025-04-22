@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import '../styles/KpSignificatorsPage.css';
 import { validateAndFormatDateTime } from './AstrologyUtils';
 import api from './api';
-import KpSignificatorGrid from './KpSignificatorGrid';
+// Import the Grid component AND the named export EVENT_HOUSES
+import KpSignificatorGrid, { EVENT_HOUSES } from './KpSignificatorGrid';
 import DashaTable from './DashaTable';
 
 // --- Helper Functions ---
@@ -21,14 +22,6 @@ const formatDateTime = (dateTimeString, t) => {
     console.error("Error formatting date:", e);
     return dateTimeString; // Return original string on error
   }
-};
-
-const getHouseNumbersFromString = (houseString) => {
-    if (!houseString || typeof houseString !== 'string') return [];
-    return houseString.split(',')
-                      .map(numStr => parseInt(numStr.trim(), 10))
-                      .filter(num => !isNaN(num)) // Ensure only valid numbers
-                      .sort((a, b) => a - b); // Sort numerically
 };
 
 // --- Constants ---
@@ -130,7 +123,7 @@ const KpSignificatorsPage = () => {
                     setChartError(chartErrMsg);
                     setChartData(null); // Clear chartData on error
                 } else {
-                    // *** CORRECTED: Extract dashaPeriods array from the response object ***
+                    // Extract dashaPeriods array from the response object
                     const dashaDataFromApi = chartResponse.data?.dashaPeriods;
 
                     // Check if dashaDataFromApi is actually an array before setting state
@@ -158,17 +151,21 @@ const KpSignificatorsPage = () => {
     }, [calculationInputParams, adjustedBirthDateTimeString, t]); // Dependencies
 
 
-    // --- Calculate Significator Details Map ---
+    // --- Calculate Significator Details Map (MODIFIED TO INCLUDE SCORING) ---
     const significatorDetailsMap = useMemo(() => {
         const finalMap = new Map();
         if (!kpData || !Array.isArray(kpData) || kpData.length === 0) {
-            return finalMap; // Return empty map if kpData is invalid
+            return finalMap;
         }
 
-        // Build intermediate map for efficient lookups
+        // *** Use the imported EVENT_HOUSES constant ***
+        const currentEventHouses = EVENT_HOUSES[selectedEvent] || EVENT_HOUSES[''];
+        const favourableSet = new Set(currentEventHouses.favourable);
+        const unfavourableSet = new Set(currentEventHouses.unfavourable);
+
+        // Build intermediate map for efficient lookups (stores raw strings first)
         const intermediatePlanetData = new Map();
         const planetOrderSource = kpData.map(p => p.name);
-        // Ensure all planets needed for the grid AND present in the data are processed
         const allRelevantPlanetNames = [...new Set([...FLATTENED_GRID_ORDER, ...planetOrderSource])];
 
         allRelevantPlanetNames.forEach(planetName => {
@@ -176,64 +173,132 @@ const KpSignificatorsPage = () => {
             if (planet) {
                 intermediatePlanetData.set(planetName, {
                     name: planetName,
-                    occupiedHouses: getHouseNumbersFromString(planet.occupiedHouses),
-                    ownedHouses: getHouseNumbersFromString(planet.ownedHouses),
-                    signLordOwnedHouses: getHouseNumbersFromString(planet.signLordOwnedHouses),
-                    aspectingOwnedHouses: getHouseNumbersFromString(planet.aspectingOwnedHouses),
+                    occupiedHousesStr: planet.occupiedHouses,
+                    ownedHousesStr: planet.ownedHouses,
+                    signLordOwnedHousesStr: planet.signLordOwnedHouses,
+                    aspectingOwnedHousesStr: planet.aspectingOwnedHouses,
                     nakshatraLordName: planet.nakshatraLord?.name || 'N/A',
                     subLordName: planet.subLord?.name || 'N/A',
                 });
             } else if (FLATTENED_GRID_ORDER.includes(planetName)) {
-                 // Add default entry if a grid planet is missing from API data
                  intermediatePlanetData.set(planetName, {
-                    name: planetName, occupiedHouses: [], ownedHouses: [], signLordOwnedHouses: [],
-                    aspectingOwnedHouses: [], nakshatraLordName: 'N/A', subLordName: 'N/A',
+                    name: planetName, occupiedHousesStr: '', ownedHousesStr: '', signLordOwnedHousesStr: '',
+                    aspectingOwnedHousesStr: '', nakshatraLordName: 'N/A', subLordName: 'N/A',
                 });
             }
         });
 
-        // Build the final map using the intermediate map
+        // Helper function to get combined, unique, sorted houses for a planet from intermediate data
+        const getCombinedHousesForPlanet = (planetName) => {
+            const data = intermediatePlanetData.get(planetName);
+            if (!data) return [];
+            const allHousesStr = [
+                data.occupiedHousesStr,
+                data.ownedHousesStr,
+                data.signLordOwnedHousesStr,
+                data.aspectingOwnedHousesStr
+            ].join(','); // Combine all house strings
+            // Parse, filter NaN, sort unique numbers
+            return [...new Set(
+                        allHousesStr.split(',')
+                                    .map(numStr => parseInt(numStr.trim(), 10))
+                                    .filter(num => !isNaN(num))
+                    )].sort((a, b) => a - b);
+        };
+
+        // Build the final map including scores
         FLATTENED_GRID_ORDER.forEach(planetName => {
             const planetData = intermediatePlanetData.get(planetName);
             if (!planetData) {
-                // Should ideally not happen due to the check above, but good failsafe
                 console.warn(`Data missing for grid planet ${planetName} in intermediate map!`);
-                finalMap.set(planetName, { name: planetName, allHouses: [], nakshatraLordName: 'N/A', nakLordAllHouses: [], subLordName: 'N/A', subLordAllHouses: [] });
+                finalMap.set(planetName, { name: planetName, allHouses: [], nakshatraLordName: 'N/A', nakLordAllHouses: [], subLordName: 'N/A', subLordAllHouses: [], score: 0, favourability: 'N/A', completeness: 'N/A' });
                 return;
             }
 
-            const nakLordData = intermediatePlanetData.get(planetData.nakshatraLordName);
-            const subLordData = intermediatePlanetData.get(planetData.subLordName);
+            const nakLordName = planetData.nakshatraLordName;
+            const subLordName = planetData.subLordName;
 
-            // Combine houses from planet, its nakshatra lord, and sub lord
-            const nakLordHouses = nakLordData ? [...nakLordData.occupiedHouses, ...nakLordData.ownedHouses, ...nakLordData.signLordOwnedHouses, ...nakLordData.aspectingOwnedHouses] : [];
-            const subLordHouses = subLordData ? [...subLordData.occupiedHouses, ...subLordData.ownedHouses, ...subLordData.signLordOwnedHouses, ...subLordData.aspectingOwnedHouses] : [];
+            // Get house lists for planet, nak lord, sub lord using the helper
+            const planetAllHouses = getCombinedHousesForPlanet(planetName);
+            const nakLordAllHouses = getCombinedHousesForPlanet(nakLordName);
+            const subLordAllHouses = getCombinedHousesForPlanet(subLordName);
 
-            // Get unique, sorted house numbers
-            const planetAllHouses = [...new Set([...planetData.occupiedHouses, ...planetData.ownedHouses, ...planetData.signLordOwnedHouses, ...planetData.aspectingOwnedHouses])].sort((a, b) => a - b);
-            const nakLordAllHouses = [...new Set(nakLordHouses)].sort((a, b) => a - b);
-            const subLordAllHouses = [...new Set(subLordHouses)].sort((a, b) => a - b);
+            let totalScore = 0;
+            const allSignifiedHousesForCompleteness = new Set();
+            const subLordSignifiedFavourable = new Set(); // Track favourable houses signified *only* by sublord
 
+            // --- Score Calculation ---
+            // Level 1: Planet itself (+1 / -1)
+            planetAllHouses.forEach(house => {
+                if (favourableSet.has(house)) totalScore += 1;
+                else if (unfavourableSet.has(house)) totalScore -= 1;
+                allSignifiedHousesForCompleteness.add(house);
+            });
+
+            // Level 2: Nakshatra Lord (+2 / -2)
+            nakLordAllHouses.forEach(house => {
+                if (favourableSet.has(house)) totalScore += 2;
+                else if (unfavourableSet.has(house)) totalScore -= 2;
+                allSignifiedHousesForCompleteness.add(house);
+            });
+
+            // Level 3: Sub Lord (+3 / -3)
+            subLordAllHouses.forEach(house => {
+                if (favourableSet.has(house)) {
+                    totalScore += 3;
+                    subLordSignifiedFavourable.add(house); // Add to sublord specific set
+                } else if (unfavourableSet.has(house)) {
+                    totalScore -= 3;
+                }
+                allSignifiedHousesForCompleteness.add(house);
+            });
+
+            // --- Determine Favourability ---
+            let favourability = 'Neutral';
+            if (totalScore > 0) favourability = 'Favourable';
+            else if (totalScore < 0) favourability = 'Unfavourable';
+
+            // --- Determine Completeness ---
+            let completeness = "Not Complete";
+            const isCompleteSublord = favourableSet.size > 0 && [...favourableSet].every(favHouse => subLordSignifiedFavourable.has(favHouse));
+            const isCompleteCombination = favourableSet.size > 0 && [...favourableSet].every(favHouse => allSignifiedHousesForCompleteness.has(favHouse));
+
+            if (isCompleteSublord) {
+                completeness = "Complete (Sublord)";
+            } else if (isCompleteCombination) {
+                completeness = "Complete (Combination)";
+            }
+
+            // If no event selected, reset score/favourability/completeness
+            if (selectedEvent === '') {
+                completeness = 'N/A';
+                favourability = 'N/A';
+                totalScore = 0;
+            }
+
+            // Store all calculated data in the map
             finalMap.set(planetName, {
                 name: planetName,
                 allHouses: planetAllHouses,
-                nakshatraLordName: planetData.nakshatraLordName,
+                nakshatraLordName: nakLordName,
                 nakLordAllHouses: nakLordAllHouses,
-                subLordName: planetData.subLordName,
+                subLordName: subLordName,
                 subLordAllHouses: subLordAllHouses,
+                // Add the calculated score, favourability, and completeness
+                score: totalScore,
+                favourability: favourability,
+                completeness: completeness,
             });
         });
         return finalMap;
-    }, [kpData]); // Dependency is only kpData
+    // *** Add selectedEvent as a dependency ***
+    }, [kpData, selectedEvent]); // Recalculate when kpData OR selectedEvent changes
 
 
     // --- Loading / Error / No Data States ---
     const isOverallLoading = isInitialLoading || isLoadingKp || isLoadingChart;
     const hasValidKpData = useMemo(() => significatorDetailsMap.size > 0, [significatorDetailsMap]);
-
-    // Check if chartData (which should hold the Dasha array) is valid
     const hasDashaData = chartData && Array.isArray(chartData) && chartData.length > 0;
-
     const displayInputDetails = currentApiParams;
 
     // --- Initial state checks (EARLY RETURNS) ---
@@ -305,7 +370,7 @@ const KpSignificatorsPage = () => {
                             {/* Show grid if data is valid, otherwise show unavailable message */}
                             {hasValidKpData ? (
                                 <KpSignificatorGrid
-                                    significatorDetailsMap={significatorDetailsMap}
+                                    significatorDetailsMap={significatorDetailsMap} // Pass the map with scores
                                     selectedEvent={selectedEvent}
                                 />
                             ) : (
