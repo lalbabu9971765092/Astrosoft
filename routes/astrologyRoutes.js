@@ -93,7 +93,7 @@ const deleteChartValidation = [
 ];
 
 // --- Route: Calculate Astrology Details ---
-router.post('/calculate', baseChartValidation, (req, res) => {
+router.post('/calculate', baseChartValidation, async (req, res) => { // Added async
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -101,26 +101,49 @@ router.post('/calculate', baseChartValidation, (req, res) => {
 
     try {
         // Destructure validated data
-        const { date } = req.body;
-        const latNum = req.body.latitude; // Already float
-        const lonNum = req.body.longitude; // Already float
+        const { date, latitude, longitude, placeName } = req.body;
+        const latNum = latitude; // Already parsed to float by validator
+        const lonNum = longitude; // Already parsed to float by validator
 
         logger.info(`Starting calculation for date=${date}, lat=${latNum}, lon=${lonNum}`);
 
-        // --- Core Calculation Steps (Functionality preserved) ---
-        const { julianDayUT, utcDate } = getJulianDateUT(date, lonNum);
-        // Throwing errors from utils allows catching them here
+        // --- Core Calculation Steps ---
+        // *** CORRECTED CALL: Pass latNum and lonNum in the correct order ***
+        const { julianDayUT, utcDate, timezoneOffsetHours } = getJulianDateUT(date, latNum, lonNum);
+
+        // Check if getJulianDateUT failed (returned nulls)
+        if (julianDayUT === null) {
+            // Error should have been logged within getJulianDateUT
+            throw new Error('Failed to calculate Julian Day UT. Check input date/coordinates or timezone lookup.');
+        }
+
+        // Log results from getJulianDateUT (optional but helpful)
+        logger.debug(`[Route /calculate] JD UT: ${julianDayUT}, UTC: ${utcDate?.toISOString()}, Offset: ${timezoneOffsetHours}`);
+
+        // Proceed with calculations that depend on julianDayUT
         const ayanamsa = calculateAyanamsa(julianDayUT);
+        if (isNaN(ayanamsa)) {
+             throw new Error(`Failed to calculate Ayanamsa for JD ${julianDayUT}`);
+        }
+
         const { tropicalAscendant, tropicalCusps } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
+        // Check if house calculation failed (returned null cusps)
+        if (tropicalCusps === null) {
+             throw new Error(`Failed to calculate House Cusps for JD ${julianDayUT}, Lat ${latNum}, Lon ${lonNum}`);
+        }
+
         const siderealAscendantDeg = normalizeAngle(tropicalAscendant - ayanamsa);
         const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
         const ascendantNakDetails = getNakshatraDetails(siderealAscendantDeg);
+        const ascendantRashiDetails = getRashiDetails(siderealAscendantDeg); // Get Rashi details for Ascendant
+        const ascendantPada = calculateNakshatraPada(siderealAscendantDeg); // Get Pada for Ascendant
+
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         // planetaryPositions util now throws on critical failure
 
         const siderealPositions = planetaryPositions.sidereal; // Extract for convenience
         const sunMoonTimes = calculateSunMoonTimes(date, latNum, lonNum);
-        const detailedPanchang = calculatePanchang(date, latNum, lonNum);
+        const detailedPanchang = calculatePanchang(date, latNum, lonNum); // Throws on error
 
         const housesData = [];
         for (let i = 0; i < 12; i++) {
@@ -138,8 +161,8 @@ router.post('/calculate', baseChartValidation, (req, res) => {
             });
         }
 
-        const dashaBalance = calculateVimshottariBalance(siderealPositions['Moon']?.longitude);
-        const dashaPeriods = calculateVimshottariDashas(utcDate, dashaBalance);
+        const dashaBalance = calculateVimshottariBalance(siderealPositions['Moon']?.longitude); // Throws on error
+        const dashaPeriods = calculateVimshottariDashas(utcDate, dashaBalance); // Throws on error
 
         const d9_planets = {};
         const planetsToCalculate = PLANET_ORDER || Object.keys(siderealPositions);
@@ -196,15 +219,48 @@ router.post('/calculate', baseChartValidation, (req, res) => {
 
         // --- Assemble Response Payload ---
          const responsePayload = {
-            inputParameters: { date: date, latitude: latNum, longitude: lonNum, utcDate: utcDate.toISOString(), julianDayUT: julianDayUT, ayanamsa: ayanamsa },
-            ascendant: { tropical_dms: convertToDMS(tropicalAscendant), sidereal_dms: convertToDMS(siderealAscendantDeg), nakshatra: ascendantNakDetails.name, nakLord: ascendantNakDetails.lord, rashi: getRashiDetails(siderealAscendantDeg).name, rashiLord: getRashiDetails(siderealAscendantDeg).lord, pada: calculateNakshatraPada(siderealAscendantDeg) },
-            houses: housesData, planetaryPositions,
-            sunMoonTimes: { sunrise: sunMoonTimes.sunrise || "N/A", sunset: sunMoonTimes.sunset || "N/A", moonrise: sunMoonTimes.moonrise || "N/A", moonset: sunMoonTimes.moonset || "N/A" },
-            dashaBalance: { lord: dashaBalance.lord, balance_str: `${dashaBalance.balanceYMD.years}Y ${dashaBalance.balanceYMD.months}M ${dashaBalance.balanceYMD.days}D`, balance_years_decimal: dashaBalance.balanceYears },
-            dashaPeriods: dashaPeriods, d9_planets: d9_planets, d9_ascendant_dms: d9AscendantDms,
-            panchang: detailedPanchang, vikram_samvat: detailedPanchang?.Samvat?.number || "N/A", samvatsar: detailedPanchang?.Samvatsara?.name_en_IN || "N/A",
-            doshas: { mangal: mangalDoshaResult, kaalsarpa: kaalsarpaDoshaResult, mool: moolDoshaResult },
-            planetDetails: { states: planetStateData, aspects: aspectData, naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder }, temporalFriendship: temporalFriendshipData, resultingFriendship: resultingFriendshipData, shadbala: shadbalaData },
+            inputParameters: { date: date, latitude: latNum, longitude: lonNum, placeName: placeName || '', utcDate: utcDate.toISOString(), julianDayUT: julianDayUT, ayanamsa: ayanamsa, timezoneOffsetHours: timezoneOffsetHours }, // Added placeName, offset
+            ascendant: {
+                tropical_dms: convertToDMS(tropicalAscendant),
+                sidereal_dms: convertToDMS(siderealAscendantDeg),
+                nakshatra: ascendantNakDetails.name,
+                nakLord: ascendantNakDetails.lord,
+                rashi: ascendantRashiDetails.name, // Use calculated Rashi details
+                rashiLord: ascendantRashiDetails.lord, // Use calculated Rashi details
+                pada: ascendantPada // Use calculated Pada
+            },
+            houses: housesData,
+            planetaryPositions, // Contains both tropical and sidereal
+            sunMoonTimes: {
+                sunrise: sunMoonTimes.sunrise || "N/A",
+                sunset: sunMoonTimes.sunset || "N/A",
+                moonrise: sunMoonTimes.moonrise || "N/A",
+                moonset: sunMoonTimes.moonset || "N/A"
+            },
+            dashaBalance: {
+                lord: dashaBalance.lord,
+                balance_str: `${dashaBalance.balanceYMD.years}Y ${dashaBalance.balanceYMD.months}M ${dashaBalance.balanceYMD.days}D`,
+                balance_years_decimal: dashaBalance.balanceYears
+            },
+            dashaPeriods: dashaPeriods,
+            d9_planets: d9_planets,
+            d9_ascendant_dms: d9AscendantDms,
+            panchang: detailedPanchang, // Includes Masa, Samvat etc. from calculatePanchang
+            vikram_samvat: detailedPanchang?.Samvat?.number || "N/A", // Extract specific fields if needed
+            samvatsar: detailedPanchang?.Samvatsara?.name_en_IN || "N/A", // Extract specific fields if needed
+            doshas: {
+                mangal: mangalDoshaResult,
+                kaalsarpa: kaalsarpaDoshaResult,
+                mool: moolDoshaResult
+            },
+            planetDetails: {
+                states: planetStateData,
+                aspects: aspectData,
+                naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder },
+                temporalFriendship: temporalFriendshipData,
+                resultingFriendship: resultingFriendshipData,
+                shadbala: shadbalaData
+            },
             ashtakavarga: ashtakavargaResult,
         };
         logger.info(`Calculation successful for date=${date}, lat=${latNum}, lon=${lonNum}`);
@@ -216,6 +272,8 @@ router.post('/calculate', baseChartValidation, (req, res) => {
     }
 });
 
+// --- Other Routes (Save, Get, Delete Charts, Prashna, Varshphal) ---
+// ... (Keep the rest of your routes as they were, ensuring they also use handleRouteError and correct variable names) ...
 
 // --- Route: Save Birth Chart Data ---
 router.post('/charts', saveChartValidation, async (req, res) => {
@@ -225,32 +283,16 @@ router.post('/charts', saveChartValidation, async (req, res) => {
     }
 
     try {
-        // Destructure validated data
         const { name, gender, date, latitude, longitude, placeName } = req.body;
-
-        const chartDataToSave = {
-            name: name, // Already trimmed and potentially escaped by validator
-            gender: gender || '',
-            date: date,
-            latitude: latitude, // Already float
-            longitude: longitude, // Already float
-            placeName: placeName || '',
-        };
-
-        // --- Save to MongoDB using Mongoose Model ---
+        const chartDataToSave = { name, gender: gender || '', date, latitude, longitude, placeName: placeName || '' };
         const savedChart = await Chart.create(chartDataToSave);
         logger.info(`Saved chart to DB: ${savedChart.name} (ID: ${savedChart._id})`);
-
-        // Respond with the newly created chart data
-        res.status(201).json(savedChart); // 201 Created
-
+        res.status(201).json(savedChart);
     } catch (error) {
-        // Check for specific Mongoose validation errors
         if (error.name === 'ValidationError') {
             logger.warn("Mongoose Validation Error on save:", { errors: error.errors });
             return res.status(400).json({ error: "Validation failed during save.", details: error.errors });
         }
-        // Use the centralized error handler for other errors
         handleRouteError(res, error, 'POST /charts', req.body);
     }
 });
@@ -264,38 +306,23 @@ router.get('/charts', paginationValidation, async (req, res) => {
 
     try {
         const page = req.query.page || 1;
-        const limit = req.query.limit || 20; // Default limit
+        const limit = req.query.limit || 20;
         const skip = (page - 1) * limit;
-
-        // Retrieve data from MongoDB with pagination and sorting
         const savedCharts = await Chart.find({})
-            .sort({ name: 1 }) // Sort by name
+            .sort({ name: 1 })
             .skip(skip)
             .limit(limit)
-            .lean(); // Use .lean() for faster queries returning plain JS objects
-
-        const totalCharts = await Chart.countDocuments(); // Get total count for pagination info
-
+            .lean();
+        const totalCharts = await Chart.countDocuments();
         logger.info(`Fetched ${savedCharts.length} of ${totalCharts} saved charts from DB (Page ${page}, Limit ${limit}).`);
-
-        // Map _id to id for frontend compatibility (already done by lean() potentially, but explicit is safe)
-        const chartsForFrontend = savedCharts.map(chart => ({
-            ...chart, // Spread the plain JS object
-            id: chart._id.toString(), // Ensure id is a string
-        }));
-
-
-        res.json({
-            charts: chartsForFrontend,
-            currentPage: page,
-            totalPages: Math.ceil(totalCharts / limit),
-            totalCharts: totalCharts
-        });
-
+        const chartsForFrontend = savedCharts.map(chart => ({ ...chart, id: chart._id.toString() }));
+        res.json({ charts: chartsForFrontend, currentPage: page, totalPages: Math.ceil(totalCharts / limit), totalCharts });
     } catch (error) {
         handleRouteError(res, error, 'GET /charts');
     }
 });
+
+// --- Route: Delete Saved Chart ---
 router.delete('/charts/:id', deleteChartValidation, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -303,28 +330,16 @@ router.delete('/charts/:id', deleteChartValidation, async (req, res) => {
     }
 
     try {
-        const chartId = req.params.id; // ID is validated as MongoId
-
+        const chartId = req.params.id;
         logger.info(`Attempting to delete chart with ID: ${chartId}`);
-
         const deletedChart = await Chart.findByIdAndDelete(chartId);
-
         if (!deletedChart) {
             logger.warn(`Chart not found for deletion with ID: ${chartId}`);
             return res.status(404).json({ error: 'Chart not found.' });
         }
-
         logger.info(`Successfully deleted chart: ${deletedChart.name} (ID: ${chartId})`);
-
-        // Respond with success
-        // Option 1: 200 OK with a message
         res.status(200).json({ message: `Chart '${deletedChart.name}' deleted successfully.` });
-
-        // Option 2: 204 No Content (often used for DELETE success)
-        // res.status(204).send();
-
     } catch (error) {
-        // Use the centralized error handler
         handleRouteError(res, error, `DELETE /charts/${req.params.id}`, { id: req.params.id });
     }
 });
@@ -337,23 +352,38 @@ router.post('/calculate-prashna-number', prashnaValidation, async (req, res) => 
     }
 
     try {
-        // Destructure validated data
         const { number, latitude, longitude, placeName, date } = req.body;
-        // number, latitude, longitude already parsed by validator
+        const latNum = latitude; // Already parsed
+        const lonNum = longitude; // Already parsed
 
-        logger.info(`Starting Prashna calculation for number=${number}, date=${date}, lat=${latitude}, lon=${longitude}`);
+        logger.info(`Starting Prashna calculation for number=${number}, date=${date}, lat=${latNum}, lon=${lonNum}`);
 
         // --- Core Calculation ---
         const siderealAscendantDeg = getNumberBasedAscendantDegree(number); // Throws on invalid number
-        const { julianDayUT: currentJD_UT, utcDate: currentUTCDate } = getJulianDateUT(date, longitude);
-        const ayanamsa = calculateAyanamsa(currentJD_UT);
-        const planetaryPositions = calculatePlanetaryPositions(currentJD_UT);
-        const siderealPositions = planetaryPositions.sidereal; // Extract for convenience
-        const { tropicalAscendant: timeBasedTropicalAsc, tropicalCusps } = calculateHousesAndAscendant(currentJD_UT, latitude, longitude);
-        const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
 
-        // Override 1st cusp
-        siderealCuspStartDegrees[0] = siderealAscendantDeg;
+        // Use current time for JD UT and planetary positions
+        const { julianDayUT: currentJD_UT, utcDate: currentUTCDate, timezoneOffsetHours } = getJulianDateUT(date, latNum, lonNum); // Pass latNum, lonNum
+        if (currentJD_UT === null) {
+            throw new Error('Failed to calculate Julian Day UT for Prashna time.');
+        }
+
+        const ayanamsa = calculateAyanamsa(currentJD_UT);
+        if (isNaN(ayanamsa)) { throw new Error(`Failed to calculate Ayanamsa for Prashna JD ${currentJD_UT}`); }
+
+        const planetaryPositions = calculatePlanetaryPositions(currentJD_UT);
+        const siderealPositions = planetaryPositions.sidereal;
+
+        // Calculate houses based on the *number-derived* Ascendant, but use current time's ephemeris data
+        // This requires a way to calculate cusps from a given Ascendant degree.
+        // Swisseph's swe_houses_ex might be needed, or a manual Placidus calculation.
+        // For now, let's use the time-based cusps but override the first one.
+        // WARNING: This is an approximation, true KP Prashna might use different house system or method.
+        const { tropicalCusps: timeBasedTropicalCusps } = calculateHousesAndAscendant(currentJD_UT, latNum, lonNum);
+        if (timeBasedTropicalCusps === null) {
+            throw new Error(`Failed to calculate time-based House Cusps for Prashna JD ${currentJD_UT}`);
+        }
+        const siderealCuspStartDegrees = timeBasedTropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
+        siderealCuspStartDegrees[0] = siderealAscendantDeg; // Override 1st cusp
 
         // --- Populate Ascendant Details ---
         const ascendantNakDetails = getNakshatraDetails(siderealAscendantDeg);
@@ -366,7 +396,7 @@ router.post('/calculate-prashna-number', prashnaValidation, async (req, res) => 
             pada: ascendantPada
         };
 
-        // --- Populate House Data ---
+        // --- Populate House Data (using potentially overridden cusps) ---
         const housesData = [];
         for (let i = 0; i < 12; i++) {
             const houseNumber = i + 1;
@@ -389,7 +419,7 @@ router.post('/calculate-prashna-number', prashnaValidation, async (req, res) => 
 
         // --- Assemble Response Payload ---
         const responsePayload = {
-            inputParameters: { number, date, latitude, longitude, placeName: placeName || '', ayanamsa },
+            inputParameters: { number, date, latitude: latNum, longitude: lonNum, placeName: placeName || '', ayanamsa, timezoneOffsetHours },
             ascendant: ascendantDetails,
             houses: housesData,
             planetaryPositions, // Based on CURRENT time
@@ -413,26 +443,28 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
     }
 
     try {
-        // Destructure validated data
-        const { natalDate, natalLatitude, natalLongitude, varshphalYear } = req.body;
-        // natalLatitude, natalLongitude, varshphalYear already parsed by validator
+        const { natalDate, natalLatitude, natalLongitude, varshphalYear, natalPlaceName } = req.body; // Added natalPlaceName
+        const latNum = natalLatitude; // Already parsed
+        const lonNum = natalLongitude; // Already parsed
 
-        logger.info(`Starting Varshphal calculation for natalDate=${natalDate}, year=${varshphalYear}, lat=${natalLatitude}, lon=${natalLongitude}`);
+        logger.info(`Starting Varshphal calculation for natalDate=${natalDate}, year=${varshphalYear}, lat=${latNum}, lon=${lonNum}`);
 
         // --- Step 1: Calculate Natal Details Needed ---
-        const { julianDayUT: natalJD_UT, utcDate: natalUTCDate } = getJulianDateUT(natalDate, natalLongitude);
+        const { julianDayUT: natalJD_UT, utcDate: natalUTCDate, timezoneOffsetHours: natalTzOffset } = getJulianDateUT(natalDate, latNum, lonNum); // Pass lat/lon
+        if (natalJD_UT === null) { throw new Error('Failed to calculate Natal Julian Day UT.'); }
+
         const natalAyanamsa = calculateAyanamsa(natalJD_UT);
+        if (isNaN(natalAyanamsa)) { throw new Error(`Failed to calculate Natal Ayanamsa for JD ${natalJD_UT}`); }
+
         const natalPlanetaryPositions = calculatePlanetaryPositions(natalJD_UT);
-        const natalSunLongitude = natalPlanetaryPositions?.tropical?.Sun?.longitude; // Use TROPICAL Sun for SR
-        const { tropicalAscendant: natalTropicalAsc } = calculateHousesAndAscendant(natalJD_UT, natalLatitude, natalLongitude);
+        const natalSunLongitude = natalPlanetaryPositions?.tropical?.Sun?.longitude;
+        if (natalSunLongitude === undefined || isNaN(natalSunLongitude)) { throw new Error("Could not determine natal TROPICAL Sun longitude."); }
+
+        const { tropicalAscendant: natalTropicalAsc } = calculateHousesAndAscendant(natalJD_UT, latNum, lonNum);
         const natalSiderealAscDeg = normalizeAngle(natalTropicalAsc - natalAyanamsa);
         const natalAscendantDetails = getRashiDetails(natalSiderealAscDeg);
         const natalAscendantSignIndex = natalAscendantDetails.index;
         const natalAscendantLord = natalAscendantDetails.lord;
-
-        if (natalSunLongitude === undefined || isNaN(natalSunLongitude)) {
-            throw new Error("Could not determine natal TROPICAL Sun longitude.");
-        }
 
         // --- Step 2: Calculate Solar Return (SR) Moment ---
         const solarReturnJD_UT = await calculateSolarReturnJulianDay(natalJD_UT, natalSunLongitude, varshphalYear);
@@ -440,11 +472,15 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
 
         // --- Step 3: Calculate Varshphal Chart for SR Moment & Natal Location ---
         const srAyanamsa = calculateAyanamsa(solarReturnJD_UT);
-        const { tropicalAscendant: srTropicalAsc, tropicalCusps: srTropicalCusps } = calculateHousesAndAscendant(solarReturnJD_UT, natalLatitude, natalLongitude); // Use NATAL Lat/Lon
+        if (isNaN(srAyanamsa)) { throw new Error(`Failed to calculate SR Ayanamsa for JD ${solarReturnJD_UT}`); }
+
+        const { tropicalAscendant: srTropicalAsc, tropicalCusps: srTropicalCusps } = calculateHousesAndAscendant(solarReturnJD_UT, latNum, lonNum); // Use NATAL Lat/Lon
+        if (srTropicalCusps === null) { throw new Error(`Failed to calculate SR House Cusps for JD ${solarReturnJD_UT}`); }
+
         const srSiderealAscDeg = normalizeAngle(srTropicalAsc - srAyanamsa);
         const srSiderealCuspStartDegrees = srTropicalCusps.map(cusp => normalizeAngle(cusp - srAyanamsa));
         const srAscendantDetails = getRashiDetails(srSiderealAscDeg);
-        const srAscendantSignIndex = srAscendantDetails.index;
+        // const srAscendantSignIndex = srAscendantDetails.index; // Not needed directly?
         const srAscendantLord = srAscendantDetails.lord;
         const srPlanetaryPositions = calculatePlanetaryPositions(solarReturnJD_UT);
 
@@ -482,9 +518,15 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         const munthaResult = calculateMuntha(natalAscendantSignIndex, ageAtVarshphalStart);
         const munthaSignName = RASHIS[munthaResult.signIndex] || 'N/A';
         let munthaHouse = null;
+        // Find the house where the Muntha sign falls in the SR chart
         for(let i=0; i<12; i++) {
-            const houseRashiIndex = getRashiDetails(srSiderealCuspStartDegrees[i]).index;
-            if (houseRashiIndex === munthaResult.signIndex) { munthaHouse = i + 1; break; }
+            // Check the Rashi of the *start* of the house cusp in the SR chart
+            const houseStartDeg = srSiderealCuspStartDegrees[i];
+            const houseRashiIndex = getRashiDetails(houseStartDeg).index;
+            if (houseRashiIndex === munthaResult.signIndex) {
+                munthaHouse = i + 1;
+                break;
+            }
         }
         const munthaData = { sign: munthaSignName, signIndex: munthaResult.signIndex, house: munthaHouse };
 
@@ -493,11 +535,11 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         const yearLord = calculateYearLord(solarReturnWeekDay, natalAscendantLord, srAscendantLord);
 
         // --- Step 6: Calculate Mudda Dasha ---
-        const muddaDashaPeriods = calculateMuddaDasha(solarReturnJD_UT, natalLatitude, natalLongitude);
+        const muddaDashaPeriods = calculateMuddaDasha(solarReturnJD_UT, latNum, lonNum); // Pass lat/lon
 
         // --- Assemble Response Payload ---
         const responsePayload = {
-            inputDetails: { natalDate, natalLatitude, natalLongitude, varshphalYear, solarReturnUTC: solarReturnUTCDate.toISOString(), solarReturnJD_UT },
+            inputDetails: { natalDate, natalLatitude: latNum, natalLongitude: lonNum, natalPlaceName: natalPlaceName || '', varshphalYear, solarReturnUTC: solarReturnUTCDate.toISOString(), solarReturnJD_UT, natalTzOffset },
             varshphalChart: { ascendant: srAscendantData, houses: srHousesData, planetaryPositions: srPlanetaryPositions },
             muntha: munthaData,
             yearLord: yearLord,
@@ -511,6 +553,7 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         handleRouteError(res, error, '/calculate-varshphal', req.body);
     }
 });
+
 
 // Export the router
 export default router; // Using ES module export
