@@ -151,17 +151,25 @@ const KpSignificatorsPage = () => {
     }, [calculationInputParams, adjustedBirthDateTimeString, t]); // Dependencies
 
 
-    // --- Calculate Significator Details Map (MODIFIED TO INCLUDE SCORING) ---
+    // --- Calculate Significator Details Map (MODIFIED TO INCLUDE SCORING & LOGGING) ---
     const significatorDetailsMap = useMemo(() => {
+        // *** DEBUG LOG: Check selected event ***
+        console.log("--- Calculating significator map for selectedEvent:", selectedEvent, "---");
+
         const finalMap = new Map();
         if (!kpData || !Array.isArray(kpData) || kpData.length === 0) {
+            console.log("KP Data is invalid or empty, returning empty map.");
             return finalMap;
         }
 
-        // *** Use the imported EVENT_HOUSES constant ***
+        // Use the imported EVENT_HOUSES constant
         const currentEventHouses = EVENT_HOUSES[selectedEvent] || EVENT_HOUSES[''];
         const favourableSet = new Set(currentEventHouses.favourable);
         const unfavourableSet = new Set(currentEventHouses.unfavourable);
+
+        // *** DEBUG LOG: Check house sets ***
+        console.log("Favourable Set:", favourableSet);
+        console.log("Unfavourable Set:", unfavourableSet);
 
         // Build intermediate map for efficient lookups (stores raw strings first)
         const intermediatePlanetData = new Map();
@@ -227,27 +235,53 @@ const KpSignificatorsPage = () => {
             const allSignifiedHousesForCompleteness = new Set();
             const subLordSignifiedFavourable = new Set(); // Track favourable houses signified *only* by sublord
 
+            // *** DEBUG LOG: Start scoring for a specific planet (e.g., Mars) ***
+            if (planetName === 'Mars') {
+                console.log(`--- Scoring for ${planetName} ---`);
+                console.log(`   Planet Houses: [${planetAllHouses.join(', ')}]`);
+                console.log(`   Nak Lord (${nakLordName}) Houses: [${nakLordAllHouses.join(', ')}]`);
+                console.log(`   Sub Lord (${subLordName}) Houses: [${subLordAllHouses.join(', ')}]`);
+            }
+
             // --- Score Calculation ---
             // Level 1: Planet itself (+1 / -1)
             planetAllHouses.forEach(house => {
-                if (favourableSet.has(house)) totalScore += 1;
-                else if (unfavourableSet.has(house)) totalScore -= 1;
+                const isFav = favourableSet.has(house);
+                const isUnfav = unfavourableSet.has(house);
+                // *** DEBUG LOG: Check Level 1 scoring ***
+                if (planetName === 'Mars') { // Log only for Mars to reduce noise
+                    console.log(`   L1 (Planet) Check: House ${house}, Is Fav: ${isFav}, Is Unfav: ${isUnfav}, Score change: ${isFav ? '+1' : (isUnfav ? '-1' : '0')}`);
+                }
+                if (isFav) totalScore += 1;
+                else if (isUnfav) totalScore -= 1;
                 allSignifiedHousesForCompleteness.add(house);
             });
 
             // Level 2: Nakshatra Lord (+2 / -2)
             nakLordAllHouses.forEach(house => {
-                if (favourableSet.has(house)) totalScore += 2;
-                else if (unfavourableSet.has(house)) totalScore -= 2;
+                const isFav = favourableSet.has(house);
+                const isUnfav = unfavourableSet.has(house);
+                 // *** DEBUG LOG: Check Level 2 scoring ***
+                if (planetName === 'Mars') { // Log only for Mars
+                    console.log(`   L2 (Nak Lord) Check: House ${house}, Is Fav: ${isFav}, Is Unfav: ${isUnfav}, Score change: ${isFav ? '+2' : (isUnfav ? '-2' : '0')}`);
+                }
+                if (isFav) totalScore += 2;
+                else if (isUnfav) totalScore -= 2;
                 allSignifiedHousesForCompleteness.add(house);
             });
 
             // Level 3: Sub Lord (+3 / -3)
             subLordAllHouses.forEach(house => {
-                if (favourableSet.has(house)) {
+                const isFav = favourableSet.has(house);
+                const isUnfav = unfavourableSet.has(house);
+                 // *** DEBUG LOG: Check Level 3 scoring ***
+                if (planetName === 'Mars') { // Log only for Mars
+                    console.log(`   L3 (Sub Lord) Check: House ${house}, Is Fav: ${isFav}, Is Unfav: ${isUnfav}, Score change: ${isFav ? '+3' : (isUnfav ? '-3' : '0')}`);
+                }
+                if (isFav) {
                     totalScore += 3;
                     subLordSignifiedFavourable.add(house); // Add to sublord specific set
-                } else if (unfavourableSet.has(house)) {
+                } else if (isUnfav) {
                     totalScore -= 3;
                 }
                 allSignifiedHousesForCompleteness.add(house);
@@ -276,6 +310,14 @@ const KpSignificatorsPage = () => {
                 totalScore = 0;
             }
 
+            // *** DEBUG LOG: Final score and favourability for the planet ***
+            if (planetName === 'Mars') { // Log only for Mars
+                console.log(`   Final Score for ${planetName}: ${totalScore}`);
+                console.log(`   Final Favourability for ${planetName}: ${favourability}`);
+                console.log(`   Final Completeness for ${planetName}: ${completeness}`);
+                console.log(`--- End Scoring for ${planetName} ---`);
+            }
+
             // Store all calculated data in the map
             finalMap.set(planetName, {
                 name: planetName,
@@ -290,8 +332,9 @@ const KpSignificatorsPage = () => {
                 completeness: completeness,
             });
         });
+        console.log("--- Finished calculating significator map ---");
         return finalMap;
-    // *** Add selectedEvent as a dependency ***
+    // Add selectedEvent as a dependency
     }, [kpData, selectedEvent]); // Recalculate when kpData OR selectedEvent changes
 
 
