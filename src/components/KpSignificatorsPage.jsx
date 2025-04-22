@@ -164,12 +164,12 @@ const KpSignificatorsPage = () => {
 
         // Use the imported EVENT_HOUSES constant
         const currentEventHouses = EVENT_HOUSES[selectedEvent] || EVENT_HOUSES[''];
-        const favourableSet = new Set(currentEventHouses.favourable);
-        const unfavourableSet = new Set(currentEventHouses.unfavourable);
+        const favorableSet = new Set(currentEventHouses.favorable);
+        const unfavorableSet = new Set(currentEventHouses.unfavorable);
 
         // *** DEBUG LOG: Check house sets ***
-        console.log("Favourable Set:", favourableSet);
-        console.log("Unfavourable Set:", unfavourableSet);
+        console.log("Favorable Set:", favorableSet);
+        console.log("Unfavorable Set:", unfavorableSet);
 
         // Build intermediate map for efficient lookups (stores raw strings first)
         const intermediatePlanetData = new Map();
@@ -233,7 +233,7 @@ const KpSignificatorsPage = () => {
 
             let totalScore = 0;
             const allSignifiedHousesForCompleteness = new Set();
-            const subLordSignifiedFavourable = new Set(); // Track favourable houses signified *only* by sublord
+            const subLordSignifiedFavorable = new Set(); // Track favorable houses signified *only* by sublord
 
             // *** DEBUG LOG: Start scoring for a specific planet (e.g., Mars) ***
             if (planetName === 'Mars') {
@@ -246,8 +246,8 @@ const KpSignificatorsPage = () => {
             // --- Score Calculation ---
             // Level 1: Planet itself (+1 / -1)
             planetAllHouses.forEach(house => {
-                const isFav = favourableSet.has(house);
-                const isUnfav = unfavourableSet.has(house);
+                const isFav = favorableSet.has(house);
+                const isUnfav = unfavorableSet.has(house);
                 // *** DEBUG LOG: Check Level 1 scoring ***
                 if (planetName === 'Mars') { // Log only for Mars to reduce noise
                     console.log(`   L1 (Planet) Check: House ${house}, Is Fav: ${isFav}, Is Unfav: ${isUnfav}, Score change: ${isFav ? '+1' : (isUnfav ? '-1' : '0')}`);
@@ -259,8 +259,8 @@ const KpSignificatorsPage = () => {
 
             // Level 2: Nakshatra Lord (+2 / -2)
             nakLordAllHouses.forEach(house => {
-                const isFav = favourableSet.has(house);
-                const isUnfav = unfavourableSet.has(house);
+                const isFav = favorableSet.has(house);
+                const isUnfav = unfavorableSet.has(house);
                  // *** DEBUG LOG: Check Level 2 scoring ***
                 if (planetName === 'Mars') { // Log only for Mars
                     console.log(`   L2 (Nak Lord) Check: House ${house}, Is Fav: ${isFav}, Is Unfav: ${isUnfav}, Score change: ${isFav ? '+2' : (isUnfav ? '-2' : '0')}`);
@@ -272,15 +272,15 @@ const KpSignificatorsPage = () => {
 
             // Level 3: Sub Lord (+3 / -3)
             subLordAllHouses.forEach(house => {
-                const isFav = favourableSet.has(house);
-                const isUnfav = unfavourableSet.has(house);
+                const isFav = favorableSet.has(house);
+                const isUnfav = unfavorableSet.has(house);
                  // *** DEBUG LOG: Check Level 3 scoring ***
                 if (planetName === 'Mars') { // Log only for Mars
                     console.log(`   L3 (Sub Lord) Check: House ${house}, Is Fav: ${isFav}, Is Unfav: ${isUnfav}, Score change: ${isFav ? '+3' : (isUnfav ? '-3' : '0')}`);
                 }
                 if (isFav) {
                     totalScore += 3;
-                    subLordSignifiedFavourable.add(house); // Add to sublord specific set
+                    subLordSignifiedFavorable.add(house); // Add to sublord specific set
                 } else if (isUnfav) {
                     totalScore -= 3;
                 }
@@ -289,13 +289,13 @@ const KpSignificatorsPage = () => {
 
             // --- Determine Favourability ---
             let favourability = 'Neutral';
-            if (totalScore > 0) favourability = 'Favourable';
-            else if (totalScore < 0) favourability = 'Unfavourable';
+            if (totalScore > 0) favourability = 'Favorable';
+            else if (totalScore < 0) favourability = 'Unfavorable';
 
             // --- Determine Completeness ---
             let completeness = "Not Complete";
-            const isCompleteSublord = favourableSet.size > 0 && [...favourableSet].every(favHouse => subLordSignifiedFavourable.has(favHouse));
-            const isCompleteCombination = favourableSet.size > 0 && [...favourableSet].every(favHouse => allSignifiedHousesForCompleteness.has(favHouse));
+            const isCompleteSublord = favorableSet.size > 0 && [...favorableSet].every(favHouse => subLordSignifiedFavorable.has(favHouse));
+            const isCompleteCombination = favorableSet.size > 0 && [...favorableSet].every(favHouse => allSignifiedHousesForCompleteness.has(favHouse));
 
             if (isCompleteSublord) {
                 completeness = "Complete (Sublord)";
