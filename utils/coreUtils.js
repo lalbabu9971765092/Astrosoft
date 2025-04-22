@@ -1,7 +1,9 @@
 // utils/coreUtils.js
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
-import { RASHI_SPAN } from './constants.js';
+// import { RASHI_SPAN } from './constants.js'; // No longer needed for offset calculation
+import geoTz from 'geo-tz'; // Import geo-tz
+import moment from 'moment-timezone'; // Import moment-timezone
 
 /**
  * Normalizes an angle to be within the range [0, 360).
@@ -88,54 +90,89 @@ export function convertDMSToDegrees(dms) {
 
 
 /**
- * Calculates the Julian Day (UT) for a given date/time string and longitude.
- * @param {string} dateString - ISO 8601 format date string (e.g., "YYYY-MM-DDTHH:MM:SS").
+ * Calculates the Julian Day (UT) for a given local date/time string, latitude, and longitude.
+ * Uses geo-tz and moment-timezone for accurate timezone offset calculation.
+ * @param {string} localDateString - Local date string (YYYY-MM-DDTHH:MM:SS).
+ * @param {number} latitude - Observer's latitude in decimal degrees.
  * @param {number} longitude - Observer's longitude in decimal degrees.
- * @returns {{julianDayUT: number, utcDate: Date} | {julianDayUT: null, utcDate: null}} Object containing Julian Day UT and the corresponding UTC Date object, or nulls on error.
+ * @returns {{julianDayUT: number, utcDate: Date, timezoneOffsetHours: number} | {julianDayUT: null, utcDate: null, timezoneOffsetHours: null}} Object containing Julian Day UT, the corresponding UTC Date object, and the calculated timezone offset in hours, or nulls on error.
  */
-export function getJulianDateUT(dateString, longitude) {
+export function getJulianDateUT(localDateString, latitude, longitude) {
     try {
-        const localDate = new Date(dateString);
-        if (isNaN(localDate.getTime())) {
-            throw new Error(`Invalid date string provided: "${dateString}"`);
+        // Validate coordinates first
+        if (typeof latitude !== 'number' || isNaN(latitude) || latitude < -90 || latitude > 90 ||
+            typeof longitude !== 'number' || isNaN(longitude) || longitude < -180 || longitude > 180) {
+            throw new Error(`Invalid coordinates provided: lat=${latitude}, lon=${longitude}`);
         }
 
-        // Calculate timezone offset in hours (longitude / 15)
-        // Note: This is a simplification. Real timezone offsets can be non-integer and vary politically.
-        // For astrological calculations focused on UT, this conversion from local *apparent* time might be sufficient if the input `dateString` represents local time.
-        // If `dateString` is already UTC, longitude isn't needed here. Assuming it's local time for now.
-        const timezoneOffsetHours = longitude / RASHI_SPAN * 2; // Longitude / 15
+        // 1. Find IANA Timezone Name using geo-tz
+        const ianaTimezones = geoTz(latitude, longitude);
+        if (!ianaTimezones || ianaTimezones.length === 0) {
+            // Fallback or error? Using a fixed offset is generally bad, but could be a last resort.
+            // For now, throw an error as timezone is critical.
+            throw new Error(`Could not find IANA timezone for lat=${latitude}, lon=${longitude}`);
+        }
+        const timezoneName = ianaTimezones[0]; // Use the first/most likely result
 
-        // Calculate UTC time
-        const utcTimestamp = localDate.getTime() - (timezoneOffsetHours * 60 * 60 * 1000);
-        const utcDate = new Date(utcTimestamp);
+        // 2. Parse local string and get correct UTC moment using moment-timezone
+        // Tell moment that the input string IS local time in the *target* timezone
+        const momentLocal = moment.tz(localDateString, "YYYY-MM-DDTHH:mm:ss", timezoneName);
+
+        if (!momentLocal.isValid()) {
+             // This could happen if the date string format is wrong OR if the time is invalid in that timezone (e.g., during DST transition)
+             throw new Error(`Invalid date/time string or timezone combination: "${localDateString}", "${timezoneName}"`);
+        }
+
+        // 3. Convert to UTC and get components
+        const momentUTC = momentLocal.clone().utc(); // Use clone() before converting to UTC
+        const utcDate = momentUTC.toDate(); // Get native Date object representing the UTC moment
 
         if (isNaN(utcDate.getTime())) {
-             throw new Error(`Could not calculate valid UTC date from local: ${dateString} and longitude: ${longitude}`);
+             // Should not happen if momentUTC is valid, but good safety check
+             throw new Error(`Failed to convert momentUTC to valid native Date object.`);
         }
 
-        // Use Swisseph to get Julian Day UT
-        const year = utcDate.getUTCFullYear();
-        const month = utcDate.getUTCMonth() + 1; // JS months are 0-indexed
-        const day = utcDate.getUTCDate();
-        const hour = utcDate.getUTCHours();
-        const minute = utcDate.getUTCMinutes();
-        const second = utcDate.getUTCSeconds();
-        const ut = hour + minute / 60 + second / 3600;
+        const year = momentUTC.year();
+        const month = momentUTC.month() + 1; // moment months are 0-indexed
+        const day = momentUTC.date();
+        const hour = momentUTC.hour();
+        const minute = momentUTC.minute();
+        const second = momentUTC.second();
+        const ut = hour + minute / 60 + second / 3600; // Universal Time decimal hours
 
+        // 4. Calculate Julian Day UT using Swisseph
         const jdResult = swisseph.swe_julday(year, month, day, ut, swisseph.SE_GREG_CAL);
 
         if (typeof jdResult !== 'number' || isNaN(jdResult)) {
-            throw new Error(`swisseph.swe_julday returned invalid result for ${utcDate.toISOString()}`);
+            // Check if swisseph returned an error object/code instead
+            let swissephError = '';
+            if (typeof jdResult === 'object' && jdResult !== null && jdResult.error) {
+                swissephError = ` Swisseph error: ${jdResult.error}`;
+            }
+            throw new Error(`swisseph.swe_julday returned invalid result (${jdResult}) for ${momentUTC.toISOString()}.${swissephError}`);
         }
 
-        return { julianDayUT: jdResult, utcDate: utcDate };
+        // 5. Get the offset that was applied by moment-timezone (for reference/logging)
+        const timezoneOffsetMinutes = momentLocal.utcOffset(); // Get offset in minutes from UTC for the *original* moment
+        const timezoneOffsetHours = timezoneOffsetMinutes / 60;
+
+        // Optional: Log detailed info for debugging
+        logger.debug(`[getJulianDateUT] Input: ${localDateString}, Lat: ${latitude}, Lon: ${longitude}`);
+        logger.debug(`[getJulianDateUT] Found TZ: ${timezoneName}, Offset (hours): ${timezoneOffsetHours.toFixed(2)}`);
+        logger.debug(`[getJulianDateUT] Calculated UTC: ${momentUTC.toISOString()}`);
+        logger.debug(`[getJulianDateUT] Calculated JD(UT): ${jdResult}`);
+
+        // Return the successful result including the offset
+        return { julianDayUT: jdResult, utcDate: utcDate, timezoneOffsetHours: timezoneOffsetHours };
 
     } catch (error) {
-        logger.error(`Error in getJulianDateUT for date "${dateString}", lon ${longitude}: ${error.message}`, { stack: error.stack });
-        return { julianDayUT: null, utcDate: null };
+        // Log the detailed error
+        logger.error(`Error in getJulianDateUT for date "${localDateString}", lat ${latitude}, lon ${longitude}: ${error.message}`, { stack: error.stack });
+        // Return nulls as per the original structure on error
+        return { julianDayUT: null, utcDate: null, timezoneOffsetHours: null };
     }
 }
+
 
 /**
  * Calculates the Ayanamsa (Lahiri) for a given Julian Day (UT).
