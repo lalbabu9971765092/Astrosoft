@@ -10,7 +10,7 @@ import { // Changed
     RASHI_LORDS,
     PLANET_ORDER,
     normalizeAngle,
-    getJulianDateUT,
+    getJulianDateUT, // <-- Make sure this is imported
     calculateAyanamsa,
     calculateHousesAndAscendant,
     calculatePlanetaryPositions,
@@ -126,30 +126,42 @@ const kpValidation = [
 ];
 
 // --- Route Definition ---
-router.post('/', kpValidation, async (req, res) => {
+router.post('/', kpValidation, async (req, res) => { // Changed to '/' assuming base path is set in server.js
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
     try {
-        const { date } = req.body;
-        const latNum = req.body.latitude;
-        const lonNum = req.body.longitude;
+        const { date, latitude, longitude } = req.body; // Destructure validated data
+        const latNum = latitude; // Already parsed
+        const lonNum = longitude; // Already parsed
 
         logger.info(`Starting KP Significator calculation for date=${date}, lat=${latNum}, lon=${lonNum}`); // Use logger
 
-        const { julianDayUT, utcDate } = getJulianDateUT(date, lonNum);
+        // *** CORRECTED CALL: Pass latNum and lonNum ***
+        const { julianDayUT, utcDate } = getJulianDateUT(date, latNum, lonNum);
+
+        // Check if getJulianDateUT failed
+        if (julianDayUT === null) {
+            throw new Error('Failed to calculate Julian Day UT for KP Significators. Check input date/coordinates or timezone lookup.');
+        }
+
         const ayanamsa = calculateAyanamsa(julianDayUT);
+        if (isNaN(ayanamsa)) {
+             throw new Error(`Failed to calculate Ayanamsa for JD ${julianDayUT}`);
+        }
+
         const { tropicalCusps, tropicalAscendant } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
 
         // --- ADD NULL CHECK HERE ---
-        if (!tropicalCusps) {
+        if (tropicalCusps === null) {
             // Throw an error if cusps couldn't be calculated (even after fallback)
             throw new Error("Failed to calculate house cusps, cannot proceed with KP significator calculation.");
         }
         // --- END NULL CHECK ---
+
         const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
-        const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
+        const planetaryPositions = calculatePlanetaryPositions(julianDayUT); // Throws on error
         const siderealPositions = planetaryPositions.sidereal;
         const aspects = calculateAspects(siderealPositions);
 
@@ -192,7 +204,7 @@ router.post('/', kpValidation, async (req, res) => {
         });
 
         const responsePayload = {
-            inputParameters: { date, latitude: latNum, longitude: lonNum, utcDate: utcDate.toISOString(), julianDayUT, ayanamsa },
+            // inputParameters: { date, latitude: latNum, longitude: lonNum, utcDate: utcDate.toISOString(), julianDayUT, ayanamsa }, // Keep input params minimal if not needed by frontend
             kpSignificatorsData: kpSignificatorsDetailed,
         };
         logger.info(`KP Significator calculation successful for date=${date}`); // Use logger
