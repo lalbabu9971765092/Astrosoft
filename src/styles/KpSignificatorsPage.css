@@ -113,7 +113,6 @@
 
 .significators-grid {
   display: grid;
-  /* *** MODIFIED: Explicitly set 3 columns *** */
   grid-template-columns: repeat(3, 1fr); /* Always 3 equal columns by default */
   gap: 15px; /* Increased gap */
   margin-top: 15px; /* Space below sub-title */
@@ -123,20 +122,53 @@
   border: 1px solid #dee2e6; /* Slightly darker border */
   padding: 12px 15px; /* Adjusted padding */
   border-radius: 5px;
-  background-color: #fff;
+  background-color: #fff; /* Default background */
   text-align: left;
   font-size: 0.9rem;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); /* Softer shadow */
   display: flex;
   flex-direction: column;
+  transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
 }
+
+/* --- Styling for Overall Planet Favourability --- */
+.significator-grid-item.item-favourable {
+    background-color: #e6ffed; /* Light green background */
+    border-color: #a3d9b1; /* Slightly darker green border */
+}
+.significator-grid-item.item-favourable .significator-planet-name {
+    color: #0f5132; /* Darker green text for the name */
+}
+
+.significator-grid-item.item-unfavourable {
+    background-color: #fff0f0; /* Light red background */
+    border-color: #f5c6cb; /* Slightly darker red border */
+}
+.significator-grid-item.item-unfavourable .significator-planet-name {
+    color: #842029; /* Darker red text for the name */
+}
+
+.significator-grid-item.item-neutral {
+    background-color: #f8f9fa; /* Slightly off-white */
+    border-color: #dee2e6;
+}
+.significator-grid-item.item-neutral .significator-planet-name {
+    color: #495057;
+}
+
+/* Style for N/A or when no event is selected (relies on default) */
+.significator-grid-item.item-n\/a {
+     /* Uses the default .significator-grid-item styles */
+}
+/* --- End Favourability Styling --- */
+
 
 .significator-planet-name {
   font-weight: bold;
   margin-bottom: 10px; /* More space below name */
   font-size: 1.1em; /* Slightly larger */
   text-align: center;
-  color: #343a40;
+  color: #343a40; /* Default name color */
   border-bottom: 1px solid #e9ecef;
   padding-bottom: 8px; /* More padding */
 }
@@ -191,6 +223,28 @@
     color: #41464b; /* Bootstrap dark grey */
     font-weight: normal;
 }
+
+/* --- Styles for Score/Completeness Display --- */
+.kp-planet-score-info {
+    font-size: 0.8em;
+    margin-top: 8px;
+    padding-top: 5px;
+    border-top: 1px dashed #eee;
+    text-align: center;
+    color: #666;
+}
+.kp-favourability {
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+.kp-favourability.favourable { color: #1a6e1a; background-color: #e0ffe0; }
+.kp-favourability.unfavourable { color: #a02020; background-color: #ffe0e0; }
+.kp-favourability.neutral, .kp-favourability.n\/a { color: #555; background-color: #eee; }
+.kp-score { margin-right: 5px; }
+.kp-completeness { display: block; font-size: 0.9em; margin-top: 2px; }
+/* --- End Score/Completeness Styles --- */
 
 
 /* --- Dasha Column --- */
@@ -261,8 +315,7 @@
         order: 2;
      }
      .significators-grid {
-        /* *** MODIFIED: Switch to 2 columns on medium screens *** */
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns */
      }
 }
 
@@ -274,8 +327,7 @@
   /* Grid and Dasha columns are already 100% width due to above rule */
 
   .significators-grid {
-     /* Keep 2 columns or switch to 1? Let's keep 2 for now */
-     grid-template-columns: repeat(2, 1fr);
+     grid-template-columns: repeat(2, 1fr); /* Keep 2 columns */
   }
   .top-info-container {
       flex-direction: column; /* Stack summary and selector */
@@ -294,8 +346,7 @@
 
 @media (max-width: 480px) {
     .significators-grid {
-        /* *** MODIFIED: Switch to 1 column on small screens *** */
-        grid-template-columns: repeat(1, 1fr);
+        grid-template-columns: repeat(1, 1fr); /* Switch to 1 column */
         gap: 10px;
     }
      .significator-grid-item {
@@ -305,7 +356,6 @@
      .significator-planet-name {
         font-size: 1em;
      }
-     .dasha-table th, .dasha-table td {
-        padding: 5px 6px;
-     }
+     /* Dasha table styles are in DashaTable.css, but you could override here if needed */
+     /* .dasha-table th, .dasha-table td { padding: 5px 6px; } */
 }
