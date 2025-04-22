@@ -108,7 +108,7 @@ try {
 app.use('/api', astrologyRoutes);
 app.use('/api/kp-significators', kpSignificatorRoutes);
 app.use('/api/general', generalRoutes);
-
+app.set('trust proxy', 1);
 // --- Basic Root Route (Optional Health Check) ---
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Astrology Calculation API is running.' });
