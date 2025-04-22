@@ -202,33 +202,41 @@ const AshtakavargaPage = () => {
                         {hasBhinnaData ? (
                             <div className="bav-chart-grid"> {/* Use a grid for layout */}
                                 {ashtakavargaPlanets.map(planetName => {
-    const bavScores = bhinnaData[planetName];
-
-    // *** FIX: Check if bavScores is an array before reducing ***
-    const totalScore = Array.isArray(bavScores)
-        ? bavScores.reduce((sum, score) => sum + (Number(score) || 0), 0)
-        : 0; // Default to 0 if not an array
-
-    // Generate translated title for each BAV chart
-    const translatedPlanetName = t(`planets.${planetName}`, { defaultValue: planetName });
-    const chartTitle = t('bhinnaTable.title', { planetName: translatedPlanetName, totalScore });
-
-    return (
-        <DiamondChart
-            key={`bav-chart-${planetName}`}
-            title={chartTitle}
-            size={300} // Make BAV charts smaller
-            houses={displayNatalResult.houses}
-            // *** FIX: Pass null or an empty array if bavScores isn't valid ***
-            scores={Array.isArray(bavScores) ? bavScores : null} // Pass null or [] if not an array
-            // Do not pass 'planets' prop
-        />
-    );
-})}
+                                    // Get the object for the specific planet
+                                    const planetBhinnaData = bhinnaData[planetName];
+                        
+                                    // *** FIX: Access the 'scores' array within the object ***
+                                    const bavScoresArray = planetBhinnaData?.scores;
+                        
+                                    // *** FIX: Use the 'total' directly from the object if available, or calculate ***
+                                    const totalScore = planetBhinnaData?.total ?? (Array.isArray(bavScoresArray)
+                                        ? bavScoresArray.reduce((sum, score) => sum + (Number(score) || 0), 0)
+                                        : 0); // Fallback calculation if total is missing
+                        
+                                    // Generate translated title for each BAV chart
+                                    const translatedPlanetName = t(`planets.${planetName}`, { defaultValue: planetName });
+                                    const chartTitle = t('bhinnaTable.title', { planetName: translatedPlanetName, totalScore });
+                        
+                                    // *** FIX: Check if the extracted 'bavScoresArray' is actually an array ***
+                                    const isValidScoreArray = Array.isArray(bavScoresArray);
+                        
+                                    return (
+                                        <DiamondChart
+                                            key={`bav-chart-${planetName}`}
+                                            title={chartTitle}
+                                            size={300} // Make BAV charts smaller
+                                            houses={displayNatalResult.houses}
+                                            // *** FIX: Pass the 'bavScoresArray' if it's valid, otherwise null ***
+                                            scores={isValidScoreArray ? bavScoresArray : null}
+                                            // Do not pass 'planets' prop
+                                        />
+                                    );
+                                })}
                             </div>
                         ) : (
                             <p className="info-text">{t('ashtakavargaPage.bavUnavailable')}</p>
                         )}
+                        
                     </div>
                 </>
             )}
