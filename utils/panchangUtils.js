@@ -73,9 +73,9 @@ export function calculateSunMoonTimes(dateString, latitude, longitude) {
              throw new Error(`Invalid coordinates: Lat=${latitude}, Lon=${longitude}`);
         }
         const targetDateForCalc = new Date(Date.UTC(
-            inputDate.getUTCFullYear(),
-            inputDate.getUTCMonth(),
-            inputDate.getUTCDate(),
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
             12, 0, 0 // Use noon UTC
         ));
         const sunTimes = SunCalc.getTimes(targetDateForCalc, latitude, longitude);
