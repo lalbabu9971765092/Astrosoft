@@ -72,9 +72,14 @@ export function calculateSunMoonTimes(dateString, latitude, longitude) {
         if (isNaN(latitude) || isNaN(longitude)) {
              throw new Error(`Invalid coordinates: Lat=${latitude}, Lon=${longitude}`);
         }
-
-        const sunTimes = SunCalc.getTimes(date, latitude, longitude);
-        const moonTimes = SunCalc.getMoonTimes(date, latitude, longitude);
+        const targetDateForCalc = new Date(Date.UTC(
+            inputDate.getUTCFullYear(),
+            inputDate.getUTCMonth(),
+            inputDate.getUTCDate(),
+            12, 0, 0 // Use noon UTC
+        ));
+        const sunTimes = SunCalc.getTimes(targetDateForCalc, latitude, longitude);
+        const moonTimes = SunCalc.getMoonTimes(targetDateForCalc, latitude, longitude);
 
         // Check if times are valid Date objects before converting to ISO string
         result.sunrise = sunTimes?.sunrise instanceof Date && !isNaN(sunTimes.sunrise) ? sunTimes.sunrise.toISOString() : null;
