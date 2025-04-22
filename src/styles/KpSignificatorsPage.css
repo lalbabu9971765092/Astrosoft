@@ -131,20 +131,20 @@
   transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
 }
 
-/* --- Styling for Overall Planet Favourability --- */
-.significator-grid-item.item-favourable {
+/* --- Styling for Overall Planet Favorability --- */
+.significator-grid-item.item-favorable {
     background-color: #e6ffed; /* Light green background */
     border-color: #a3d9b1; /* Slightly darker green border */
 }
-.significator-grid-item.item-favourable .significator-planet-name {
+.significator-grid-item.item-favorable .significator-planet-name {
     color: #0f5132; /* Darker green text for the name */
 }
 
-.significator-grid-item.item-unfavourable {
+.significator-grid-item.item-unfavorable {
     background-color: #fff0f0; /* Light red background */
     border-color: #f5c6cb; /* Slightly darker red border */
 }
-.significator-grid-item.item-unfavourable .significator-planet-name {
+.significator-grid-item.item-unfavorable .significator-planet-name {
     color: #842029; /* Darker red text for the name */
 }
 
@@ -160,7 +160,7 @@
 .significator-grid-item.item-n\/a {
      /* Uses the default .significator-grid-item styles */
 }
-/* --- End Favourability Styling --- */
+/* --- End Favorability Styling --- */
 
 
 .significator-planet-name {
@@ -233,15 +233,15 @@
     text-align: center;
     color: #666;
 }
-.kp-favourability {
+.kp-favorability {
     font-weight: bold;
     padding: 1px 4px;
     border-radius: 3px;
     margin-right: 5px;
 }
-.kp-favourability.favourable { color: #1a6e1a; background-color: #e0ffe0; }
-.kp-favourability.unfavourable { color: #a02020; background-color: #ffe0e0; }
-.kp-favourability.neutral, .kp-favourability.n\/a { color: #555; background-color: #eee; }
+.kp-favorability.favorable { color: #1a6e1a; background-color: #e0ffe0; }
+.kp-favorability.unfavorable { color: #a02020; background-color: #ffe0e0; }
+.kp-favorability.neutral, .kp-favorability.n\/a { color: #555; background-color: #eee; }
 .kp-score { margin-right: 5px; }
 .kp-completeness { display: block; font-size: 0.9em; margin-top: 2px; }
 /* --- End Score/Completeness Styles --- */
