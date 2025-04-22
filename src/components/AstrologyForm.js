@@ -22,13 +22,22 @@ import api from './api';
 
 // --- Helper Function to Format Time (Panchang) ---
 const formatPanchangTime = (dateTimeString, t) => {
+    // Handle special strings from suncalc first
+    if (dateTimeString === "Always Up" || dateTimeString === "Always Down") {
+        return t(`sunMoonTimes.${dateTimeString.replace(' ', '')}`, dateTimeString); // e.g., t('sunMoonTimes.AlwaysUp', 'Always Up')
+    }
     if (!dateTimeString || typeof dateTimeString !== 'string') return t('utils.notAvailable', 'N/A');
+
     try {
+        // Create Date object from ISO string (represents a specific moment in time)
         const date = new Date(dateTimeString);
         if (isNaN(date.getTime())) return t('utils.invalidTime', 'Invalid Time');
-        // Use UTC methods to avoid local timezone shifts during formatting
-        const hours = date.getUTCHours();
-        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+        // *** Use getHours() and getMinutes() for local time display ***
+        const hours = date.getHours(); // Local hour
+        const minutes = date.getMinutes().toString().padStart(2, '0'); // Local minute
+        // *** End change ***
+
         const ampm = hours >= 12 ? 'PM' : 'AM';
         const displayHour = hours % 12 === 0 ? 12 : hours % 12;
         return `${displayHour}:${minutes} ${ampm}`;
