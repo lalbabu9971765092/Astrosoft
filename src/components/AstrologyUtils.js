@@ -8,44 +8,178 @@ export const YOGA_SPAN = 360 / 27; // Same as Nakshatra span
 export const KARAN_SPAN = 6;
 
 export const NAKSHATRAS = [
-    "Ashwini", "Bharani", "Krittika", "Rohini", "Mrigashira", "Ardra",
-    "Punarvasu", "Pushya", "Ashlesha", "Magha", "Purva Phalguni", "Uttara Phalguni",
-    "Hasta", "Chitra", "Swati", "Vishakha", "Anuradha", "Jyeshtha",
-    "Mula", "Purva Ashadha", "Uttara Ashadha", "Shravana", "Dhanishta",
-    "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"
+  "Ashwini",
+  "Bharani",
+  "Krittika",
+  "Rohini",
+  "Mrigashira",
+  "Ardra",
+  "Punarvasu",
+  "Pushya",
+  "Ashlesha",
+  "Magha",
+  "Purva Phalguni",
+  "Uttara Phalguni",
+  "Hasta",
+  "Chitra",
+  "Swati",
+  "Vishakha",
+  "Anuradha",
+  "Jyeshtha",
+  "Mula",
+  "Purva Ashadha",
+  "Uttara Ashadha",
+  "Shravana",
+  "Dhanishta",
+  "Shatabhisha",
+  "Purva Bhadrapada",
+  "Uttara Bhadrapada",
+  "Revati",
 ];
 export const RASHIS = [
-    "Mesha", "Vrishabha", "Mithuna", "Karka", "Simha", "Kanya",
-    "Tula", "Vrishchika", "Dhanu", "Makara", "Kumbha", "Meena"
+  "Mesha",
+  "Vrishabha",
+  "Mithuna",
+  "Karka",
+  "Simha",
+  "Kanya",
+  "Tula",
+  "Vrishchika",
+  "Dhanu",
+  "Makara",
+  "Kumbha",
+  "Meena",
 ];
 export const YOGAS = [
-    "Vishkumbha", "Priti", "Ayushman", "Saubhagya", "Shobhana", "Atiganda",
-    "Sukarma", "Dhriti", "Shoola", "Ganda", "Vriddhi", "Dhruva", "Vyaghata",
-    "Harshana", "Vajra", "Siddhi", "Vyatipata", "Variyana", "Parigha",
-    "Shiva", "Siddha", "Sadhya", "Shubha", "Shukla", "Brahma", "Indra", "Vaidhriti"
+  "Vishkumbha",
+  "Priti",
+  "Ayushman",
+  "Saubhagya",
+  "Shobhana",
+  "Atiganda",
+  "Sukarma",
+  "Dhriti",
+  "Shoola",
+  "Ganda",
+  "Vriddhi",
+  "Dhruva",
+  "Vyaghata",
+  "Harshana",
+  "Vajra",
+  "Siddhi",
+  "Vyatipata",
+  "Variyana",
+  "Parigha",
+  "Shiva",
+  "Siddha",
+  "Sadhya",
+  "Shubha",
+  "Shukla",
+  "Brahma",
+  "Indra",
+  "Vaidhriti",
 ];
 export const KARANS = [
-    "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti", // 1-7 (repeats 8 times)
-    "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti",
-    "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti",
-    "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti",
-    "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti",
-    "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti",
-    "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti",
-    "Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti",
-    "Shakuni", "Chatushpada", "Naga", "Kimstughna" // 57-60 (Fixed Karans)
+  "Bava",
+  "Balava",
+  "Kaulava",
+  "Taitila",
+  "Garaja",
+  "Vanija",
+  "Vishti", // 1-7 (repeats 8 times)
+  "Bava",
+  "Balava",
+  "Kaulava",
+  "Taitila",
+  "Garaja",
+  "Vanija",
+  "Vishti",
+  "Bava",
+  "Balava",
+  "Kaulava",
+  "Taitila",
+  "Garaja",
+  "Vanija",
+  "Vishti",
+  "Bava",
+  "Balava",
+  "Kaulava",
+  "Taitila",
+  "Garaja",
+  "Vanija",
+  "Vishti",
+  "Bava",
+  "Balava",
+  "Kaulava",
+  "Taitila",
+  "Garaja",
+  "Vanija",
+  "Vishti",
+  "Bava",
+  "Balava",
+  "Kaulava",
+  "Taitila",
+  "Garaja",
+  "Vanija",
+  "Vishti",
+  "Bava",
+  "Balava",
+  "Kaulava",
+  "Taitila",
+  "Garaja",
+  "Vanija",
+  "Vishti",
+  "Bava",
+  "Balava",
+  "Kaulava",
+  "Taitila",
+  "Garaja",
+  "Vanija",
+  "Vishti",
+  "Shakuni",
+  "Chatushpada",
+  "Naga",
+  "Kimstughna", // 57-60 (Fixed Karans)
 ];
-export const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+export const WEEKDAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 // Shared planet order for consistent display
 export const PLANET_ORDER = [
-  "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
-  "Rahu", "Ketu", "Uranus", "Neptune", "Pluto",
+  "Sun",
+  "Moon",
+  "Mars",
+  "Mercury",
+  "Jupiter",
+  "Venus",
+  "Saturn",
+  "Rahu",
+  "Ketu",
+  "Uranus",
+  "Neptune",
+  "Pluto",
 ];
 export const PLANET_SYMBOLS = {
-  Sun: 'Su', Moon: 'Mo', Mars: 'Ma', Mercury: 'Me', Jupiter: 'Ju',
-  Venus: 'Ve', Saturn: 'Sa', Rahu: 'Ra', Ketu: 'Ke', Uranus: 'Ur',
-  Neptune: 'Ne', Pluto: 'Pl', Ascendant: 'Asc' // Include Ascendant if needed
+  Sun: "Su",
+  Moon: "Mo",
+  Mars: "Ma",
+  Mercury: "Me",
+  Jupiter: "Ju",
+  Venus: "Ve",
+  Saturn: "Sa",
+  Rahu: "Ra",
+  Ketu: "Ke",
+  Uranus: "Ur",
+  Neptune: "Ne",
+  Pluto: "Pl",
+  Ascendant: "Asc", // Include Ascendant if needed
 };
 // --- Helper Functions ---
 
@@ -56,20 +190,22 @@ export const PLANET_SYMBOLS = {
  * @returns {number} Decimal degrees, or NaN if conversion fails.
  */
 export const convertDMSToDegrees = (dmsString) => {
-  if (!dmsString || typeof dmsString !== 'string') return NaN;
-  const match = dmsString.match(/(-?\d+(?:\.\d+)?)[^\d\w]*(\d+(?:\.\d+)?)?[^\d\w]*(\d+(?:\.\d+)?)?[^\d\w]*([NSEW])?/i);
+  if (!dmsString || typeof dmsString !== "string") return NaN;
+  const match = dmsString.match(
+    /(-?\d+(?:\.\d+)?)[^\d\w]*(\d+(?:\.\d+)?)?[^\d\w]*(\d+(?:\.\d+)?)?[^\d\w]*([NSEW])?/i
+  );
   if (!match) return NaN;
 
   const degrees = parseFloat(match[1]);
-  const minutes = parseFloat(match[2] || '0');
-  const seconds = parseFloat(match[3] || '0');
-  const direction = (match[4] || '').toUpperCase();
+  const minutes = parseFloat(match[2] || "0");
+  const seconds = parseFloat(match[3] || "0");
+  const direction = (match[4] || "").toUpperCase();
 
   if (isNaN(degrees) || isNaN(minutes) || isNaN(seconds)) return NaN;
 
   let decimalDegrees = Math.abs(degrees) + minutes / 60 + seconds / 3600;
 
-  if (degrees < 0 || direction === 'S' || direction === 'W') {
+  if (degrees < 0 || direction === "S" || direction === "W") {
     decimalDegrees *= -1;
   }
 
@@ -82,16 +218,17 @@ export const convertDMSToDegrees = (dmsString) => {
  * @param {function} t - The translation function from i18next.
  * @returns {string} Formatted DMS string (e.g., "10°15'20.50\"") or a translated "N/A".
  */
-export const convertToDMS = (deg, t) => { // Added t function parameter
+export const convertToDMS = (deg, t) => {
+  // Added t function parameter
   if (isNaN(deg) || deg === null || deg === undefined) {
-      // Use translation function for "N/A"
-      return t ? t('utils.notAvailable', 'N/A') : 'N/A';
+    // Use translation function for "N/A"
+    return t ? t("utils.notAvailable", "N/A") : "N/A";
   }
 
   const absoluteDeg = Math.abs(deg);
   const degrees = Math.floor(absoluteDeg);
   let minutes = Math.floor((absoluteDeg - degrees) * 60);
-  let secondsValue = ((absoluteDeg - degrees - minutes / 60) * 3600);
+  let secondsValue = (absoluteDeg - degrees - minutes / 60) * 3600;
 
   // Handle potential rounding issue where seconds might become 60.00
   const epsilon = 1e-9;
@@ -115,7 +252,7 @@ export const convertToDMS = (deg, t) => { // Added t function parameter
  * @returns {number} The normalized angle, or NaN if input is invalid.
  */
 export const normalizeAngle = (angle) => {
-  if (typeof angle !== 'number' || isNaN(angle)) return NaN;
+  if (typeof angle !== "number" || isNaN(angle)) return NaN;
   return ((angle % 360) + 360) % 360;
 };
 
@@ -127,16 +264,16 @@ export const normalizeAngle = (angle) => {
  * @returns {number} The normalized midpoint angle, or NaN if inputs are invalid.
  */
 export const calculateMidpoint = (angle1, angle2) => {
-    const normAngle1 = normalizeAngle(angle1);
-    const normAngle2 = normalizeAngle(angle2);
-    if (isNaN(normAngle1) || isNaN(normAngle2)) return NaN;
+  const normAngle1 = normalizeAngle(angle1);
+  const normAngle2 = normalizeAngle(angle2);
+  if (isNaN(normAngle1) || isNaN(normAngle2)) return NaN;
 
-    let diff = normAngle2 - normAngle1;
-    if (diff > 180) diff -= 360;
-    else if (diff <= -180) diff += 360;
+  let diff = normAngle2 - normAngle1;
+  if (diff > 180) diff -= 360;
+  else if (diff <= -180) diff += 360;
 
-    let midpoint = normAngle1 + diff / 2;
-    return normalizeAngle(midpoint);
+  let midpoint = normAngle1 + diff / 2;
+  return normalizeAngle(midpoint);
 };
 
 // --- Astrological Calculation Functions ---
@@ -148,9 +285,10 @@ export const calculateMidpoint = (angle1, angle2) => {
  * @param {function} t - The translation function from i18next.
  * @returns {number | string} Tithi index or translated "N/A".
  */
-export const calculateTithi = (sunLongitude, moonLongitude, t) => { // Added t
+export const calculateTithi = (sunLongitude, moonLongitude, t) => {
+  // Added t
   if (isNaN(sunLongitude) || isNaN(moonLongitude)) {
-      return t ? t('utils.notAvailable', 'N/A') : 'N/A';
+    return t ? t("utils.notAvailable", "N/A") : "N/A";
   }
   const difference = normalizeAngle(moonLongitude - sunLongitude);
   const tithiIndex = Math.floor(difference / TITHI_SPAN);
@@ -163,14 +301,15 @@ export const calculateTithi = (sunLongitude, moonLongitude, t) => { // Added t
  * @param {function} t - The translation function from i18next.
  * @returns {number | string} Pada number or translated "N/A".
  */
-export const calculateNakshatraPada = (longitude, t) => { // Added t
-    if (isNaN(longitude)) {
-        return t ? t('utils.notAvailable', 'N/A') : 'N/A';
-    }
-    const degreeWithin360 = normalizeAngle(longitude);
-    const degreeWithinNakshatra = degreeWithin360 % NAKSHATRA_SPAN;
-    const pada = Math.floor(degreeWithinNakshatra / (NAKSHATRA_SPAN / 4)) + 1;
-    return pada;
+export const calculateNakshatraPada = (longitude, t) => {
+  // Added t
+  if (isNaN(longitude)) {
+    return t ? t("utils.notAvailable", "N/A") : "N/A";
+  }
+  const degreeWithin360 = normalizeAngle(longitude);
+  const degreeWithinNakshatra = degreeWithin360 % NAKSHATRA_SPAN;
+  const pada = Math.floor(degreeWithinNakshatra / (NAKSHATRA_SPAN / 4)) + 1;
+  return pada;
 };
 
 /**
@@ -189,12 +328,15 @@ export const calculateNakshatraDegree = (longitude) => {
  * @param {function} t - The translation function from i18next.
  * @returns {string} Rashi name or translated "Unknown".
  */
-export const calculateRashi = (longitude, t) => { // Added t
+export const calculateRashi = (longitude, t) => {
+  // Added t
   if (isNaN(longitude)) {
-      return t ? t('utils.unknown', 'Unknown') : 'Unknown';
+    return t ? t("utils.unknown", "Unknown") : "Unknown";
   }
   const rashiIndex = Math.floor(normalizeAngle(longitude) / RASHI_SPAN);
-  return RASHIS[rashiIndex % 12] || (t ? t('utils.unknown', 'Unknown') : 'Unknown');
+  return (
+    RASHIS[rashiIndex % 12] || (t ? t("utils.unknown", "Unknown") : "Unknown")
+  );
 };
 
 /**
@@ -204,13 +346,16 @@ export const calculateRashi = (longitude, t) => { // Added t
  * @param {function} t - The translation function from i18next.
  * @returns {string} Yoga name or translated "Unknown".
  */
-export const calculateYoga = (sunLongitude, moonLongitude, t) => { // Added t
+export const calculateYoga = (sunLongitude, moonLongitude, t) => {
+  // Added t
   if (isNaN(sunLongitude) || isNaN(moonLongitude)) {
-      return t ? t('utils.unknown', 'Unknown') : 'Unknown';
+    return t ? t("utils.unknown", "Unknown") : "Unknown";
   }
   const sum = normalizeAngle(sunLongitude + moonLongitude);
   const yogaIndex = Math.floor(sum / YOGA_SPAN);
-  return YOGAS[yogaIndex % 27] || (t ? t('utils.unknown', 'Unknown') : 'Unknown');
+  return (
+    YOGAS[yogaIndex % 27] || (t ? t("utils.unknown", "Unknown") : "Unknown")
+  );
 };
 
 /**
@@ -220,38 +365,66 @@ export const calculateYoga = (sunLongitude, moonLongitude, t) => { // Added t
  * @param {function} t - The translation function from i18next.
  * @returns {string} Karan name or translated "Unknown".
  */
-export const calculateKaran = (sunLongitude, moonLongitude, t) => { // Added t
+export const calculateKaran = (sunLongitude, moonLongitude, t) => {
+  // Added t
   if (isNaN(sunLongitude) || isNaN(moonLongitude)) {
-      return t ? t('utils.unknown', 'Unknown') : 'Unknown';
+    return t ? t("utils.unknown", "Unknown") : "Unknown";
   }
   const difference = normalizeAngle(moonLongitude - sunLongitude);
   const karanIndex = Math.floor(difference / KARAN_SPAN);
-  return KARANS[karanIndex % 60] || (t ? t('utils.unknown', 'Unknown') : 'Unknown');
+  return (
+    KARANS[karanIndex % 60] || (t ? t("utils.unknown", "Unknown") : "Unknown")
+  );
 };
 
 /**
- * Calculates the Var (Weekday) name.
- * Note: Uses browser's locale for Date object. Consider locale-aware formatting in the component.
- * @param {string} dateString - Date string parsable by new Date().
+ * Calculates the Var (Weekday) name from a local ISO-like string.
+ * @param {string} localIsoString - Date string in 'YYYY-MM-DDTHH:MM:SS' format (local time).
  * @param {function} t - The translation function from i18next.
- * @returns {string} Weekday name or translated error/invalid string.
+ * @returns {string} Weekday name key (e.g., "Sunday") or translated error/invalid string.
  */
-export const calculateVar = (dateString, t) => { // Added t
+export const calculateVar = (localIsoString, t) => {
   try {
-    if (!dateString || typeof dateString !== 'string') {
-        return t ? t('utils.invalidDate', 'Invalid Date') : 'Invalid Date';
+    if (!localIsoString || typeof localIsoString !== "string") {
+      return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
     }
-    const dateObj = new Date(dateString);
-    if (isNaN(dateObj.getTime())) {
-        return t ? t('utils.invalidDate', 'Invalid Date') : 'Invalid Date';
+
+    // Parse the local time string manually
+    const match = localIsoString.match(
+      /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/
+    );
+    if (!match) {
+      // Try without seconds
+      const matchNoSeconds = localIsoString.match(
+        /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/
+      );
+      if (!matchNoSeconds) {
+        console.warn("calculateVar: Invalid format received:", localIsoString);
+        return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
+      }
+      const [, year, month, day, hours, minutes] = matchNoSeconds;
+      // Create Date object using UTC constructor to avoid local timezone shifts during creation,
+      // but use the *local* numbers provided. getUTCDay() will give the correct day index.
+      const dateObj = new Date(
+        Date.UTC(year, month - 1, day, hours, minutes, 0)
+      );
+      if (isNaN(dateObj.getTime())) {
+        return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
+      }
+      return WEEKDAYS[dateObj.getUTCDay()]; // Use getUTCDay because we constructed with UTC
+    } else {
+      const [, year, month, day, hours, minutes, seconds] = match;
+      const dateObj = new Date(
+        Date.UTC(year, month - 1, day, hours, minutes, seconds)
+      );
+      if (isNaN(dateObj.getTime())) {
+        return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
+      }
+      return WEEKDAYS[dateObj.getUTCDay()]; // Use getUTCDay
     }
-    // Use getUTCDay() if the dateString represents UTC, or getDay() if it's local
-    // Assuming dateString from datetime-local is intended as local time for weekday calculation
-    // Consider using Intl.DateTimeFormat in the component for better locale handling
-    return WEEKDAYS[dateObj.getDay()];
   } catch (e) {
     console.error("Error calculating Var:", e);
-    return t ? t('utils.error', 'Error') : 'Error';
+    return t ? t("utils.error", "Error") : "Error";
   }
 };
 
@@ -262,22 +435,36 @@ export const calculateVar = (dateString, t) => { // Added t
  * @param {function} t - The translation function from i18next.
  * @returns {number | string} House number or translated "N/A"/"Unknown".
  */
-export const calculateHouse = (longitude, cuspStartDegrees, t) => { // Added t
-    if (isNaN(longitude) || !Array.isArray(cuspStartDegrees) || cuspStartDegrees.length !== 12 || cuspStartDegrees.some(isNaN)) {
-        return t ? t('utils.notAvailable', 'N/A') : 'N/A';
+export const calculateHouse = (longitude, cuspStartDegrees, t) => {
+  // Added t
+  if (
+    isNaN(longitude) ||
+    !Array.isArray(cuspStartDegrees) ||
+    cuspStartDegrees.length !== 12 ||
+    cuspStartDegrees.some(isNaN)
+  ) {
+    return t ? t("utils.notAvailable", "N/A") : "N/A";
+  }
+  const normalizedLng = normalizeAngle(longitude);
+  for (let i = 0; i < 12; i++) {
+    const currentCusp = normalizeAngle(cuspStartDegrees[i]);
+    const nextCusp = normalizeAngle(cuspStartDegrees[(i + 1) % 12]);
+    if (currentCusp <= nextCusp) {
+      if (normalizedLng >= currentCusp && normalizedLng < nextCusp)
+        return i + 1;
+    } else {
+      // Handles wrap-around (e.g., Cusp 12 to Cusp 1)
+      if (normalizedLng >= currentCusp || normalizedLng < nextCusp)
+        return i + 1;
     }
-    const normalizedLng = normalizeAngle(longitude);
-    for (let i = 0; i < 12; i++) {
-        const currentCusp = normalizeAngle(cuspStartDegrees[i]);
-        const nextCusp = normalizeAngle(cuspStartDegrees[(i + 1) % 12]);
-        if (currentCusp <= nextCusp) {
-            if (normalizedLng >= currentCusp && normalizedLng < nextCusp) return i + 1;
-        } else { // Handles wrap-around (e.g., Cusp 12 to Cusp 1)
-            if (normalizedLng >= currentCusp || normalizedLng < nextCusp) return i + 1;
-        }
-    }
-    console.warn("Longitude", longitude, "did not fall into any house range based on cusps:", cuspStartDegrees);
-    return t ? t('utils.unknown', 'Unknown') : 'Unknown';
+  }
+  console.warn(
+    "Longitude",
+    longitude,
+    "did not fall into any house range based on cusps:",
+    cuspStartDegrees
+  );
+  return t ? t("utils.unknown", "Unknown") : "Unknown";
 };
 
 // --- NEW: Input Validation Functions ---
@@ -289,46 +476,83 @@ export const calculateHouse = (longitude, cuspStartDegrees, t) => { // Added t
  * @param {function} t - The translation function from i18next.
  * @returns {{isValid: boolean, formattedDate: string | null, error: string | null}}
  */
-export const validateAndFormatDateTime = (dateString, t) => { // Added t
-    const defaultError = "Error parsing date/time.";
-    const requiredError = "Please enter the Date and Time.";
-    const invalidValueError = "Invalid date/time value selected.";
+export const validateAndFormatDateTime = (dateString, t) => {
+  // Added t
+  const defaultError = "Error parsing date/time.";
+  const requiredError = "Please enter the Date and Time.";
+  const invalidValueError = "Invalid date/time value selected.";
 
-    if (!dateString || typeof dateString !== 'string') {
-        return { isValid: false, formattedDate: null, error: t ? t('validation.dateTimeRequired', requiredError) : requiredError };
-    }
-    try {
-        // Attempt to parse, including potential 'Z' for UTC or timezone offsets
-        const parsedDate = new Date(dateString);
-        if (isNaN(parsedDate.getTime())) {
-            // Try adding ':00' if it looks like datetime-local output without seconds
-            if (dateString.length === 16 && !dateString.includes(':', 14)) {
-                const parsedWithSeconds = new Date(`${dateString}:00`);
-                if (isNaN(parsedWithSeconds.getTime())) {
-                    return { isValid: false, formattedDate: null, error: t ? t('validation.invalidDateTimeValue', invalidValueError) : invalidValueError };
-                }
-                // If parsing with seconds works, use that formatted string
-                return { isValid: true, formattedDate: `${dateString}:00`, error: null };
-            }
-            // If still invalid after trying to add seconds
-            return { isValid: false, formattedDate: null, error: t ? t('validation.invalidDateTimeValue', invalidValueError) : invalidValueError };
+  if (!dateString || typeof dateString !== "string") {
+    return {
+      isValid: false,
+      formattedDate: null,
+      error: t
+        ? t("validation.dateTimeRequired", requiredError)
+        : requiredError,
+    };
+  }
+  try {
+    // Attempt to parse, including potential 'Z' for UTC or timezone offsets
+    const parsedDate = new Date(dateString);
+    if (isNaN(parsedDate.getTime())) {
+      // Try adding ':00' if it looks like datetime-local output without seconds
+      if (dateString.length === 16 && !dateString.includes(":", 14)) {
+        const parsedWithSeconds = new Date(`${dateString}:00`);
+        if (isNaN(parsedWithSeconds.getTime())) {
+          return {
+            isValid: false,
+            formattedDate: null,
+            error: t
+              ? t("validation.invalidDateTimeValue", invalidValueError)
+              : invalidValueError,
+          };
         }
-
-        // If original parsing worked, ensure seconds are present in the output format if needed by backend
-        let formattedDate = dateString;
-        // Check if seconds are missing based on typical ISO-like formats
-        if (dateString.length === 16 && dateString.includes('T') && !dateString.includes(':', 14)) {
-            formattedDate = `${dateString}:00`;
-        } else if (dateString.length === 19 && dateString.includes('T') && dateString.indexOf(':', 14) === 16) {
-             // Already has seconds, use as is
-             formattedDate = dateString;
-        }
-        // Add more robust checks if other formats are expected
-
-        return { isValid: true, formattedDate: formattedDate, error: null };
-    } catch (e) {
-        return { isValid: false, formattedDate: null, error: t ? t('validation.errorParsingDateTime', defaultError) : defaultError };
+        // If parsing with seconds works, use that formatted string
+        return {
+          isValid: true,
+          formattedDate: `${dateString}:00`,
+          error: null,
+        };
+      }
+      // If still invalid after trying to add seconds
+      return {
+        isValid: false,
+        formattedDate: null,
+        error: t
+          ? t("validation.invalidDateTimeValue", invalidValueError)
+          : invalidValueError,
+      };
     }
+
+    // If original parsing worked, ensure seconds are present in the output format if needed by backend
+    let formattedDate = dateString;
+    // Check if seconds are missing based on typical ISO-like formats
+    if (
+      dateString.length === 16 &&
+      dateString.includes("T") &&
+      !dateString.includes(":", 14)
+    ) {
+      formattedDate = `${dateString}:00`;
+    } else if (
+      dateString.length === 19 &&
+      dateString.includes("T") &&
+      dateString.indexOf(":", 14) === 16
+    ) {
+      // Already has seconds, use as is
+      formattedDate = dateString;
+    }
+    // Add more robust checks if other formats are expected
+
+    return { isValid: true, formattedDate: formattedDate, error: null };
+  } catch (e) {
+    return {
+      isValid: false,
+      formattedDate: null,
+      error: t
+        ? t("validation.errorParsingDateTime", defaultError)
+        : defaultError,
+    };
+  }
 };
 
 /**
@@ -337,46 +561,115 @@ export const validateAndFormatDateTime = (dateString, t) => { // Added t
  * @param {function} t - The translation function from i18next.
  * @returns {{isValid: boolean, latitude: number | null, longitude: number | null, error: string | null}}
  */
-export const parseAndValidateCoords = (coordsString, t) => { // Added t
-    const defaultError = "Error parsing coordinates.";
-    const requiredError = "Please enter Latitude and Longitude.";
-    const invalidFormatError = "Invalid format. Use 'latitude, longitude'.";
-    const numberError = "Latitude and Longitude must be numbers.";
-    const latBoundsError = "Latitude must be between -90 and 90.";
-    const lonBoundsError = "Longitude must be between -180 and 180.";
+export const parseAndValidateCoords = (coordsString, t) => {
+  // Added t
+  const defaultError = "Error parsing coordinates.";
+  const requiredError = "Please enter Latitude and Longitude.";
+  const invalidFormatError = "Invalid format. Use 'latitude, longitude'.";
+  const numberError = "Latitude and Longitude must be numbers.";
+  const latBoundsError = "Latitude must be between -90 and 90.";
+  const lonBoundsError = "Longitude must be between -180 and 180.";
 
-    if (!coordsString || typeof coordsString !== 'string') {
-        return { isValid: false, latitude: null, longitude: null, error: t ? t('validation.coordsRequired', requiredError) : requiredError };
+  if (!coordsString || typeof coordsString !== "string") {
+    return {
+      isValid: false,
+      latitude: null,
+      longitude: null,
+      error: t ? t("validation.coordsRequired", requiredError) : requiredError,
+    };
+  }
+  try {
+    const parts = coordsString
+      .split(/[\s,;]+/)
+      .map((s) => s.trim())
+      .filter((s) => s !== ""); // Split by comma, space, or semicolon, trim, remove empty
+    if (parts.length !== 2) {
+      return {
+        isValid: false,
+        latitude: null,
+        longitude: null,
+        error: t
+          ? t("validation.invalidCoordsFormat", invalidFormatError)
+          : invalidFormatError,
+      };
     }
-    try {
-        const parts = coordsString.split(/[\s,;]+/).map(s => s.trim()).filter(s => s !== ''); // Split by comma, space, or semicolon, trim, remove empty
-        if (parts.length !== 2) {
-            return { isValid: false, latitude: null, longitude: null, error: t ? t('validation.invalidCoordsFormat', invalidFormatError) : invalidFormatError };
-        }
 
-        const latitude = parseFloat(parts[0]);
-        const longitude = parseFloat(parts[1]);
+    const latitude = parseFloat(parts[0]);
+    const longitude = parseFloat(parts[1]);
 
-        if (isNaN(latitude) || isNaN(longitude)) {
-            return { isValid: false, latitude: null, longitude: null, error: t ? t('validation.coordsMustBeNumbers', numberError) : numberError };
-        }
-        if (latitude < -90 || latitude > 90) {
-            return { isValid: false, latitude: latitude, longitude: longitude, error: t ? t('validation.latitudeOutOfBounds', latBoundsError) : latBoundsError };
-        }
-        if (longitude < -180 || longitude > 180) {
-            return { isValid: false, latitude: latitude, longitude: longitude, error: t ? t('validation.longitudeOutOfBounds', lonBoundsError) : lonBoundsError };
-        }
-
-        return { isValid: true, latitude: latitude, longitude: longitude, error: null };
-    } catch (e) {
-        return { isValid: false, latitude: null, longitude: null, error: t ? t('validation.errorParsingCoords', defaultError) : defaultError };
+    if (isNaN(latitude) || isNaN(longitude)) {
+      return {
+        isValid: false,
+        latitude: null,
+        longitude: null,
+        error: t
+          ? t("validation.coordsMustBeNumbers", numberError)
+          : numberError,
+      };
     }
-    
+    if (latitude < -90 || latitude > 90) {
+      return {
+        isValid: false,
+        latitude: latitude,
+        longitude: longitude,
+        error: t
+          ? t("validation.latitudeOutOfBounds", latBoundsError)
+          : latBoundsError,
+      };
+    }
+    if (longitude < -180 || longitude > 180) {
+      return {
+        isValid: false,
+        latitude: latitude,
+        longitude: longitude,
+        error: t
+          ? t("validation.longitudeOutOfBounds", lonBoundsError)
+          : lonBoundsError,
+      };
+    }
+
+    return {
+      isValid: true,
+      latitude: latitude,
+      longitude: longitude,
+      error: null,
+    };
+  } catch (e) {
+    return {
+      isValid: false,
+      latitude: null,
+      longitude: null,
+      error: t
+        ? t("validation.errorParsingCoords", defaultError)
+        : defaultError,
+    };
+  }
 };
 export const getHouseNumbersFromString = (houseString) => {
-    if (!houseString || typeof houseString !== 'string') return [];
-    return houseString.split(',')
-                      .map(numStr => parseInt(numStr.trim(), 10))
-                      .filter(num => !isNaN(num)) // Ensure only valid numbers
-                      .sort((a, b) => a - b); // Sort numerically
+  if (!houseString || typeof houseString !== "string") return [];
+  return houseString
+    .split(",")
+    .map((numStr) => parseInt(numStr.trim(), 10))
+    .filter((num) => !isNaN(num)) // Ensure only valid numbers
+    .sort((a, b) => a - b); // Sort numerically
+};
+
+/**
+ * Formats a Date object into a local 'YYYY-MM-DDTHH:MM:SS' string.
+ * @param {Date} dateObj - The Date object to format.
+ * @returns {string} The formatted local date-time string, or an empty string if input is invalid.
+ */
+export const formatToLocalISOString = (dateObj) => {
+  if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+    return "";
+  }
+
+  const year = dateObj.getFullYear();
+  const month = (dateObj.getMonth() + 1).toString().padStart(2, "0"); // Months are 0-indexed
+  const day = dateObj.getDate().toString().padStart(2, "0");
+  const hours = dateObj.getHours().toString().padStart(2, "0");
+  const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+  const seconds = dateObj.getSeconds().toString().padStart(2, "0");
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };

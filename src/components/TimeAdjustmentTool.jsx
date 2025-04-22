@@ -2,7 +2,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
-import '../styles/TimeAdjustmentTool.css'; // Styles are defined here
+// *** IMPORT THE NEW HELPER ***
+import { formatToLocalISOString } from './AstrologyUtils';
+import '../styles/TimeAdjustmentTool.css';
 
 const TimeAdjustmentTool = ({
     initialDateTimeString,
@@ -11,13 +13,18 @@ const TimeAdjustmentTool = ({
     showReset = true,
 }) => {
     const { t } = useTranslation();
-    const [currentDateTime, setCurrentDateTime] = useState(null);
+    const [currentDateTime, setCurrentDateTime] = useState(null); // Keep using Date object internally
 
     const displayLabel = label || t('timeAdjustmentTool.adjustTimeLabel', 'Adjust Time');
 
     useEffect(() => {
         if (initialDateTimeString) {
-            const initialDate = new Date(initialDateTimeString);
+            // Try parsing with and without seconds for flexibility
+            let initialDate = new Date(initialDateTimeString);
+            if (isNaN(initialDate) && initialDateTimeString.length === 16) {
+                 initialDate = new Date(`${initialDateTimeString}:00`);
+            }
+
             if (!isNaN(initialDate)) {
                 setCurrentDateTime(initialDate);
             } else {
@@ -31,7 +38,9 @@ const TimeAdjustmentTool = ({
 
     const adjustTime = useCallback((amount, unit) => {
         if (!currentDateTime) return;
-        const newDateTime = new Date(currentDateTime.getTime());
+        const newDateTime = new Date(currentDateTime.getTime()); // Clone the date
+
+        // Apply adjustments (these methods work on the local time represented by the Date object)
         switch (unit) {
             case 'minute': newDateTime.setMinutes(newDateTime.getMinutes() + amount); break;
             case 'hour': newDateTime.setHours(newDateTime.getHours() + amount); break;
@@ -40,24 +49,38 @@ const TimeAdjustmentTool = ({
             case 'year': newDateTime.setFullYear(newDateTime.getFullYear() + amount); break;
             default: break;
         }
-        setCurrentDateTime(newDateTime);
+
+        setCurrentDateTime(newDateTime); // Update internal state
+
         if (onDateTimeChange) {
-            onDateTimeChange(newDateTime.toISOString().slice(0, 19));
+            // *** USE THE NEW HELPER TO FORMAT AS LOCAL TIME STRING ***
+            const localTimeString = formatToLocalISOString(newDateTime);
+            if (localTimeString) {
+                onDateTimeChange(localTimeString); // Pass the correct local time string
+            }
         }
     }, [currentDateTime, onDateTimeChange]);
 
     const handleReset = () => {
         if (initialDateTimeString) {
-             const initialDate = new Date(initialDateTimeString);
+             let initialDate = new Date(initialDateTimeString);
+             if (isNaN(initialDate) && initialDateTimeString.length === 16) {
+                 initialDate = new Date(`${initialDateTimeString}:00`);
+             }
              if (!isNaN(initialDate)) {
                  setCurrentDateTime(initialDate);
                  if (onDateTimeChange) {
-                     onDateTimeChange(initialDate.toISOString().slice(0, 19));
+                     // *** USE THE NEW HELPER TO FORMAT AS LOCAL TIME STRING ***
+                     const localTimeString = formatToLocalISOString(initialDate);
+                     if (localTimeString) {
+                         onDateTimeChange(localTimeString); // Pass the correct local time string
+                     }
                  }
              }
         }
     };
 
+    // Display using toLocaleString is fine for the tool's internal display
     const displayDateTime = currentDateTime
         ? currentDateTime.toLocaleString()
         : t('timeAdjustmentTool.notAvailable', 'N/A');
@@ -69,7 +92,7 @@ const TimeAdjustmentTool = ({
         return <div className="time-adjustment-tool-placeholder error">{t('timeAdjustmentTool.invalidInitialTime')}</div>;
     }
 
-    // *** JSX Structure with Modified Button Labels and Layout ***
+    // JSX remains the same
     return (
         <div className="time-adjustment-tool">
             <h4 className="tool-label">{displayLabel}</h4>
@@ -79,9 +102,7 @@ const TimeAdjustmentTool = ({
             <div className="adjustment-controls">
                 {/* Years Group */}
                 <div className="control-group">
-                    {/* Label placed before buttons */}
                     <span className="unit-label">{t('timeAdjustmentTool.yearsLabel')}</span>
-                    {/* Button text is now the number, title remains descriptive */}
                     <button onClick={() => adjustTime(-1, 'year')} title={t('timeAdjustmentTool.minus1YearTitle')}>-1</button>
                     <button onClick={() => adjustTime(1, 'year')} title={t('timeAdjustmentTool.plus1YearTitle')}>+1</button>
                 </div>
@@ -114,7 +135,7 @@ const TimeAdjustmentTool = ({
 
                 {/* Reset Button */}
                 {showReset && (
-                    <div className="control-group reset-group"> {/* Optional: wrap reset in its own group for styling */}
+                    <div className="control-group reset-group">
                         <button onClick={handleReset} className="reset-button" title={t('timeAdjustmentTool.resetButtonTitle')}>
                             {t('timeAdjustmentTool.resetButtonText')}
                         </button>
@@ -125,7 +146,6 @@ const TimeAdjustmentTool = ({
     );
 };
 
-// PropTypes remain the same
 TimeAdjustmentTool.propTypes = {
     initialDateTimeString: PropTypes.string,
     onDateTimeChange: PropTypes.func.isRequired,
