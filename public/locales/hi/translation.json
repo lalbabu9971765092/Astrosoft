@@ -521,7 +521,31 @@
     "property_purchase": "संपत्ति खरीद",
     "vehicle_purchase": "वाहन खरीद",
     "foreign_travel": "विदेश यात्रा",
-    "health_issues": "स्वास्थ्य समस्याएं"
+    "health_issues": "स्वास्थ्य समस्याएं",
+    "property_vehicle_purchase": "संपत्ति/वाहन खरीद",
+    "accident": "दुर्घटना",
+    "heart_attack": "दिल का दौरा",
+    "depression": "अवसाद",
+    "agression": "आक्रामकता", 
+    "loving_caring": "प्यार करने वाला/देखभाल करने वाला",
+    "cold nature": "ठंडा स्वभाव", 
+    "theft_robbery": "चोरी/डकैती",
+    "ego": "अहंकार",
+    "return_home": "घर वापसी",
+    "huge_earnings": "भारी कमाई",
+    "loss": "नुकसान",
+    "hospitalization": "अस्पताल में भर्ती",
+    "jail": "जेल",
+    "kidnapping": "अपहरण",
+    "living_illegal/hidden": "अवैध/छिपा हुआ जीवन", 
+    "house_arrest": "घर में नजरबंद",
+    "political-confinement": "राजनीतिक कैद",
+    "success in competition": "प्रतियोगिता में सफलता", 
+    "fame": "प्रसिद्धि",
+    "bad-fame": "बदनामी",
+    "litigation": "मुकदमेबाजी",
+    "win_litigation": "मुकदमेबाजी में जीत",
+    "bail": "जमानत"
   },
   "planetDetailsPage": {
     "pageTitle": "विस्तृत ग्रह जानकारी",
@@ -1083,5 +1107,21 @@
     "Great Enemy": "अधिशत्रु राशि",
     "Standard": "सामान्य", 
     "Unknown": "अज्ञात"
+  },
+  "planetsShort": {
+    "Sun": "सू",
+    "Moon": "चं",
+    "Mars": "मं",
+    "Mercury": "बु",
+    "Jupiter": "गु",
+    "Venus": "शु",
+    "Saturn": "श",
+    "Rahu": "रा",
+    "Ketu": "के",
+    "Uranus": "यूरे", 
+    "Neptune": "नेप", 
+    "Pluto": "प्लू",
+    "Ascendant": "लग्न"
+   
   }
 }

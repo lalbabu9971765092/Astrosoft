@@ -4,15 +4,16 @@ import PropTypes from 'prop-types';
 import { useTranslation } from 'react-i18next';
 import {
     RASHIS,
-    PLANET_SYMBOLS,
+    // PLANET_SYMBOLS, // No longer needed directly for display text
     PLANET_ORDER,
     convertDMSToDegrees,
     calculateRashi,
-   
+    // Import t function if not already done (it's used via hook)
 } from './AstrologyUtils';
 
 // --- Helper function to calculate centroid (Unchanged) ---
 function getPolygonCentroid(vertices) {
+    // ... (function remains the same)
     if (!vertices || vertices.length === 0) {
         return { x: 0, y: 0 };
     }
@@ -34,13 +35,14 @@ const DiamondChart = ({
     size = 300,
     houses,
     planets,
-    scores // <-- Renamed from savScores
+    scores
 }) => {
-    const { t } = useTranslation();
+    const { t } = useTranslation(); // Get the t function
     const chartSize = size;
 
     // --- Calculate Base Points (Unchanged) ---
     const points = useMemo(() => {
+        // ... (points calculation remains the same)
         const margin = chartSize * 0.05;
         const cx = chartSize / 2;
         const cy = chartSize / 2;
@@ -52,7 +54,7 @@ const DiamondChart = ({
         const midRight = { x: chartSize - margin, y: cy };
         const midBottom = { x: cx, y: chartSize - margin };
         const midLeft = { x: margin, y: cy };
-        const center = { x: cx, y: cy }; // Corrected center y value
+        const center = { x: cx, y: cy };
         const intersection1 = { x: (cx + margin) / 2, y: (cy + margin) / 2 };
         const intersection3 = { x: cx + (cx - intersection1.x), y: intersection1.y };
         const intersection4 = { x: intersection3.x, y: cy + (cy - intersection1.y) };
@@ -63,33 +65,33 @@ const DiamondChart = ({
 
     // --- Define House Polygon Vertices (Unchanged) ---
     const housePolygonVertices = useMemo(() => [
-        [points.intersection1, points.midTop, points.intersection3, points.center],       // House 1 (Astro Index 0)
-        [points.outerTL, points.midTop, points.intersection1],                            // House 2 (Astro Index 1)
-        [points.outerTL, points.intersection1, points.midLeft],                           // House 3 (Astro Index 2)
-        [points.midLeft, points.intersection1, points.center, points.intersection2],      // House 4 (Astro Index 3)
-        [points.midLeft, points.intersection2, points.outerBL],                           // House 5 (Astro Index 4)
-        [points.outerBL, points.intersection2, points.midBottom],                         // House 6 (Astro Index 5)
-        [points.intersection2, points.midBottom, points.intersection4, points.center],      // House 7 (Astro Index 6)
-        [points.outerBR, points.midBottom, points.intersection4],                         // House 8 (Astro Index 7)
-        [points.midRight, points.intersection4, points.outerBR],                          // House 9 (Astro Index 8)
-        [points.center, points.intersection4, points.midRight, points.intersection3],      // House 10 (Astro Index 9)
-        [points.outerTR, points.midRight, points.intersection3],                          // House 11 (Astro Index 10)
-        [points.outerTR, points.intersection3, points.midTop],                            // House 12 (Astro Index 11)
+        // ... (vertices definitions remain the same)
+        [points.intersection1, points.midTop, points.intersection3, points.center],       // House 1
+        [points.outerTL, points.midTop, points.intersection1],                            // House 2
+        [points.outerTL, points.intersection1, points.midLeft],                           // House 3
+        [points.midLeft, points.intersection1, points.center, points.intersection2],      // House 4
+        [points.midLeft, points.intersection2, points.outerBL],                           // House 5
+        [points.outerBL, points.intersection2, points.midBottom],                         // House 6
+        [points.intersection2, points.midBottom, points.intersection4, points.center],      // House 7
+        [points.outerBR, points.midBottom, points.intersection4],                         // House 8
+        [points.midRight, points.intersection4, points.outerBR],                          // House 9
+        [points.center, points.intersection4, points.midRight, points.intersection3],      // House 10
+        [points.outerTR, points.midRight, points.intersection3],                          // House 11
+        [points.outerTR, points.intersection3, points.midTop],                            // House 12
     ], [points]);
 
     // --- Calculate Rashi, Planet Placements, and Scores ---
     const houseDetails = useMemo(() => {
-        // Initialize with rashiIndex, rashiName, planets array, and score
         const details = Array(12).fill(null).map(() => ({
             rashiIndex: -1,
             rashiName: '',
             planets: [],
-            score: null // <-- Renamed from savScore
+            score: null
         }));
 
         if (!houses || !Array.isArray(houses) || houses.length < 1 || !houses[0]?.start_dms) {
             console.warn("DiamondChart: Insufficient houses data for Rashi/Planet placement.");
-            return details; // Return initialized details if houses are missing
+            return details;
         }
 
         const ascendantDms = houses[0].start_dms;
@@ -106,21 +108,18 @@ const DiamondChart = ({
             return details;
         }
 
-        // Map houses to Rashi indices and assign scores
         for (let i = 0; i < 12; i++) {
             const currentRashiIndex = (ascendantRashiIndex + i) % 12;
-            const houseIndex = i; // Astro house index (0-11) matches array index
+            const houseIndex = i;
             details[houseIndex].rashiIndex = currentRashiIndex;
             details[houseIndex].rashiName = RASHIS[currentRashiIndex];
 
-            // Assign score if available (scores array index corresponds to Rashi index)
             if (scores && Array.isArray(scores) && scores.length === 12 && scores[currentRashiIndex] !== undefined) {
                 details[houseIndex].score = scores[currentRashiIndex];
             }
         }
 
-        // Place planets (only if planets data is provided and scores are NOT)
-        if (planets && !scores) { // Check !scores instead of !savScores
+        if (planets && !scores) {
             PLANET_ORDER.forEach(planetName => {
                 if (planetName === 'Ascendant') return;
                 const planetData = planets[planetName];
@@ -131,7 +130,9 @@ const DiamondChart = ({
                         const planetRashiIndex = RASHIS.indexOf(planetRashiName);
                         for (let houseIndex = 0; houseIndex < 12; houseIndex++) {
                             if (details[houseIndex].rashiIndex === planetRashiIndex) {
-                                details[houseIndex].planets.push(PLANET_SYMBOLS[planetName] || planetName.substring(0, 2));
+                                // *** MODIFICATION 1: Use translation for planet symbol ***
+                                const symbol = t(`planetsShort.${planetName}`, { defaultValue: planetName.substring(0, 2) });
+                                details[houseIndex].planets.push(symbol);
                                 break;
                             }
                         }
@@ -142,9 +143,86 @@ const DiamondChart = ({
 
         return details;
 
-    }, [houses, planets, scores, t]); // <-- Use scores in dependency array
+    }, [houses, planets, scores, t]);
 
     // --- SVG Rendering ---
+    // Helper to render planets (used for combined chart)
+    // NOTE: This helper function `renderPlanets` seems unused in the current DiamondChart component's return statement.
+    // It might be intended for a different chart type (like ZodiacCircleChart).
+    // I'm keeping the modification here in case it's used elsewhere or intended for future use.
+    const renderPlanets = (planetsData, r, color, idPrefix) => {
+        if (!planetsData) return null;
+
+        return Object.entries(planetsData).map(([name, data]) => {
+            if (!data || !data.dms || data.dms === "Error") return null;
+            const degrees = convertDMSToDegrees(data.dms);
+            if (isNaN(degrees)) return null;
+
+            // Assuming normalizeAngle and formatDM are defined elsewhere or imported
+            // const normalizedDegrees = normalizeAngle(degrees);
+            // const degreeText = formatDM(data.dms);
+            const normalizedDegrees = degrees; // Placeholder if normalizeAngle not available
+            const degreeText = data.dms; // Placeholder if formatDM not available
+
+            const pos = getPosition(normalizedDegrees, r);
+            // *** MODIFICATION 2: Use translation for planet symbol ***
+            const symbol = t(`planetsShort.${name}`, { defaultValue: name.substring(0, 2) });
+            const degreePos = getPosition(normalizedDegrees, r + degreeTextOffset);
+
+            return (
+                <React.Fragment key={`${idPrefix}-${name}`}>
+                    <text
+                        x={pos.x}
+                        y={pos.y}
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        fontSize={planetSymbolFontSize}
+                        fontWeight="bold"
+                        fill={color}
+                        className={`planet-symbol ${idPrefix}-planet`}
+                    >
+                        {symbol} {/* Use translated symbol */}
+                    </text>
+                    {degreeText && (
+                        <text
+                            x={degreePos.x}
+                            y={degreePos.y}
+                            textAnchor="middle"
+                            dominantBaseline="middle"
+                            fontSize={planetDegreeFontSize}
+                            fill={color}
+                            className={`planet-degree ${idPrefix}-degree`}
+                        >
+                            {degreeText}
+                        </text>
+                    )}
+                </React.Fragment>
+            );
+        });
+    };
+
+    // --- Constants and Calculations (Keep as is) ---
+    // const radius = size / 2; // Defined below
+    // const center = radius; // Defined below
+    // const natalPlanetRadius = radius * 0.75; // Used only if planets prop is passed
+    // const signLabelRadius = radius * 0.9; // Defined below
+    // const houseLineRadius = radius; // Used only if houses prop is passed
+    // const houseLabelRadius = radius * 0.5; // Used only if houses prop is passed
+    const planetSymbolFontSize = scores ? 9 : 10; // Slightly smaller if scores are present
+    const planetDegreeFontSize = 8; // Keep degree font size consistent
+    const degreeTextOffset = planetSymbolFontSize * 0.8; // Adjust offset based on symbol size
+
+    // Define getPosition here as it's used in the return statement context
+    const getPosition = (angleDegrees, r) => {
+        const centerPos = chartSize / 2; // Use chartSize
+        const angleRad = ((angleDegrees - 90) * Math.PI) / 180; // 0 degrees = Top
+        return {
+            x: centerPos + r * Math.cos(angleRad),
+            y: centerPos + r * Math.sin(angleRad),
+        };
+    };
+
+
     return (
         <div className="birth-chart-container">
             <h4 className="chart-title">{title}</h4>
@@ -165,8 +243,9 @@ const DiamondChart = ({
                     const centroid = getPolygonCentroid(vertices);
                     const houseDetail = houseDetails[astroIdx];
                     // Adjust text positioning
-                    const rashiTextYOffset = -15; // Position Rashi number higher
-                    const contentTextYOffset = 5; // Position Planets/Score lower
+                    const rashiTextYOffset = scores ? -12 : -15; // Position Rashi number higher, adjust if scores present
+                    const contentTextYOffset = scores ? 8 : 5; // Position Planets/Score lower, adjust if scores present
+                    const planetSpacing = scores ? 0 : 10; // Horizontal spacing between planets if scores aren't shown
 
                     return (
                         <g key={`house-group-${astroIdx}`} className={`house-group house-group-${astroIdx + 1}`}>
@@ -181,10 +260,11 @@ const DiamondChart = ({
                                     fontSize="10"
                                     fill="red"
                                     textAnchor="middle"
-                                    dominantBaseline="middle"
+                                    dominantBaseline="central" // Use central for better vertical alignment
                                     fontWeight="bold"
                                     style={{ pointerEvents: 'none' }}
                                 >
+                                    {/* Translate Rashi number if needed, or just display number */}
                                     {houseDetail.rashiIndex + 1}
                                 </text>
                             )}
@@ -194,18 +274,27 @@ const DiamondChart = ({
                                 <text
                                     x={centroid.x}
                                     y={centroid.y + contentTextYOffset}
-                                    fontSize={scores ? "12" : "9"} // Larger font for score
+                                    fontSize={scores ? "12" : planetSymbolFontSize} // Larger font for score
                                     fill={scores ? "blue" : "black"} // Different color for score
                                     textAnchor="middle"
-                                    dominantBaseline="middle"
+                                    dominantBaseline="central" // Use central
                                     fontWeight={scores ? "bold" : "normal"} // Bold for score
                                     style={{ pointerEvents: 'none' }}
                                 >
-                                    {/* Display score if provided, otherwise display planets */}
-                                    {scores // Check scores instead of savScores
-                                        ? (houseDetail.score !== null ? houseDetail.score : '?') // Display score or '?'
-                                        : (houseDetail.planets.length > 0 ? houseDetail.planets.join(' ') : '') // Display planets
+                                    {/* Display score if provided */}
+                                    {scores && houseDetail.score !== null && houseDetail.score}
+
+                                    {/* Display planets if scores are NOT provided */}
+                                    {!scores && houseDetail.planets.length > 0 &&
+                                        houseDetail.planets.map((planetSymbol, pIdx) => (
+                                            // Use tspan for horizontal spacing
+                                            <tspan key={pIdx} dx={pIdx > 0 ? planetSpacing : 0}>
+                                                {planetSymbol}
+                                            </tspan>
+                                        ))
                                     }
+                                    {/* Show '?' if score is expected but null */}
+                                    {scores && houseDetail.score === null && '?'}
                                 </text>
                             )}
                         </g>
@@ -228,11 +317,13 @@ DiamondChart.propTypes = {
     size: PropTypes.number,
     houses: PropTypes.arrayOf(PropTypes.shape({
         start_dms: PropTypes.string,
+        // Add mean_dms if used for Bhava Chalit chart rendering
+        mean_dms: PropTypes.string,
     })),
-    planets: PropTypes.objectOf(PropTypes.shape({ // Keep planets optional
+    planets: PropTypes.objectOf(PropTypes.shape({
         dms: PropTypes.string,
     })),
-    scores: PropTypes.arrayOf(PropTypes.number) // Renamed from savScores
+    scores: PropTypes.arrayOf(PropTypes.number)
 };
 
 // --- Update DefaultProps ---
@@ -240,8 +331,8 @@ DiamondChart.defaultProps = {
     title: 'Chart',
     size: 300,
     houses: [],
-    planets: null, // Default planets to null if not provided
-    scores: null // Renamed from savScores
+    planets: null,
+    scores: null
 };
 
 export default DiamondChart;
