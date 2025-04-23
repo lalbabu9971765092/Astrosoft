@@ -32,10 +32,13 @@ const SIGNIFICATOR_GRID_ORDER = [
 ];
 const FLATTENED_GRID_ORDER = SIGNIFICATOR_GRID_ORDER.flat();
 
-const MAJOR_LIFE_EVENTS_KEYS = [
-    '', 'education', 'career_start', 'career_promotion', 'marriage',
-    'childbirth', 'property_purchase', 'vehicle_purchase', 'foreign_travel', 'health_issues'
-];
+// *** MODIFIED: Generate keys dynamically from EVENT_HOUSES ***
+// Start with the empty string for the default option, then add all keys from EVENT_HOUSES,
+// filtering out the empty string if it was already included (though Object.keys won't include it here).
+const MAJOR_LIFE_EVENTS_KEYS = ['', ...Object.keys(EVENT_HOUSES).filter(key => key !== '')];
+// Optional: Sort alphabetically if desired
+// const MAJOR_LIFE_EVENTS_KEYS = ['', ...Object.keys(EVENT_HOUSES).filter(key => key !== '').sort()];
+
 
 // --- Main Page Component ---
 const KpSignificatorsPage = () => {
@@ -58,6 +61,7 @@ const KpSignificatorsPage = () => {
     const [selectedEvent, setSelectedEvent] = useState('');
 
     // --- Generate translated event options ---
+    // This useMemo hook remains the same, it will now use the dynamically generated keys
     const translatedLifeEvents = useMemo(() => {
         return MAJOR_LIFE_EVENTS_KEYS.map(eventKey => ({
             value: eventKey,
@@ -153,12 +157,8 @@ const KpSignificatorsPage = () => {
 
     // --- Calculate Significator Details Map (MODIFIED TO INCLUDE SCORING & LOGGING) ---
     const significatorDetailsMap = useMemo(() => {
-        // *** DEBUG LOG: Check selected event ***
-       
-
         const finalMap = new Map();
         if (!kpData || !Array.isArray(kpData) || kpData.length === 0) {
-           
             return finalMap;
         }
 
@@ -166,8 +166,6 @@ const KpSignificatorsPage = () => {
         const currentEventHouses = EVENT_HOUSES[selectedEvent] || EVENT_HOUSES[''];
         const favorableSet = new Set(currentEventHouses.favorable);
         const unfavorableSet = new Set(currentEventHouses.unfavorable);
-
-       
 
         // Build intermediate map for efficient lookups (stores raw strings first)
         const intermediatePlanetData = new Map();
@@ -233,15 +231,11 @@ const KpSignificatorsPage = () => {
             const allSignifiedHousesForCompleteness = new Set();
             const subLordSignifiedFavorable = new Set(); // Track favorable houses signified *only* by sublord
 
-            
-
             // --- Score Calculation ---
             // Level 1: Planet itself (+1 / -1)
             planetAllHouses.forEach(house => {
                 const isFav = favorableSet.has(house);
                 const isUnfav = unfavorableSet.has(house);
-                
-               
                 if (isFav) totalScore += 1;
                 else if (isUnfav) totalScore -= 1;
                 allSignifiedHousesForCompleteness.add(house);
@@ -251,8 +245,6 @@ const KpSignificatorsPage = () => {
             nakLordAllHouses.forEach(house => {
                 const isFav = favorableSet.has(house);
                 const isUnfav = unfavorableSet.has(house);
-                 
-               
                 if (isFav) totalScore += 2;
                 else if (isUnfav) totalScore -= 2;
                 allSignifiedHousesForCompleteness.add(house);
@@ -262,8 +254,6 @@ const KpSignificatorsPage = () => {
             subLordAllHouses.forEach(house => {
                 const isFav = favorableSet.has(house);
                 const isUnfav = unfavorableSet.has(house);
-                
-                
                 if (isFav) {
                     totalScore += 3;
                     subLordSignifiedFavorable.add(house); // Add to sublord specific set
@@ -275,8 +265,23 @@ const KpSignificatorsPage = () => {
 
             // --- Determine Favourability ---
             let favourability = 'Neutral';
-            if (totalScore > 0) favourability = 'Favorable';
-            else if (totalScore < 0) favourability = 'Unfavorable';
+            // Use score-based logic similar to PrashnaNumberPage
+            if (totalScore < 0) {
+                favourability = 'Unfavorable';
+            } else if (totalScore > 0) {
+                favourability = 'Favorable';
+            } else { // Score is 0
+                // Check if any scoring houses were involved
+                const hasAnyScoringHouse = planetAllHouses.some(h => favorableSet.has(h) || unfavorableSet.has(h)) ||
+                                          nakLordAllHouses.some(h => favorableSet.has(h) || unfavorableSet.has(h)) ||
+                                          subLordAllHouses.some(h => favorableSet.has(h) || unfavorableSet.has(h));
+                if (hasAnyScoringHouse) {
+                    favourability = 'Mixed';
+                } else {
+                    favourability = 'Neutral';
+                }
+            }
+
 
             // --- Determine Completeness ---
             let completeness = "Not Complete";
@@ -296,9 +301,6 @@ const KpSignificatorsPage = () => {
                 totalScore = 0;
             }
 
-            // *** DEBUG LOG: Final score and favourability for the planet ***
-           
-
             // Store all calculated data in the map
             finalMap.set(planetName, {
                 name: planetName,
@@ -313,7 +315,7 @@ const KpSignificatorsPage = () => {
                 completeness: completeness,
             });
         });
-       
+
         return finalMap;
     // Add selectedEvent as a dependency
     }, [kpData, selectedEvent]); // Recalculate when kpData OR selectedEvent changes

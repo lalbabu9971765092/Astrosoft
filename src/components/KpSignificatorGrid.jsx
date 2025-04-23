@@ -18,10 +18,36 @@ export const EVENT_HOUSES = { // Or pass this mapping as a prop
     'career_promotion': { favorable: [6, 10, 11], unfavorable: [5, 8, 12] },
     'marriage': { favorable: [2, 7, 11], unfavorable: [1, 6, 10, 12] },
     'childbirth': { favorable: [2, 5, 11], unfavorable: [1, 4, 10, 12] },
-    'property_purchase': { favorable: [4, 11, 12], unfavorable: [3, 8] },
+    'property_vehicle_purchase': { favorable: [4, 11, 12], unfavorable: [3, 8] },
     'vehicle_purchase': { favorable: [4, 9, 11], unfavorable: [3, 8, 12] },
     'foreign_travel': { favorable: [3, 7, 9, 12], unfavorable: [4, 8] },
-    'health_issues': { favorable: [5, 11], unfavorable: [1, 6, 8, 12] }, // Favorable for recovery/improvement
+    'health_issues': { favorable: [5, 11], unfavorable: [1, 6, 8, 12] },
+    'accident': { favorable: [1, 4, 6, 8, 12], unfavorable: [5, 9, 11] },
+    'heart_attack': { favorable: [4, 6, 8, 12], unfavorable: [5, 9, 11] },
+    'depression': { favorable: [1, 2, 6, 8], unfavorable: [] },
+    'agression': { favorable: [7, 8, 12], unfavorable: [] },
+    'loving_caring': { favorable: [2, 5, 9, 11], unfavorable: [] },
+    'cold nature': { favorable: [1, 4, 6, 10], unfavorable: [] },
+    'theft_robbery': { favorable: [7, 8, 12], unfavorable: [] },
+    'foregn_travel': { favorable: [3, 9, 12], unfavorable: [] },
+    'ego': { favorable: [8, 12], unfavorable: [] },
+    'return_home': { favorable: [2, 4, 11], unfavorable: [] },
+    'huge_earnings': { favorable: [2, 6, 10, 11], unfavorable: [] },
+    'loss': { favorable: [5, 6, 8, 12], unfavorable: [] },
+    'hospitalization': { favorable: [1, 6, 8, 12], unfavorable: [] },
+    'jail': { favorable: [2, 3, 8, 12], unfavorable: [] },
+    'kidnapping': { favorable: [2, 3, 4, 8, 12], unfavorable: [] },
+    'living_illegal/hidden': { favorable: [3, 4, 8, 12], unfavorable: [] },
+    'house_arrest': { favorable: [4, 8, 12], unfavorable: [] },
+    'political-confinement': { favorable: [2, 3,12], unfavorable: [] },
+    'success in competition': { favorable: [4, 5, 6, 9, 11], unfavorable: [] },
+    'finance': { favorable: [2, 6, 10, 7, 11], unfavorable: [6, 8, 12] },
+    'fame': { favorable: [3, 6, 10, 11], unfavorable: [] },
+    'bad-fame': { favorable: [5, 8, 12], unfavorable: [] },
+    'litigation': { favorable: [1, 6, 10, 11], unfavorable: [] },
+    'win_litigation': { favorable: [1, 6, 10, 11], unfavorable: [6, 8, 12] },
+    'bail': { favorable: [6, 10, 11], unfavorable: [] },
+
 };
 
 // --- Helper Components ---
@@ -81,8 +107,7 @@ const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent }) => {
                     completeness: sigData?.completeness || 'N/A'
                 };
 
-                // *** ADDED CONSOLE LOG FOR DEBUGGING ***
-                console.log(`[KpSignificatorGrid] Planet: ${planetName}, Favourability: '${displayData.favourability}'`);
+               
 
                 const translatedPlanetName = t(`planets.${displayData.name}`, { defaultValue: displayData.name });
                 // Ensure lord names are not 'N/A' before translating, or handle 'N/A' translation
