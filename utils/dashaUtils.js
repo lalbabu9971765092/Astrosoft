@@ -8,10 +8,16 @@ import {
 import { normalizeAngle, getJulianDateUT } from './coreUtils.js';
 import { getNakshatraDetails, calculatePlanetaryPositions } from './planetaryUtils.js'; // Import necessary functions
 
+// Constants for time calculations
+const DAYS_PER_YEAR = 365.2425; // More precise average year length
+const MILLIS_PER_DAY = 24 * 60 * 60 * 1000;
+const MILLIS_PER_YEAR = DAYS_PER_YEAR * MILLIS_PER_DAY;
+const VIMS_TOTAL_YEARS = 120; // Total cycle length for Vimshottari
+
 /**
  * Calculates the Vimshottari Dasha balance at birth based on Moon's longitude.
  * @param {number} moonSiderealLongitude - Moon's sidereal longitude in decimal degrees.
- * @returns {object} Dasha balance object { lord, balanceYears, balanceYMD: { years, months, days } } or default error object.
+ * @returns {object} Dasha balance object { lord, balanceYears, balanceMillis, balanceYMD: { years, months, days } } or throws error.
  */
 export function calculateVimshottariBalance(moonSiderealLongitude) {
     const normalizedLng = normalizeAngle(moonSiderealLongitude);
@@ -39,13 +45,14 @@ export function calculateVimshottariBalance(moonSiderealLongitude) {
     const proportionRemaining = 1 - proportionTraversed;
 
     const balanceYearsDecimal = proportionRemaining * totalDashaYears;
+    const balanceMillis = balanceYearsDecimal * MILLIS_PER_YEAR;
 
-    // Convert decimal years to Years, Months, Days
-    const totalDays = balanceYearsDecimal * 365.25; // Approximate using average year length
+    // Convert decimal years to Years, Months, Days (using a simpler approximation for display)
+    const totalDays = balanceYearsDecimal * DAYS_PER_YEAR;
     const years = Math.floor(balanceYearsDecimal);
-    const remainingDaysAfterYears = totalDays - (years * 365.25);
-    const months = Math.floor(remainingDaysAfterYears / (365.25 / 12));
-    const remainingDaysAfterMonths = remainingDaysAfterYears - (months * (365.25 / 12));
+    const remainingDaysAfterYears = totalDays - (years * DAYS_PER_YEAR);
+    const months = Math.floor(remainingDaysAfterYears / (DAYS_PER_YEAR / 12));
+    const remainingDaysAfterMonths = remainingDaysAfterYears - (months * (DAYS_PER_YEAR / 12));
     const days = Math.round(remainingDaysAfterMonths); // Round the final days
 
     // Adjust for potential rounding issues (e.g., 12 months -> 1 year)
@@ -65,6 +72,7 @@ export function calculateVimshottariBalance(moonSiderealLongitude) {
     return {
         lord: dashaLord,
         balanceYears: balanceYearsDecimal,
+        balanceMillis: balanceMillis, // Store milliseconds for precise calculation
         balanceYMD: {
             years: finalYears,
             months: finalMonths,
@@ -74,114 +82,248 @@ export function calculateVimshottariBalance(moonSiderealLongitude) {
 }
 
 /**
- * Calculates Vimshottari Dasha periods starting from a given birth date and balance.
+ * Calculates Vimshottari Dasha periods up to Pratyantar Dasha (Level 3).
  * @param {Date} birthDateUTC - The UTC birth date object.
  * @param {object} dashaBalance - The balance object from calculateVimshottariBalance.
  * @param {number} [totalYearsToCalculate=120] - How many years of Dasha periods to calculate.
- * @returns {object[]} Array of Dasha period objects { level, lord, start, end }.
+ * @param {number} [maxLevel=3] - The maximum Dasha level to calculate (1=MD, 2=AD, 3=PD).
+ * @returns {object[]} Array of Dasha period objects { level, lord, start, end, mahaLord?, antarLord? }.
  */
-export function calculateVimshottariDashas(birthDateUTC, dashaBalance, totalYearsToCalculate = 120) {
+export function calculateVimshottariDashas(birthDateUTC, dashaBalance, totalYearsToCalculate = 120, maxLevel = 3) {
     if (!(birthDateUTC instanceof Date) || isNaN(birthDateUTC.getTime())) {
         throw new Error("Invalid birthDateUTC provided for Dasha calculation.");
     }
-    if (!dashaBalance || !dashaBalance.lord || isNaN(dashaBalance.balanceYears) || dashaBalance.lord === "Error") {
+    if (!dashaBalance || !dashaBalance.lord || isNaN(dashaBalance.balanceMillis) || dashaBalance.lord === "Error") { // Check balanceMillis
         throw new Error("Invalid dashaBalance provided for Dasha calculation.");
+    }
+    if (maxLevel < 1 || maxLevel > 3) {
+        logger.warn(`Invalid maxLevel ${maxLevel}. Setting to 3.`);
+        maxLevel = 3;
     }
 
     const allPeriods = [];
-    let currentStartDate = new Date(birthDateUTC.getTime());
+    let currentStartDateMillis = birthDateUTC.getTime();
 
     // --- 1. Add the remaining balance period ---
     const firstLord = dashaBalance.lord;
-    const balanceDurationMillis = dashaBalance.balanceYears * 365.25 * 24 * 60 * 60 * 1000;
-    const firstEndDate = new Date(currentStartDate.getTime() + balanceDurationMillis);
+    const balanceDurationMillis = dashaBalance.balanceMillis;
+    const firstEndDateMillis = currentStartDateMillis + balanceDurationMillis;
 
     allPeriods.push({
         level: 1, // Maha Dasha
         lord: firstLord,
-        start: currentStartDate.toISOString(),
-        end: firstEndDate.toISOString()
+        start: new Date(currentStartDateMillis).toISOString(),
+        end: new Date(firstEndDateMillis).toISOString()
     });
 
-    // --- 2. Calculate subsequent Maha Dashas ---
+    // --- Calculate Antar Dashas (and Pratyantar Dashas) within the balance period ---
+    if (maxLevel >= 2) {
+        const firstMahaDashaYears = VIMS_DASHA_YEARS[firstLord];
+        let balanceBhuktiStartDateMillis = currentStartDateMillis;
+        let balanceBhuktiLordIndex = VIMS_DASHA_SEQUENCE.indexOf(firstLord);
+
+        for (let i = 0; i < VIMS_DASHA_SEQUENCE.length; i++) {
+            const bhuktiLord = VIMS_DASHA_SEQUENCE[balanceBhuktiLordIndex];
+            const bhuktiTotalYears = VIMS_DASHA_YEARS[bhuktiLord];
+            if (!bhuktiTotalYears) continue;
+
+            // Calculate the *full* duration this Bhukti would have in the first MD
+            const fullBhuktiDurationYears = (firstMahaDashaYears * bhuktiTotalYears) / VIMS_TOTAL_YEARS;
+            const fullBhuktiDurationMillis = fullBhuktiDurationYears * MILLIS_PER_YEAR;
+
+            // Calculate the *remaining* portion of this Bhukti within the balance period
+            const remainingBhuktiDurationMillis = fullBhuktiDurationMillis * dashaBalance.balanceYears / firstMahaDashaYears;
+            const bhuktiEndDateMillis = balanceBhuktiStartDateMillis + remainingBhuktiDurationMillis;
+
+            // Ensure the Bhukti end does not exceed the Maha Dasha end
+            const actualBhuktiEndDateMillis = Math.min(bhuktiEndDateMillis, firstEndDateMillis);
+            const actualBhuktiDurationMillis = actualBhuktiEndDateMillis - balanceBhuktiStartDateMillis;
+
+            if (actualBhuktiDurationMillis <= 0) break; // Stop if no time left in MD
+
+            allPeriods.push({
+                level: 2,
+                mahaLord: firstLord,
+                lord: bhuktiLord,
+                start: new Date(balanceBhuktiStartDateMillis).toISOString(),
+                end: new Date(actualBhuktiEndDateMillis).toISOString()
+            });
+
+            // --- Calculate Pratyantar Dashas within this balance Bhukti ---
+            if (maxLevel >= 3 && actualBhuktiDurationMillis > 0) {
+                let balancePratyantarStartDateMillis = balanceBhuktiStartDateMillis;
+                let balancePratyantarLordIndex = balanceBhuktiLordIndex; // PD starts from AD lord
+
+                for (let j = 0; j < VIMS_DASHA_SEQUENCE.length; j++) {
+                    const pratyantarLord = VIMS_DASHA_SEQUENCE[balancePratyantarLordIndex];
+                    const pratyantarTotalYears = VIMS_DASHA_YEARS[pratyantarLord];
+                    if (!pratyantarTotalYears) continue;
+
+                    // Calculate the *full* duration this PD would have in the *full* Bhukti
+                    const fullPratyantarDurationYears = (fullBhuktiDurationYears * pratyantarTotalYears) / VIMS_TOTAL_YEARS;
+                    const fullPratyantarDurationMillis = fullPratyantarDurationYears * MILLIS_PER_YEAR;
+
+                    // Calculate the *remaining* portion of this PD within the *remaining* Bhukti
+                    const remainingPratyantarDurationMillis = fullPratyantarDurationMillis * (actualBhuktiDurationMillis / fullBhuktiDurationMillis);
+                    const pratyantarEndDateMillis = balancePratyantarStartDateMillis + remainingPratyantarDurationMillis;
+
+                    // Ensure the PD end does not exceed the Bhukti end
+                    const actualPratyantarEndDateMillis = Math.min(pratyantarEndDateMillis, actualBhuktiEndDateMillis);
+                    const actualPratyantarDurationMillis = actualPratyantarEndDateMillis - balancePratyantarStartDateMillis;
+
+                    if (actualPratyantarDurationMillis <= 0) break; // Stop if no time left in AD
+
+                    allPeriods.push({
+                        level: 3,
+                        mahaLord: firstLord,
+                        antarLord: bhuktiLord,
+                        lord: pratyantarLord,
+                        start: new Date(balancePratyantarStartDateMillis).toISOString(),
+                        end: new Date(actualPratyantarEndDateMillis).toISOString()
+                    });
+
+                    balancePratyantarStartDateMillis = actualPratyantarEndDateMillis;
+                    balancePratyantarLordIndex = (balancePratyantarLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
+                }
+            }
+            // --- End Pratyantar Calculation for Balance Bhukti ---
+
+            balanceBhuktiStartDateMillis = actualBhuktiEndDateMillis;
+            balanceBhuktiLordIndex = (balanceBhuktiLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
+        }
+    }
+    // --- End Calculation for Balance Period ---
+
+
+    // --- 2. Calculate subsequent Full Maha Dashas ---
     let currentLordIndex = VIMS_DASHA_SEQUENCE.indexOf(firstLord);
     if (currentLordIndex === -1) {
         throw new Error(`Dasha balance lord "${firstLord}" not found in sequence.`);
     }
 
     let yearsCalculated = dashaBalance.balanceYears;
-    currentStartDate = firstEndDate; // Start next period after the balance ends
+    currentStartDateMillis = firstEndDateMillis; // Start next period after the balance ends
 
     while (yearsCalculated < totalYearsToCalculate) {
         currentLordIndex = (currentLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
         const currentLord = VIMS_DASHA_SEQUENCE[currentLordIndex];
-        const currentDashaYears = VIMS_DASHA_YEARS[currentLord];
+        const currentMahaDashaYears = VIMS_DASHA_YEARS[currentLord];
 
-        if (!currentDashaYears) {
+        if (!currentMahaDashaYears) {
              logger.warn(`Years not defined for Dasha lord: ${currentLord}. Skipping.`);
              continue; // Skip if years are missing
         }
 
-        const durationMillis = currentDashaYears * 365.25 * 24 * 60 * 60 * 1000;
-        const currentEndDate = new Date(currentStartDate.getTime() + durationMillis);
+        const mahaDashaDurationMillis = currentMahaDashaYears * MILLIS_PER_YEAR;
+        const currentEndDateMillis = currentStartDateMillis + mahaDashaDurationMillis;
 
         allPeriods.push({
             level: 1,
             lord: currentLord,
-            start: currentStartDate.toISOString(),
-            end: currentEndDate.toISOString()
+            start: new Date(currentStartDateMillis).toISOString(),
+            end: new Date(currentEndDateMillis).toISOString()
         });
 
         // --- 3. Calculate Bhukti (Antar Dasha) periods within this Maha Dasha ---
-        let bhuktiStartDate = new Date(currentStartDate.getTime());
-        let bhuktiLordIndex = currentLordIndex; // Bhuktis start from the Maha Dasha lord
+        if (maxLevel >= 2) {
+            let bhuktiStartDateMillis = currentStartDateMillis;
+            let bhuktiLordIndex = currentLordIndex; // Bhuktis start from the Maha Dasha lord
 
-        for (let i = 0; i < VIMS_DASHA_SEQUENCE.length; i++) {
-            const bhuktiLord = VIMS_DASHA_SEQUENCE[bhuktiLordIndex];
-            const bhuktiTotalYears = VIMS_DASHA_YEARS[bhuktiLord];
-            if (!bhuktiTotalYears) continue; // Skip if years missing
+            for (let i = 0; i < VIMS_DASHA_SEQUENCE.length; i++) {
+                const bhuktiLord = VIMS_DASHA_SEQUENCE[bhuktiLordIndex];
+                const bhuktiTotalYears = VIMS_DASHA_YEARS[bhuktiLord];
+                if (!bhuktiTotalYears) continue; // Skip if years missing
 
-            // Bhukti duration is proportional: (MD Years * Bhukti Years) / 120
-            const bhuktiDurationYears = (currentDashaYears * bhuktiTotalYears) / 120;
-            const bhuktiDurationMillis = bhuktiDurationYears * 365.25 * 24 * 60 * 60 * 1000;
-            const bhuktiEndDate = new Date(bhuktiStartDate.getTime() + bhuktiDurationMillis);
+                // Bhukti duration is proportional: (MD Years * Bhukti Years) / 120
+                const bhuktiDurationYears = (currentMahaDashaYears * bhuktiTotalYears) / VIMS_TOTAL_YEARS;
+                const bhuktiDurationMillis = bhuktiDurationYears * MILLIS_PER_YEAR;
+                const bhuktiEndDateMillis = bhuktiStartDateMillis + bhuktiDurationMillis;
 
-            allPeriods.push({
-                level: 2, // Bhukti (Antar Dasha)
-                mahaLord: currentLord, // Parent lord
-                lord: bhuktiLord,
-                start: bhuktiStartDate.toISOString(),
-                end: bhuktiEndDate.toISOString()
-            });
+                // Ensure end date doesn't exceed MD end (minor adjustments for precision)
+                const actualBhuktiEndDateMillis = Math.min(bhuktiEndDateMillis, currentEndDateMillis);
+                const actualBhuktiDurationMillis = actualBhuktiEndDateMillis - bhuktiStartDateMillis;
 
-            // --- 4. Calculate Pratyantar Dasha (Level 3) - Optional ---
-            // Add similar logic here if needed, calculating duration proportionally within Bhukti
-            // Pratyantar duration = (Bhukti Duration Years * Pratyantar Years) / 120
+                if (actualBhuktiDurationMillis <= 1000) continue; // Skip tiny durations
 
-            bhuktiStartDate = bhuktiEndDate; // Move to next Bhukti start
-            bhuktiLordIndex = (bhuktiLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
+                allPeriods.push({
+                    level: 2, // Bhukti (Antar Dasha)
+                    mahaLord: currentLord, // Parent lord
+                    lord: bhuktiLord,
+                    start: new Date(bhuktiStartDateMillis).toISOString(),
+                    end: new Date(actualBhuktiEndDateMillis).toISOString()
+                });
+
+                // --- 4. Calculate Pratyantar Dasha (Level 3) ---
+                if (maxLevel >= 3) {
+                    let pratyantarStartDateMillis = bhuktiStartDateMillis;
+                    let pratyantarLordIndex = bhuktiLordIndex; // PD starts from AD lord
+
+                    for (let j = 0; j < VIMS_DASHA_SEQUENCE.length; j++) {
+                        const pratyantarLord = VIMS_DASHA_SEQUENCE[pratyantarLordIndex];
+                        const pratyantarTotalYears = VIMS_DASHA_YEARS[pratyantarLord];
+                        if (!pratyantarTotalYears) continue;
+
+                        // Pratyantar duration = (Bhukti Duration Years * Pratyantar Years) / 120
+                        const pratyantarDurationYears = (bhuktiDurationYears * pratyantarTotalYears) / VIMS_TOTAL_YEARS;
+                        const pratyantarDurationMillis = pratyantarDurationYears * MILLIS_PER_YEAR;
+                        const pratyantarEndDateMillis = pratyantarStartDateMillis + pratyantarDurationMillis;
+
+                        // Ensure end date doesn't exceed AD end
+                        const actualPratyantarEndDateMillis = Math.min(pratyantarEndDateMillis, actualBhuktiEndDateMillis);
+                        const actualPratyantarDurationMillis = actualPratyantarEndDateMillis - pratyantarStartDateMillis;
+
+                        if (actualPratyantarDurationMillis <= 1000) continue; // Skip tiny durations
+
+                        allPeriods.push({
+                            level: 3, // Pratyantar Dasha
+                            mahaLord: currentLord,
+                            antarLord: bhuktiLord, // Add Antar Dasha lord
+                            lord: pratyantarLord,
+                            start: new Date(pratyantarStartDateMillis).toISOString(),
+                            end: new Date(actualPratyantarEndDateMillis).toISOString()
+                        });
+
+                        pratyantarStartDateMillis = actualPratyantarEndDateMillis; // Move to next PD start
+                        pratyantarLordIndex = (pratyantarLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
+                    }
+                }
+                // --- End Pratyantar Calculation ---
+
+                bhuktiStartDateMillis = actualBhuktiEndDateMillis; // Move to next Bhukti start
+                bhuktiLordIndex = (bhuktiLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
+            }
         }
         // --- End Bhukti Calculation ---
 
-        yearsCalculated += currentDashaYears;
-        currentStartDate = currentEndDate; // Move to next Maha Dasha start
+        yearsCalculated += currentMahaDashaYears;
+        currentStartDateMillis = currentEndDateMillis; // Move to next Maha Dasha start
     }
 
-    // Sort by start date just in case
-    allPeriods.sort((a, b) => new Date(a.start) - new Date(b.start));
+    // Sort by start date and then level (MD > AD > PD)
+    allPeriods.sort((a, b) => {
+        const startDiff = new Date(a.start) - new Date(b.start);
+        if (startDiff !== 0) return startDiff;
+        return a.level - b.level; // Lower level comes first if start times are identical
+    });
 
-    return allPeriods;
+    // Filter out periods starting after the calculation window (optional, but good practice)
+    const calculationEndDate = new Date(birthDateUTC.getTime() + totalYearsToCalculate * MILLIS_PER_YEAR);
+    const finalPeriods = allPeriods.filter(p => new Date(p.start) < calculationEndDate);
+
+    return finalPeriods;
 }
 
 
 /**
  * Calculates Mudda Dasha periods for a given Solar Return year.
+ * (No changes needed here for Vimshottari Pratyantar Dasha)
  * @param {number} solarReturnJD_UT - Julian Day (UT) of the Solar Return moment.
  * @param {number} latitude - Observer's latitude.
  * @param {number} longitude - Observer's longitude.
  * @returns {object[]} Array of Mudda Dasha period objects { lord, start, end }.
  */
 export function calculateMuddaDasha(solarReturnJD_UT, latitude, longitude) {
+    // ... (existing Mudda Dasha logic remains unchanged) ...
     if (isNaN(solarReturnJD_UT) || isNaN(latitude) || isNaN(longitude)) {
         throw new Error(`Invalid input for calculateMuddaDasha: JD=${solarReturnJD_UT}, Lat=${latitude}, Lon=${longitude}`);
     }
@@ -222,9 +364,9 @@ export function calculateMuddaDasha(solarReturnJD_UT, latitude, longitude) {
 
         // 2. Calculate Dasha periods
         const muddaPeriods = [];
-        const solarReturnStartDate = new Date((solarReturnJD_UT - 2440587.5) * 86400000);
-        let currentStartDate = new Date(solarReturnStartDate.getTime());
-        const totalSolarYearDays = 365.2425; // More precise average solar year length
+        const solarReturnStartDateMillis = (solarReturnJD_UT - 2440587.5) * MILLIS_PER_DAY;
+        let currentStartDateMillis = solarReturnStartDateMillis;
+        const totalSolarYearDays = DAYS_PER_YEAR; // Use consistent constant
 
         for (let i = 0; i < MUDDA_DASHA_SEQUENCE.length; i++) {
             const lordIndex = (muddaStartIndex + i) % MUDDA_DASHA_SEQUENCE.length;
@@ -238,18 +380,18 @@ export function calculateMuddaDasha(solarReturnJD_UT, latitude, longitude) {
 
             // Duration in days = (Dasha Years / Total Mudda Years Cycle) * Solar Year Days
             // Note: Mudda cycle length (120 or 113?) and calculation method can vary. Using 120 for Vimshottari proportion.
-            const durationDays = (dashaYearsProportion / 120) * totalSolarYearDays;
-            const durationMillis = durationDays * 24 * 60 * 60 * 1000;
-            const currentEndDate = new Date(currentStartDate.getTime() + durationMillis);
+            const durationDays = (dashaYearsProportion / VIMS_TOTAL_YEARS) * totalSolarYearDays; // Use VIMS_TOTAL_YEARS for proportion
+            const durationMillis = durationDays * MILLIS_PER_DAY;
+            const currentEndDateMillis = currentStartDateMillis + durationMillis;
 
             muddaPeriods.push({
                 lord: currentLord,
-                start: currentStartDate.toISOString(),
-                end: currentEndDate.toISOString(),
+                start: new Date(currentStartDateMillis).toISOString(),
+                end: new Date(currentEndDateMillis).toISOString(),
                 durationDays: durationDays.toFixed(2)
             });
 
-            currentStartDate = currentEndDate; // Move to next period start
+            currentStartDateMillis = currentEndDateMillis; // Move to next period start
         }
 
         // Sort just in case calculation order wasn't sequential
