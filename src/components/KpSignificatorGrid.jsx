@@ -81,6 +81,9 @@ const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent }) => {
                     completeness: sigData?.completeness || 'N/A'
                 };
 
+                // *** ADDED CONSOLE LOG FOR DEBUGGING ***
+                console.log(`[KpSignificatorGrid] Planet: ${planetName}, Favourability: '${displayData.favourability}'`);
+
                 const translatedPlanetName = t(`planets.${displayData.name}`, { defaultValue: displayData.name });
                 // Ensure lord names are not 'N/A' before translating, or handle 'N/A' translation
                 const translatedNakLordName = displayData.nakshatraLordName === 'N/A'
