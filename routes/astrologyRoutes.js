@@ -246,8 +246,8 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             d9_planets: d9_planets,
             d9_ascendant_dms: d9AscendantDms,
             panchang: detailedPanchang, // Includes Masa, Samvat etc. from calculatePanchang
-            vikram_samvat: detailedPanchang?.Samvat?.number || "N/A", // Extract specific fields if needed
-            samvatsar: detailedPanchang?.Samvatsara?.name_en_IN || "N/A", // Extract specific fields if needed
+            vikram_samvat: detailedPanchang?.calculatedVikramSamvat || "N/A",
+            samvatsar: detailedPanchang?.calculatedSamvatsar || "N/A",
             doshas: {
                 mangal: mangalDoshaResult,
                 kaalsarpa: kaalsarpaDoshaResult,
