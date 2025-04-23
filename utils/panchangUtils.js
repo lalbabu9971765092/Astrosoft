@@ -2,19 +2,105 @@
 import { MhahPanchang } from 'mhah-panchang';
 import SunCalc from 'suncalc';
 import logger from './logger.js';
+// Import the new constant
 import { SAMVATSAR_NAMES } from './constants.js';
 
-// Instantiate locally within functions or keep global if library is confirmed stateless
-// var obj = new MhahPanchang();
+// --- Helper Function to find Chaitra Shukla Pratipada ---
+// Note: This is an approximation. Finding the *exact* moment requires more precise Tithi start/end times.
+// This function finds the *first day* where Chaitra Shukla Pratipada is present.
+async function findChaitraShuklaPratipada(year, latitude, longitude) {
+    const obj = new MhahPanchang();
+    // Start searching from early March
+    let checkDate = new Date(Date.UTC(year, 1, 20)); // Start mid-Feb to be safe
+    const endDate = new Date(Date.UTC(year, 3, 30)); // Search until end of April
+
+    while (checkDate <= endDate) {
+        try {
+            // Need both calendar and tithi info for the check
+            const calendarInfo = obj.calendar(checkDate, latitude, longitude);
+            const tithiInfo = obj.calculate(checkDate, latitude, longitude)?.Tithi;
+
+            // Check for Chaitra month, Shukla paksha, and Tithi index 0 (Pratipada)
+            if (calendarInfo?.Masa?.name_en_IN === 'Chaitra' &&
+                calendarInfo?.Paksha?.name_en_IN === 'Shukla' &&
+                tithiInfo?.ino === 0) {
+                logger.debug(`Found Chaitra Shukla Pratipada for ${year} around ${checkDate.toISOString().split('T')[0]}`);
+                return checkDate; // Return the date object
+            }
+        } catch (e) {
+            logger.warn(`Error checking date ${checkDate.toISOString().split('T')[0]} for Chaitra Shukla Pratipada: ${e.message}`);
+            // Continue searching even if one date fails
+        }
+        checkDate.setUTCDate(checkDate.getUTCDate() + 1); // Move to the next day
+    }
+    logger.error(`Could not find Chaitra Shukla Pratipada for year ${year}. Check mhah-panchang data/logic.`);
+    return null; // Indicate failure
+}
+
+// --- Helper Function to Calculate Vikram Samvat ---
+function calculateVikramSamvat(targetDate, vsNewYearDate) {
+    if (!vsNewYearDate || !(targetDate instanceof Date) || !(vsNewYearDate instanceof Date)) {
+        return null; // Cannot calculate if dates are invalid
+    }
+    const gregorianYear = targetDate.getUTCFullYear();
+
+    // Compare only date parts (ignoring time) for simplicity
+    const targetDay = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate()));
+    const newYearDay = new Date(Date.UTC(vsNewYearDate.getUTCFullYear(), vsNewYearDate.getUTCMonth(), vsNewYearDate.getUTCDate()));
+
+    if (targetDay < newYearDay) {
+        return gregorianYear + 56;
+    } else {
+        return gregorianYear + 57;
+    }
+}
+
+// --- Helper Function to Calculate Saka Year ---
+function calculateSakaYear(targetDate, vsNewYearDate) { // Saka also starts on Chaitra Shukla Pratipada
+    if (!vsNewYearDate || !(targetDate instanceof Date) || !(vsNewYearDate instanceof Date)) {
+        return null;
+    }
+    const gregorianYear = targetDate.getUTCFullYear();
+
+    const targetDay = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate()));
+    const newYearDay = new Date(Date.UTC(vsNewYearDate.getUTCFullYear(), vsNewYearDate.getUTCMonth(), vsNewYearDate.getUTCDate()));
+
+    if (targetDay < newYearDay) {
+        // If before the new year in the Gregorian calendar, Saka year is Greg - 79
+        return gregorianYear - 79;
+    } else {
+        // If on or after the new year, Saka year is Greg - 78
+        return gregorianYear - 78;
+    }
+}
+
+// --- Helper Function to Get Samvatsar Name from Saka Year ---
+function getSamvatsarNameFromSaka(sakaYear) {
+    if (sakaYear === null || isNaN(sakaYear)) {
+        return "N/A";
+    }
+    // Using the formula: (Saka Year + 12) % 60 (adjust constant '12' if needed based on epoch source)
+    // Ensure SAMVATSAR_NAMES is imported and available
+    const samvatsarIndex = (sakaYear + 12) % 60;
+
+    if (samvatsarIndex >= 0 && samvatsarIndex < SAMVATSAR_NAMES.length) {
+        return SAMVATSAR_NAMES[samvatsarIndex];
+    } else {
+        logger.warn(`Calculated invalid Samvatsar index ${samvatsarIndex} for Saka year ${sakaYear}`);
+        return "Unknown";
+    }
+}
+
 
 /**
  * Calculates detailed Panchang information for a given date and location.
+ * Includes Vikram Samvat and Samvatsar calculation.
  * @param {string} dateString - ISO 8601 date string (YYYY-MM-DDTHH:MM:SS).
  * @param {number} latitude - Observer's latitude.
  * @param {number} longitude - Observer's longitude.
- * @returns {object | null} Panchang details object from mhah-panchang or null on error.
+ * @returns {Promise<object | null>} Promise resolving to Panchang details object or null on error.
  */
-export function calculatePanchang(dateString, latitude, longitude) {
+export async function calculatePanchang(dateString, latitude, longitude) { // Made async
     try {
         const date = new Date(dateString);
         if (isNaN(date.getTime())) {
@@ -24,34 +110,54 @@ export function calculatePanchang(dateString, latitude, longitude) {
              throw new Error(`Invalid coordinates: Lat=${latitude}, Lon=${longitude}`);
         }
 
-        const obj = new MhahPanchang(); // Instantiate locally for safety
+        const obj = new MhahPanchang(); // Instantiate locally
         const panchangDetails = obj.calculate(date, latitude, longitude);
 
-        // Add calendar info like Masa, Samvat, etc.
+        // Add calendar info like Masa, etc. (Keep this as it provides Masa needed for VS/Saka)
         const calendarInfo = obj.calendar(date, latitude, longitude);
         if (calendarInfo) {
-             Object.assign(panchangDetails, calendarInfo); // Merge calendar info
+             // Merge only specific needed parts if Samvat/Samvatsara from library are unreliable
+             if (calendarInfo.Masa) panchangDetails.Masa = calendarInfo.Masa;
+             if (calendarInfo.Paksha) panchangDetails.Paksha = calendarInfo.Paksha;
+             // Add other reliable calendarInfo fields if needed
+             // Store library values for comparison/debugging
+             panchangDetails.librarySamvat = calendarInfo?.Samvat?.number ?? "N/A";
+             panchangDetails.librarySamvatsara = calendarInfo?.Samvatsara?.name_en_IN ?? "N/A";
         } else {
              logger.warn(`Could not get calendar info for ${dateString}`);
+             panchangDetails.librarySamvat = "N/A";
+             panchangDetails.librarySamvatsara = "N/A";
         }
 
-        // Add sunrise/sunset from SunCalc for reference
+        // Add sunrise/sunset from SunCalc
         const sunTimes = calculateSunMoonTimes(dateString, latitude, longitude);
         panchangDetails.Sunrise = sunTimes.sunrise;
         panchangDetails.Sunset = sunTimes.sunset;
 
+        // --- Calculate Vikram Samvat and Samvatsar ---
+        const gregorianYear = date.getUTCFullYear();
+        // Use await as findChaitraShuklaPratipada is async
+        const vsNewYearDate = await findChaitraShuklaPratipada(gregorianYear, latitude, longitude);
+
+        const vikramSamvatYear = calculateVikramSamvat(date, vsNewYearDate);
+        const sakaYear = calculateSakaYear(date, vsNewYearDate);
+        const samvatsarName = getSamvatsarNameFromSaka(sakaYear);
+
+        // Add calculated values to the result object
+        panchangDetails.calculatedVikramSamvat = vikramSamvatYear ?? "N/A";
+        panchangDetails.calculatedSamvatsar = samvatsarName ?? "N/A";
+        // --- End Calculation ---
+
 
         // Validate essential parts?
         if (!panchangDetails || !panchangDetails.Tithi || !panchangDetails.Nakshatra) {
-             logger.warn(`mhah-panchang returned incomplete data for ${dateString}`);
-             // Return partial data or null/error? Returning partial for now.
+             logger.warn(`mhah-panchang returned incomplete base data for ${dateString}`);
         }
 
         return panchangDetails;
 
     } catch (error) {
         logger.error(`Error calculating Panchang for "${dateString}", Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });
-        // Throw or return null? Throwing for consistency.
         throw new Error(`Failed to calculate Panchang: ${error.message}`);
     }
 }
@@ -73,13 +179,16 @@ export function calculateSunMoonTimes(dateString, latitude, longitude) {
         if (isNaN(latitude) || isNaN(longitude)) {
              throw new Error(`Invalid coordinates: Lat=${latitude}, Lon=${longitude}`);
         }
+        // Use noon UTC of the target date for reliable SunCalc results across timezones
         const targetDateForCalc = new Date(Date.UTC(
             date.getUTCFullYear(),
             date.getUTCMonth(),
             date.getUTCDate(),
-            12, 0, 0 // Use noon UTC
+            12, 0, 0
         ));
         const sunTimes = SunCalc.getTimes(targetDateForCalc, latitude, longitude);
+        // For Moon times, it's better to check a range around the date if possible,
+        // but for simplicity, we'll use the same target date.
         const moonTimes = SunCalc.getMoonTimes(targetDateForCalc, latitude, longitude);
 
         // Check if times are valid Date objects before converting to ISO string
@@ -97,7 +206,7 @@ export function calculateSunMoonTimes(dateString, latitude, longitude) {
 
     } catch (error) {
         logger.error(`Error calculating Sun/Moon times for "${dateString}", Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });
-        // Return object with nulls, don't throw to allow partial results in main calc?
+        // Return object with nulls
     }
     return result;
 }

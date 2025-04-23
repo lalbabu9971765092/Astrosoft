@@ -143,7 +143,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
 
         const siderealPositions = planetaryPositions.sidereal; // Extract for convenience
         const sunMoonTimes = calculateSunMoonTimes(date, latNum, lonNum);
-        const detailedPanchang = calculatePanchang(date, latNum, lonNum); // Throws on error
+        const detailedPanchang = await calculatePanchang(date, latNum, lonNum); // Throws on error
 
         const housesData = [];
         for (let i = 0; i < 12; i++) {
