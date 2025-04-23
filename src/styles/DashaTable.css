@@ -128,3 +128,30 @@
   padding: 20px; /* More padding */
 }
 
+/* Example CSS additions in DashaTable.css */
+.results-table.dasha-table td .level-indicator.nested {
+    margin-left: 20px; /* Existing indentation for AD */
+}
+
+.results-table.dasha-table td .toggle-button.nested {
+     margin-left: 5px; /* Adjust toggle button position for AD */
+}
+
+.results-table.dasha-table .pratyantardasha-row td {
+    /* Style for PD rows, e.g., slightly different background or border */
+    /* background-color: #fdfdfd; */
+    font-size: 0.9em; /* Slightly smaller font maybe */
+}
+
+.results-table.dasha-table td .level-indicator.nested-more {
+    margin-left: 40px; /* Increased indentation for PD */
+    display: inline-block; /* Ensure margin works */
+    width: 30px; /* Align text if needed */
+    text-align: right;
+    padding-right: 5px;
+}
+
+/* Adjust padding on the first cell of PD row if needed */
+ .results-table.dasha-table .pratyantardasha-row td:first-child {
+     padding-left: 0; /* Reset padding if using margin on indicator */
+ }

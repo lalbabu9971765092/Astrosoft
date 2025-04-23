@@ -6,6 +6,7 @@ import '../styles/DashaTable.css'; // Ensure this CSS file exists
 
 // --- Helper Function for Date Formatting ---
 const formatDashaDate = (dateString, t) => {
+    // ... (keep existing formatDashaDate function)
     if (!dateString) return t ? t('utils.notAvailable', 'N/A') : 'N/A';
     try {
         const date = new Date(dateString);
@@ -24,45 +25,70 @@ const formatDashaDate = (dateString, t) => {
     }
 };
 
+// --- Helper Function to generate unique keys ---
+// Ensures keys are unique even if lords/dates repeat across levels
+const generateKey = (period, levelPrefix) => {
+    let key = `${levelPrefix}-${period.lord}-${period.start}`;
+    if (period.mahaLord) key += `-${period.mahaLord}`;
+    if (period.antarLord) key += `-${period.antarLord}`; // Add antarLord if present
+    return key;
+};
+
 
 const DashaTable = ({ dashaPeriods }) => {
     const { t } = useTranslation();
-    // State to track expanded Mahadashas using the Mahadasha lord and start time as a unique key
-    const [expandedMahadashas, setExpandedMahadashas] = useState(new Set());
+    // State to track expanded items (MDs and ADs) using their unique keys
+    const [expandedItems, setExpandedItems] = useState(new Set());
 
     // --- Data Processing ---
-    // Handles both leveled (Vimsottari) and potentially flat (Mudda) Dasha data
+    // Handles leveled Dasha data up to Pratyantar Dasha (Level 3)
     const processedPeriods = useMemo(() => {
-        if (!dashaPeriods || dashaPeriods.length === 0) return []; // Return empty if no input
+        if (!dashaPeriods || dashaPeriods.length === 0) return [];
 
         // Check if the first period has a 'level' property.
         const hasLevels = dashaPeriods[0] && typeof dashaPeriods[0].level === 'number';
 
         if (hasLevels) {
-            // --- Logic for Leveled Dashas (like Vimsottari) ---
+            // --- Logic for Leveled Dashas (Vimsottari up to Level 3) ---
             const mahadashas = dashaPeriods.filter(p => p.level === 1);
             const antardashas = dashaPeriods.filter(p => p.level === 2);
-            // Add more levels (pratyantar, sookshma) if your API provides them (level 3, 4, etc.)
+            const pratyantardashas = dashaPeriods.filter(p => p.level === 3); // Filter Level 3
 
+            // --- Nest Pratyantardashas within Antardashas ---
+            antardashas.forEach(ad => {
+                // Find corresponding pratyantardashas
+                // Assumes level 3 periods have 'mahaLord' and 'antarLord' properties
+                ad.subPeriods = pratyantardashas.filter(pd =>
+                    pd.mahaLord === ad.mahaLord && // Match Maha Dasha Lord
+                    pd.antarLord === ad.lord &&    // Match Antar Dasha Lord (which is the current AD's lord)
+                    new Date(pd.start) >= new Date(ad.start) &&
+                    new Date(pd.end) <= new Date(ad.end)
+                );
+                // Ensure subPeriods is an array and sort it
+                if (!Array.isArray(ad.subPeriods)) {
+                    ad.subPeriods = [];
+                }
+                ad.subPeriods.sort((a, b) => new Date(a.start) - new Date(b.start));
+            });
+
+            // --- Nest Antardashas within Mahadashas ---
             mahadashas.forEach(md => {
-                // Find corresponding antardashas
+                // Find corresponding antardashas (which now contain their own subPeriods)
                 md.subPeriods = antardashas.filter(ad =>
                     ad.mahaLord === md.lord &&
                     new Date(ad.start) >= new Date(md.start) &&
                     new Date(ad.end) <= new Date(md.end)
                 );
-                // Ensure subPeriods is definitely an array and sort it
+                // Ensure subPeriods is an array and sort it
                 if (!Array.isArray(md.subPeriods)) {
-                    md.subPeriods = []; // Ensure it's an array even if filter fails unexpectedly
+                    md.subPeriods = [];
                 }
                 md.subPeriods.sort((a, b) => new Date(a.start) - new Date(b.start));
             });
 
-            // If filtering resulted in no level 1 periods, but we had data, treat all as level 1
-            // This handles cases where only level 2+ data might be sent, though less common
+            // Handle edge case where only level 2+ data might be sent
             if (mahadashas.length === 0 && dashaPeriods.length > 0) {
                  console.warn("DashaTable: No level 1 periods found in leveled data, treating all periods as top-level.");
-                 // Return the original periods, adding an empty subPeriods array
                  return dashaPeriods.map(p => ({ ...p, subPeriods: [] }))
                                     .sort((a, b) => new Date(a.start) - new Date(b.start));
             }
@@ -70,10 +96,8 @@ const DashaTable = ({ dashaPeriods }) => {
             return mahadashas; // Return the processed Mahadashas with nested subPeriods
 
         } else {
-            // --- Logic for Flat Dashas (Assume Mudda Dasha might be flat) ---
+            // --- Logic for Flat Dashas (No change needed here) ---
             console.log("DashaTable: No 'level' property found, treating as a flat list.");
-            // Treat all periods as top-level, add empty subPeriods array
-            // Ensure sorting by start date
             return dashaPeriods.map(p => ({ ...p, subPeriods: [] }))
                                .sort((a, b) => new Date(a.start) - new Date(b.start));
         }
@@ -81,23 +105,21 @@ const DashaTable = ({ dashaPeriods }) => {
     }, [dashaPeriods]);
 
 
-    // --- Toggle Handler ---
-    const toggleMahadasha = (mahadashaKey) => {
-        setExpandedMahadashas(prev => {
+    // --- Toggle Handler for any expandable item ---
+    const toggleItem = (itemKey) => {
+        setExpandedItems(prev => {
             const next = new Set(prev);
-            if (next.has(mahadashaKey)) {
-                next.delete(mahadashaKey);
+            if (next.has(itemKey)) {
+                next.delete(itemKey);
             } else {
-                next.add(mahadashaKey);
+                next.add(itemKey);
             }
             return next;
         });
     };
 
     // --- Render Logic ---
-    // Check if processing resulted in an empty array, which implies input was empty or invalid
     if (!processedPeriods || processedPeriods.length === 0) {
-         // This condition should ideally only be met if dashaPeriods was initially null/empty
          return <p className="info-text">{t('dashaTable.dataUnavailable', 'Dasha data unavailable.')}</p>;
     }
 
@@ -107,60 +129,95 @@ const DashaTable = ({ dashaPeriods }) => {
                 <table className="results-table dasha-table">
                     <thead>
                         <tr>
-                            <th>{t('dashaTable.headerLevel', 'Level')}</th>
+                            {/* Adjust header width slightly if needed */}
+                            <th style={{ width: '80px' }}>{t('dashaTable.headerLevel', 'Level')}</th>
                             <th>{t('dashaTable.headerLord', 'Lord')}</th>
                             <th>{t('dashaTable.headerStartDate', 'Start Date')}</th>
                             <th>{t('dashaTable.headerEndDate', 'End Date')}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {/* Map over the processed periods (which are now always top-level) */}
-                        {processedPeriods.map((period) => {
-                            // Use period.lord and period.start for a unique key
-                            const periodKey = `${period.lord}-${period.start}`;
-                            const isExpanded = expandedMahadashas.has(periodKey);
-                            // Check if this period has actual sub-periods calculated in useMemo
-                            const hasSubPeriodsToShow = Array.isArray(period.subPeriods) && period.subPeriods.length > 0;
+                        {/* Map over Mahadashas (Level 1) */}
+                        {processedPeriods.map((mahaDasha) => {
+                            const mdKey = generateKey(mahaDasha, 'MD');
+                            const isMdExpanded = expandedItems.has(mdKey);
+                            const hasMdSubPeriods = Array.isArray(mahaDasha.subPeriods) && mahaDasha.subPeriods.length > 0;
 
                             return (
-                                <React.Fragment key={periodKey}>
-                                    {/* Top-Level Period Row (MD or Flat Dasha) */}
-                                    <tr className="mahadasha-row"> {/* Use mahadasha style for top level */}
+                                <React.Fragment key={mdKey}>
+                                    {/* Mahadasha Row (Level 1) */}
+                                    <tr className="mahadasha-row">
                                         <td>
-                                            {/* Show button only if there are sub-periods */}
-                                            {hasSubPeriodsToShow ? (
+                                            {hasMdSubPeriods ? (
                                                 <button
-                                                    onClick={() => toggleMahadasha(periodKey)}
-                                                    className={`toggle-button ${isExpanded ? 'expanded' : ''}`}
-                                                    aria-expanded={isExpanded}
-                                                    title={isExpanded ? t('dashaTable.collapseMahadasha', 'Collapse') : t('dashaTable.expandMahadasha', 'Expand')}
+                                                    onClick={() => toggleItem(mdKey)}
+                                                    className={`toggle-button ${isMdExpanded ? 'expanded' : ''}`}
+                                                    aria-expanded={isMdExpanded}
+                                                    title={isMdExpanded ? t('dashaTable.collapseMahadasha', 'Collapse MD') : t('dashaTable.expandMahadasha', 'Expand MD')}
                                                 >
-                                                    {/* + for collapsed, − for expanded */}
-                                                    {isExpanded ? '−' : '+'} {t('dashaTable.levelMD', 'MD')} {/* Assume MD label for expandable */}
+                                                    {isMdExpanded ? '−' : '+'} {t('dashaTable.levelMD', 'MD')}
                                                 </button>
                                             ) : (
-                                                /* Show appropriate label (MD or maybe just empty if flat?) */
-                                                <span className="level-indicator">{period.level === 1 ? t('dashaTable.levelMD', 'MD') : ''}</span>
+                                                <span className="level-indicator">{t('dashaTable.levelMD', 'MD')}</span>
                                             )}
                                         </td>
-                                        <td><strong>{t(`planets.${period.lord}`, period.lord)}</strong></td>
-                                        <td>{formatDashaDate(period.start, t)}</td>
-                                        <td>{formatDashaDate(period.end, t)}</td>
+                                        <td><strong>{t(`planets.${mahaDasha.lord}`, mahaDasha.lord)}</strong></td>
+                                        <td>{formatDashaDate(mahaDasha.start, t)}</td>
+                                        <td>{formatDashaDate(mahaDasha.end, t)}</td>
                                     </tr>
 
-                                    {/* Sub-Period Rows (Antardasha, etc.) - Render only if expanded AND there are sub-periods */}
-                                    {isExpanded && hasSubPeriodsToShow && period.subPeriods.map((subPeriod) => (
-                                        <tr key={`${periodKey}-${subPeriod.lord}-${subPeriod.start}`} className="antardasha-row"> {/* Use antardasha style */}
-                                            <td>
-                                                {/* Assume AD label for sub-periods */}
-                                                <span className="level-indicator nested">{t('dashaTable.levelAD', 'AD')}</span>
-                                            </td>
-                                            <td>{t(`planets.${subPeriod.lord}`, subPeriod.lord)}</td>
-                                            <td>{formatDashaDate(subPeriod.start, t)}</td>
-                                            <td>{formatDashaDate(subPeriod.end, t)}</td>
-                                        </tr>
-                                        // Add further nesting here if Pratyantar etc. data is processed
-                                    ))}
+                                    {/* Antardasha Rows (Level 2) - Render if MD is expanded */}
+                                    {isMdExpanded && hasMdSubPeriods && mahaDasha.subPeriods.map((antarDasha) => {
+                                        // Generate a unique key for the Antar Dasha
+                                        const adKey = generateKey(antarDasha, 'AD');
+                                        const isAdExpanded = expandedItems.has(adKey);
+                                        // Check if this Antar Dasha has Pratyantar Dashas
+                                        const hasAdSubPeriods = Array.isArray(antarDasha.subPeriods) && antarDasha.subPeriods.length > 0;
+
+                                        return (
+                                            <React.Fragment key={adKey}>
+                                                {/* Antardasha Row (Level 2) */}
+                                                <tr className="antardasha-row">
+                                                    <td>
+                                                        {hasAdSubPeriods ? (
+                                                            <button
+                                                                onClick={() => toggleItem(adKey)}
+                                                                className={`toggle-button nested ${isAdExpanded ? 'expanded' : ''}`}
+                                                                aria-expanded={isAdExpanded}
+                                                                title={isAdExpanded ? t('dashaTable.collapseAntardasha', 'Collapse AD') : t('dashaTable.expandAntardasha', 'Expand AD')}
+                                                            >
+                                                                {/* Use different symbols or just +/- */}
+                                                                {isAdExpanded ? '−' : '+'} {t('dashaTable.levelAD', 'AD')}
+                                                            </button>
+                                                        ) : (
+                                                            <span className="level-indicator nested">{t('dashaTable.levelAD', 'AD')}</span>
+                                                        )}
+                                                    </td>
+                                                    <td>{t(`planets.${antarDasha.lord}`, antarDasha.lord)}</td>
+                                                    <td>{formatDashaDate(antarDasha.start, t)}</td>
+                                                    <td>{formatDashaDate(antarDasha.end, t)}</td>
+                                                </tr>
+
+                                                {/* Pratyantardasha Rows (Level 3) - Render if AD is expanded */}
+                                                {isAdExpanded && hasAdSubPeriods && antarDasha.subPeriods.map((pratyantarDasha) => {
+                                                    // Generate a unique key for the Pratyantar Dasha
+                                                    const pdKey = generateKey(pratyantarDasha, 'PD');
+
+                                                    return (
+                                                        <tr key={pdKey} className="pratyantardasha-row"> {/* Add new CSS class */}
+                                                            <td>
+                                                                {/* No toggle needed for level 3 */}
+                                                                <span className="level-indicator nested-more">{t('dashaTable.levelPD', 'PD')}</span> {/* Add new translation key */}
+                                                            </td>
+                                                            <td>{t(`planets.${pratyantarDasha.lord}`, pratyantarDasha.lord)}</td>
+                                                            <td>{formatDashaDate(pratyantarDasha.start, t)}</td>
+                                                            <td>{formatDashaDate(pratyantarDasha.end, t)}</td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </React.Fragment>
+                                        );
+                                    })}
                                 </React.Fragment>
                             );
                         })}
@@ -172,14 +229,15 @@ const DashaTable = ({ dashaPeriods }) => {
 };
 
 // --- PropTypes ---
-// Make prop types more flexible to allow for missing level/mahaLord in flat data
+// Update prop types to potentially include antarLord for level 3
 DashaTable.propTypes = {
     dashaPeriods: PropTypes.arrayOf(PropTypes.shape({
-        level: PropTypes.number, // Level might not always be present
+        level: PropTypes.number,
         lord: PropTypes.string.isRequired,
         start: PropTypes.string.isRequired,
         end: PropTypes.string.isRequired,
-        mahaLord: PropTypes.string, // MahaLord might not always be present
+        mahaLord: PropTypes.string,
+        antarLord: PropTypes.string, // Add antarLord as optional
     })),
 };
 
