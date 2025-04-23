@@ -4,12 +4,11 @@ import axios from 'axios'; // Needed for geocoding
 import { useTranslation } from 'react-i18next'; // Import the hook
 import api from './api';
 import DiamondChart from './DiamondChart';
-import KpSignificatorGrid from './KpSignificatorGrid';
+import KpSignificatorGrid, { EVENT_HOUSES } from './KpSignificatorGrid'; // Import EVENT_HOUSES
 import DashaTable from './DashaTable'; // Import DashaTable
 import {
     validateAndFormatDateTime,
     parseAndValidateCoords,
-  
 } from './AstrologyUtils';
 import '../styles/PrashnaPage.css'; // Reuse styles
 
@@ -29,7 +28,7 @@ const formatDisplayDateTime = (isoString, t) => {
   }
 };
 
-// Helper function to return ARRAY of house numbers, sorted numerically (Unchanged logic)
+// Helper function to return ARRAY of house numbers, sorted numerically
 const getHouseNumbersFromString = (houseString) => {
     if (!houseString || typeof houseString !== 'string') return [];
     return houseString.split(',')
@@ -38,7 +37,73 @@ const getHouseNumbersFromString = (houseString) => {
                       .sort((a, b) => a - b); // Sort numerically
 };
 
-// --- Constants (Consider moving to a separate file if reused) ---
+// --- Helper function for Favourability Calculation ---
+// (Adapt this logic based on your specific scoring rules)
+const calculatePlanetFavourability = (allHouses, eventKey, t) => {
+    // Use default 'N/A' values if no event is selected or event config is missing
+    const defaultResult = { score: 0, favourability: 'N/A', completeness: 'N/A' };
+
+    if (!eventKey || !EVENT_HOUSES[eventKey]) {
+        return defaultResult;
+    }
+
+    const { favorable, unfavorable } = EVENT_HOUSES[eventKey];
+    // Check if favorable/unfavorable arrays exist for the event
+    if (!Array.isArray(favorable) || !Array.isArray(unfavorable)) {
+         console.warn(`Missing favorable/unfavorable arrays for event key: ${eventKey}`);
+         return defaultResult;
+    }
+
+    let score = 0;
+    let hasFavorable = false;
+    let hasUnfavorable = false;
+
+    // Ensure allHouses is an array before iterating
+    if (!Array.isArray(allHouses)) {
+        console.warn("calculatePlanetFavourability received non-array for allHouses:", allHouses);
+        allHouses = []; // Treat as empty if invalid
+    }
+
+    allHouses.forEach(house => {
+        if (favorable.includes(house)) {
+            score += 1; // Simple scoring: +1 for favorable
+            hasFavorable = true;
+        } else if (unfavorable.includes(house)) {
+            score -= 1; // Simple scoring: -1 for unfavorable
+            hasUnfavorable = true;
+        }
+    });
+
+    // Determine Favourability string based on presence of favorable/unfavorable houses
+    let favourability = 'Neutral'; // Default if neither type of house is present
+    if (hasFavorable && hasUnfavorable) {
+        favourability = 'Mixed';
+    } else if (hasFavorable) {
+        favourability = 'Favorable';
+    } else if (hasUnfavorable) {
+        favourability = 'Unfavorable';
+    }
+
+    // Determine Completeness string based on score (example logic)
+    let completeness = 'Weak'; // Default
+    if (score >= 2) { // Example threshold for Strong
+        completeness = 'Strong';
+    } else if (score > 0) { // Example threshold for Moderate
+        completeness = 'Moderate';
+    } else if (score < 0) { // Example for Negative impact
+        completeness = 'Negative'; // Or adjust as needed
+    }
+
+    // Note: You might want to translate the favourability/completeness strings
+    // here using t() if they are intended to be displayed directly and vary by language.
+    // Example: favourability = t(`favourability.${favourability}`, favourability);
+    // However, the CSS classes in KpSignificatorGrid rely on the English strings.
+
+    return { score, favourability, completeness };
+};
+
+
+// --- Constants ---
 const SIGNIFICATOR_GRID_ORDER = [
     ['Ketu', 'Moon', 'Jupiter'],
     ['Venus', 'Mars', 'Saturn'],
@@ -52,7 +117,6 @@ const MAJOR_LIFE_EVENTS_KEYS = [
     'childbirth', 'property_purchase', 'vehicle_purchase', 'foreign_travel', 'health_issues'
 ];
 
-// EVENT_HOUSES constant is used by KpSignificatorGrid, keep it there or pass as prop if needed.
 
 const PrashnaNumberPage = () => {
     const { t } = useTranslation(); // Call the hook
@@ -86,32 +150,29 @@ const PrashnaNumberPage = () => {
                 (position) => {
                     const lat = position.coords.latitude; const lon = position.coords.longitude;
                     setCurrentCoords(`${lat.toFixed(6)},${lon.toFixed(6)}`);
-                    // Translate default location name if desired, or keep as is
                     setCurrentPlaceName(t('prashnaNumberPage.currentLocationDefault', "Current Location"));
                     setIsLoadingLocation(false);
                 },
                 (geoError) => {
                     console.error("Error getting geolocation:", geoError);
-                    // Translate error message with interpolation
                     setLocationError(t('prashnaNumberPage.errorGetLocation', { message: geoError.message }));
                     setIsLoadingLocation(false);
                 },
-                { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 } // Standard options
+                { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
             );
         } else {
-             // Translate error message
              setLocationError(t('prashnaNumberPage.errorGeolocationNotSupported'));
-             setIsLoadingLocation(false); // Ensure loading state is cleared
+             setIsLoadingLocation(false);
         }
     }, [t]); // Add t dependency
 
     const handleFindCoordinates = useCallback(async () => {
-        // Translate alert message
         if (!currentPlaceName.trim() || currentPlaceName === t('prashnaNumberPage.currentLocationDefault', "Current Location")) {
              alert(t('prashnaNumberPage.alertEnterPlace')); return;
         }
-        setIsGeocoding(true); setLocationError(null); setCurrentCoords(''); // Clear coords while searching
+        setIsGeocoding(true); setLocationError(null); setCurrentCoords('');
         try {
+            // Consider using a more robust geocoding service or adding API keys if needed
             const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(currentPlaceName)}&format=json&limit=1&addressdetails=1`;
             const response = await axios.get(url, { headers: { 'User-Agent': 'AstrologyWebApp/1.0 (your-contact@example.com)' } }); // Replace with your contact
             if (response.data && response.data.length > 0) {
@@ -119,15 +180,13 @@ const PrashnaNumberPage = () => {
                 const latNum = parseFloat(lat); const lonNum = parseFloat(lon);
                 if (!isNaN(latNum) && !isNaN(lonNum)) {
                     setCurrentCoords(`${latNum.toFixed(6)},${lonNum.toFixed(6)}`);
-                    setCurrentPlaceName(display_name || currentPlaceName); // Update place name with more detail
-                } else { throw new Error('Invalid coordinate data received.'); }
+                    setCurrentPlaceName(display_name || currentPlaceName);
+                } else { throw new Error(t('prashnaNumberPage.errorInvalidCoordsReceived')); } // Translate error
             } else {
-                // Translate error message with interpolation
                 setLocationError(t('prashnaNumberPage.errorGeocodingNotFound', { place: currentPlaceName }));
             }
         } catch (err) {
             console.error('Geocoding error:', err);
-            // Translate error message with interpolation
             setLocationError(t('prashnaNumberPage.errorGeocodingFailed', { message: err.response?.data?.error || err.message || 'Request failed.' }));
         } finally { setIsGeocoding(false); }
     }, [currentPlaceName, t]); // Add t dependency
@@ -139,37 +198,29 @@ const PrashnaNumberPage = () => {
 
     // --- Calculate Handler ---
     const handleCalculatePrashnaNumber = useCallback(async () => {
-        // Reset states
         setChartError(null); setKpError(null);
         setPrashnaResult(null); setKpData(null);
         setInputDetails(null);
 
-        // --- Validation ---
         const num = parseInt(prashnaNumber, 10);
         if (isNaN(num) || num < 1 || num > 249) {
-            // Translate error message
             const errorMsg = t('prashnaNumberPage.errorInvalidNumber');
             setChartError(errorMsg); setKpError(errorMsg);
             return;
         }
-        // Pass 't' to validation function
         const coordsValidation = parseAndValidateCoords(currentCoords, t);
         if (!coordsValidation.isValid) {
             setChartError(coordsValidation.error); setKpError(coordsValidation.error);
             return;
         }
-        // --- End Validation ---
 
         setIsLoadingChart(true); setIsLoadingKp(true);
 
-        // Get CURRENT time for BOTH calculations
         const now = new Date();
         const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-        const currentDateTimeStr = localNow.toISOString().slice(0, 19); // YYYY-MM-DDTHH:MM:SS
-        // Pass 't' to validation function
+        const currentDateTimeStr = localNow.toISOString().slice(0, 19);
         const dateTimeValidation = validateAndFormatDateTime(currentDateTimeStr, t);
         if (!dateTimeValidation.isValid) {
-            // Translate error message
             const errorMsg = t('prashnaNumberPage.errorCurrentTime');
             setChartError(errorMsg); setKpError(errorMsg);
             setIsLoadingChart(false); setIsLoadingKp(false);
@@ -181,45 +232,54 @@ const PrashnaNumberPage = () => {
             latitude: coordsValidation.latitude,
             longitude: coordsValidation.longitude,
             placeName: currentPlaceName,
-            date: dateTimeValidation.formattedDate // Pass CURRENT formatted time
+            date: dateTimeValidation.formattedDate
         };
-        const payloadKp = { // KP Significators always use current time/location
+        const payloadKp = {
             date: dateTimeValidation.formattedDate,
             latitude: coordsValidation.latitude,
             longitude: coordsValidation.longitude,
             placeName: currentPlaceName
         };
-        setInputDetails(payloadChart); // Store the input used for the chart part
+        setInputDetails(payloadChart);
 
         try {
-            const [chartResponse, kpResponse] = await Promise.all([
-                api.post('/calculate-prashna-number', payloadChart).catch(err => ({ error: err })),
-                api.post('/kp-significators', payloadKp).catch(err => ({ error: err }))
+            // Use Promise.allSettled for better error handling of individual requests
+            const results = await Promise.allSettled([
+                api.post('/calculate-prashna-number', payloadChart),
+                api.post('/kp-significators', payloadKp)
             ]);
 
+            const chartResult = results[0];
+            const kpResult = results[1];
+
             // Process Chart Response
-            if (chartResponse.error) {
-                console.error("Prashna Number Chart Fetch Error:", chartResponse.error);
-                // Translate error message
-                setChartError(chartResponse.error.response?.data?.error || chartResponse.error.message || t('prashnaNumberPage.errorChartFetch'));
-                setPrashnaResult(null);
+            if (chartResult.status === 'fulfilled') {
+                setPrashnaResult(chartResult.value.data);
             } else {
-                setPrashnaResult(chartResponse.data);
+                console.error("Prashna Number Chart Fetch Error:", chartResult.reason);
+                const error = chartResult.reason;
+                setChartError(error.response?.data?.error || error.message || t('prashnaNumberPage.errorChartFetch'));
+                setPrashnaResult(null);
             }
 
             // Process KP Response
-            if (kpResponse.error) {
-                console.error("Prashna Number KP Fetch Error:", kpResponse.error);
-                // Translate error message
-                setKpError(kpResponse.error.response?.data?.error || kpResponse.error.message || t('prashnaNumberPage.errorKpFetch'));
-                setKpData(null);
+            if (kpResult.status === 'fulfilled') {
+                // Ensure the data structure is as expected
+                const significators = kpResult.value.data?.kpSignificatorsData;
+                setKpData(Array.isArray(significators) ? significators : null);
+                if (!Array.isArray(significators)) {
+                     console.warn("KP Significators data received is not an array:", kpResult.value.data);
+                     setKpError(t('prashnaNumberPage.errorKpInvalidData')); // Add specific error message
+                }
             } else {
-                setKpData(Array.isArray(kpResponse.data?.kpSignificatorsData) ? kpResponse.data.kpSignificatorsData : null);
+                console.error("Prashna Number KP Fetch Error:", kpResult.reason);
+                const error = kpResult.reason;
+                setKpError(error.response?.data?.error || error.message || t('prashnaNumberPage.errorKpFetch'));
+                setKpData(null);
             }
 
-        } catch (err) { // Catch errors from Promise.all itself
+        } catch (err) { // Catch errors unlikely with Promise.allSettled but good practice
             console.error("Overall Prashna Number Fetch Error:", err);
-            // Translate error message
             const errorMsg = t('prashnaNumberPage.errorUnexpected');
             setChartError(errorMsg); setKpError(errorMsg);
             setPrashnaResult(null); setKpData(null);
@@ -234,8 +294,11 @@ const PrashnaNumberPage = () => {
         if (!kpData || !Array.isArray(kpData) || kpData.length === 0) {
             return finalMap;
         }
+
+        // --- Step 1: Create Intermediate Map with Raw Data ---
         const intermediatePlanetData = new Map();
         const planetOrderSource = kpData.map(p => p.name);
+        // Ensure all planets in the grid order are considered, even if not in kpData
         const allRelevantPlanetNames = [...new Set([...FLATTENED_GRID_ORDER, ...planetOrderSource])];
 
         allRelevantPlanetNames.forEach(planetName => {
@@ -247,42 +310,72 @@ const PrashnaNumberPage = () => {
                     ownedHouses: getHouseNumbersFromString(planet.ownedHouses),
                     signLordOwnedHouses: getHouseNumbersFromString(planet.signLordOwnedHouses),
                     aspectingOwnedHouses: getHouseNumbersFromString(planet.aspectingOwnedHouses),
-                    nakshatraLordName: planet.nakshatraLord?.name || 'N/A',
-                    subLordName: planet.subLord?.name || 'N/A',
+                    // Use translated N/A for consistency
+                    nakshatraLordName: planet.nakshatraLord?.name || t('utils.notAvailable', 'N/A'),
+                    subLordName: planet.subLord?.name || t('utils.notAvailable', 'N/A'),
                 });
             } else if (FLATTENED_GRID_ORDER.includes(planetName)) {
+                 // Add placeholder for planets in grid but missing from data
                  intermediatePlanetData.set(planetName, {
                     name: planetName, occupiedHouses: [], ownedHouses: [], signLordOwnedHouses: [],
-                    aspectingOwnedHouses: [], nakshatraLordName: 'N/A', subLordName: 'N/A',
+                    aspectingOwnedHouses: [],
+                    nakshatraLordName: t('utils.notAvailable', 'N/A'),
+                    subLordName: t('utils.notAvailable', 'N/A'),
                 });
             }
         });
 
+        // --- Step 2: Create Final Map with Processed Data and Favourability ---
         FLATTENED_GRID_ORDER.forEach(planetName => {
             const planetData = intermediatePlanetData.get(planetName);
+
+            // Default object if planetData is missing entirely (shouldn't happen with above logic)
             if (!planetData) {
-                finalMap.set(planetName, { name: planetName, allHouses: [], nakshatraLordName: 'N/A', nakLordAllHouses: [], subLordName: 'N/A', subLordAllHouses: [] });
-                return;
+                finalMap.set(planetName, {
+                    name: planetName, allHouses: [], nakshatraLordName: t('utils.notAvailable', 'N/A'), nakLordAllHouses: [],
+                    subLordName: t('utils.notAvailable', 'N/A'), subLordAllHouses: [],
+                    score: 0, favourability: 'N/A', completeness: 'N/A' // Add defaults
+                });
+                return; // Skip to next planet
             }
+
+            // Get lord data from the intermediate map
             const nakLordData = intermediatePlanetData.get(planetData.nakshatraLordName);
             const subLordData = intermediatePlanetData.get(planetData.subLordName);
-            const nakLordHouses = nakLordData ? [...nakLordData.occupiedHouses, ...nakLordData.ownedHouses, ...nakLordData.signLordOwnedHouses, ...nakLordData.aspectingOwnedHouses] : [];
-            const subLordHouses = subLordData ? [...subLordData.occupiedHouses, ...subLordData.ownedHouses, ...subLordData.signLordOwnedHouses, ...subLordData.aspectingOwnedHouses] : [];
-            const planetAllHouses = [...new Set([...planetData.occupiedHouses, ...planetData.ownedHouses, ...planetData.signLordOwnedHouses, ...planetData.aspectingOwnedHouses])].sort((a, b) => a - b);
-            const nakLordAllHouses = [...new Set(nakLordHouses)].sort((a, b) => a - b);
-            const subLordAllHouses = [...new Set(subLordHouses)].sort((a, b) => a - b);
 
+            // Calculate combined houses for the planet and its lords (raw lists)
+            const planetHousesRaw = [...planetData.occupiedHouses, ...planetData.ownedHouses, ...planetData.signLordOwnedHouses, ...planetData.aspectingOwnedHouses];
+            const nakLordHousesRaw = nakLordData ? [...nakLordData.occupiedHouses, ...nakLordData.ownedHouses, ...nakLordData.signLordOwnedHouses, ...nakLordData.aspectingOwnedHouses] : [];
+            const subLordHousesRaw = subLordData ? [...subLordData.occupiedHouses, ...subLordData.ownedHouses, ...subLordData.signLordOwnedHouses, ...subLordData.aspectingOwnedHouses] : [];
+
+            // Get unique, sorted lists for display
+            const planetAllHousesDisplay = [...new Set(planetHousesRaw)].sort((a, b) => a - b);
+            const nakLordAllHousesDisplay = [...new Set(nakLordHousesRaw)].sort((a, b) => a - b);
+            const subLordAllHousesDisplay = [...new Set(subLordHousesRaw)].sort((a, b) => a - b);
+
+            // *** Calculate Favourability ***
+            // Combine all houses (planet + NL + SL) into a single unique set for scoring
+            const combinedHousesForScoring = [...new Set([...planetHousesRaw, ...nakLordHousesRaw, ...subLordHousesRaw])];
+            // Call the calculation function
+            const { score, favourability, completeness } = calculatePlanetFavourability(combinedHousesForScoring, selectedEvent, t);
+
+            // Set the final data in the map, including favourability info
             finalMap.set(planetName, {
                 name: planetName,
-                allHouses: planetAllHouses,
+                allHouses: planetAllHousesDisplay, // Use the sorted unique list for display
                 nakshatraLordName: planetData.nakshatraLordName,
-                nakLordAllHouses: nakLordAllHouses,
+                nakLordAllHouses: nakLordAllHousesDisplay, // Use the sorted unique list for display
                 subLordName: planetData.subLordName,
-                subLordAllHouses: subLordAllHouses,
+                subLordAllHouses: subLordAllHousesDisplay, // Use the sorted unique list for display
+                // Add the calculated values
+                score: score,
+                favourability: favourability, // This will be used by KpSignificatorGrid for styling
+                completeness: completeness,
             });
         });
         return finalMap;
-    }, [kpData]); // Dependency is only kpData
+        // *** Update Dependency Array ***
+    }, [kpData, selectedEvent, t]); // Add selectedEvent and t
 
     // --- Loading / Error States ---
     const isOverallLoading = isLoadingChart || isLoadingKp || isLoadingLocation || isGeocoding;
@@ -293,30 +386,20 @@ const PrashnaNumberPage = () => {
     const translatedLifeEvents = useMemo(() => {
         return MAJOR_LIFE_EVENTS_KEYS.map(eventKey => ({
             value: eventKey,
-            // Translate label, provide fallback if key is empty
             label: eventKey ? t(`lifeEvents.${eventKey}`, eventKey) : t('prashnaNumberPage.selectEventOption', '-- Select Event --')
         }));
     }, [t]); // Dependency is t
 
     // --- Render Results ---
     const renderResults = () => {
-         // Initial loading state before any calculation attempt
-         // Translate loading message
-         if (isOverallLoading && !prashnaResult && !kpData && !overallError) return <div className="loader">{t('prashnaNumberPage.resultsLoading')}</div>;
-
-         // Display error if occurred and no results are available yet
+         if (isOverallLoading && !prashnaResult && !kpData && !overallError) return <div className="loader">{t('prashnaNumberPage.resultsLoading', 'Loading results...')}</div>;
          if (overallError && !prashnaResult && !kpData) return <p className="error-text">{overallError}</p>;
 
-         // Check if the map exists before accessing size
          const hasValidKpDataForGrid = significatorDetailsMap && significatorDetailsMap.size > 0;
-         // Check if chart data exists for Dasha
          const hasDashaData = prashnaResult?.dashaPeriods && Array.isArray(prashnaResult.dashaPeriods) && prashnaResult.dashaPeriods.length > 0;
 
-         // Message if calculation hasn't been run or resulted in no data (and no error shown yet)
-         // Translate initial prompt
-         if (!prashnaResult && !hasValidKpDataForGrid && !overallError) return <p className="info-text">{t('prashnaNumberPage.resultsInitialPrompt')}</p>;
+         if (!prashnaResult && !hasValidKpDataForGrid && !overallError) return <p className="info-text">{t('prashnaNumberPage.resultsInitialPrompt', 'Enter a Prashna number (1-249) and click Calculate.')}</p>;
 
-         // Extract data safely
          const { houses, planetaryPositions } = prashnaResult || {};
          const canRenderChart = houses && planetaryPositions?.sidereal;
 
@@ -324,41 +407,33 @@ const PrashnaNumberPage = () => {
              <div className="prashna-results-area two-column-layout">
                  {/* Column 1: Chart & Tables */}
                  <div className="results-column">
-                     {/* Translate title with interpolation */}
                      <h3 className="result-sub-title">{t('prashnaNumberPage.chartTitle', { num: inputDetails?.number || 'N/A' })}</h3>
-                     {/* Display chart loading/error specific to chart fetch */}
-                     {/* Translate loading/error messages */}
-                     {isLoadingChart && <div className="loader small-loader">{t('prashnaNumberPage.chartLoading')}</div>}
-                     {chartError && !isLoadingChart && <p className="error-text small-error">{t('prashnaNumberPage.chartErrorPrefix')}: {chartError}</p>}
-                     {/* Render chart only if data exists and no chart-specific error */}
+                     {isLoadingChart && <div className="loader small-loader">{t('prashnaNumberPage.chartLoading', 'Loading Chart...')}</div>}
+                     {chartError && !isLoadingChart && <p className="error-text small-error">{t('prashnaNumberPage.chartErrorPrefix', 'Chart Error')}: {chartError}</p>}
                      {canRenderChart && !chartError ? (
                          <div className="prashna-chart-wrapper">
                              <DiamondChart
-                                 // Translate title with interpolation
                                  title={t('prashnaNumberPage.chartTitleFull', { num: inputDetails?.number || '' })}
                                  houses={houses}
                                  planets={planetaryPositions.sidereal}
-                                 size={350} // Adjust size as needed
+                                 size={350}
                              />
                          </div>
-                     ) : (!isLoadingChart && !chartError && <p>{t('prashnaNumberPage.chartUnavailable')}</p>)}
+                     ) : (!isLoadingChart && !chartError && <p>{t('prashnaNumberPage.chartUnavailable', 'Chart data unavailable.')}</p>)}
                      {/* Dasha Table */}
                      {hasDashaData && !chartError ? (
                         <DashaTable dashaPeriods={prashnaResult.dashaPeriods} />
-                     ) : (!isLoadingChart && !chartError && <p>{t('prashnaNumberPage.dashaUnavailable')}</p>)}
-                     {/* Add other tables (Planets, Houses) similarly, checking prashnaResult */}
+                     ) : (!isLoadingChart && !chartError && <p>{t('prashnaNumberPage.dashaUnavailable', 'Dasha data unavailable.')}</p>)}
+                     {/* Add other tables (Planets, Houses) similarly */}
                  </div>
                  {/* Column 2: KP Significators */}
                  <div className="results-column">
-                     {/* Translate title */}
-                     <h3 className="result-sub-title">{t('prashnaNumberPage.kpTitle')}</h3>
-                     {/* Translate loading/error messages */}
-                     {isLoadingKp && <div className="loader small-loader">{t('prashnaNumberPage.kpLoading')}</div>}
-                     {kpError && !isLoadingKp && <p className="error-text small-error">{t('prashnaNumberPage.kpErrorPrefix')}: {kpError}</p>}
-                     {/* Render grid only if data exists and no KP-specific error */}
+                     <h3 className="result-sub-title">{t('prashnaNumberPage.kpTitle', 'KP Significators (Current Time)')}</h3>
+                     {isLoadingKp && <div className="loader small-loader">{t('prashnaNumberPage.kpLoading', 'Loading KP Data...')}</div>}
+                     {kpError && !isLoadingKp && <p className="error-text small-error">{t('prashnaNumberPage.kpErrorPrefix', 'KP Error')}: {kpError}</p>}
                      {hasValidKpDataForGrid && !kpError ? (
                          <KpSignificatorGrid significatorDetailsMap={significatorDetailsMap} selectedEvent={selectedEvent} />
-                     ) : (!isLoadingKp && !kpError && <p>{t('prashnaNumberPage.kpUnavailable')}</p>)}
+                     ) : (!isLoadingKp && !kpError && <p>{t('prashnaNumberPage.kpUnavailable', 'KP Significator data unavailable.')}</p>)}
                  </div>
              </div>
          );
@@ -366,38 +441,30 @@ const PrashnaNumberPage = () => {
 
     return (
         <div className="prashna-page">
-            {/* Translate page title */}
-            <h1>{t('prashnaNumberPage.pageTitle')}</h1>
+            <h1>{t('prashnaNumberPage.pageTitle', 'Prashna Number Analysis')}</h1>
 
             {/* --- Controls --- */}
             <div className="prashna-controls">
-                 {/* Input Summary */}
                 {inputDetails && (
                     <div className="result-section input-summary small-summary">
-                        {/* Translate summary using interpolation */}
                         {t('prashnaNumberPage.inputSummary', {
                             num: inputDetails.number,
-                            dateTime: formatDisplayDateTime(inputDetails.date, t), // Pass t
-                            place: inputDetails.placeName || t('utils.notAvailable', 'N/A'), // Translate N/A
+                            dateTime: formatDisplayDateTime(inputDetails.date, t),
+                            place: inputDetails.placeName || t('utils.notAvailable', 'N/A'),
                             lat: inputDetails.latitude?.toFixed(4),
                             lon: inputDetails.longitude?.toFixed(4)
                         })}
                     </div>
                 )}
-                {/* Event Selector */}
                  <div className="result-section life-event-selector small-selector">
-                    {/* Translate label */}
-                    <label htmlFor="life-event-select">{t('prashnaNumberPage.analyzeEventLabel')} </label>
+                    <label htmlFor="life-event-select">{t('prashnaNumberPage.analyzeEventLabel', 'Analyze for Event:')} </label>
                     <select id="life-event-select" value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)} disabled={isOverallLoading}>
-                         {/* Use translated options */}
                          {translatedLifeEvents.map(event => (<option key={event.value} value={event.value}>{event.label}</option>))}
                     </select>
                 </div>
-                {/* Number Input */}
                 <div className="form-row">
                     <div className="input-group">
-                        {/* Translate label */}
-                        <label htmlFor="prashna-number">{t('prashnaNumberPage.numberLabel')}</label>
+                        <label htmlFor="prashna-number">{t('prashnaNumberPage.numberLabel', 'Prashna Number (1-249):')}</label>
                         <input
                             id="prashna-number"
                             type="number"
@@ -406,67 +473,54 @@ const PrashnaNumberPage = () => {
                             min="1"
                             max="249"
                             required
-                            // Translate placeholder
-                            placeholder={t('prashnaNumberPage.numberPlaceholder')}
+                            placeholder={t('prashnaNumberPage.numberPlaceholder', 'Enter 1-249')}
                             disabled={isOverallLoading}
                         />
                     </div>
                 </div>
-                {/* Location Inputs (for CURRENT location) */}
-                {/* Translate section title */}
-                <p><strong>{t('prashnaNumberPage.locationSectionTitle')}</strong></p>
+                <p><strong>{t('prashnaNumberPage.locationSectionTitle', 'Current Location (for Calculation Time)')}</strong></p>
                  <div className="form-row">
                     <div className="input-group place-group">
-                        {/* Translate label */}
-                        <label htmlFor="prashna-place">{t('prashnaNumberPage.placeLabel')}</label>
+                        <label htmlFor="prashna-place">{t('prashnaNumberPage.placeLabel', 'Place Name:')}</label>
                         <input
                             id="prashna-place"
                             type="text"
                             value={currentPlaceName}
                             onChange={(e) => setCurrentPlaceName(e.target.value)}
-                            // Translate placeholder
-                            placeholder={t('prashnaNumberPage.placePlaceholder')}
+                            placeholder={t('prashnaNumberPage.placePlaceholder', 'e.g., London, UK')}
                             disabled={isGeocoding || isLoadingLocation}
                         />
                     </div>
                      <div className="button-container find-coords-button">
-                        {/* Translate button text */}
                         <button type="button" onClick={handleFindCoordinates} disabled={isGeocoding || isLoadingLocation || !currentPlaceName.trim() || currentPlaceName === t('prashnaNumberPage.currentLocationDefault', "Current Location")}>
-                            {isGeocoding ? t('prashnaNumberPage.findingCoordsButton') : t('prashnaNumberPage.findCoordsButton')}
+                            {isGeocoding ? t('prashnaNumberPage.findingCoordsButton', 'Finding...') : t('prashnaNumberPage.findCoordsButton', 'Find Coords')}
                         </button>
                     </div>
                 </div>
                  <div className="form-row">
                     <div className="input-group full-width">
-                        {/* Translate label */}
-                        <label htmlFor="prashna-coords">{t('prashnaNumberPage.coordsLabel')}</label>
+                        <label htmlFor="prashna-coords">{t('prashnaNumberPage.coordsLabel', 'Coordinates (Lat, Lon):')}</label>
                         <input
                             id="prashna-coords"
                             type="text"
                             value={currentCoords}
                             onChange={(e) => setCurrentCoords(e.target.value)}
-                            // Translate placeholder
-                            placeholder={t('prashnaNumberPage.coordsPlaceholder')}
+                            placeholder={t('prashnaNumberPage.coordsPlaceholder', 'e.g., 51.5074, -0.1278')}
                             required
                             disabled={isLoadingLocation || isGeocoding}
                         />
-                        {/* Display location loading/error */}
-                        {/* Translate loading hint */}
-                        {isLoadingLocation && <p className="hint-text loading-text small-hint">{t('prashnaNumberPage.fetchingLocationHint')}</p>}
+                        {isLoadingLocation && <p className="hint-text loading-text small-hint">{t('prashnaNumberPage.fetchingLocationHint', 'Fetching location...')}</p>}
                         {locationError && <p className="error-text small-error">{locationError}</p>}
                     </div>
-                     <div className="input-group half-width"> {/* Adjust width as needed */}
-                         {/* Translate button text */}
+                     <div className="input-group half-width">
                          <button type="button" onClick={getCurrentLocation} disabled={isLoadingLocation || isGeocoding}>
-                            {isLoadingLocation ? t('prashnaNumberPage.gettingLocationButton') : t('prashnaNumberPage.useCurrentLocationButton')}
+                            {isLoadingLocation ? t('prashnaNumberPage.gettingLocationButton', 'Getting...') : t('prashnaNumberPage.useCurrentLocationButton', 'Use Current')}
                          </button>
                     </div>
                 </div>
-                {/* Calculate Button */}
                 <div className="form-row action-buttons-row">
-                    {/* Translate button text */}
                     <button type="button" onClick={handleCalculatePrashnaNumber} disabled={isOverallLoading || !prashnaNumber || !currentCoords} className="calculate-button">
-                        {isLoadingChart || isLoadingKp ? t('prashnaNumberPage.calculatingButton') : t('prashnaNumberPage.calculateButton')}
+                        {isLoadingChart || isLoadingKp ? t('prashnaNumberPage.calculatingButton', 'Calculating...') : t('prashnaNumberPage.calculateButton', 'Calculate Prashna Chart')}
                     </button>
                 </div>
             </div>
