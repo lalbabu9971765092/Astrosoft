@@ -399,3 +399,11 @@ export const DEFAULT_DASHA_BALANCE = {
     balanceYears: NaN,
     balanceYMD: { years: 0, months: 0, days: 0 }
 };
+export const SAMVATSAR_NAMES = [
+    'Prabhava', 'Vibhava', 'Shukla', 'Pramoda', 'Prajapati', 'Angira', 'Shrimukha', 'Bhava', 'Yuva', 'Dhatri',
+    'Ishwara', 'Bahudhanya', 'Pramathi', 'Vikrama', 'Vishu', 'Chitrabhanu', 'Subhanu', 'Tarana', 'Parthiva', 'Vyaya',
+    'Sarvajit', 'Sarvadhari', 'Virodhi', 'Vikriti', 'Khara', 'Nandana', 'Vijaya', 'Jaya', 'Manmatha', 'Durmukha',
+    'Hemalambi', 'Vilambi', 'Vikari', 'Sharvari', 'Plava', 'Shubhakrit', 'Shobhakrit', 'Krodhi', 'Vishvavasu', 'Parabhava',
+    'Plavanga', 'Kilaka', 'Saumya', 'Sadharana', 'Virodhakrit', 'Paridhavi', 'Pramadicha', 'Ananda', 'Rakshasa', 'Nala',
+    'Pingala', 'Kalayukti', 'Siddharthi', 'Raudra', 'Durmati', 'Dundubhi', 'Rudhirodgari', 'Raktakshi', 'Krodhana', 'Kshaya' // or Akshaya
+];

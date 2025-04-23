@@ -2,6 +2,7 @@
 import { MhahPanchang } from 'mhah-panchang';
 import SunCalc from 'suncalc';
 import logger from './logger.js';
+import { SAMVATSAR_NAMES } from './constants.js';
 
 // Instantiate locally within functions or keep global if library is confirmed stateless
 // var obj = new MhahPanchang();
