@@ -81,7 +81,7 @@ function getSamvatsarNameFromSaka(sakaYear) {
     }
     // Using the formula: (Saka Year + 12) % 60 (adjust constant '12' if needed based on epoch source)
     // Ensure SAMVATSAR_NAMES is imported and available
-    const samvatsarIndex = (sakaYear + 12) % 60;
+    const samvatsarIndex = (sakaYear + 11) % 60;
 
     if (samvatsarIndex >= 0 && samvatsarIndex < SAMVATSAR_NAMES.length) {
         return SAMVATSAR_NAMES[samvatsarIndex];
