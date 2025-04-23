@@ -55,6 +55,7 @@ const calculatePlanetFavourability = (allHouses, eventKey, t) => {
     }
 
     let score = 0;
+    // We still need these flags to potentially differentiate between 0 score with houses vs 0 score with no houses
     let hasFavorable = false;
     let hasUnfavorable = false;
 
@@ -64,6 +65,7 @@ const calculatePlanetFavourability = (allHouses, eventKey, t) => {
         allHouses = []; // Treat as empty if invalid
     }
 
+    // Calculate the score based on houses
     allHouses.forEach(house => {
         if (favorable.includes(house)) {
             score += 1; // Simple scoring: +1 for favorable
@@ -74,30 +76,33 @@ const calculatePlanetFavourability = (allHouses, eventKey, t) => {
         }
     });
 
-    // Determine Favourability string based on presence of favorable/unfavorable houses
-    let favourability = 'Neutral'; // Default if neither type of house is present
-    if (hasFavorable && hasUnfavorable) {
-        favourability = 'Mixed';
-    } else if (hasFavorable) {
-        favourability = 'Favorable';
-    } else if (hasUnfavorable) {
+    // --- MODIFIED LOGIC: Determine Favourability string based on Score ---
+    let favourability;
+    if (score < 0) { // If score is negative, it's Unfavorable
         favourability = 'Unfavorable';
+    } else if (score > 0) { // If score is positive, it's Favorable
+        favourability = 'Favorable';
+    } else { // Score is exactly 0
+        // If score is 0, decide if it's Neutral (no relevant houses) or Mixed (balancing houses)
+        if (hasFavorable || hasUnfavorable) { // Check if any scoring houses were involved
+             favourability = 'Mixed'; // Score is 0, but houses were present
+        } else {
+             favourability = 'Neutral'; // Score is 0, and no favorable/unfavorable houses found
+        }
     }
 
-    // Determine Completeness string based on score (example logic)
+    // Determine Completeness string based on score (example logic - adjust as needed)
     let completeness = 'Weak'; // Default
-    if (score >= 2) { // Example threshold for Strong
-        completeness = 'Strong';
-    } else if (score > 0) { // Example threshold for Moderate
+    if (score <= -2) { // Example threshold for Strong Negative
+        completeness = 'Strong Negative'; // Or just 'Strong' if you prefer
+    } else if (score === -1) {
+        completeness = 'Negative';
+    } else if (score === 1) {
         completeness = 'Moderate';
-    } else if (score < 0) { // Example for Negative impact
-        completeness = 'Negative'; // Or adjust as needed
+    } else if (score >= 2) { // Example threshold for Strong Positive
+        completeness = 'Strong';
     }
-
-    // Note: You might want to translate the favourability/completeness strings
-    // here using t() if they are intended to be displayed directly and vary by language.
-    // Example: favourability = t(`favourability.${favourability}`, favourability);
-    // However, the CSS classes in KpSignificatorGrid rely on the English strings.
+    // If score is 0, completeness remains 'Weak' or you could set it based on Neutral/Mixed
 
     return { score, favourability, completeness };
 };
@@ -356,7 +361,7 @@ const PrashnaNumberPage = () => {
             // *** Calculate Favourability ***
             // Combine all houses (planet + NL + SL) into a single unique set for scoring
             const combinedHousesForScoring = [...new Set([...planetHousesRaw, ...nakLordHousesRaw, ...subLordHousesRaw])];
-            // Call the calculation function
+            // Call the calculation function (which now uses score-based logic)
             const { score, favourability, completeness } = calculatePlanetFavourability(combinedHousesForScoring, selectedEvent, t);
 
             // Set the final data in the map, including favourability info
