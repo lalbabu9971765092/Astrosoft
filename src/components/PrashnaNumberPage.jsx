@@ -4,7 +4,8 @@ import axios from 'axios'; // Needed for geocoding
 import { useTranslation } from 'react-i18next'; // Import the hook
 import api from './api';
 import DiamondChart from './DiamondChart';
-import KpSignificatorGrid, { EVENT_HOUSES } from './KpSignificatorGrid'; // Import EVENT_HOUSES
+// Import EVENT_HOUSES along with the default export
+import KpSignificatorGrid, { EVENT_HOUSES } from './KpSignificatorGrid';
 import DashaTable from './DashaTable'; // Import DashaTable
 import {
     validateAndFormatDateTime,
@@ -12,8 +13,8 @@ import {
 } from './AstrologyUtils';
 import '../styles/PrashnaPage.css'; // Reuse styles
 
-// --- Helper Functions (Moved outside component) ---
-// Pass 't' for potential error/invalid messages
+// --- Helper Functions ---
+// ... (formatDisplayDateTime, getHouseNumbersFromString, calculatePlanetFavourability remain the same) ...
 const formatDisplayDateTime = (isoString, t) => {
   if (!isoString) return t ? t('utils.notAvailable', 'N/A') : 'N/A'; // Use translated N/A
   try {
@@ -28,7 +29,6 @@ const formatDisplayDateTime = (isoString, t) => {
   }
 };
 
-// Helper function to return ARRAY of house numbers, sorted numerically
 const getHouseNumbersFromString = (houseString) => {
     if (!houseString || typeof houseString !== 'string') return [];
     return houseString.split(',')
@@ -37,8 +37,6 @@ const getHouseNumbersFromString = (houseString) => {
                       .sort((a, b) => a - b); // Sort numerically
 };
 
-// --- Helper function for Favourability Calculation ---
-// (Adapt this logic based on your specific scoring rules)
 const calculatePlanetFavourability = (allHouses, eventKey, t) => {
     // Use default 'N/A' values if no event is selected or event config is missing
     const defaultResult = { score: 0, favourability: 'N/A', completeness: 'N/A' };
@@ -116,14 +114,14 @@ const SIGNIFICATOR_GRID_ORDER = [
 ];
 const FLATTENED_GRID_ORDER = SIGNIFICATOR_GRID_ORDER.flat();
 
-// Event keys remain the same, labels will be translated
-const MAJOR_LIFE_EVENTS_KEYS = [
-    '', 'education', 'career_start', 'career_promotion', 'marriage',
-    'childbirth', 'property_purchase', 'vehicle_purchase', 'foreign_travel', 'health_issues'
-];
+// *** MODIFIED: Generate keys dynamically from EVENT_HOUSES ***
+const MAJOR_LIFE_EVENTS_KEYS = ['', ...Object.keys(EVENT_HOUSES).filter(key => key !== '')];
+// Optional: Sort alphabetically
+// const MAJOR_LIFE_EVENTS_KEYS = ['', ...Object.keys(EVENT_HOUSES).filter(key => key !== '').sort()];
 
 
 const PrashnaNumberPage = () => {
+    // ... (rest of the component remains the same) ...
     const { t } = useTranslation(); // Call the hook
 
     // --- State ---

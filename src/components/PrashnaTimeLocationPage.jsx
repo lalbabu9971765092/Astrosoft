@@ -4,18 +4,18 @@ import axios from 'axios'; // Needed for geocoding
 import { useTranslation } from 'react-i18next'; // Import the hook
 import api from './api';
 import DiamondChart from './DiamondChart'; // Reuse chart component
-import KpSignificatorGrid from './KpSignificatorGrid'; // Use refactored component
+// Import EVENT_HOUSES along with the default export
+import KpSignificatorGrid, { EVENT_HOUSES } from './KpSignificatorGrid';
 import DashaTable from './DashaTable'; // Import DashaTable
 import {
     validateAndFormatDateTime,
     parseAndValidateCoords,
-    // Removed unused imports: PLANET_ORDER, PLANET_SYMBOLS, convertDMSToDegrees, calculateHouse, convertToDMS, calculateNakshatraPada, calculateRashi
     getHouseNumbersFromString // Make sure this is imported or defined
 } from './AstrologyUtils';
 import '../styles/PrashnaPage.css'; // Create or reuse styles
 
 // --- Helper Functions (Moved outside component) ---
-// Pass 't' for potential error/invalid messages
+// ... (formatDisplayDateTime remains the same) ...
 const formatDisplayDateTime = (isoString, t) => {
   if (!isoString) return t ? t('utils.notAvailable', 'N/A') : 'N/A'; // Use translated N/A
   try {
@@ -30,8 +30,75 @@ const formatDisplayDateTime = (isoString, t) => {
   }
 };
 
-// Helper function to return ARRAY of house numbers, sorted numerically (if needed for map calc)
-// const getHouseNumbersFromString = (houseString) => { ... } // Already defined in the original code
+// *** ADDED: Helper function for Favourability Calculation (copied from PrashnaNumberPage) ***
+const calculatePlanetFavourability = (allHouses, eventKey, t) => {
+    // Use default 'N/A' values if no event is selected or event config is missing
+    const defaultResult = { score: 0, favourability: 'N/A', completeness: 'N/A' };
+
+    if (!eventKey || !EVENT_HOUSES[eventKey]) {
+        return defaultResult;
+    }
+
+    const { favorable, unfavorable } = EVENT_HOUSES[eventKey];
+    // Check if favorable/unfavorable arrays exist for the event
+    if (!Array.isArray(favorable) || !Array.isArray(unfavorable)) {
+         console.warn(`Missing favorable/unfavorable arrays for event key: ${eventKey}`);
+         return defaultResult;
+    }
+
+    let score = 0;
+    // We still need these flags to potentially differentiate between 0 score with houses vs 0 score with no houses
+    let hasFavorable = false;
+    let hasUnfavorable = false;
+
+    // Ensure allHouses is an array before iterating
+    if (!Array.isArray(allHouses)) {
+        console.warn("calculatePlanetFavourability received non-array for allHouses:", allHouses);
+        allHouses = []; // Treat as empty if invalid
+    }
+
+    // Calculate the score based on houses
+    allHouses.forEach(house => {
+        if (favorable.includes(house)) {
+            score += 1; // Simple scoring: +1 for favorable
+            hasFavorable = true;
+        } else if (unfavorable.includes(house)) {
+            score -= 1; // Simple scoring: -1 for unfavorable
+            hasUnfavorable = true;
+        }
+    });
+
+    // --- Determine Favourability string based on Score ---
+    let favourability;
+    if (score < 0) { // If score is negative, it's Unfavorable
+        favourability = 'Unfavorable';
+    } else if (score > 0) { // If score is positive, it's Favorable
+        favourability = 'Favorable';
+    } else { // Score is exactly 0
+        // If score is 0, decide if it's Neutral (no relevant houses) or Mixed (balancing houses)
+        if (hasFavorable || hasUnfavorable) { // Check if any scoring houses were involved
+             favourability = 'Mixed'; // Score is 0, but houses were present
+        } else {
+             favourability = 'Neutral'; // Score is 0, and no favorable/unfavorable houses found
+        }
+    }
+
+    // Determine Completeness string based on score (example logic - adjust as needed)
+    let completeness = 'Weak'; // Default
+    if (score <= -2) { // Example threshold for Strong Negative
+        completeness = 'Strong Negative'; // Or just 'Strong' if you prefer
+    } else if (score === -1) {
+        completeness = 'Negative';
+    } else if (score === 1) {
+        completeness = 'Moderate';
+    } else if (score >= 2) { // Example threshold for Strong Positive
+        completeness = 'Strong';
+    }
+    // If score is 0, completeness remains 'Weak' or you could set it based on Neutral/Mixed
+
+    return { score, favourability, completeness };
+};
+
 
 // --- Constants (Populated) ---
 const SIGNIFICATOR_GRID_ORDER = [ // Needed for map calculation
@@ -41,16 +108,14 @@ const SIGNIFICATOR_GRID_ORDER = [ // Needed for map calculation
 ];
 const FLATTENED_GRID_ORDER = SIGNIFICATOR_GRID_ORDER.flat();
 
-// Event keys remain the same, labels will be translated
-const MAJOR_LIFE_EVENTS_KEYS = [
-    '', 'education', 'career_start', 'career_promotion', 'marriage',
-    'childbirth', 'property_purchase', 'vehicle_purchase', 'foreign_travel', 'health_issues'
-];
-
-// EVENT_HOUSES constant is used by KpSignificatorGrid, keep it there or pass as prop if needed.
+// *** MODIFIED: Generate keys dynamically from EVENT_HOUSES ***
+const MAJOR_LIFE_EVENTS_KEYS = ['', ...Object.keys(EVENT_HOUSES).filter(key => key !== '')];
+// Optional: Sort alphabetically
+// const MAJOR_LIFE_EVENTS_KEYS = ['', ...Object.keys(EVENT_HOUSES).filter(key => key !== '').sort()];
 
 
 const PrashnaTimeLocationPage = () => {
+    // ... (state variables remain the same) ...
     const { t } = useTranslation(); // Call the hook
 
     // --- State ---
@@ -77,6 +142,7 @@ const PrashnaTimeLocationPage = () => {
     const [inputDetails, setInputDetails] = useState(null); // Store params used for calculation
 
     // --- Handlers ---
+    // ... (getCurrentTimeAndLocation, handleFindCoordinates remain the same) ...
     const getCurrentTimeAndLocation = useCallback(() => {
         // Set current time
         const now = new Date();
@@ -145,6 +211,7 @@ const PrashnaTimeLocationPage = () => {
     }, [getCurrentTimeAndLocation]); // Run once on mount
 
     // --- Calculate Prashna Chart & KP Significators ---
+    // ... (handleCalculatePrashna remains the same) ...
     const handleCalculatePrashna = useCallback(async () => {
         setChartError(null); setKpError(null);
         setPrashnaResult(null); setKpData(null);
@@ -223,14 +290,14 @@ const PrashnaTimeLocationPage = () => {
     }, [prashnaDateTime, prashnaCoords, prashnaPlaceName, t]); // Add t dependency
 
     // --- Calculate Significator Details Map (Memoized) ---
+    // *** MODIFIED: Added Favourability Calculation ***
     const significatorDetailsMap = useMemo(() => {
-        const finalMap = new Map(); // Initialize Map here
-        // Check kpData validity
+        const finalMap = new Map();
         if (!kpData || !Array.isArray(kpData) || kpData.length === 0) {
-            return finalMap; // Return the initialized empty map
+            return finalMap;
         }
 
-        // --- Pass 1: Build Intermediate Map ---
+        // --- Step 1: Create Intermediate Map with Raw Data ---
         const intermediatePlanetData = new Map();
         const planetOrderSource = kpData.map(p => p.name);
         const allRelevantPlanetNames = [...new Set([...FLATTENED_GRID_ORDER, ...planetOrderSource])];
@@ -244,50 +311,74 @@ const PrashnaTimeLocationPage = () => {
                     ownedHouses: getHouseNumbersFromString(planet.ownedHouses),
                     signLordOwnedHouses: getHouseNumbersFromString(planet.signLordOwnedHouses),
                     aspectingOwnedHouses: getHouseNumbersFromString(planet.aspectingOwnedHouses),
-                    nakshatraLordName: planet.nakshatraLord?.name || 'N/A',
-                    subLordName: planet.subLord?.name || 'N/A',
+                    // Use translated N/A for consistency
+                    nakshatraLordName: planet.nakshatraLord?.name || t('utils.notAvailable', 'N/A'),
+                    subLordName: planet.subLord?.name || t('utils.notAvailable', 'N/A'),
                 });
             } else if (FLATTENED_GRID_ORDER.includes(planetName)) {
                  intermediatePlanetData.set(planetName, {
                     name: planetName, occupiedHouses: [], ownedHouses: [], signLordOwnedHouses: [],
-                    aspectingOwnedHouses: [], nakshatraLordName: 'N/A', subLordName: 'N/A',
+                    aspectingOwnedHouses: [],
+                    nakshatraLordName: t('utils.notAvailable', 'N/A'),
+                    subLordName: t('utils.notAvailable', 'N/A'),
                 });
             }
         });
 
-        // --- Pass 2: Build Final Map ---
+        // --- Step 2: Create Final Map with Processed Data and Favourability ---
         FLATTENED_GRID_ORDER.forEach(planetName => {
             const planetData = intermediatePlanetData.get(planetName);
+
             if (!planetData) {
-                finalMap.set(planetName, { name: planetName, allHouses: [], nakshatraLordName: 'N/A', nakLordAllHouses: [], subLordName: 'N/A', subLordAllHouses: [] });
+                finalMap.set(planetName, {
+                    name: planetName, allHouses: [], nakshatraLordName: t('utils.notAvailable', 'N/A'), nakLordAllHouses: [],
+                    subLordName: t('utils.notAvailable', 'N/A'), subLordAllHouses: [],
+                    score: 0, favourability: 'N/A', completeness: 'N/A' // Add defaults
+                });
                 return;
             }
+
             const nakLordData = intermediatePlanetData.get(planetData.nakshatraLordName);
             const subLordData = intermediatePlanetData.get(planetData.subLordName);
-            const nakLordHouses = nakLordData ? [...nakLordData.occupiedHouses, ...nakLordData.ownedHouses, ...nakLordData.signLordOwnedHouses, ...nakLordData.aspectingOwnedHouses] : [];
-            const subLordHouses = subLordData ? [...subLordData.occupiedHouses, ...subLordData.ownedHouses, ...subLordData.signLordOwnedHouses, ...subLordData.aspectingOwnedHouses] : [];
-            const planetAllHouses = [...new Set([...planetData.occupiedHouses, ...planetData.ownedHouses, ...planetData.signLordOwnedHouses, ...planetData.aspectingOwnedHouses])].sort((a, b) => a - b);
-            const nakLordAllHouses = [...new Set(nakLordHouses)].sort((a, b) => a - b);
-            const subLordAllHouses = [...new Set(subLordHouses)].sort((a, b) => a - b);
 
+            const planetHousesRaw = [...planetData.occupiedHouses, ...planetData.ownedHouses, ...planetData.signLordOwnedHouses, ...planetData.aspectingOwnedHouses];
+            const nakLordHousesRaw = nakLordData ? [...nakLordData.occupiedHouses, ...nakLordData.ownedHouses, ...nakLordData.signLordOwnedHouses, ...nakLordData.aspectingOwnedHouses] : [];
+            const subLordHousesRaw = subLordData ? [...subLordData.occupiedHouses, ...subLordData.ownedHouses, ...subLordData.signLordOwnedHouses, ...subLordData.aspectingOwnedHouses] : [];
+
+            const planetAllHousesDisplay = [...new Set(planetHousesRaw)].sort((a, b) => a - b);
+            const nakLordAllHousesDisplay = [...new Set(nakLordHousesRaw)].sort((a, b) => a - b);
+            const subLordAllHousesDisplay = [...new Set(subLordHousesRaw)].sort((a, b) => a - b);
+
+            // *** Calculate Favourability ***
+            const combinedHousesForScoring = [...new Set([...planetHousesRaw, ...nakLordHousesRaw, ...subLordHousesRaw])];
+            // Call the calculation function
+            const { score, favourability, completeness } = calculatePlanetFavourability(combinedHousesForScoring, selectedEvent, t);
+
+            // Set the final data in the map
             finalMap.set(planetName, {
                 name: planetName,
-                allHouses: planetAllHouses,
+                allHouses: planetAllHousesDisplay,
                 nakshatraLordName: planetData.nakshatraLordName,
-                nakLordAllHouses: nakLordAllHouses,
+                nakLordAllHouses: nakLordAllHousesDisplay,
                 subLordName: planetData.subLordName,
-                subLordAllHouses: subLordAllHouses,
+                subLordAllHouses: subLordAllHousesDisplay,
+                // Add the calculated values
+                score: score,
+                favourability: favourability,
+                completeness: completeness,
             });
         });
-        return finalMap; // Return the populated (or still empty) map
-    }, [kpData]); // Dependency is only kpData
+        return finalMap;
+    // *** Update Dependency Array ***
+    }, [kpData, selectedEvent, t]); // Add selectedEvent and t
 
     // --- Loading / Error States ---
+    // ... (isOverallLoading, overallError remain the same) ...
     const isOverallLoading = isLoadingChart || isLoadingKp || isLoadingLocation || isGeocoding;
-    // Combine specific errors, prioritizing calculation errors
     const overallError = chartError || kpError || locationError;
 
     // --- Generate translated event options ---
+    // ... (translatedLifeEvents remains the same) ...
     const translatedLifeEvents = useMemo(() => {
         return MAJOR_LIFE_EVENTS_KEYS.map(eventKey => ({
             value: eventKey,
@@ -297,6 +388,7 @@ const PrashnaTimeLocationPage = () => {
     }, [t]); // Dependency is t
 
     // --- Render Results ---
+    // ... (renderResults remains the same) ...
     const renderResults = () => {
         // Initial loading state
         // Translate loading message
@@ -352,7 +444,7 @@ const PrashnaTimeLocationPage = () => {
                     {/* Render grid only if data exists and no KP-specific error */}
                     {hasValidKpDataForGrid && !kpError ? (
                         <KpSignificatorGrid
-                            significatorDetailsMap={significatorDetailsMap}
+                            significatorDetailsMap={significatorDetailsMap} // Pass the map including favourability
                             selectedEvent={selectedEvent}
                         />
                     ) : (!isLoadingKp && !kpError && <p>{t('prashnaTimeLocPage.kpUnavailable')}</p>)}
@@ -361,6 +453,8 @@ const PrashnaTimeLocationPage = () => {
         );
     };
 
+    // --- Component Return ---
+    // ... (return statement remains the same) ...
     return (
         <div className="prashna-page">
             {/* Translate page title */}
