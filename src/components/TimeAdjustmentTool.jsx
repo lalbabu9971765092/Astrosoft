@@ -61,10 +61,10 @@ const TimeAdjustmentTool = ({
         setCurrentDateTime(newDateTime); // Update internal state
 
         if (onDateTimeChange) {
-            // *** USE THE NEW HELPER TO FORMAT AS LOCAL TIME STRING ***
-            const localTimeString = formatToLocalISOString(newDateTime);
-            if (localTimeString) {
-                onDateTimeChange(localTimeString); // Pass the correct local time string
+           // *** USE toISOString() FOR UNAMBIGUOUS UTC-BASED STRING ***
+           const isoString = newDateTime.toISOString();
+           if (isoString) {
+               onDateTimeChange(isoString); // Pass the ISO 8601 UTC string
             }
         }
     }, [currentDateTime, onDateTimeChange]);
@@ -78,10 +78,10 @@ const TimeAdjustmentTool = ({
              if (!isNaN(initialDate)) {
                  setCurrentDateTime(initialDate);
                  if (onDateTimeChange) {
-                     // *** USE THE NEW HELPER TO FORMAT AS LOCAL TIME STRING ***
-                     const localTimeString = formatToLocalISOString(initialDate);
-                     if (localTimeString) {
-                         onDateTimeChange(localTimeString); // Pass the correct local time string
+                     // *** USE toISOString() FOR UNAMBIGUOUS UTC-BASED STRING ***
+                     const isoString = initialDate.toISOString();
+                     if (isoString) {
+                         onDateTimeChange(isoString); // Pass the ISO 8601 UTC string
                      }
                  }
              }
