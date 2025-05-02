@@ -336,8 +336,10 @@ const SharedInputLayout = () => {
                 <div className="top-strip-section birth-rectification-tool-section">
                     {calculationInputParams?.date && adjustedBirthDateTimeString ? (
                         <TimeAdjustmentTool
-                            key={adjustedBirthDateTimeString}
+                           // Use original date as key for stability if needed, or adjusted if remount is desired on change
+                           key={`birth-tool-${calculationInputParams.date}`} // More stable key
                             initialDateTimeString={calculationInputParams.date}
+                            value={adjustedBirthDateTimeString} // Pass the CURRENT adjusted value
                             onDateTimeChange={handleBirthTimeChange}
                             label={t('sharedLayout.rectificationToolLabel')}
                             showReset={true}
