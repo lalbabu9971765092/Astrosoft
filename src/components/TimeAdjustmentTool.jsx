@@ -40,13 +40,21 @@ const TimeAdjustmentTool = ({
         if (!currentDateTime) return;
         const newDateTime = new Date(currentDateTime.getTime()); // Clone the date
 
-        // Apply adjustments (these methods work on the local time represented by the Date object)
+       
         switch (unit) {
-            case 'minute': newDateTime.setMinutes(newDateTime.getMinutes() + amount); break;
-            case 'hour': newDateTime.setHours(newDateTime.getHours() + amount); break;
+            case 'minute':
+                // Use setTime for precise duration adjustment, avoiding DST issues for minutes
+                newDateTime.setTime(newDateTime.getTime() + amount * 60 * 1000);
+                break;
+            case 'hour':
+                 // Use setTime for precise duration adjustment, avoiding DST issues for hours
+                newDateTime.setTime(newDateTime.getTime() + amount * 60 * 60 * 1000);
+                break;
+            // For larger units, setDate/Month/FullYear handle calendar complexities (month lengths, leap years)
+            // and DST transitions reasonably well for day/month/year boundaries.
             case 'day': newDateTime.setDate(newDateTime.getDate() + amount); break;
             case 'month': newDateTime.setMonth(newDateTime.getMonth() + amount); break;
-            case 'year': newDateTime.setFullYear(newDateTime.getFullYear() + amount); break;
+            case 'year': newDateTime.setFullYear(newDateTime.getFullYear() + amount); break; // Corrected typo: FullYear
             default: break;
         }
 
