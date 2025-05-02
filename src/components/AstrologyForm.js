@@ -8,7 +8,7 @@ import DiamondChart from './DiamondChart';
 import {
     convertDMSToDegrees,
     convertToDMS,
-    // formatToLocalISOString, // Not needed directly here, but used by TimeAdjustmentTool
+    formatToLocalISOString, // Not needed directly here, but used by TimeAdjustmentTool
     calculateNakshatraPada,
     calculateNakshatraDegree,
     calculateRashi, // Returns the English key (e.g., "Aries")
@@ -134,9 +134,13 @@ const AstrologyForm = () => {
 
         const fetchRectifiedData = async () => {
             try {
-                // The adjustedBirthDateTimeString should already be in YYYY-MM-DDTHH:MM:SS format
+                // *** Convert UTC ISO string back to local YYYY-MM-DDTHH:MM:SS for API ***
+                const dateForApi = formatToLocalISOString(new Date(adjustedBirthDateTimeString));
+                if (!dateForApi) {
+                    throw new Error(t('astrologyForm.rectificationInvalidDateConversion'));
+                }
                 const payload = {
-                    date: adjustedBirthDateTimeString, // Send the correct local time string
+                    date: dateForApi, // Send the correct local time string
                     latitude: calculationInputParams.latitude,
                     longitude: calculationInputParams.longitude,
                     placeName: calculationInputParams.placeName // Include placeName if backend uses it
@@ -169,9 +173,13 @@ const AstrologyForm = () => {
 
             const fetchGochar = async () => {
                 try {
-                    // The adjustedGocharDateTimeString should already be in YYYY-MM-DDTHH:MM:SS format
+                    // *** Convert UTC ISO string back to local YYYY-MM-DDTHH:MM:SS for API ***
+                    const dateForApi = formatToLocalISOString(new Date(adjustedGocharDateTimeString));
+                     if (!dateForApi) {
+                        throw new Error(t('astrologyForm.gocharInvalidDateConversion'));
+                    }
                     const response = await api.post('/calculate', {
-                        date: adjustedGocharDateTimeString, // Send the correct local time string
+                        date: dateForApi,
                         latitude: locationForGocharTool.lat,
                         longitude: locationForGocharTool.lon
                         // placeName is likely not needed for Gochar, but add if required by backend
