@@ -21,7 +21,7 @@ import {
 import api from './api';
 
 // --- Helper Function to Format Time (Panchang) ---
-const formatPanchangTime = (dateTimeString, t) => {
+const formatPanchangTime = (dateTimeString, t, i18n) => {
     // Handle special strings from suncalc first
     if (dateTimeString === "Always Up" || dateTimeString === "Always Down") {
         return t(`sunMoonTimes.${dateTimeString.replace(' ', '')}`, dateTimeString); // e.g., t('sunMoonTimes.AlwaysUp', 'Always Up')
@@ -33,14 +33,15 @@ const formatPanchangTime = (dateTimeString, t) => {
         const date = new Date(dateTimeString);
         if (isNaN(date.getTime())) return t('utils.invalidTime', 'Invalid Time');
 
-        // *** Use getHours() and getMinutes() for local time display ***
-        const hours = date.getHours(); // Local hour
-        const minutes = date.getMinutes().toString().padStart(2, '0'); // Local minute
-        // *** End change ***
-
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const displayHour = hours % 12 === 0 ? 12 : hours % 12;
-        return `${displayHour}:${minutes} ${ampm}`;
+        // *** Use toLocaleTimeString with a specific timezone (e.g., IST) ***
+        // Adjust 'Asia/Kolkata' if a different timezone is needed or make it dynamic
+        const options = {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Kolkata' // Or another relevant timezone
+        };
+        return date.toLocaleTimeString(i18n.language, options); // Use current language locale
     } catch (e) {
         console.error("Error formatting panchang time:", e);
         return t('utils.error', 'Error');
