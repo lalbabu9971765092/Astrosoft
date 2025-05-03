@@ -21,7 +21,7 @@ import {
 import api from './api';
 
 // --- Helper Function to Format Time (Panchang) ---
-const formatPanchangTime = (dateTimeString, t, i18n) => {
+const formatPanchangTime = (dateTimeString, t, i18n) => { // Added i18n parameter
     // Handle special strings from suncalc first
     if (dateTimeString === "Always Up" || dateTimeString === "Always Down") {
         return t(`sunMoonTimes.${dateTimeString.replace(' ', '')}`, dateTimeString); // e.g., t('sunMoonTimes.AlwaysUp', 'Always Up')
@@ -41,7 +41,21 @@ const formatPanchangTime = (dateTimeString, t, i18n) => {
             hour12: true,
             timeZone: 'Asia/Kolkata' // Or another relevant timezone
         };
-        return date.toLocaleTimeString(i18n.language, options); // Use current language locale
+
+        // *** ADDED CHECK: Ensure i18n and i18n.language are valid before use ***
+        // Determine the locale to use, falling back to browser default if i18n is unavailable
+        const locale = (i18n && i18n.language) ? i18n.language : undefined;
+
+        // Log a warning if the fallback locale is used
+        if (!locale && i18n) { // Check if i18n was passed but language was missing
+             console.warn("formatPanchangTime: i18n object provided but language property missing. Using browser default locale.");
+        } else if (!i18n) { // Check if i18n object itself was missing
+             console.warn("formatPanchangTime: i18n object not provided. Using browser default locale.");
+        }
+
+        // Use the determined locale (or undefined for default) with the specified options
+        return date.toLocaleTimeString(locale, options);
+
     } catch (e) {
         console.error("Error formatting panchang time:", e);
         return t('utils.error', 'Error');
