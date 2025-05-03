@@ -419,7 +419,23 @@ router.get("/sankranti/:year",
 
                 try {
                     // Calculate Sun's position using Swisseph via utils
-                    const { julianDayUT } = getJulianDateUT(currentDate.toISOString(), lon);
+                  // *** FIX: Format date string explicitly for getJulianDateUT ***
+                  const yearUTC = currentDate.getUTCFullYear();
+                  const monthUTC = (currentDate.getUTCMonth() + 1).toString().padStart(2, '0');
+                  const dayUTC = currentDate.getUTCDate().toString().padStart(2, '0');
+                  const hoursUTC = currentDate.getUTCHours().toString().padStart(2, '0');
+                  const minutesUTC = currentDate.getUTCMinutes().toString().padStart(2, '0');
+                  const secondsUTC = currentDate.getUTCSeconds().toString().padStart(2, '0');
+                  const localLikeDateString = `${yearUTC}-${monthUTC}-${dayUTC}T${hoursUTC}:${minutesUTC}:${secondsUTC}`;
+
+                  // Pass the formatted string and coordinates
+                  const { julianDayUT } = getJulianDateUT(localLikeDateString, lat, lon); // Pass lat too if needed by util
+
+                  // *** ADD NULL CHECK ***
+                  if (julianDayUT === null) {
+                      logger.error(`[Sankranti] Failed to get Julian Day for ${localLikeDateString}. Skipping day.`);
+                      throw new Error(`Julian Day calculation failed for ${localLikeDateString}`); // Throw to skip rest of try block
+                  }
                     const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
                     const sunLongitude = planetaryPositions?.sidereal?.Sun?.longitude;
 
@@ -462,7 +478,7 @@ router.get("/sankranti/:year",
 
                 } catch (e) {
                     logger.error(`[Sankranti] Error processing date ${currentDateString}: ${e.message}`);
-                    // Continue to the next day, previousSunRashi remains unchanged
+                    // Error is logged, loop will continue to the next day
                 }
 
                 // Move to the next day
