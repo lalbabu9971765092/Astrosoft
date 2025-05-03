@@ -383,50 +383,37 @@ export const calculateKaran = (sunLongitude, moonLongitude, t) => {
  * @param {function} t - The translation function from i18next.
  * @returns {string} Weekday name key (e.g., "Sunday") or translated error/invalid string.
  */
-export const calculateVar = (localIsoString, t) => {
-  try {
-    if (!localIsoString || typeof localIsoString !== "string") {
-      return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
-    }
 
-    // Parse the local time string manually
-    const match = localIsoString.match(
-      /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/
-    );
-    if (!match) {
-      // Try without seconds
-      const matchNoSeconds = localIsoString.match(
-        /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/
-      );
-      if (!matchNoSeconds) {
-        console.warn("calculateVar: Invalid format received:", localIsoString);
-        return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
-      }
-      const [, year, month, day, hours, minutes] = matchNoSeconds;
-      // Create Date object using UTC constructor to avoid local timezone shifts during creation,
-      // but use the *local* numbers provided. getUTCDay() will give the correct day index.
-      const dateObj = new Date(
-        Date.UTC(year, month - 1, day, hours, minutes, 0)
-      );
-      if (isNaN(dateObj.getTime())) {
-        return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
-      }
-      return WEEKDAYS[dateObj.getUTCDay()]; // Use getUTCDay because we constructed with UTC
-    } else {
-      const [, year, month, day, hours, minutes, seconds] = match;
-      const dateObj = new Date(
-        Date.UTC(year, month - 1, day, hours, minutes, seconds)
-      );
-      if (isNaN(dateObj.getTime())) {
-        return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
-      }
-      return WEEKDAYS[dateObj.getUTCDay()]; // Use getUTCDay
+export const calculateVar = (localIsoString, t) => {
+    try {
+        if (!localIsoString || typeof localIsoString !== 'string') {
+            return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
+        }
+
+        // Attempt to parse the string directly. JS Date constructor often handles
+        // YYYY-MM-DDTHH:MM:SS as local time.
+        let dateObj = new Date(localIsoString);
+
+        // If direct parsing fails, try adding seconds if missing
+        if (isNaN(dateObj.getTime()) && localIsoString.length === 16 && !localIsoString.includes(':', 14)) {
+            dateObj = new Date(`${localIsoString}:00`);
+        }
+
+        // Final check if parsing succeeded
+        if (isNaN(dateObj.getTime())) {
+             console.warn("calculateVar: Could not parse date string:", localIsoString);
+             return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
+        }
+
+        // getDay() returns the day of the week (0-6) according to *local time*.
+        return WEEKDAYS[dateObj.getDay()];
+
+    } catch (e) {
+        console.error("Error calculating Var:", e);
+        return t ? t("utils.error", "Error") : "Error";
     }
-  } catch (e) {
-    console.error("Error calculating Var:", e);
-    return t ? t("utils.error", "Error") : "Error";
-  }
 };
+
 
 /**
  * Calculates the house number (1-12) a longitude falls into based on cusp starts.
