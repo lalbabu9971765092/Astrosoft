@@ -68,7 +68,17 @@ const KpSignificatorsPage = () => {
             label: eventKey ? t(`lifeEvents.${eventKey}`, eventKey) : t('kpSignificatorsPage.selectEventOption', '-- Select Event --')
         }));
     }, [t]);
-
+// --- Calculate Favorable/Unfavorable Houses for Selected Event ---
+const { favorableHouses, unfavorableHouses } = useMemo(() => {
+    if (!selectedEvent || !EVENT_HOUSES[selectedEvent]) {
+        return { favorableHouses: [], unfavorableHouses: [] };
+    }
+    const eventConfig = EVENT_HOUSES[selectedEvent];
+    return {
+        favorableHouses: [...new Set(eventConfig.favorable)].sort((a, b) => a - b), // Ensure unique & sorted
+        unfavorableHouses: [...new Set(eventConfig.unfavorable)].sort((a, b) => a - b), // Ensure unique & sorted
+    };
+}, [selectedEvent]);
     // --- useEffect to fetch data ---
     useEffect(() => {
         const shouldUseAdjusted = adjustedBirthDateTimeString &&
@@ -162,10 +172,10 @@ const KpSignificatorsPage = () => {
             return finalMap;
         }
 
-        // Use the imported EVENT_HOUSES constant
-        const currentEventHouses = EVENT_HOUSES[selectedEvent] || EVENT_HOUSES[''];
-        const favorableSet = new Set(currentEventHouses.favorable);
-        const unfavorableSet = new Set(currentEventHouses.unfavorable);
+        // *** Use the pre-calculated sets from the useMemo hook above ***
+        // Convert arrays back to Sets for efficient lookup inside this calculation
+        const favorableSet = new Set(favorableHouses);
+        const unfavorableSet = new Set(unfavorableHouses);
 
         // Build intermediate map for efficient lookups (stores raw strings first)
         const intermediatePlanetData = new Map();
@@ -317,7 +327,7 @@ const KpSignificatorsPage = () => {
         });
 
         return finalMap;
-    // Add selectedEvent as a dependency
+    // Now depends on the calculated favorable/unfavorable houses as well
     }, [kpData, selectedEvent]); // Recalculate when kpData OR selectedEvent changes
 
 
@@ -375,6 +385,18 @@ const KpSignificatorsPage = () => {
                              {translatedLifeEvents.map(event => (<option key={event.value} value={event.value}>{event.label}</option>))}
                         </select>
                     </div>
+                  {/* *** NEW: Display Favorable/Unfavorable Houses *** */}
+                  {selectedEvent && (favorableHouses.length > 0 || unfavorableHouses.length > 0) && (
+                        <div className="result-section event-houses-display small-summary">
+                            {favorableHouses.length > 0 && (
+                                <span>{t('kpSignificatorsPage.favorableHousesLabel', 'Favorable:')} <strong>{favorableHouses.join(', ')}</strong></span>
+                            )}
+                            {favorableHouses.length > 0 && unfavorableHouses.length > 0 && <span className="house-separator"> | </span>}
+                            {unfavorableHouses.length > 0 && (
+                                <span>{t('kpSignificatorsPage.unfavorableHousesLabel', 'Unfavorable:')} <strong>{unfavorableHouses.join(', ')}</strong></span>
+                            )}
+                        </div>
+                    )}  
                 </div>
 
                 {/* Display Combined loading/error states */}
