@@ -143,7 +143,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
 
         const siderealPositions = planetaryPositions.sidereal; // Extract for convenience
         const sunMoonTimes = calculateSunMoonTimes(date, latNum, lonNum);
-        const detailedPanchang = await calculatePanchang(date, latNum, lonNum); // Throws on error
+        const detailedPanchang = await calculatePanchang(utcDate, latNum, lonNum); // Throws on error
  // *** CONSISTENCY FIX: Ensure Panchang Nakshatra name matches Moon's calculated Nakshatra ***
  const moonNakshatraNameFromPosition = siderealPositions['Moon']?.nakshatra;
  if (detailedPanchang?.Nakshatra && moonNakshatraNameFromPosition && detailedPanchang.Nakshatra.name_en_IN !== moonNakshatraNameFromPosition) {
