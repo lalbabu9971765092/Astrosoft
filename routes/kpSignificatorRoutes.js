@@ -76,13 +76,13 @@ function getHousesRuledByPlanet(planetName, siderealCuspStartDegrees) {
 
 function formatHouseNumbers(houses) {
     if (!houses) return "";
-    const houseArray = Array.isArray(houses) ? houses : Array.from(houses);
+    const houseArray = Array.isArray(houses) ? houses : Array.from(houses);  
     if (houseArray.length === 0) return "";
     const numericHouses = houseArray.map(Number).filter(n => !isNaN(n));
     return numericHouses.sort((a, b) => a - b).join(', ');
 }
 
-function getEntitySignifications(entityName, allPlanetData, siderealCuspStartDegrees, aspectingPlanets = []) {
+function getEntitySignifications(entityName, allPlanetData, siderealCuspStartDegrees, associatedPlanets = []) {
     const entityData = allPlanetData[entityName];
     const result = {
         name: entityName, occupiedHouses: "", ownedHouses: "",
@@ -105,15 +105,15 @@ function getEntitySignifications(entityName, allPlanetData, siderealCuspStartDeg
         const housesOwned = getHousesRuledByPlanet(entityName, siderealCuspStartDegrees);
         result.ownedHouses = formatHouseNumbers(housesOwned);
     }
-    if (isNode && aspectingPlanets.length > 0) {
-        const aspectingOwned = new Set();
-        aspectingPlanets.forEach(aspectingPlanetName => {
-            if (aspectingPlanetName !== 'Rahu' && aspectingPlanetName !== 'Ketu') {
-                 const houses = getHousesRuledByPlanet(aspectingPlanetName, siderealCuspStartDegrees);
-                 houses.forEach(h => aspectingOwned.add(h));
+   if (isNode && associatedPlanets.length > 0) {
+        const associatedOwned = new Set();
+        associatedPlanets.forEach(associatedPlanetName => {
+            if (associatedPlanetName !== 'Rahu' && associatedPlanetName !== 'Ketu') {
+                 const houses = getHousesRuledByPlanet(associatedPlanetName, siderealCuspStartDegrees);
+                 houses.forEach(h => associatedOwned.add(h));
             }
         });
-        result.aspectingOwnedHouses = formatHouseNumbers(aspectingOwned);
+       result.aspectingOwnedHouses = formatHouseNumbers(associatedOwned);
     }
     return result;
 }
@@ -164,7 +164,14 @@ router.post('/', kpValidation, async (req, res) => { // Changed to '/' assuming 
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT); // Throws on error
         const siderealPositions = planetaryPositions.sidereal;
         const aspects = calculateAspects(siderealPositions);
-
+// Pre-calculate house placements for all planets to find conjunctions
+        const planetHousePlacements = {};
+        PLANET_ORDER.forEach(pName => {
+            const pData = siderealPositions[pName];
+            if (pData && typeof pData.longitude === 'number' && !isNaN(pData.longitude)) {
+                planetHousePlacements[pName] = getHouseOfPlanet(pData.longitude, siderealCuspStartDegrees);
+            }
+        });
         const kpSignificatorsDetailed = [];
         PLANET_ORDER.forEach(planetName => {
             const planetSignificatorData = {
@@ -182,21 +189,35 @@ router.post('/', kpValidation, async (req, res) => { // Changed to '/' assuming 
             }
             const nakLordName = planetInfo.nakLord;
             const subLordName = planetInfo.subLord;
+             // Find planets conjunct with (in the same house as) Rahu/Ketu
+            let conjunctPlanets = [];
+            if (planetName === 'Rahu' || planetName === 'Ketu') {
+                const nodeHouse = planetHousePlacements[planetName];
+                if (nodeHouse !== null) {
+                    PLANET_ORDER.forEach(otherPlanetName => {
+                        // A planet is conjunct if it's in the same house, and it's not the node itself or the other node.
+                        if (otherPlanetName !== planetName && otherPlanetName !== 'Rahu' && otherPlanetName !== 'Ketu' && planetHousePlacements[otherPlanetName] === nodeHouse) {
+                            conjunctPlanets.push(otherPlanetName);
+                        }
+                    });
+                }
+            }
             const planetAspects = aspects[planetName] || [];
-            const planetData = getEntitySignifications(planetName, siderealPositions, siderealCuspStartDegrees, planetAspects);
-            planetSignificatorData.occupiedHouses = planetData.occupiedHouses;
+            const associatedPlanets = [...new Set([...planetAspects, ...conjunctPlanets])];
+            const planetData = getEntitySignifications(planetName, siderealPositions, siderealCuspStartDegrees, associatedPlanets);
+           planetSignificatorData.occupiedHouses = planetData.occupiedHouses;
             planetSignificatorData.ownedHouses = planetData.ownedHouses;
             planetSignificatorData.signLordOwnedHouses = planetData.signLordOwnedHouses;
             planetSignificatorData.aspectingOwnedHouses = planetData.aspectingOwnedHouses;
             if (nakLordName && nakLordName !== "N/A" && nakLordName !== "Error") {
                  const nlAspects = aspects[nakLordName] || [];
-                 planetSignificatorData.nakshatraLord = getEntitySignifications(nakLordName, siderealPositions, siderealCuspStartDegrees, nlAspects);
+                 planetSignificatorData.nakshatraLord = getEntitySignifications(nakLordName, siderealPositions, siderealCuspStartDegrees, nlAspects); // Conjunctions not needed for sub-levels
             } else {
                  planetSignificatorData.nakshatraLord = { name: nakLordName || "N/A" };
             }
             if (subLordName && subLordName !== "N/A" && subLordName !== "Error") {
                  const slAspects = aspects[subLordName] || [];
-                 planetSignificatorData.subLord = getEntitySignifications(subLordName, siderealPositions, siderealCuspStartDegrees, slAspects);
+                  planetSignificatorData.subLord = getEntitySignifications(subLordName, siderealPositions, siderealCuspStartDegrees, slAspects); // Conjunctions not needed for sub-levels
             } else {
                  planetSignificatorData.subLord = { name: subLordName || "N/A" };
             }
