@@ -233,7 +233,38 @@ const AstrologyForm = () => {
         } : calculationInputParams;
     }, [rectifiedResult, calculationInputParams, adjustedBirthDateTimeString]);
 
+ // *** NEW: Memoized calculation for Bhava planet placements ***
+    const bhavaPlanetPlacements = useMemo(() => {
+        if (!displayResult?.planetaryPositions?.sidereal || !displayResult?.houses || displayResult.houses.length !== 12) {
+            return null;
+        }
 
+        const placements = {};
+        // Use the actual start of the house cusps for calculation
+        const cuspStartDegrees = displayResult.houses.map(h => convertDMSToDegrees(h.start_dms));
+
+        if (cuspStartDegrees.some(isNaN)) {
+            console.warn("Bhava Placements: Could not convert all cusp start DMS to degrees.");
+            return null;
+        }
+
+        PLANET_ORDER.forEach(planetName => {
+            const planetData = displayResult.planetaryPositions.sidereal[planetName];
+            if (planetData && planetData.dms && planetData.dms !== "Error") {
+                const planetDeg = convertDMSToDegrees(planetData.dms);
+                if (!isNaN(planetDeg)) {
+                    // calculateHouse returns the house number (1-12)
+                    const houseNumber = calculateHouse(planetDeg, cuspStartDegrees, t);
+                    if (typeof houseNumber === 'number') {
+                        placements[planetName] = houseNumber;
+                    }
+                }
+            }
+        });
+        return placements;
+    }, [displayResult, t]); // Dependency on displayResult and t
+
+ 
     // --- Memoized Cusp Degrees ---
     const meanCuspDegrees = useMemo(() => {
         if (!displayResult?.houses || !Array.isArray(displayResult.houses) || displayResult.houses.length !== 12) return [];
@@ -242,6 +273,16 @@ const AstrologyForm = () => {
              console.warn("Could not convert all mean cusp DMS to degrees for displayResult.");
              return [];
          }
+        return degrees;
+    }, [displayResult]);
+// *** NEW: Memoized Placidus Cusp Degrees for Bhava Table Consistency ***
+    const placidusCuspDegrees = useMemo(() => {
+        if (!displayResult?.houses || !Array.isArray(displayResult.houses) || displayResult.houses.length !== 12) return [];
+        const degrees = displayResult.houses.map(h => convertDMSToDegrees(h?.start_dms));
+        if (degrees.some(isNaN)) {
+            console.warn("Could not convert all Placidus cusp start_dms to degrees for displayResult.");
+            return [];
+        }
         return degrees;
     }, [displayResult]);
 
@@ -548,16 +589,20 @@ const AstrologyForm = () => {
     const renderMiddleColumn = () => {
         const canRenderBirthCharts = displayResult && displayResult.houses && displayResult.planetaryPositions?.sidereal;
         const hasMeanCusps = meanCuspDegrees.length === 12;
-        const hasD9Data = displayResult?.d9_planets && displayResult?.d9_ascendant_dms;
-        // Pass 't' when creating D9 houses
+        const hasD9Data = displayResult?.d9_planets && displayResult?.d9_ascendant_dms; // Pass 't' when creating D9 houses
+       
         const d9Houses = hasD9Data ? createChartHousesFromAscendant(displayResult.d9_ascendant_dms, t) : null;
         const hasGocharData = gocharData?.planetaryPositions?.sidereal && gocharData?.ascendant?.sidereal_dms;
         // Pass 't' when creating Gochar houses
         const gocharHouses = hasGocharData ? createChartHousesFromAscendant(gocharData.ascendant.sidereal_dms, t) : null;
         const canRenderAnyChart = canRenderBirthCharts || hasD9Data || hasGocharData;
         const hasHouseDataForTable = displayResult?.houses && Array.isArray(displayResult.houses) && displayResult.houses.length === 12;
-        const hasPlanetDataForTable = displayResult?.planetaryPositions?.sidereal && meanCuspDegrees.length === 12;
+        // *** FIX: Use placidusCuspDegrees for the check to ensure consistency with the table's calculation ***
+        const hasPlanetDataForTable = displayResult?.planetaryPositions?.sidereal && placidusCuspDegrees.length === 12;
+        
+        const canRenderBhavaChart = canRenderBirthCharts && bhavaPlanetPlacements;
 
+   
         return (
             <div className="results-column middle-column">
                 <h2 className="column-title">{rectifiedResult ? t('astrologyForm.middleColumnTitleRectified') : t('astrologyForm.middleColumnTitleBirth')}</h2>
@@ -579,12 +624,12 @@ const AstrologyForm = () => {
                             ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD1')}</div>}
                         </div>
                         <div className="chart-cell">
-                            {canRenderBirthCharts && hasMeanCusps ? (
+                            {canRenderBhavaChart ? (
                                 <DiamondChart
                                     title={t('astrologyForm.chartBhavaTitle')}
-                                    houses={displayResult.houses.map(h => ({ start_dms: h.mean_dms }))}
-                                    planets={displayResult.planetaryPositions.sidereal}
-                                    chartType="bhava" size={250}
+                                    houses={displayResult.houses}
+                                    planetHousePlacements={bhavaPlanetPlacements}
+                                    chartType="bhava" size={250} // Pass the calculated placements
                                 />
                             ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderBhava')}</div>}
                         </div>
@@ -672,8 +717,10 @@ const AstrologyForm = () => {
                                         }
                                         const pada = planetData.pada ?? calculateNakshatraPada(siderealDeg, t);
                                         const degreeWithinNakshatra = convertToDMS(calculateNakshatraDegree(siderealDeg), t);
-                                        const rashiKey = planetData.rashi ?? calculateRashi(siderealDeg, t); // Get English key
-                                        const house = calculateHouse(siderealDeg, meanCuspDegrees, t);
+                                       const rashiKey = planetData.rashi ?? calculateRashi(siderealDeg, t);
+                                        // *** FIX: Use placidusCuspDegrees to calculate the house, matching the Bhava Chalit chart ***
+                                        const house = calculateHouse(siderealDeg, placidusCuspDegrees, t);
+                                       
                                         const nakshatraKey = planetData.nakshatra; // Get English key
                                         const nakLordKey = planetData.nakLord; // Get English key
                                         const subLordKey = planetData.subLord; // Get English key

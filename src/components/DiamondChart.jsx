@@ -35,7 +35,8 @@ const DiamondChart = ({
     size = 300,
     houses,
     planets,
-    scores
+    scores,
+    planetHousePlacements
 }) => {
     const { t } = useTranslation(); // Get the t function
     const chartSize = size;
@@ -119,7 +120,19 @@ const DiamondChart = ({
             }
         }
 
-        if (planets && !scores) {
+        // *** NEW CONDITIONAL LOGIC FOR PLANET PLACEMENT ***
+        if (planetHousePlacements) {
+            // --- Logic for Bhava Chalit Chart ---
+            // Places planets based on pre-calculated house number.
+            Object.entries(planetHousePlacements).forEach(([planetName, houseNumber]) => {
+                // houseNumber is 1-12. The visual house index is houseNumber - 1.
+                if (houseNumber >= 1 && houseNumber <= 12) {
+                    const symbol = t(`planetsShort.${planetName}`, { defaultValue: planetName.substring(0, 2) });
+                    details[houseNumber - 1].planets.push(symbol);
+                }
+            });
+        } else if (planets && !scores) {
+            // --- Original Logic for Rashi-based Charts (Lagna, D9, Gochar) ---
             PLANET_ORDER.forEach(planetName => {
                 if (planetName === 'Ascendant') return;
                 const planetData = planets[planetName];
@@ -130,7 +143,6 @@ const DiamondChart = ({
                         const planetRashiIndex = RASHIS.indexOf(planetRashiName);
                         for (let houseIndex = 0; houseIndex < 12; houseIndex++) {
                             if (details[houseIndex].rashiIndex === planetRashiIndex) {
-                                // *** MODIFICATION 1: Use translation for planet symbol ***
                                 const symbol = t(`planetsShort.${planetName}`, { defaultValue: planetName.substring(0, 2) });
                                 details[houseIndex].planets.push(symbol);
                                 break;
@@ -143,7 +155,8 @@ const DiamondChart = ({
 
         return details;
 
-    }, [houses, planets, scores, t]);
+    }, [houses, planets, scores, planetHousePlacements, t]);
+
 
     // --- SVG Rendering ---
     // Helper to render planets (used for combined chart)
@@ -323,16 +336,17 @@ DiamondChart.propTypes = {
     planets: PropTypes.objectOf(PropTypes.shape({
         dms: PropTypes.string,
     })),
-    scores: PropTypes.arrayOf(PropTypes.number)
+    sscores: PropTypes.arrayOf(PropTypes.number),
+    planetHousePlacements: PropTypes.objectOf(PropTypes.number)
 };
-
 // --- Update DefaultProps ---
 DiamondChart.defaultProps = {
     title: 'Chart',
     size: 300,
     houses: [],
     planets: null,
-    scores: null
+scores: null,
+    planetHousePlacements: null
 };
 
 export default DiamondChart;
