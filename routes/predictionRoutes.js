@@ -210,10 +210,10 @@ router.post('/time-event', [
 
         // --- Step 3: Find Favorable Dasha Periods ---
         const dashaBalance = calculateVimshottariBalance(natalPositions['Moon']?.longitude);
-       const allDashaPeriods = calculateVimshottariDashas(new Date(), dashaBalance, searchRangeInDays);
+        const allDashaPeriods = calculateVimshottariDashas(new Date(), dashaBalance, searchRangeInDays);
 
         const favorablePeriods = [];
-         // Filter for only Pratyantar Dashas (level 3) as they contain all parent info
+        // Filter for only Pratyantar Dashas (level 3) as they contain all parent info
         const pratyantarDashas = allDashaPeriods.filter(p => p.level === 3);
 
         pratyantarDashas.forEach(ad => {
@@ -239,7 +239,7 @@ router.post('/time-event', [
             return res.json({ message: "No favorable Dasha periods found in the specified range.", potentialDates: [] });
         }
 
-        // --- Step 4: Scan Favorable Periods for Transit Triggers ---
+        // --- Step 4: Scan Favorable Periods for Transit Triggers (OPTIMIZED) ---
         const potentialDates = [];
         const foundDates = new Set(); // Use a Set to track dates that have already been added
 
@@ -249,15 +249,19 @@ router.post('/time-event', [
 
             let currentDate = new Date(period.start);
             const endDate = new Date(period.end);
-// This will store the house placements from the previously checked day
+
+            // This will store the house placements from the previously checked day for optimization
             let lastDayHousePlacements = {};
+
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toISOString().split('T')[0];
-              // Skip if we already found a trigger for this date to avoid redundant calculations
+
+                // Skip if we already found a trigger for this date to avoid redundant calculations
                 if (foundDates.has(currentDateString)) {
                     currentDate = addDays(currentDate, 1);
                     continue;
-                }  
+                }
+
                 const { julianDayUT: transitJD } = getJulianDateUT(currentDate.toISOString(), latitude, longitude);
                 if (!transitJD) {
                     currentDate = addDays(currentDate, 1);
@@ -265,24 +269,23 @@ router.post('/time-event', [
                 }
 
                 const transitPositions = calculatePlanetaryPositions(transitJD).sidereal;
+
                 // --- OPTIMIZATION: Check for house changes before running expensive checks ---
                 const currentDayHousePlacements = {};
                 let houseChanged = false;
                 dashaLords.forEach(lord => {
                     const lordPos = transitPositions[lord]?.longitude;
                     if (lordPos !== undefined) {
-                         const house = getHouseOfPlanet(lordPos, natalSiderealCusps);
+                        const house = getHouseOfPlanet(lordPos, natalSiderealCusps);
                         currentDayHousePlacements[lord] = house;
                         // Check if the house is different from the last checked day
                         if (lastDayHousePlacements[lord] !== house) {
                             houseChanged = true;
                         }
-                     }
+                    }
                 });
 
                 let triggerReason = null;
-
-              
 
                 // --- Run expensive house-based checks ONLY if a house has changed ---
                 if (houseChanged) {
@@ -307,7 +310,8 @@ router.post('/time-event', [
                             }
                         }
                     }
-               // RULE: Transit over significator house or aspect them
+
+                    // RULE: Transit over significator house or aspect them
                     if (!triggerReason) {
                         for (const lord of dashaLords) {
                             const lordTransitHouse = currentDayHousePlacements[lord];
@@ -325,11 +329,11 @@ router.post('/time-event', [
                     }
                 }
 
-                // RULE: Transit over their natal position
+                // RULE: Transit over their natal position (This is cheap, check every day)
                 if (!triggerReason) {
                     for (const lord of dashaLords) {
-                        const natalPos = natalPositions[lord]?.longitude; // This is cheap, no need to optimize
-                       const transitPos = transitPositions[lord]?.longitude;
+                        const natalPos = natalPositions[lord]?.longitude;
+                        const transitPos = transitPositions[lord]?.longitude;
                         if (natalPos !== undefined && transitPos !== undefined && isWithinOrb(transitPos, natalPos, 2)) {
                              triggerReason = `Transiting ${lord} is on its natal position.`;
                              break;
@@ -338,7 +342,7 @@ router.post('/time-event', [
                 }
 
                 if (triggerReason) {
-                     if (!foundDates.has(currentDateString)) {
+                    if (!foundDates.has(currentDateString)) {
                         potentialDates.push({
                             date: currentDateString,
                             reason: triggerReason,
@@ -348,7 +352,7 @@ router.post('/time-event', [
                     }
                 }
 
-                 lastDayHousePlacements = currentDayHousePlacements; // Update for the next day's comparison
+                lastDayHousePlacements = currentDayHousePlacements; // Update for the next day's comparison
                 currentDate = addDays(currentDate, 1);
             }
         }
@@ -369,4 +373,3 @@ router.post('/time-event', [
 });
 
 export default router;
-
