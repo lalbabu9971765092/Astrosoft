@@ -210,29 +210,29 @@ router.post('/time-event', [
 
         // --- Step 3: Find Favorable Dasha Periods ---
         const dashaBalance = calculateVimshottariBalance(natalPositions['Moon']?.longitude);
-        const dashaPeriods = calculateVimshottariDashas(new Date(), dashaBalance, searchRangeInDays);
+       const allDashaPeriods = calculateVimshottariDashas(new Date(), dashaBalance, searchRangeInDays);
 
         const favorablePeriods = [];
-        dashaPeriods.forEach(md => {
-            md.bhuktis.forEach(bd => {
-                bd.antaras.forEach(ad => {
-                    const dashaLord = md.lord;
-                    const bhuktiLord = bd.lord;
-                    const antaraLord = ad.lord;
+         // Filter for only Pratyantar Dashas (level 3) as they contain all parent info
+        const pratyantarDashas = allDashaPeriods.filter(p => p.level === 3);
 
-                    // RULE: Event should be allowed by Dasha, Bhukti, and Antar lord.
-                    if (planetSignifiesEvent(dashaLord, eventRules, kpSignificatorsData) &&
-                        planetSignifiesEvent(bhuktiLord, eventRules, kpSignificatorsData) &&
-                        planetSignifiesEvent(antaraLord, eventRules, kpSignificatorsData))
-                    {
-                        favorablePeriods.push({
-                            dashaLord, bhuktiLord, antaraLord,
-                            start: ad.start,
-                            end: ad.end
-                        });
-                    }
+        pratyantarDashas.forEach(ad => {
+            const dashaLord = ad.mahaLord;
+            const bhuktiLord = ad.antarLord;
+            const antaraLord = ad.lord;
+
+            // RULE: Event should be allowed by Dasha, Bhukti, and Antar lord.
+            if (dashaLord && bhuktiLord && antaraLord &&
+                planetSignifiesEvent(dashaLord, eventRules, kpSignificatorsData) &&
+                planetSignifiesEvent(bhuktiLord, eventRules, kpSignificatorsData) &&
+                planetSignifiesEvent(antaraLord, eventRules, kpSignificatorsData))
+            {
+                favorablePeriods.push({
+                    dashaLord, bhuktiLord, antaraLord,
+                    start: ad.start,
+                    end: ad.end
                 });
-            });
+            }
         });
 
         if (favorablePeriods.length === 0) {
