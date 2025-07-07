@@ -1,5 +1,6 @@
 // src/KpSignificatorsPage.jsx
 import React, { useState, useMemo, useEffect } from 'react';
+
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/KpSignificatorsPage.css';
@@ -23,7 +24,22 @@ const formatDateTime = (dateTimeString, t) => {
     return dateTimeString; // Return original string on error
   }
 };
-
+/**
+ * Formats a date string (YYYY-MM-DD) to a localized date string.
+ * Appends T00:00:00 to ensure the date is parsed in the local timezone,
+ * preventing it from shifting to the previous day in some timezones.
+ */
+const formatDateOnly = (dateString, t) => {
+    if (!dateString) return t ? t('utils.notAvailable', 'N/A') : 'N/A';
+    try {
+        const date = new Date(`${dateString}T00:00:00`);
+        if (isNaN(date.getTime())) return dateString; // Return original on invalid date
+        // Using en-CA for YYYY-MM-DD format, adjust locale if needed
+        return date.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    } catch (e) {
+        return dateString; // Return original string on error
+    }
+};
 // --- Constants ---
 const SIGNIFICATOR_GRID_ORDER = [
     ['Ketu', 'Moon', 'Jupiter'],
@@ -59,7 +75,9 @@ const KpSignificatorsPage = () => {
     const [chartError, setChartError] = useState(null);
     const [currentApiParams, setCurrentApiParams] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState('');
-
+const [timingPrediction, setTimingPrediction] = useState(null);
+    const [isLoadingTiming, setIsLoadingTiming] = useState(false);
+    const [timingError, setTimingError] = useState(null);
     // --- Generate translated event options ---
     // This useMemo hook remains the same, it will now use the dynamically generated keys
     const translatedLifeEvents = useMemo(() => {
@@ -164,7 +182,41 @@ const { favorableHouses, unfavorableHouses } = useMemo(() => {
 
     }, [calculationInputParams, adjustedBirthDateTimeString, t]); // Dependencies
 
+// --- useEffect to fetch event timing data ---
+    useEffect(() => {
+        // If no event is selected or we don't have the necessary params, clear old data and do nothing.
+        if (!selectedEvent || !currentApiParams) {
+            setTimingPrediction(null);
+            setTimingError(null);
+            return;
+        }
 
+        const fetchTimingData = async () => {
+            setIsLoadingTiming(true);
+            setTimingError(null);
+            setTimingPrediction(null);
+
+            try {
+                const params = {
+                    eventType: selectedEvent,
+                    date: currentApiParams.date,
+                    latitude: currentApiParams.latitude,
+                    longitude: currentApiParams.longitude,
+                    searchRangeInDays: 730 // Search for the next 2 years
+                };
+                const response = await api.post('/predictions/time-event', params);
+                setTimingPrediction(response.data);
+            } catch (err) {
+                const errorMsg = err.response?.data?.error || err.message || t('kpSignificatorsPage.timingFetchFailed', 'Failed to fetch event timing.');
+                console.error("Event Timing Fetch Error:", err);
+                setTimingError(errorMsg);
+            } finally {
+                setIsLoadingTiming(false);
+            }
+        };
+
+        fetchTimingData();
+    }, [selectedEvent, currentApiParams, t]);
     // --- Calculate Significator Details Map (MODIFIED TO INCLUDE SCORING & LOGGING) ---
     const significatorDetailsMap = useMemo(() => {
         const finalMap = new Map();
@@ -328,14 +380,15 @@ const { favorableHouses, unfavorableHouses } = useMemo(() => {
 
         return finalMap;
     // Now depends on the calculated favorable/unfavorable houses as well
-    }, [kpData, selectedEvent]); // Recalculate when kpData OR selectedEvent changes
+    }, [kpData, selectedEvent, favorableHouses, unfavorableHouses]); // Recalculate when kpData OR selectedEvent changes
 
 
     // --- Loading / Error / No Data States ---
-    const isOverallLoading = isInitialLoading || isLoadingKp || isLoadingChart;
+    const isOverallLoading = isInitialLoading || isLoadingKp || isLoadingChart || isLoadingTiming;
+
     const hasValidKpData = useMemo(() => significatorDetailsMap.size > 0, [significatorDetailsMap]);
     const hasDashaData = chartData && Array.isArray(chartData) && chartData.length > 0;
-    const displayInputDetails = currentApiParams;
+    
 
     // --- Initial state checks (EARLY RETURNS) ---
     if (isInitialLoading && !calculationInputParams) return null; // Still loading initial context
@@ -370,12 +423,12 @@ const { favorableHouses, unfavorableHouses } = useMemo(() => {
                 {/* --- Top Info Container --- */}
                 <div className="top-info-container">
                     {/* Display Input Summary */}
-                    {displayInputDetails && (
+                    {currentApiParams && (
                         <div className="result-section input-summary small-summary">
                             {t('kpSignificatorsPage.calculatedForLabel')} {t('kpSignificatorsPage.dateAtPlaceLabel', {
-                                date: formatDateTime(displayInputDetails.date, t), // Pass t for translation fallbacks
-                                place: displayInputDetails.placeName || t('utils.notAvailable', 'N/A')
-                            })} ({displayInputDetails.latitude?.toFixed(4)}, {displayInputDetails.longitude?.toFixed(4)})
+                               date: formatDateTime(currentApiParams.date, t), // Pass t for translation fallbacks
+                                place: currentApiParams.placeName || t('utils.notAvailable', 'N/A')
+                            })} ({currentApiParams.latitude?.toFixed(4)}, {currentApiParams.longitude?.toFixed(4)})
                         </div>
                     )}
                     {/* Event Selector */}
@@ -410,8 +463,9 @@ const { favorableHouses, unfavorableHouses } = useMemo(() => {
                 )}
 
                 {/* Only render layout if not loading and no initial error */}
-                {!isOverallLoading && !initialError && (
-                    <div className="kp-layout-container">
+                {!initialError && (
+                    <div className="kp-layout-container"> {/* This container might need CSS adjustments for 3 columns */}
+                      
                         {/* --- Significators Grid Column --- */}
                         <div className="kp-significators-grid-column">
                             <h3 className="result-sub-title">{t('kpSignificatorsPage.significatorsSubTitle')}</h3>
@@ -422,19 +476,46 @@ const { favorableHouses, unfavorableHouses } = useMemo(() => {
                                     selectedEvent={selectedEvent}
                                 />
                             ) : (
-                                !kpError && <p>{t('kpSignificatorsPage.kpDataUnavailable')}</p> // Don't show if kpError is already displayed
+                                !isOverallLoading && !kpError && <p>{t('kpSignificatorsPage.kpDataUnavailable')}</p>
                             )}
                         </div>
 
-                        {/* --- Dasha Column --- */}
-                        <div className="kp-dasha-column">
-                            <h3 className="result-sub-title">{t('kpSignificatorsPage.dashaSubTitle')}</h3>
-                            {/* Show table if data is valid, otherwise show unavailable message */}
-                            {hasDashaData ? (
-                                // Pass the chartData array directly to the DashaTable
-                                <DashaTable dashaPeriods={chartData} />
-                            ) : (
-                                !chartError && <p>{t('kpSignificatorsPage.dashaDataUnavailable')}</p> // Don't show if chartError is already displayed
+                         {/* --- Dasha & Timing Column --- */}
+                        <div className="kp-dasha-timing-column">
+                            {/* --- Dasha Section --- */}
+                            <div className="kp-dasha-column">
+                                <h3 className="result-sub-title">{t('kpSignificatorsPage.dashaSubTitle')}</h3>
+                                {hasDashaData ? (
+                                    <DashaTable dashaPeriods={chartData} />
+                                ) : (
+                                    !isOverallLoading && !chartError && <p>{t('kpSignificatorsPage.dashaDataUnavailable')}</p>
+                                )}
+                            </div>
+
+                            {/* --- Event Timing Section --- */}
+                            {selectedEvent && (
+                                <div className="kp-timing-column">
+                                    <h3 className="result-sub-title">{t('kpSignificatorsPage.timingSubTitle', 'Event Timing')}</h3>
+                                    {isLoadingTiming && <div className="loader">{t('kpSignificatorsPage.loadingTiming', 'Finding potential dates...')}</div>}
+                                    {timingError && <p className="error-text">{timingError}</p>}
+                                    {timingPrediction && (
+                                        <div className="timing-results">
+                                            {timingPrediction.potentialDates && timingPrediction.potentialDates.length > 0 ? (
+                                                <ul>
+                                                    {timingPrediction.potentialDates.map((item, index) => (
+                                                        <li key={index}>
+                                                            <strong>{formatDateOnly(item.date, t)}</strong>: {item.reason}
+                                                            <br />
+                                                            <small>({item.dashaPeriod})</small>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            ) : (
+                                                <p>{timingPrediction.message || t('kpSignificatorsPage.noDatesFound', 'No specific trigger dates found in the search range.')}</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </div>
