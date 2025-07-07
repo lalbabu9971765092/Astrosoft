@@ -241,15 +241,23 @@ router.post('/time-event', [
 
         // --- Step 4: Scan Favorable Periods for Transit Triggers ---
         const potentialDates = [];
+        const foundDates = new Set(); // Use a Set to track dates that have already been added
+
         for (const period of favorablePeriods) {
             const { dashaLord, bhuktiLord, antaraLord } = period;
             const dashaLords = [dashaLord, bhuktiLord, antaraLord];
 
             let currentDate = new Date(period.start);
             const endDate = new Date(period.end);
-
+// This will store the house placements from the previously checked day
+            let lastDayHousePlacements = {};
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toISOString().split('T')[0];
+              // Skip if we already found a trigger for this date to avoid redundant calculations
+                if (foundDates.has(currentDateString)) {
+                    currentDate = addDays(currentDate, 1);
+                    continue;
+                }  
                 const { julianDayUT: transitJD } = getJulianDateUT(currentDate.toISOString(), latitude, longitude);
                 if (!transitJD) {
                     currentDate = addDays(currentDate, 1);
@@ -257,51 +265,62 @@ router.post('/time-event', [
                 }
 
                 const transitPositions = calculatePlanetaryPositions(transitJD).sidereal;
-                const transitAspects = calculateAspects(transitPositions);
-
-                const transitHousePlacements = {};
+                // --- OPTIMIZATION: Check for house changes before running expensive checks ---
+                const currentDayHousePlacements = {};
+                let houseChanged = false;
                 dashaLords.forEach(lord => {
                     const lordPos = transitPositions[lord]?.longitude;
                     if (lordPos !== undefined) {
-                        transitHousePlacements[lord] = getHouseOfPlanet(lordPos, natalSiderealCusps);
-                    }
+                         const house = getHouseOfPlanet(lordPos, natalSiderealCusps);
+                        currentDayHousePlacements[lord] = house;
+                        // Check if the house is different from the last checked day
+                        if (lastDayHousePlacements[lord] !== house) {
+                            houseChanged = true;
+                        }
+                     }
                 });
 
                 let triggerReason = null;
 
-                // RULE: Conjunction of Dasha Lords
-                if (transitHousePlacements[dashaLord] && transitHousePlacements[dashaLord] === transitHousePlacements[bhuktiLord] && transitHousePlacements[bhuktiLord] === transitHousePlacements[antaraLord]) {
-                    triggerReason = `Dasha lords (${dashaLord}, ${bhuktiLord}, ${antaraLord}) conjoin in house ${transitHousePlacements[dashaLord]}.`;
-                }
+              
 
-                // RULE: Mutual Aspect between Dasha Lords
-                if (!triggerReason) {
-                    const pairs = [[dashaLord, bhuktiLord], [dashaLord, antaraLord], [bhuktiLord, antaraLord]];
-                    for (const [p1, p2] of pairs) {
-                        const p1House = transitHousePlacements[p1];
-                        const p2House = transitHousePlacements[p2];
-                        const p1Aspects = transitAspects[p1] || [];
-                        const p2Aspects = transitAspects[p2] || [];
-                        if ((p1House && p2Aspects.includes(p1House)) || (p2House && p1Aspects.includes(p2House))) {
-                            triggerReason = `Mutual aspect between transiting ${p1} and ${p2}.`;
-                            break;
+                // --- Run expensive house-based checks ONLY if a house has changed ---
+                if (houseChanged) {
+                    const transitAspects = calculateAspects(transitPositions); // Only calculate aspects when needed
+
+                    // RULE: Conjunction of Dasha Lords
+                    if (currentDayHousePlacements[dashaLord] && currentDayHousePlacements[dashaLord] === currentDayHousePlacements[bhuktiLord] && currentDayHousePlacements[bhuktiLord] === currentDayHousePlacements[antaraLord]) {
+                        triggerReason = `Dasha lords (${dashaLord}, ${bhuktiLord}, ${antaraLord}) conjoin in house ${currentDayHousePlacements[dashaLord]}.`;
+                    }
+
+                    // RULE: Mutual Aspect between Dasha Lords
+                    if (!triggerReason) {
+                        const pairs = [[dashaLord, bhuktiLord], [dashaLord, antaraLord], [bhuktiLord, antaraLord]];
+                        for (const [p1, p2] of pairs) {
+                            const p1House = currentDayHousePlacements[p1];
+                            const p2House = currentDayHousePlacements[p2];
+                            const p1Aspects = transitAspects[p1] || [];
+                            const p2Aspects = transitAspects[p2] || [];
+                            if ((p1House && p2Aspects.includes(p1House)) || (p2House && p1Aspects.includes(p2House))) {
+                                triggerReason = `Mutual aspect between transiting ${p1} and ${p2}.`;
+                                break;
+                            }
                         }
                     }
-                }
-
-                // RULE: Transit over significator house or aspect them
-                if (!triggerReason) {
-                    for (const lord of dashaLords) {
-                        const lordTransitHouse = transitHousePlacements[lord];
-                        const lordTransitAspects = transitAspects[lord] || [];
-                        if (lordTransitHouse && eventRules.supportingHouses.includes(lordTransitHouse)) {
-                            triggerReason = `Transiting ${lord} is in significator house ${lordTransitHouse}.`;
-                            break;
-                        }
-                        if (lordTransitAspects.some(h => eventRules.supportingHouses.includes(h))) {
-                            const aspectedHouse = lordTransitAspects.find(h => eventRules.supportingHouses.includes(h));
-                            triggerReason = `Transiting ${lord} aspects significator house ${aspectedHouse}.`;
-                            break;
+               // RULE: Transit over significator house or aspect them
+                    if (!triggerReason) {
+                        for (const lord of dashaLords) {
+                            const lordTransitHouse = currentDayHousePlacements[lord];
+                            const lordTransitAspects = transitAspects[lord] || [];
+                            if (lordTransitHouse && eventRules.supportingHouses.includes(lordTransitHouse)) {
+                                triggerReason = `Transiting ${lord} is in significator house ${lordTransitHouse}.`;
+                                break;
+                            }
+                            if (lordTransitAspects.some(h => eventRules.supportingHouses.includes(h))) {
+                                const aspectedHouse = lordTransitAspects.find(h => eventRules.supportingHouses.includes(h));
+                                triggerReason = `Transiting ${lord} aspects significator house ${aspectedHouse}.`;
+                                break;
+                            }
                         }
                     }
                 }
@@ -309,8 +328,8 @@ router.post('/time-event', [
                 // RULE: Transit over their natal position
                 if (!triggerReason) {
                     for (const lord of dashaLords) {
-                        const natalPos = natalPositions[lord]?.longitude;
-                        const transitPos = transitPositions[lord]?.longitude;
+                        const natalPos = natalPositions[lord]?.longitude; // This is cheap, no need to optimize
+                       const transitPos = transitPositions[lord]?.longitude;
                         if (natalPos !== undefined && transitPos !== undefined && isWithinOrb(transitPos, natalPos, 2)) {
                              triggerReason = `Transiting ${lord} is on its natal position.`;
                              break;
@@ -319,13 +338,17 @@ router.post('/time-event', [
                 }
 
                 if (triggerReason) {
-                    potentialDates.push({
-                        date: currentDateString,
-                        reason: triggerReason,
-                        dashaPeriod: `${dashaLord} / ${bhuktiLord} / ${antaraLord}`
-                    });
+                     if (!foundDates.has(currentDateString)) {
+                        potentialDates.push({
+                            date: currentDateString,
+                            reason: triggerReason,
+                            dashaPeriod: `${dashaLord} / ${bhuktiLord} / ${antaraLord}`
+                        });
+                        foundDates.add(currentDateString); // Mark this date as found
+                    }
                 }
 
+                 lastDayHousePlacements = currentDayHousePlacements; // Update for the next day's comparison
                 currentDate = addDays(currentDate, 1);
             }
         }
