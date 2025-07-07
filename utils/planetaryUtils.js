@@ -586,3 +586,33 @@ export function getHouseOfPlanet(longitude, siderealCuspStartDegrees) {
     console.warn(`Longitude ${longitude} did not fall into any house range based on cusps: ${siderealCuspStartDegrees}`);
     return null; // Should technically not be reached if cusps cover 360 degrees
 }
+/**
+ * Calculates the houses owned by a planet based on the Rashi lordships of the house cusps.
+ * @param {string} planetName - The name of the planet (e.g., "Mars").
+ * @param {number[]} siderealCuspStartDegrees - An array of 12 sidereal cusp start degrees.
+ * @returns {number[]} An array of house numbers (1-12) owned by the planet.
+ */
+export function getHousesRuledByPlanet(planetName, siderealCuspStartDegrees) {
+    const ruledHouses = new Set();
+    if (!planetName || !Array.isArray(siderealCuspStartDegrees) || siderealCuspStartDegrees.length !== 12) {
+        return [];
+    }
+    const ruledRashiIndices = [];
+    RASHI_LORDS.forEach((lord, index) => {
+        if (lord === planetName) {
+            ruledRashiIndices.push(index);
+        }
+    });
+    if (ruledRashiIndices.length === 0) {
+        return [];
+    }
+    for (let i = 0; i < 12; i++) {
+        const cuspStartDeg = siderealCuspStartDegrees[i];
+        if (isNaN(cuspStartDeg)) continue;
+        const cuspRashiDetails = getRashiDetails(cuspStartDeg);
+        if (cuspRashiDetails && ruledRashiIndices.includes(cuspRashiDetails.index)) {
+            ruledHouses.add(i + 1);
+        }
+    }
+    return Array.from(ruledHouses).sort((a, b) => a - b);
+}

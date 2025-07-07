@@ -16,7 +16,8 @@ import { // Changed
     calculatePlanetaryPositions,
     getRashiDetails,
     calculateAspects,
-    getHouseOfPlanet // Ensure this is exported from planetaryUtils or kpUtils
+    getHouseOfPlanet, // Ensure this is exported from planetaryUtils or kpUtils
+    getHousesRuledByPlanet
 } from '../utils/index.js'; // Assuming utils/index.js exports everything
 
 const router = express.Router();
@@ -49,30 +50,7 @@ function handleRouteError(res, error, routeName, inputData = {}) {
 // --- KP Significator Specific Helper Functions ---
 // Moved getHouseOfPlanet to planetaryUtils.js
 
-function getHousesRuledByPlanet(planetName, siderealCuspStartDegrees) {
-    const ruledHouses = new Set();
-    if (!planetName || !Array.isArray(siderealCuspStartDegrees) || siderealCuspStartDegrees.length !== 12) {
-        return [];
-    }
-    const ruledRashiIndices = [];
-    RASHI_LORDS.forEach((lord, index) => {
-        if (lord === planetName) {
-            ruledRashiIndices.push(index);
-        }
-    });
-    if (ruledRashiIndices.length === 0) {
-        return [];
-    }
-    for (let i = 0; i < 12; i++) {
-        const cuspStartDeg = siderealCuspStartDegrees[i];
-        if (isNaN(cuspStartDeg)) continue;
-        const cuspRashiDetails = getRashiDetails(cuspStartDeg);
-        if (cuspRashiDetails && ruledRashiIndices.includes(cuspRashiDetails.index)) {
-            ruledHouses.add(i + 1);
-        }
-    }
-    return Array.from(ruledHouses).sort((a, b) => a - b);
-}
+
 
 function formatHouseNumbers(houses) {
     if (!houses) return "";
