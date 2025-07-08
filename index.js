@@ -17,7 +17,7 @@ import logger from './utils/logger.js';
 import astrologyRoutes from './routes/astrologyRoutes.js';
 import kpSignificatorRoutes from './routes/kpSignificatorRoutes.js';
 import generalRoutes from './routes/generalRoutes.js';
-import predictionRoutes from './routes/predictionRoutes.js';
+
 const app = express();
 
 // --- ES Module __dirname and __filename equivalents ---
@@ -108,7 +108,7 @@ try {
 app.use('/api', astrologyRoutes);
 app.use('/api/kp-significators', kpSignificatorRoutes);
 app.use('/api/general', generalRoutes);
-app.use('/api/predictions', predictionRoutes);
+
 app.set('trust proxy', 1);
 // --- Basic Root Route (Optional Health Check) ---
 app.get('/', (req, res) => {
