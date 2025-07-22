@@ -12,6 +12,7 @@ import PrashnaTimeLocationPage from './components/PrashnaTimeLocationPage';
 import PrashnaNumberPage from './components/PrashnaNumberPage';
 import VarshphalPage from './components/VarshphalPage';
 import RemediesPage from './components/RemediesPage';
+import MuhurtaPage from './components/MuhurtaPage';
 import api from './components/api'; // Assuming api setup for context
 
 // Import the hook and context
@@ -119,6 +120,7 @@ function AppWrapper() {
               <li><NavLink to="/prashna-number" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.prashnaNumber')}</NavLink></li>
               <li><NavLink to="/remedies" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.remedies')}</NavLink></li>
               <li><NavLink to="/varshphal" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.varshphal')}</NavLink></li>
+              <li><NavLink to="/muhurta" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.muhurta')}</NavLink></li>
             </ul>
           </div>
         </nav>
@@ -145,13 +147,14 @@ function AppWrapper() {
               <Route path="kp" element={<KpSignificatorsPage />} />
               <Route path="ashtakavarga" element={<AshtakavargaPage />} />
               <Route path="varshphal" element={<VarshphalPage />} />
+              <Route path="muhurta" element={<MuhurtaPage />} />
             </Route>
 
-            {/* Top-level routes (not using SharedInputLayout) */}
-            <Route path="festivals" element={<FestivalsPage />} />
-            <Route path="prashna-time" element={<PrashnaTimeLocationPage />} />
-            <Route path="prashna-number" element={<PrashnaNumberPage />} />
-            <Route path="remedies" element={<RemediesPage />} />
+            {/* Routes that do NOT use SharedInputLayout (e.g., Festivals, Prashna) */}
+            <Route path="/festivals" element={<FestivalsPage />} />
+            <Route path="/prashna-time" element={<PrashnaTimeLocationPage />} />
+            <Route path="/prashna-number" element={<PrashnaNumberPage />} />
+            <Route path="/remedies" element={<RemediesPage />} />
 
             {/* Optional: Add a catch-all or Not Found route */}
             {/* <Route path="*" element={<NotFoundPage />} /> */}

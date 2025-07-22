@@ -16,11 +16,57 @@
 }
 
 .planet-details-page .result-sub-title {
-    margin-bottom: 10px;
     color: #333;
     font-size: 1.1em;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
+}
+
+.planet-details-page .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--header-bg-color);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.planet-details-page .section-header:hover {
+    background-color: var(--header-bg-hover-color);
+}
+
+.planet-details-page .section-header h3 {
+    margin: 0;
+    color: var(--header-text-color);
+    font-size: 1.4em;
+    font-weight: 600;
+}
+
+.planet-details-page .toggle-button {
+    background: none;
+    border: none;
+    color: var(--header-text-color);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.planet-details-page .section-content {
+    max-height: 1000px; /* Arbitrarily large value */
+    overflow-y: auto;
+    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.planet-details-page .section-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 /* --- General Table Wrapper --- */
@@ -256,4 +302,3 @@
         font-size: 1em; /* Slightly smaller sub-titles */
     }
 }
-

@@ -29,7 +29,7 @@ export const EVENT_HOUSES = { // Or pass this mapping as a prop
     'loving_caring': { favorable: [2, 5, 9, 11], unfavorable: [] },
     'cold nature': { favorable: [1, 4, 6, 10], unfavorable: [] },
     'theft_robbery': { favorable: [7, 8, 12], unfavorable: [] },
-    'foreign_travel': { favorable: [3, 9, 12], unfavorable: [] },
+    
     'ego': { favorable: [8, 12], unfavorable: [] },
     'return_home': { favorable: [2, 4, 11], unfavorable: [] },
     'huge_earnings': { favorable: [2, 6, 10, 11], unfavorable: [] },

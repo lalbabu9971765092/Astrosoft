@@ -328,7 +328,7 @@ const { favorableHouses, unfavorableHouses } = useMemo(() => {
 
         return finalMap;
     // Now depends on the calculated favorable/unfavorable houses as well
-    }, [kpData, selectedEvent]); // Recalculate when kpData OR selectedEvent changes
+    }, [kpData, selectedEvent, favorableHouses, unfavorableHouses]); // Recalculate when kpData OR selectedEvent changes
 
 
     // --- Loading / Error / No Data States ---

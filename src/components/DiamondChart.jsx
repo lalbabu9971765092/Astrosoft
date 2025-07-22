@@ -158,61 +158,7 @@ const DiamondChart = ({
     }, [houses, planets, scores, planetHousePlacements, t]);
 
 
-    // --- SVG Rendering ---
-    // Helper to render planets (used for combined chart)
-    // NOTE: This helper function `renderPlanets` seems unused in the current DiamondChart component's return statement.
-    // It might be intended for a different chart type (like ZodiacCircleChart).
-    // I'm keeping the modification here in case it's used elsewhere or intended for future use.
-    const renderPlanets = (planetsData, r, color, idPrefix) => {
-        if (!planetsData) return null;
-
-        return Object.entries(planetsData).map(([name, data]) => {
-            if (!data || !data.dms || data.dms === "Error") return null;
-            const degrees = convertDMSToDegrees(data.dms);
-            if (isNaN(degrees)) return null;
-
-            // Assuming normalizeAngle and formatDM are defined elsewhere or imported
-            // const normalizedDegrees = normalizeAngle(degrees);
-            // const degreeText = formatDM(data.dms);
-            const normalizedDegrees = degrees; // Placeholder if normalizeAngle not available
-            const degreeText = data.dms; // Placeholder if formatDM not available
-
-            const pos = getPosition(normalizedDegrees, r);
-            // *** MODIFICATION 2: Use translation for planet symbol ***
-            const symbol = t(`planetsShort.${name}`, { defaultValue: name.substring(0, 2) });
-            const degreePos = getPosition(normalizedDegrees, r + degreeTextOffset);
-
-            return (
-                <React.Fragment key={`${idPrefix}-${name}`}>
-                    <text
-                        x={pos.x}
-                        y={pos.y}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        fontSize={planetSymbolFontSize}
-                        fontWeight="bold"
-                        fill={color}
-                        className={`planet-symbol ${idPrefix}-planet`}
-                    >
-                        {symbol} {/* Use translated symbol */}
-                    </text>
-                    {degreeText && (
-                        <text
-                            x={degreePos.x}
-                            y={degreePos.y}
-                            textAnchor="middle"
-                            dominantBaseline="middle"
-                            fontSize={planetDegreeFontSize}
-                            fill={color}
-                            className={`planet-degree ${idPrefix}-degree`}
-                        >
-                            {degreeText}
-                        </text>
-                    )}
-                </React.Fragment>
-            );
-        });
-    };
+    
 
     // --- Constants and Calculations (Keep as is) ---
     // const radius = size / 2; // Defined below

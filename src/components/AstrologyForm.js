@@ -104,6 +104,23 @@ const AstrologyForm = () => {
     const [gocharData, setGocharData] = useState(null);
     const [isLoadingGochar, setIsLoadingGochar] = useState(false);
     const [gocharError, setGocharError] = useState(null);
+    const [openSections, setOpenSections] = useState({
+        basicInfo: true,
+        dashaBalance: true,
+        doshas: true,
+        panchanga: true,
+        lordships: true,
+        charts: true,
+        houseCusps: true,
+        planetaryPositions: true,
+        transitBasicInfo: true,
+        transitPanchanga: true,
+        transitLordships: true
+    });
+
+    const toggleSection = (section) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
 
     // --- Effects ---
     useEffect(() => {
@@ -265,16 +282,7 @@ const AstrologyForm = () => {
     }, [displayResult, t]); // Dependency on displayResult and t
 
  
-    // --- Memoized Cusp Degrees ---
-    const meanCuspDegrees = useMemo(() => {
-        if (!displayResult?.houses || !Array.isArray(displayResult.houses) || displayResult.houses.length !== 12) return [];
-        const degrees = displayResult.houses.map(h => convertDMSToDegrees(h?.mean_dms));
-         if (degrees.some(isNaN)) {
-             console.warn("Could not convert all mean cusp DMS to degrees for displayResult.");
-             return [];
-         }
-        return degrees;
-    }, [displayResult]);
+   
 // *** NEW: Memoized Placidus Cusp Degrees for Bhava Table Consistency ***
     const placidusCuspDegrees = useMemo(() => {
         if (!displayResult?.houses || !Array.isArray(displayResult.houses) || displayResult.houses.length !== 12) return [];
@@ -359,7 +367,7 @@ const AstrologyForm = () => {
         const gocharSamvatsarKey = gocharData.samvatsar;
         const gocharVikramSamvat = gocharData.vikram_samvat;
         // Use the adjustedGocharDateTimeString (local ISO string) for Var calculation
-        const gocharVarKey = calculateVar(adjustedGocharDateTimeString, t); // Returns English key
+        const { varName: gocharVarKey, dayLord: gocharDayLord } = calculateVar(adjustedGocharDateTimeString, t);
 
         if (!gocharAsc || !gocharMoon || !gocharPanchang) return <p className="info-text">{t('astrologyForm.transitIncompleteData')}</p>;
 
@@ -377,57 +385,77 @@ const AstrologyForm = () => {
             <div className="gochar-details-content">
                  {/* Transit Time, Basic Info */}
                  <div className="result-section">
-                    <h3 className="result-sub-title">{t('astrologyForm.transitTimeTitle')}</h3>
-                    {/* Use formatDisplayDateTime for the Gochar time */}
-                    <p className="result-text">{formatDisplayDateTime(adjustedGocharDateTimeString)}</p>
-                 </div>
-                 <div className="result-section">
-                    <h3 className="result-sub-title">{t('astrologyForm.transitBasicInfoTitle')}</h3>
-                    <p className="result-text">
-                        {t('astrologyForm.ascendantLabel')} {gocharAsc.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
-                        {/* Translate Rashi, Nakshatra, Lord names */}
-                        {gocharAsc.rashi && ` (${t(`rashis.${gocharAsc.rashi}`, { defaultValue: gocharAsc.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${gocharAsc.nakshatra}`, { defaultValue: gocharAsc.nakshatra })} ${t('astrologyForm.padaLabel')}${gocharAsc.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${gocharAsc.nakLord}`, { defaultValue: gocharAsc.nakLord })})`}
-                    </p>
-                    {gocharSunMoonTimes && (
-                        <>
-                            <p className="result-text">{t('astrologyForm.sunriseLabel')} {formatPanchangTime(gocharSunMoonTimes.sunrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
-                            <p className="result-text">{t('astrologyForm.sunsetLabel')} {formatPanchangTime(gocharSunMoonTimes.sunset, t) ?? t('utils.notAvailable', 'N/A')}</p>
-                            <p className="result-text">{t('astrologyForm.moonriseLabel')} {formatPanchangTime(gocharSunMoonTimes.moonrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
-                            <p className="result-text">{t('astrologyForm.moonsetLabel')} {formatPanchangTime(gocharSunMoonTimes.moonset, t) ?? t('utils.notAvailable', 'N/A')}</p>
-                        </>
-                    )}
+                    <div className="section-header" onClick={() => toggleSection('transitBasicInfo')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.transitBasicInfoTitle')}</h3>
+                        <button className="toggle-button">{openSections.transitBasicInfo ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.transitBasicInfo ? '' : 'collapsed'}`}>
+                        <p className="result-text">{t('astrologyForm.transitTimeTitle')}: {formatDisplayDateTime(adjustedGocharDateTimeString)}</p>
+                        <p className="result-text">
+                            {t('astrologyForm.ascendantLabel')} {gocharAsc.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                            {gocharAsc.rashi && ` (${t(`rashis.${gocharAsc.rashi}`, { defaultValue: gocharAsc.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${gocharAsc.nakshatra}`, { defaultValue: gocharAsc.nakshatra })} ${t('astrologyForm.padaLabel')}${gocharAsc.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${gocharAsc.nakLord}`, { defaultValue: gocharAsc.nakLord })})`}
+                        </p>
+                        {gocharSunMoonTimes && (
+                            <>
+                                <p className="result-text">{t('astrologyForm.sunriseLabel')} {formatPanchangTime(gocharSunMoonTimes.sunrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
+                                <p className="result-text">{t('astrologyForm.sunsetLabel')} {formatPanchangTime(gocharSunMoonTimes.sunset, t) ?? t('utils.notAvailable', 'N/A')}</p>
+                                <p className="result-text">{t('astrologyForm.moonriseLabel')} {formatPanchangTime(gocharSunMoonTimes.moonrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
+                                <p className="result-text">{t('astrologyForm.moonsetLabel')} {formatPanchangTime(gocharSunMoonTimes.moonset, t) ?? t('utils.notAvailable', 'N/A')}</p>
+                            </>
+                        )}
+                    </div>
                  </div>
                  {/* Panchanga Details */}
                  <div className="result-section">
-                    <h3 className="result-sub-title">{t('astrologyForm.transitPanchangaTitle')}</h3>
-                    <p className="result-text">{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${gocharSamvatsarKey}`, { defaultValue: gocharSamvatsarKey ?? t('utils.notAvailable', 'N/A') })}</p>
-                    <p className="result-text">{t('astrologyForm.vikramSamvatLabel')} {gocharVikramSamvat ?? t('utils.notAvailable', 'N/A')}</p>
-                    {/* Translate Month, Ritu */}
-                    <p className="result-text">{t('astrologyForm.lunarMonthLabel')} {t(`hindiMonths.${gocharLunarMonthKey}`, { defaultValue: gocharLunarMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
-                    <p className="result-text">{t('astrologyForm.rituLabel')} {t(`ritus.${gocharRituKey}`, { defaultValue: gocharRituKey ?? t('utils.notAvailable', 'N/A') })}</p>
-                    <p className="result-text">
-                        {t('astrologyForm.tithiLabel')} {formattedGocharTithi}
-                        {gocharTithi?.start && gocharTithi?.end && ` (${formatPanchangTime(gocharTithi.start, t)} - ${formatPanchangTime(gocharTithi.end, t)})`}
-                    </p>
-                    {/* Translate Rashi, Nakshatra, Lord */}
-                    <p className="result-text">{t('astrologyForm.rashiMoLabel')} {t(`rashis.${moonRashiKey}`, { defaultValue: moonRashiKey ?? t('utils.notAvailable', 'N/A') })}</p>
-                    <p className="result-text">
-                        {t('astrologyForm.nakMoLabel')} {t(`nakshatras.${moonNakshatraKey}`, { defaultValue: moonNakshatraKey ?? t('utils.notAvailable', 'N/A') })}
-                        {gocharMoon?.nakLord && ` (${t('astrologyForm.lordLabel')} ${t(`planets.${gocharMoon.nakLord}`, { defaultValue: gocharMoon.nakLord })})`}
-                        {moonPada !== 'N/A' ? ` (${t('astrologyForm.padaLabel')}${moonPada})` : ""}
-                        {gocharNakshatra?.start && gocharNakshatra?.end && ` (${formatPanchangTime(gocharNakshatra.start, t)} - ${formatPanchangTime(gocharNakshatra.end, t)})`}
-                    </p>
-                    {/* Translate Yoga, Karan, Var */}
-                    <p className="result-text">
-                        {t('astrologyForm.yogaLabel')} {t(`yogas.${gocharYogaKey}`, { defaultValue: gocharYogaKey ?? t('utils.notAvailable', 'N/A') })}
-                        {gocharPanchang?.Yoga?.start && gocharPanchang?.Yoga?.end && ` (${formatPanchangTime(gocharPanchang.Yoga.start, t)} - ${formatPanchangTime(gocharPanchang.Yoga.end, t)})`}
-                    </p>
-                    <p className="result-text">
-                        {t('astrologyForm.karanLabel')} {t(`karans.${gocharKaranaKey}`, { defaultValue: gocharKaranaKey ?? t('utils.notAvailable', 'N/A') })}
-                        {gocharPanchang?.Karna?.start && gocharPanchang?.Karna?.end && ` (${formatPanchangTime(gocharPanchang.Karna.start, t)} - ${formatPanchangTime(gocharPanchang.Karna.end, t)})`}
-                    </p>
-                    <p className="result-text">{t('astrologyForm.varLabel')} {t(`weekdays.${gocharVarKey}`, { defaultValue: gocharVarKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                    <div className="section-header" onClick={() => toggleSection('transitPanchanga')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.transitPanchangaTitle')}</h3>
+                        <button className="toggle-button">{openSections.transitPanchanga ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.transitPanchanga ? '' : 'collapsed'}`}>
+                        <p className="result-text">{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${gocharSamvatsarKey}`, { defaultValue: gocharSamvatsarKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">{t('astrologyForm.vikramSamvatLabel')} {gocharVikramSamvat ?? t('utils.notAvailable', 'N/A')}</p>
+                        <p className="result-text">{t('astrologyForm.lunarMonthLabel')} {t(`hindiMonths.${gocharLunarMonthKey}`, { defaultValue: gocharLunarMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">{t('astrologyForm.rituLabel')} {t(`ritus.${gocharRituKey}`, { defaultValue: gocharRituKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">
+                            {t('astrologyForm.tithiLabel')} {formattedGocharTithi}
+                            {gocharTithi?.start && gocharTithi?.end && ` (${formatPanchangTime(gocharTithi.start, t)} - ${formatPanchangTime(gocharTithi.end, t)})`}
+                        </p>
+                        <p className="result-text">{t('astrologyForm.rashiMoLabel')} {t(`rashis.${moonRashiKey}`, { defaultValue: moonRashiKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">
+                            {t('astrologyForm.nakMoLabel')} {t(`nakshatras.${moonNakshatraKey}`, { defaultValue: moonNakshatraKey ?? t('utils.notAvailable', 'N/A') })}
+                            {gocharMoon?.nakLord && ` (${t('astrologyForm.lordLabel')} ${t(`planets.${gocharMoon.nakLord}`, { defaultValue: gocharMoon.nakLord })})`}
+                            {moonPada !== 'N/A' ? ` (${t('astrologyForm.padaLabel')}${moonPada})` : ""}
+                            {gocharNakshatra?.start && gocharNakshatra?.end && ` (${formatPanchangTime(gocharNakshatra.start, t)} - ${formatPanchangTime(gocharNakshatra.end, t)})`}
+                        </p>
+                        <p className="result-text">
+                            {t('astrologyForm.yogaLabel')} {t(`yogas.${gocharYogaKey}`, { defaultValue: gocharYogaKey ?? t('utils.notAvailable', 'N/A') })}
+                            {gocharPanchang?.Yoga?.start && gocharPanchang?.Yoga?.end && ` (${formatPanchangTime(gocharPanchang.Yoga.start, t)} - ${formatPanchangTime(gocharPanchang.Yoga.end, t)})`}
+                        </p>
+                        <p className="result-text">
+                            {t('astrologyForm.karanLabel')} {t(`karans.${gocharKaranaKey}`, { defaultValue: gocharKaranaKey ?? t('utils.notAvailable', 'N/A') })}
+                            {gocharPanchang?.Karna?.start && gocharPanchang?.Karna?.end && ` (${formatPanchangTime(gocharPanchang.Karna.start, t)} - ${formatPanchangTime(gocharPanchang.Karna.end, t)})`}
+                        </p>
+                        <p className="result-text">{t('astrologyForm.varLabel')} {t(`weekdays.${gocharVarKey}`, { defaultValue: gocharVarKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                    </div>
                  </div>
+                 <div className="result-section lordships-section">
+                    <div className="section-header" onClick={() => toggleSection('transitLordships')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.lordshipsTitle')}</h3>
+                        <button className="toggle-button">{openSections.transitLordships ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.transitLordships ? '' : 'collapsed'}`}>
+                        <div className="lordship-column">
+                            <h4>{t('astrologyForm.transitTitle')}</h4>
+                            <p>{t('astrologyForm.dayLordLabel')}: {t(`planets.${gocharDayLord}`, { defaultValue: 'N/A' })}</p>
+                            <p>{t('astrologyForm.ascendantLordLabel')}: {t(`planets.${gocharData?.ascendant?.rashiLord}`, { defaultValue: gocharData?.ascendant?.rashiLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.ascendantNakshatraLord')}: {t(`planets.${gocharData?.ascendant?.nakLord}`, { defaultValue: gocharData?.ascendant?.nakLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.ascendantNakshatraSubLord')}: {t(`planets.${gocharData?.ascendant?.subLord}`, { defaultValue: gocharData?.ascendant?.subLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.moonRashiLord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.rashiLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.rashiLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.moonNakshatraLord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.nakLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.nakLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.moonNakshatraSubLord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.subLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.subLord ?? 'N/A' })}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     };
@@ -456,7 +484,7 @@ const AstrologyForm = () => {
         const birthVikramSamvat = displayResult.vikram_samvat;
         // Use the displayInputParams.date (local ISO string) for Var calculation
         const displayDate = displayInputParams?.date || '';
-        const birthVarKey = calculateVar(displayDate, t); // Returns English key
+        const { varName: birthVarKey, dayLord: birthDayLord } = calculateVar(displayDate, t);
 
         const moonDeg = convertDMSToDegrees(moonSiderealData?.dms);
         const moonRashiKey = calculateRashi(moonDeg, t); // Returns English key (e.g., "Sagittarius")
@@ -516,70 +544,104 @@ const AstrologyForm = () => {
                  )}
                  {/* Basic Info */}
                 <div className="result-section">
-                    <h3 className="result-sub-title">{t('astrologyForm.basicInfoTitle')}</h3>
-                     <p className="result-text">
-                        {t('astrologyForm.ascendantLabel')} {displayResult.ascendant?.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
-                        {/* Translate Rashi, Nakshatra, Lord names */}
-                        {displayResult.ascendant?.rashi &&
-                            ` (${t(`rashis.${displayResult.ascendant.rashi}`, { defaultValue: displayResult.ascendant.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${displayResult.ascendant.nakshatra}`, { defaultValue: displayResult.ascendant.nakshatra })} ${t('astrologyForm.padaLabel')}${displayResult.ascendant.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.ascendant.nakLord}`, { defaultValue: displayResult.ascendant.nakLord })})`}
-                    </p>
-                     {birthSunMoonTimes && (
-                        <>
-                            <p className="result-text">{t('astrologyForm.sunriseLabel')} {formatPanchangTime(birthSunMoonTimes.sunrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
-                            <p className="result-text">{t('astrologyForm.sunsetLabel')} {formatPanchangTime(birthSunMoonTimes.sunset, t) ?? t('utils.notAvailable', 'N/A')}</p>
-                            <p className="result-text">{t('astrologyForm.moonriseLabel')} {formatPanchangTime(birthSunMoonTimes.moonrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
-                            <p className="result-text">{t('astrologyForm.moonsetLabel')} {formatPanchangTime(birthSunMoonTimes.moonset, t) ?? t('utils.notAvailable', 'N/A')}</p>
-                        </>
-                    )}
+                    <div className="section-header" onClick={() => toggleSection('basicInfo')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.basicInfoTitle')}</h3>
+                        <button className="toggle-button">{openSections.basicInfo ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.basicInfo ? '' : 'collapsed'}`}>
+                        <p className="result-text">
+                            {t('astrologyForm.ascendantLabel')} {displayResult.ascendant?.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                            {displayResult.ascendant?.rashi &&
+                                ` (${t(`rashis.${displayResult.ascendant.rashi}`, { defaultValue: displayResult.ascendant.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${displayResult.ascendant.nakshatra}`, { defaultValue: displayResult.ascendant.nakshatra })} ${t('astrologyForm.padaLabel')}${displayResult.ascendant.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.ascendant.nakLord}`, { defaultValue: displayResult.ascendant.nakLord })})`}
+                        </p>
+                        {birthSunMoonTimes && (
+                            <>
+                                <p className="result-text">{t('astrologyForm.sunriseLabel')} {formatPanchangTime(birthSunMoonTimes.sunrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
+                                <p className="result-text">{t('astrologyForm.sunsetLabel')} {formatPanchangTime(birthSunMoonTimes.sunset, t) ?? t('utils.notAvailable', 'N/A')}</p>
+                                <p className="result-text">{t('astrologyForm.moonriseLabel')} {formatPanchangTime(birthSunMoonTimes.moonrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
+                                <p className="result-text">{t('astrologyForm.moonsetLabel')} {formatPanchangTime(birthSunMoonTimes.moonset, t) ?? t('utils.notAvailable', 'N/A')}</p>
+                            </>
+                        )}
+                    </div>
                 </div>
                 {/* Dasha Balance */}
                 {displayResult.dashaBalance && (
                     <div className="result-section dasha-balance">
-                        <h3 className="result-sub-title">{t('astrologyForm.dashaBalanceTitle')}</h3>
-                        <p className="result-text">{t('astrologyForm.dashaLordLabel')} <strong>{t(`planets.${displayResult.dashaBalance.lord}`, { defaultValue: displayResult.dashaBalance.lord ?? t('utils.notAvailable', 'N/A') })}</strong></p>
-                        <p className="result-text">{t('astrologyForm.dashaBalanceLabel')} {displayResult.dashaBalance.balance_str ?? t('utils.notAvailable', 'N/A')}</p>
+                        <div className="section-header" onClick={() => toggleSection('dashaBalance')}>
+                            <h3 className="result-sub-title">{t('astrologyForm.dashaBalanceTitle')}</h3>
+                            <button className="toggle-button">{openSections.dashaBalance ? '−' : '+'}</button>
+                        </div>
+                        <div className={`section-content ${openSections.dashaBalance ? '' : 'collapsed'}`}>
+                            <p className="result-text">{t('astrologyForm.dashaLordLabel')} <strong>{t(`planets.${displayResult.dashaBalance.lord}`, { defaultValue: displayResult.dashaBalance.lord ?? t('utils.notAvailable', 'N/A') })}</strong></p>
+                            <p className="result-text">{t('astrologyForm.dashaBalanceLabel')} {displayResult.dashaBalance.balance_str ?? t('utils.notAvailable', 'N/A')}</p>
+                        </div>
                     </div>
                 )}
                 {/* Doshas */}
                 <div className="result-section dosha-details">
-                    <h3 className="result-sub-title">{t('astrologyForm.doshaTitle')}</h3>
-                    <p className="result-text">{t('astrologyForm.mangalDoshaLabel')} {formatDosha('mangal')}</p>
-                    <p className="result-text">{t('astrologyForm.kaalsarpaDoshaLabel')} {formatDosha('kaalsarpa')}</p>
-                    <p className="result-text">{t('astrologyForm.moolDoshaLabel')} {formatDosha('mool')}</p>
+                    <div className="section-header" onClick={() => toggleSection('doshas')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.doshaTitle')}</h3>
+                        <button className="toggle-button">{openSections.doshas ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.doshas ? '' : 'collapsed'}`}>
+                        <p className="result-text">{t('astrologyForm.mangalDoshaLabel')} {formatDosha('mangal')}</p>
+                        <p className="result-text">{t('astrologyForm.kaalsarpaDoshaLabel')} {formatDosha('kaalsarpa')}</p>
+                        <p className="result-text">{t('astrologyForm.moolDoshaLabel')} {formatDosha('mool')}</p>
+                    </div>
                 </div>
                 {/* Panchanga Details */}
                 <div className="result-section">
-                    <h3 className="result-sub-title">{t('astrologyForm.birthPanchangaTitle')}</h3>
-                    <p className="result-text">{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${birthSamvatsarKey}`, { defaultValue: birthSamvatsarKey ?? t('utils.notAvailable', 'N/A') })}</p>
-                    <p className="result-text">{t('astrologyForm.vikramSamvatLabel')} {birthVikramSamvat ?? t('utils.notAvailable', 'N/A')}</p>
-                    {/* Translate Month, Ritu */}
-                    <p className="result-text">{t('astrologyForm.lunarMonthLabel')} {t(`hindiMonths.${birthLunarMonthKey}`, { defaultValue: birthLunarMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
-                    <p className="result-text">{t('astrologyForm.rituLabel')} {t(`ritus.${birthRituKey}`, { defaultValue: birthRituKey ?? t('utils.notAvailable', 'N/A') })}</p>
-                    <p className="result-text">
-                        {t('astrologyForm.tithiLabel')} {formattedBirthTithi}
-                        {birthTithi?.start && birthTithi?.end && ` (${formatPanchangTime(birthTithi.start, t)} - ${formatPanchangTime(birthTithi.end, t)})`}
-                    </p>
-                    {/* Translate Rashi, Nakshatra, Lord */}
-                    <p className="result-text">{t('astrologyForm.rashiMoLabel')} {t(`rashis.${moonRashiKey}`, { defaultValue: moonRashiKey ?? t('utils.notAvailable', 'N/A') })}</p>
-                    <p className="result-text">
-                        {t('astrologyForm.nakMoLabel')} {t(`nakshatras.${moonNakshatraKey}`, { defaultValue: moonNakshatraKey ?? t('utils.notAvailable', 'N/A') })}
-                        {moonSiderealData?.nakLord && ` (${t('astrologyForm.lordLabel')} ${t(`planets.${moonSiderealData.nakLord}`, { defaultValue: moonSiderealData.nakLord })})`}
-                        {moonPada !== 'N/A' ? ` (${t('astrologyForm.padaLabel')}${moonPada})` : ""}
-                        {birthNakshatra?.start && birthNakshatra?.end && ` (${formatPanchangTime(birthNakshatra.start, t)} - ${formatPanchangTime(birthNakshatra.end, t)})`}
-                    </p>
-                    <p className="result-text">
-                        {t('astrologyForm.nakDegLabel')} {convertToDMS(moonNakDegree, t)}
-                    </p>
-                    {/* Translate Yoga, Karan, Var */}
-                    <p className="result-text">
-                        {t('astrologyForm.yogaLabel')} {t(`yogas.${birthYogaKey}`, { defaultValue: birthYogaKey ?? t('utils.notAvailable', 'N/A') })}
-                        {birthPanchang?.Yoga?.start && birthPanchang?.Yoga?.end && ` (${formatPanchangTime(birthPanchang.Yoga.start, t)} - ${formatPanchangTime(birthPanchang.Yoga.end, t)})`}
-                    </p>
-                    <p className="result-text">
-                        {t('astrologyForm.karanLabel')} {t(`karans.${birthKaranaKey}`, { defaultValue: birthKaranaKey ?? t('utils.notAvailable', 'N/A') })}
-                        {birthPanchang?.Karna?.start && birthPanchang?.Karna?.end && ` (${formatPanchangTime(birthPanchang.Karna.start, t)} - ${formatPanchangTime(birthPanchang.Karna.end, t)})`}
-                    </p>
-                    <p className="result-text">{t('astrologyForm.varLabel')} {t(`weekdays.${birthVarKey}`, { defaultValue: birthVarKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                    <div className="section-header" onClick={() => toggleSection('panchanga')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.birthPanchangaTitle')}</h3>
+                        <button className="toggle-button">{openSections.panchanga ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.panchanga ? '' : 'collapsed'}`}>
+                        <p className="result-text">{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${birthSamvatsarKey}`, { defaultValue: birthSamvatsarKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">{t('astrologyForm.vikramSamvatLabel')} {birthVikramSamvat ?? t('utils.notAvailable', 'N/A')}</p>
+                        <p className="result-text">{t('astrologyForm.lunarMonthLabel')} {t(`hindiMonths.${birthLunarMonthKey}`, { defaultValue: birthLunarMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">{t('astrologyForm.rituLabel')} {t(`ritus.${birthRituKey}`, { defaultValue: birthRituKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">
+                            {t('astrologyForm.tithiLabel')} {formattedBirthTithi}
+                            {birthTithi?.start && birthTithi?.end && ` (${formatPanchangTime(birthTithi.start, t)} - ${formatPanchangTime(birthTithi.end, t)})`}
+                        </p>
+                        <p className="result-text">{t('astrologyForm.rashiMoLabel')} {t(`rashis.${moonRashiKey}`, { defaultValue: moonRashiKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">
+                            {t('astrologyForm.nakMoLabel')} {t(`nakshatras.${moonNakshatraKey}`, { defaultValue: moonNakshatraKey ?? t('utils.notAvailable', 'N/A') })}
+                            {moonSiderealData?.nakLord && ` (${t('astrologyForm.lordLabel')} ${t(`planets.${moonSiderealData.nakLord}`, { defaultValue: moonSiderealData.nakLord })})`}
+                            {moonPada !== 'N/A' ? ` (${t('astrologyForm.padaLabel')}${moonPada})` : ""}
+                            {birthNakshatra?.start && birthNakshatra?.end && ` (${formatPanchangTime(birthNakshatra.start, t)} - ${formatPanchangTime(birthNakshatra.end, t)})`}
+                        </p>
+                        <p className="result-text">
+                            {t('astrologyForm.nakDegLabel')} {convertToDMS(moonNakDegree, t)}
+                        </p>
+                        <p className="result-text">
+                            {t('astrologyForm.yogaLabel')} {t(`yogas.${birthYogaKey}`, { defaultValue: birthYogaKey ?? t('utils.notAvailable', 'N/A') })}
+                            {birthPanchang?.Yoga?.start && birthPanchang?.Yoga?.end && ` (${formatPanchangTime(birthPanchang.Yoga.start, t)} - ${formatPanchangTime(birthPanchang.Yoga.end, t)})`}
+                        </p>
+                        <p className="result-text">
+                            {t('astrologyForm.karanLabel')} {t(`karans.${birthKaranaKey}`, { defaultValue: birthKaranaKey ?? t('utils.notAvailable', 'N/A') })}
+                            {birthPanchang?.Karna?.start && birthPanchang?.Karna?.end && ` (${formatPanchangTime(birthPanchang.Karna.start, t)} - ${formatPanchangTime(birthPanchang.Karna.end, t)})`}
+                        </p>
+                        <p className="result-text">{t('astrologyForm.varLabel')} {t(`weekdays.${birthVarKey}`, { defaultValue: birthVarKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                    </div>
+                </div>
+                <div className="result-section lordships-section">
+                    <div className="section-header" onClick={() => toggleSection('lordships')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.lordshipsTitle')}</h3>
+                        <button className="toggle-button">{openSections.lordships ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.lordships ? '' : 'collapsed'}`}>
+                        <div className="lordship-column">
+                            <h4>{t('astrologyForm.birthTitle')}</h4>
+                            <p>{t('astrologyForm.dayLordLabel')}: {t(`planets.${birthDayLord}`, { defaultValue: 'N/A' })}</p>
+                            <p>{t('astrologyForm.ascendantLordLabel')}: {t(`planets.${displayResult?.ascendant?.rashiLord}`, { defaultValue: displayResult?.ascendant?.rashiLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.ascendantNakshatraLord')}: {t(`planets.${displayResult?.ascendant?.nakLord}`, { defaultValue: displayResult?.ascendant?.nakLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.ascendantNakshatraSubLord')}: {t(`planets.${displayResult?.ascendant?.subLord}`, { defaultValue: displayResult?.ascendant?.subLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.moonRashiLord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.rashiLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.rashiLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.moonNakshatraLord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.nakLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.nakLord ?? 'N/A' })}</p>
+                            <p>{t('astrologyForm.moonNakshatraSubLord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.subLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.subLord ?? 'N/A' })}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -588,7 +650,6 @@ const AstrologyForm = () => {
     // --- renderMiddleColumn (Keep as is, but pass 't' to createChartHousesFromAscendant) ---
     const renderMiddleColumn = () => {
         const canRenderBirthCharts = displayResult && displayResult.houses && displayResult.planetaryPositions?.sidereal;
-        const hasMeanCusps = meanCuspDegrees.length === 12;
         const hasD9Data = displayResult?.d9_planets && displayResult?.d9_ascendant_dms; // Pass 't' when creating D9 houses
        
         const d9Houses = hasD9Data ? createChartHousesFromAscendant(displayResult.d9_ascendant_dms, t) : null;
@@ -610,145 +671,157 @@ const AstrologyForm = () => {
                 {rectificationError && <p className="error-text small-error">{t('astrologyForm.rectificationErrorPrefix')}: {rectificationError}</p>}
 
                 {/* --- Charts Grid (2x2) --- */}
-                {canRenderAnyChart ? (
-                    <div className="charts-grid-2x2">
-                        {/* Top Row */}
-                        <div className="chart-cell">
-                            {canRenderBirthCharts ? (
-                                <DiamondChart
-                                    title={t('astrologyForm.chartD1Title')}
-                                    houses={displayResult.houses}
-                                    planets={displayResult.planetaryPositions.sidereal}
-                                    chartType="lagna" size={250}
-                                />
-                            ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD1')}</div>}
-                        </div>
-                        <div className="chart-cell">
-                            {canRenderBhavaChart ? (
-                                <DiamondChart
-                                    title={t('astrologyForm.chartBhavaTitle')}
-                                    houses={displayResult.houses}
-                                    planetHousePlacements={bhavaPlanetPlacements}
-                                    chartType="bhava" size={250} // Pass the calculated placements
-                                />
-                            ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderBhava')}</div>}
-                        </div>
-                        {/* Bottom Row */}
-                        <div className="chart-cell">
-                            {hasD9Data && d9Houses ? (
-                                <DiamondChart
-                                    title={t('astrologyForm.chartD9Title')}
-                                    houses={d9Houses}
-                                    planets={displayResult.d9_planets}
-                                    chartType="d9" size={250}
-                                />
-                            ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD9')}</div>}
-                        </div>
-                        <div className="chart-cell">
-                             {isLoadingGochar ? (
-                                <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderLoadingGochar')}</div>
-                             ) : hasGocharData && gocharHouses ? (
-                                <DiamondChart
-                                    title={t('astrologyForm.chartGocharTitle')}
-                                    houses={gocharHouses}
-                                    planets={gocharData.planetaryPositions.sidereal}
-                                    chartType="gochar" size={250}
-                                />
-                            ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderGochar')}</div>}
-                        </div>
+                <div className="result-section">
+                    <div className="section-header" onClick={() => toggleSection('charts')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.chartsTitle')}</h3>
+                        <button className="toggle-button">{openSections.charts ? '−' : '+'}</button>
                     </div>
-                ) : (
-                    !isLoadingRectification && <p className="info-text">{t('astrologyForm.chartDataUnavailable')}</p>
-                )}
+                    <div className={`section-content ${openSections.charts ? '' : 'collapsed'}`}>
+                        {canRenderAnyChart ? (
+                            <div className="charts-grid-2x2">
+                                {/* Top Row */}
+                                <div className="chart-cell">
+                                    {canRenderBirthCharts ? (
+                                        <DiamondChart
+                                            title={t('astrologyForm.chartD1Title')}
+                                            houses={displayResult.houses}
+                                            planets={displayResult.planetaryPositions.sidereal}
+                                            chartType="lagna" size={250}
+                                        />
+                                    ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD1')}</div>}
+                                </div>
+                                <div className="chart-cell">
+                                    {canRenderBhavaChart ? (
+                                        <DiamondChart
+                                            title={t('astrologyForm.chartBhavaTitle')}
+                                            houses={displayResult.houses}
+                                            planetHousePlacements={bhavaPlanetPlacements}
+                                            chartType="bhava" size={250} // Pass the calculated placements
+                                        />
+                                    ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderBhava')}</div>}
+                                </div>
+                                {/* Bottom Row */}
+                                <div className="chart-cell">
+                                    {hasD9Data && d9Houses ? (
+                                        <DiamondChart
+                                            title={t('astrologyForm.chartD9Title')}
+                                            houses={d9Houses}
+                                            planets={displayResult.d9_planets}
+                                            chartType="d9" size={250}
+                                        />
+                                    ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD9')}</div>}
+                                </div>
+                                <div className="chart-cell">
+                                     {isLoadingGochar ? (
+                                        <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderLoadingGochar')}</div>
+                                     ) : hasGocharData && gocharHouses ? (
+                                        <DiamondChart
+                                            title={t('astrologyForm.chartGocharTitle')}
+                                            houses={gocharHouses}
+                                            planets={gocharData.planetaryPositions.sidereal}
+                                            chartType="gochar" size={250}
+                                        />
+                                    ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderGochar')}</div>}
+                                </div>
+                            </div>
+                        ) : (
+                            !isLoadingRectification && <p className="info-text">{t('astrologyForm.chartDataUnavailable')}</p>
+                        )}
+                    </div>
+                </div>
 
                 {/* --- Tables (Remain below the charts) --- */}
                 <div className="result-section">
-                    <h3 className="result-sub-title">{t('astrologyForm.houseCuspsTitle')}</h3>
-                    {hasHouseDataForTable ? (
-                        <div className="table-wrapper small-table">
-                            <table className="results-table houses-table">
-                                <thead>
-                                    <tr>
-                                        <th>{t('astrologyForm.houseTableHHeader')}</th><th>{t('astrologyForm.houseTableCuspStartHeader')}</th>
-                                        <th>{t('astrologyForm.houseTableMeanCuspHeader')}</th><th>{t('astrologyForm.houseTableNakMeanHeader')}</th>
-                                        <th>{t('astrologyForm.houseTablePadaHeader')}</th><th>{t('astrologyForm.houseTableNakLordHeader')}</th>
-                                        <th>{t('astrologyForm.houseTableRashiMeanHeader')}</th><th>{t('astrologyForm.houseTableRashiLordHeader')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {displayResult.houses.map((house) => (
-                                        <tr key={house.house_number}>
-                                            <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
-                                            <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
-                                            {/* Translate Nakshatra, Rashi, Lord names */}
-                                            <td>{t(`nakshatras.${house.mean_nakshatra}`, { defaultValue: house.mean_nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                            <td>{house.mean_nakshatra_charan ?? t('utils.notAvailable', 'N/A')}</td>
-                                            <td>{t(`planets.${house.mean_nakshatra_lord}`, { defaultValue: house.mean_nakshatra_lord ?? t('utils.notAvailable', 'N/A') })}</td>
-                                            <td>{t(`rashis.${house.mean_rashi}`, { defaultValue: house.mean_rashi ?? t('utils.notAvailable', 'N/A') })}</td>
-                                            <td>{t(`planets.${house.mean_rashi_lord}`, { defaultValue: house.mean_rashi_lord ?? t('utils.notAvailable', 'N/A') })}</td>
+                    <div className="section-header" onClick={() => toggleSection('houseCusps')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.houseCuspsTitle')}</h3>
+                        <button className="toggle-button">{openSections.houseCusps ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.houseCusps ? '' : 'collapsed'}`}>
+                        {hasHouseDataForTable ? (
+                            <div className="table-wrapper small-table">
+                                <table className="results-table houses-table">
+                                    <thead>
+                                        <tr>
+                                            <th>{t('astrologyForm.houseTableHHeader')}</th><th>{t('astrologyForm.houseTableCuspStartHeader')}</th>
+                                            <th>{t('astrologyForm.houseTableMeanCuspHeader')}</th><th>{t('astrologyForm.houseTableNakMeanHeader')}</th>
+                                            <th>{t('astrologyForm.houseTablePadaHeader')}</th><th>{t('astrologyForm.houseTableNakLordHeader')}</th>
+                                            <th>{t('astrologyForm.houseTableRashiMeanHeader')}</th><th>{t('astrologyForm.houseTableRashiLordHeader')}</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (<p className="result-text">{t('astrologyForm.houseDataUnavailable')}</p>)}
+                                    </thead>
+                                    <tbody>
+                                        {displayResult.houses.map((house) => (
+                                            <tr key={house.house_number}>
+                                                <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                <td>{t(`nakshatras.${house.mean_nakshatra}`, { defaultValue: house.mean_nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                <td>{t(`planets.${house.mean_nakshatra_lord}`, { defaultValue: house.mean_nakshatra_lord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                <td>{t(`rashis.${house.mean_rashi}`, { defaultValue: house.mean_rashi ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                <td>{t(`planets.${house.mean_rashi_lord}`, { defaultValue: house.mean_rashi_lord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (<p className="result-text">{t('astrologyForm.houseDataUnavailable')}</p>)}
+                    </div>
                 </div>
                 <div className="result-section">
-                    <h3 className="result-sub-title">{t('astrologyForm.planetaryPositionsTitle')}</h3>
-                    {hasPlanetDataForTable ? (
-                        <div className="table-wrapper small-table">
-                            <table className="results-table planets-table">
-                                <thead>
-                                    <tr>
-                                        <th>{t('astrologyForm.planetTableHeaderPlanet')}</th><th>{t('astrologyForm.planetTableHeaderPosition')}</th>
-                                        <th>{t('astrologyForm.planetTableHeaderNakPada')}</th><th>{t('astrologyForm.planetTableHeaderNakLord')}</th>
-                                        <th>{t('astrologyForm.planetTableHeaderSubLord')}</th><th>{t('astrologyForm.planetTableHeaderSubSub')}</th>
-                                        <th>{t('astrologyForm.planetTableHeaderNakDeg')}</th><th>{t('astrologyForm.planetTableHeaderRashi')}</th>
-                                        <th>{t('astrologyForm.planetTableHeaderRashiLord')}</th><th>{t('astrologyForm.planetTableHeaderBhava')}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {PLANET_ORDER.map((body) => {
-                                        const planetData = displayResult.planetaryPositions.sidereal[body];
-                                        if (!planetData) return null;
-                                        const siderealDeg = convertDMSToDegrees(planetData.dms);
-                                        if (isNaN(siderealDeg) || planetData.dms === "Error") {
-                                            return (<tr key={body}><td>{PLANET_SYMBOLS[body] || body}</td><td colSpan="9">{t('astrologyForm.planetDataError')}</td></tr>);
-                                        }
-                                        const pada = planetData.pada ?? calculateNakshatraPada(siderealDeg, t);
-                                        const degreeWithinNakshatra = convertToDMS(calculateNakshatraDegree(siderealDeg), t);
-                                       const rashiKey = planetData.rashi ?? calculateRashi(siderealDeg, t);
-                                        // *** FIX: Use placidusCuspDegrees to calculate the house, matching the Bhava Chalit chart ***
-                                        const house = calculateHouse(siderealDeg, placidusCuspDegrees, t);
-                                       
-                                        const nakshatraKey = planetData.nakshatra; // Get English key
-                                        const nakLordKey = planetData.nakLord; // Get English key
-                                        const subLordKey = planetData.subLord; // Get English key
-                                        const subSubLordKey = planetData.subSubLord; // Get English key
-                                        const rashiLordKey = planetData.rashiLord; // Get English key
+                    <div className="section-header" onClick={() => toggleSection('planetaryPositions')}>
+                        <h3 className="result-sub-title">{t('astrologyForm.planetaryPositionsTitle')}</h3>
+                        <button className="toggle-button">{openSections.planetaryPositions ? '−' : '+'}</button>
+                    </div>
+                    <div className={`section-content ${openSections.planetaryPositions ? '' : 'collapsed'}`}>
+                        {hasPlanetDataForTable ? (
+                            <div className="table-wrapper small-table">
+                                <table className="results-table planets-table">
+                                    <thead>
+                                        <tr>
+                                            <th>{t('astrologyForm.planetTableHeaderPlanet')}</th><th>{t('astrologyForm.planetTableHeaderPosition')}</th>
+                                            <th>{t('astrologyForm.planetTableHeaderNakPada')}</th><th>{t('astrologyForm.planetTableHeaderNakLord')}</th>
+                                            <th>{t('astrologyForm.planetTableHeaderSubLord')}</th><th>{t('astrologyForm.planetTableHeaderSubSub')}</th>
+                                            <th>{t('astrologyForm.planetTableHeaderNakDeg')}</th><th>{t('astrologyForm.planetTableHeaderRashi')}</th>
+                                            <th>{t('astrologyForm.planetTableHeaderRashiLord')}</th><th>{t('astrologyForm.planetTableHeaderBhava')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {PLANET_ORDER.map((body) => {
+                                            const planetData = displayResult.planetaryPositions.sidereal[body];
+                                            if (!planetData) return null;
+                                            const siderealDeg = convertDMSToDegrees(planetData.dms);
+                                            if (isNaN(siderealDeg) || planetData.dms === "Error") {
+                                                return (<tr key={body}><td>{PLANET_SYMBOLS[body] || body}</td><td colSpan="9">{t('astrologyForm.planetDataError')}</td></tr>);
+                                            }
+                                            const pada = planetData.pada ?? calculateNakshatraPada(siderealDeg, t);
+                                            const degreeWithinNakshatra = convertToDMS(calculateNakshatraDegree(siderealDeg), t);
+                                           const rashiKey = planetData.rashi ?? calculateRashi(siderealDeg, t);
+                                            // *** FIX: Use placidusCuspDegrees to calculate the house, matching the Bhava Chalit chart ***
+                                            const house = calculateHouse(siderealDeg, placidusCuspDegrees, t);
+                                           
+                                            const nakshatraKey = planetData.nakshatra; // Get English key
+                                            const nakLordKey = planetData.nakLord; // Get English key
+                                            const subLordKey = planetData.subLord; // Get English key
+                                            const subSubLordKey = planetData.subSubLord; // Get English key
+                                            const rashiLordKey = planetData.rashiLord; // Get English key
 
-                                        return (
-                                            <tr key={body}>
-                                                <td>{PLANET_SYMBOLS[body] || body}</td><td>{planetData.dms ?? t('utils.notAvailable', 'N/A')}</td>
-                                                {/* Translate Nakshatra name */}
-                                                <td>{`${t(`nakshatras.${nakshatraKey}`, { defaultValue: nakshatraKey ?? t('utils.notAvailable', 'N/A') })} (${t('astrologyForm.padaLabel')}${pada})`}</td>
-                                                {/* Translate Lord names */}
-                                                <td>{t(`planets.${nakLordKey}`, { defaultValue: nakLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                <td>{t(`planets.${subLordKey}`, { defaultValue: subLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                <td>{t(`planets.${subSubLordKey}`, { defaultValue: subSubLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                <td>{degreeWithinNakshatra}</td>
-                                                {/* Translate Rashi name */}
-                                                <td>{t(`rashis.${rashiKey}`, { defaultValue: rashiKey ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                {/* Translate Rashi Lord name */}
-                                                <td>{t(`planets.${rashiLordKey}`, { defaultValue: rashiLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                <td>{house}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                    ) : (<p className="result-text">{t('astrologyForm.planetDataUnavailable')}</p>)}
+                                            return (
+                                                <tr key={body}>
+                                                    <td>{PLANET_SYMBOLS[body] || body}</td><td>{planetData.dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                    <td>{`${t(`nakshatras.${nakshatraKey}`, { defaultValue: nakshatraKey ?? t('utils.notAvailable', 'N/A') })} (${t('astrologyForm.padaLabel')}${pada})`}</td>
+                                                    <td>{t(`planets.${nakLordKey}`, { defaultValue: nakLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{t(`planets.${subLordKey}`, { defaultValue: subLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{t(`planets.${subSubLordKey}`, { defaultValue: subSubLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{degreeWithinNakshatra}</td>
+                                                    <td>{t(`rashis.${rashiKey}`, { defaultValue: rashiKey ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{t(`planets.${rashiLordKey}`, { defaultValue: rashiLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{house}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (<p className="result-text">{t('astrologyForm.planetDataUnavailable')}</p>)}
+                    </div>
                 </div>
             </div>
         );

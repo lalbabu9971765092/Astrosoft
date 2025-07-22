@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { RASHIS, PLANET_ORDER, validateAndFormatDateTime } from './AstrologyUtils';
+import { PLANET_ORDER, validateAndFormatDateTime } from './AstrologyUtils';
 import api from './api';
 import DiamondChart from './DiamondChart'; // Import the chart component
 import '../styles/AshtakavargaPage.css';
@@ -97,7 +97,7 @@ const AshtakavargaPage = () => {
         const timerId = setTimeout(fetchRectifiedData, 300);
         return () => clearTimeout(timerId);
 
-    }, [adjustedBirthDateTimeString, calculationInputParams, t]);
+    }, [adjustedBirthDateTimeString, calculationInputParams, t, rectificationError, rectifiedResultLocal]);
 
     const displayNatalResult = rectifiedResultLocal || mainResult;
 

@@ -151,6 +151,16 @@ export const WEEKDAYS = [
   "Saturday",
 ];
 
+export const DAY_LORDS = [
+  "Sun",      // Sunday (0)
+  "Moon",     // Monday (1)
+  "Mars",     // Tuesday (2)
+  "Mercury",  // Wednesday (3)
+  "Jupiter",  // Thursday (4)
+  "Venus",    // Friday (5)
+  "Saturn",   // Saturday (6)
+];
+
 // Shared planet order for consistent display
 export const PLANET_ORDER = [
   "Sun",
@@ -387,30 +397,29 @@ export const calculateKaran = (sunLongitude, moonLongitude, t) => {
 export const calculateVar = (localIsoString, t) => {
     try {
         if (!localIsoString || typeof localIsoString !== 'string') {
-            return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
+            return { varName: t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date", dayLord: null };
         }
 
-        // Attempt to parse the string directly. JS Date constructor often handles
-        // YYYY-MM-DDTHH:MM:SS as local time.
         let dateObj = new Date(localIsoString);
 
-        // If direct parsing fails, try adding seconds if missing
         if (isNaN(dateObj.getTime()) && localIsoString.length === 16 && !localIsoString.includes(':', 14)) {
             dateObj = new Date(`${localIsoString}:00`);
         }
 
-        // Final check if parsing succeeded
         if (isNaN(dateObj.getTime())) {
              console.warn("calculateVar: Could not parse date string:", localIsoString);
-             return t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date";
+             return { varName: t ? t("utils.invalidDate", "Invalid Date") : "Invalid Date", dayLord: null };
         }
 
-        // getDay() returns the day of the week (0-6) according to *local time*.
-        return WEEKDAYS[dateObj.getDay()];
+        const dayIndex = dateObj.getDay();
+        return {
+            varName: WEEKDAYS[dayIndex],
+            dayLord: DAY_LORDS[dayIndex]
+        };
 
     } catch (e) {
         console.error("Error calculating Var:", e);
-        return t ? t("utils.error", "Error") : "Error";
+        return { varName: t ? t("utils.error", "Error") : "Error", dayLord: null };
     }
 };
 

@@ -1,11 +1,10 @@
 // src/PlanetDetailsPage.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/PlanetDetailsPage.css'; // Keep your CSS import
 import {
     PLANET_ORDER, // Import the full order
-    PLANET_SYMBOLS, // Keep symbols for potential English display or fallback
     convertToDMS,
     convertDMSToDegrees,
     calculateRashi,
@@ -55,6 +54,16 @@ const PlanetDetailsPage = () => {
     const [rectifiedResultLocal, setRectifiedResultLocal] = useState(null);
     const [isLoadingRectification, setIsLoadingRectification] = useState(false);
     const [rectificationError, setRectificationError] = useState(null);
+    const [openSections, setOpenSections] = useState({
+        planets: true,
+        aspects: true,
+        friendship: true,
+        shadbala: true,
+    });
+
+    const toggleSection = (section) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
 
     // --- Effect to Fetch Rectified Data ---
     useEffect(() => {
@@ -209,7 +218,11 @@ const PlanetDetailsPage = () => {
 
             {/* Planetary Positions Table */}
             <div className="result-section">
-                <h3 className="result-sub-title">{t('planetDetailsPage.positionsTitle')}</h3>
+                <div className="section-header" onClick={() => toggleSection('planets')}>
+                    <h3 className="result-sub-title">{t('planetDetailsPage.positionsTitle')}</h3>
+                    <button className="toggle-button">{openSections.planets ? '−' : '+'}</button>
+                </div>
+                <div className={`section-content ${openSections.planets ? '' : 'collapsed'}`}>
                 {canRenderPlanetTable ? (
                     <div className="table-wrapper">
                         <table className="results-table planets-table">
@@ -275,11 +288,16 @@ const PlanetDetailsPage = () => {
                 ) : (
                     <p className="result-text">{t('planetDetailsPage.planetDataUnavailable')}</p>
                 )}
+                </div>
             </div>
 
             {/* Aspects Table */}
             <div className="result-section">
-                <h3 className="result-sub-title">{t('planetDetailsPage.aspectsTitle')}</h3>
+                <div className="section-header" onClick={() => toggleSection('aspects')}>
+                    <h3 className="result-sub-title">{t('planetDetailsPage.aspectsTitle')}</h3>
+                    <button className="toggle-button">{openSections.aspects ? '−' : '+'}</button>
+                </div>
+                <div className={`section-content ${openSections.aspects ? '' : 'collapsed'}`}>
                 {hasAspectData ? (
                     <div className="table-wrapper aspect-table-wrapper">
                         <table className="results-table aspect-table">
@@ -311,11 +329,16 @@ const PlanetDetailsPage = () => {
                 ) : (
                     <p className="result-text">{t('planetDetailsPage.aspectDataUnavailable')}</p>
                 )}
+                </div>
             </div>
 
             {/* Friendships Table */}
             <div className="result-section">
-                <h3 className="result-sub-title">{t('planetDetailsPage.friendshipsTitle')}</h3>
+                <div className="section-header" onClick={() => toggleSection('friendship')}>
+                    <h3 className="result-sub-title">{t('planetDetailsPage.friendshipsTitle')}</h3>
+                    <button className="toggle-button">{openSections.friendship ? '−' : '+'}</button>
+                </div>
+                <div className={`section-content ${openSections.friendship ? '' : 'collapsed'}`}>
                 {hasFriendshipData ? (
                     <div className="table-wrapper friendship-table-wrapper">
                         <table className="results-table friendship-table">
@@ -351,11 +374,16 @@ const PlanetDetailsPage = () => {
                 ) : (
                     <p className="result-text">{t('planetDetailsPage.friendshipDataUnavailable')}</p>
                 )}
+                </div>
             </div>
 
             {/* Shadbala Table */}
             <div className="result-section">
-                <h3 className="result-sub-title">{t('planetDetailsPage.shadbalaTitle')}</h3>
+                <div className="section-header" onClick={() => toggleSection('shadbala')}>
+                    <h3 className="result-sub-title">{t('planetDetailsPage.shadbalaTitle')}</h3>
+                    <button className="toggle-button">{openSections.shadbala ? '−' : '+'}</button>
+                </div>
+                <div className={`section-content ${openSections.shadbala ? '' : 'collapsed'}`}>
                 {hasShadbalaData ? (
                     <div className="table-wrapper">
                         <table className="results-table shadbala-table">
@@ -423,6 +451,7 @@ const PlanetDetailsPage = () => {
                 ) : (
                     <p className="result-text">{t('planetDetailsPage.shadbalaDataUnavailable')}</p>
                 )}
+                </div>
             </div>
 
         </div>

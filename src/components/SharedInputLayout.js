@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 // --- Import Icons ---
-import { FaChevronUp, FaChevronDown, FaEdit } from 'react-icons/fa'; // Added FaEdit for collapsed state
+import { FaChevronUp, FaEdit } from 'react-icons/fa'; // Added FaEdit for collapsed state
 // --- Import Styles ---
 import '../styles/SharedInputLayout.css';
 import '../styles/AstrologyForm.css'; // Keep if styles are shared
@@ -139,7 +139,7 @@ const SharedInputLayout = () => {
     }, [placeName, t]);
 
     // Main Calculation Handler
-    const handleCalculateAll = useCallback(async (e) => {
+    const handleCalculateAll = useCallback(async (e, gocharDate = null) => {
         if (e) e.preventDefault();
         setIsLoading(true);
         setError(null);
@@ -148,7 +148,9 @@ const SharedInputLayout = () => {
         setKpResult(null);
         setCalculationInputParams(null);
 
-        const dateTimeValidation = validateAndFormatDateTime(date, t);
+        const dateTimeToUse = gocharDate || date;
+
+        const dateTimeValidation = validateAndFormatDateTime(dateTimeToUse, t);
         if (!dateTimeValidation.isValid) { setError(dateTimeValidation.error); setIsLoading(false); return; }
         const coordsValidation = parseAndValidateCoords(coords, t);
         if (!coordsValidation.isValid) { setError(coordsValidation.error); setIsLoading(false); return; }
@@ -211,7 +213,9 @@ const SharedInputLayout = () => {
     }, []);
     const handleGocharTimeChange = useCallback((newDateTimeString) => {
         setAdjustedGocharDateTimeString(newDateTimeString);
-    }, []);
+        // Trigger a recalculation with the new gochar date
+        handleCalculateAll(null, newDateTimeString);
+    }, [handleCalculateAll]);
 
     // Fetch Saved Charts
     const fetchSavedCharts = useCallback(async () => {
@@ -337,7 +341,7 @@ const SharedInputLayout = () => {
                     {calculationInputParams?.date && adjustedBirthDateTimeString ? (
                         <TimeAdjustmentTool
                            // Use original date as key for stability if needed, or adjusted if remount is desired on change
-                           key={`birth-tool-${calculationInputParams.date}`} // More stable key
+                           key="birth-time-adjustment-tool"
                             initialDateTimeString={calculationInputParams.date}
                             value={adjustedBirthDateTimeString} // Pass the CURRENT adjusted value
                             onDateTimeChange={handleBirthTimeChange}
@@ -428,7 +432,6 @@ const SharedInputLayout = () => {
                 <div className="top-strip-section transit-adjustment-tool-section">
                     {locationForGocharTool.lat !== null && locationForGocharTool.lon !== null && adjustedGocharDateTimeString ? (
                         <TimeAdjustmentTool
-                            key={adjustedGocharDateTimeString}
                             initialDateTimeString={adjustedGocharDateTimeString}
                             onDateTimeChange={handleGocharTimeChange}
                             label={t('sharedLayout.gocharToolLabel')}
