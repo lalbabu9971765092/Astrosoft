@@ -4,7 +4,7 @@
 // export { default as logger } from './logger.js';
 
 export * from './constants.js';
-export * from './coreUtils.js';
+export { normalizeAngle, convertToDMS, convertDMSToDegrees, getJulianDateUT, calculateAyanamsa, calculateMidpoint, calculateHousesAndAscendant } from './coreUtils.js';
 export * from './planetaryUtils.js';
 export * from './dashaUtils.js';
 export * from './panchangUtils.js';
@@ -12,6 +12,7 @@ export * from './doshaUtils.js';
 export * from './strengthUtils.js';
 export * from './varshphalUtils.js';
 export * from './kpUtils.js';
+export * from './muhurtaUtils.js';
 
 // You might choose *not* to export everything if some functions are internal helpers.
 // Explicitly list exports if you prefer more control:

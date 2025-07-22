@@ -194,6 +194,12 @@ export function calculateAyanamsa(julianDayUT) {
  * @param {number} angle2 - Second angle in degrees [0, 360).
  * @returns {number} The midpoint angle in degrees [0, 360), or NaN if inputs are invalid.
  */
+/**
+ * Calculates the midpoint between two angles, handling the 360-degree wrap-around.
+ * @param {number} angle1 - First angle in degrees [0, 360).
+ * @param {number} angle2 - Second angle in degrees [0, 360).
+ * @returns {number} The midpoint angle in degrees [0, 360), or NaN if inputs are invalid.
+ */
 export function calculateMidpoint(angle1, angle2) {
     const normAngle1 = normalizeAngle(angle1);
     const normAngle2 = normalizeAngle(angle2);
@@ -214,4 +220,66 @@ export function calculateMidpoint(angle1, angle2) {
 
     const midpoint = normAngle1 + diff / 2;
     return normalizeAngle(midpoint);
+}
+
+export function calculateHousesAndAscendant(julianDayUT, latitude, longitude) {
+    if (isNaN(julianDayUT) || isNaN(latitude) || isNaN(longitude)) {
+         throw new Error(`Invalid input for calculateHousesAndAscendant: JD=${julianDayUT}, Lat=${latitude}, Lon=${longitude}`);
+    }
+    try {
+        const placidusFlag = swisseph.SE_HSYS_PLACIDUS || 'P';
+        const houseResult = swisseph.swe_houses(julianDayUT, latitude, longitude, placidusFlag);
+
+        // --- REVISED CHECK (Accepting length 12 for 'house') ---
+        let isValidResult = houseResult &&
+                            !houseResult.error &&
+                            typeof houseResult.ascendant === 'number' &&
+                            !isNaN(houseResult.ascendant) &&
+                            Array.isArray(houseResult.house) &&
+                            houseResult.house.length === 12; // Expect exactly 12 cusps
+
+        if (!isValidResult) {
+            // Log the reason for failure more clearly
+            let failureReason = "Unknown reason";
+            if (!houseResult) failureReason = "No result object returned.";
+            else if (houseResult.error) failureReason = `Explicit error: ${houseResult.error}`;
+            else if (typeof houseResult.ascendant !== 'number' || isNaN(houseResult.ascendant)) failureReason = `Invalid ascendant: ${houseResult.ascendant}`;
+            else if (!Array.isArray(houseResult.house)) failureReason = `'house' is not an array: ${typeof houseResult.house}`;
+            else if (houseResult.house.length !== 12) failureReason = `'house' array length is not 12: length ${houseResult.house.length}`; // Updated log message
+
+            logger.error(`swisseph.swe_houses returned invalid result. Reason: ${failureReason}. Full result: ${JSON.stringify(houseResult)}`, {
+                 jd: julianDayUT, lat: latitude, lon: longitude
+            });
+
+            // --- Fallback Logic ---
+            const ascFallback = swisseph.swe_calc_ut(julianDayUT, swisseph.SE_ASC, 0);
+            if (ascFallback && typeof ascFallback.longitude === 'number' && !isNaN(ascFallback.longitude)) {
+                 logger.warn("swe_houses failed, using fallback Ascendant calculation. Cusps will be unavailable.");
+                 return { tropicalAscendant: normalizeAngle(ascFallback.longitude), tropicalCusps: null };
+            } else {
+                 logger.error("swe_houses failed AND fallback Ascendant calculation failed.");
+                 throw new Error("Failed to calculate valid house cusps and Ascendant.");
+            }
+            // --- End Fallback Logic ---
+        }
+        // --- END REVISED CHECK ---
+
+        // If the check passed, process the valid result using houseResult.house
+        // Assuming the 12 elements directly correspond to cusps 1-12
+        const tropicalCusps = houseResult.house.map(c => normalizeAngle(c)); // Use the whole array
+        const tropicalAscendant = normalizeAngle(houseResult.ascendant);
+
+        // Final validation on processed values
+        if (tropicalCusps.some(isNaN) || isNaN(tropicalAscendant)) {
+             logger.error("Calculated cusps or ascendant contain NaN values after processing.", { rawCusps: houseResult.house, rawAsc: houseResult.ascendant }); // Log raw values
+             throw new Error("Calculated cusps or ascendant contain NaN values after processing.");
+        }
+
+        // logger.debug("Successfully calculated houses and ascendant using swe_houses.");
+        return { tropicalAscendant, tropicalCusps };
+
+    } catch (error) {
+        logger.error(`Error during calculateHousesAndAscendant execution: ${error.message}`, { stack: error.stack });
+        throw new Error(`Failed to calculate houses/ascendant: ${error.message}`);
+    }
 }

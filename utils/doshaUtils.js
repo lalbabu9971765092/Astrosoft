@@ -1,7 +1,7 @@
 // utils/doshaUtils.js
 import logger from './logger.js';
-import { normalizeAngle } from './coreUtils.js';
-import { getHouseOfPlanet, getNakshatraDetails } from './planetaryUtils.js'; // Import necessary functions
+import { normalizeAngle, getJulianDateUT } from './coreUtils.js';
+import { getHouseOfPlanet, getNakshatraDetails, getMoonNakshatraEntryExitTimes, calculatePlanetaryPositions } from './planetaryUtils.js'; // Import necessary functions
 
 /**
  * Calculates Mangal Dosha (Kuja Dosha).
@@ -240,15 +240,21 @@ export function calculateKaalsarpaDosha(siderealPositions) {
  * @param {object} siderealPositions - Object containing sidereal positions { Sun: { longitude, ... }, ... }.
  * @returns {{ present: boolean, nakshatra: string, reason: string }} Mool Dosha details.
  */
-export function calculateMoolDosha(siderealPositions) {
-    const result = { present: false, nakshatra: "", reason: "" };
+export async function calculateMoolDosha(dateString, latitude, longitude, siderealPositions, sunrise, nextSunrise) {
+    const result = { present: false, nakshatra: "", reason: "", start: null, end: null };
     const moolNakshatras = ["Ashwini", "Ashlesha", "Magha", "Jyeshtha", "Mula", "Revati"];
 
     const moonData = siderealPositions?.Moon;
 
-    if (!moonData || isNaN(moonData.longitude)) {
-        logger.warn("Cannot calculate Mool Dosha: Moon position unavailable.");
-        result.reason = "Moon position unavailable.";
+    if (!moonData) {
+        logger.warn("Cannot calculate Mool Dosha: Moon data object is null or undefined.");
+        result.reason = "Moon data object unavailable.";
+        return result;
+    }
+
+    if (isNaN(moonData.longitude)) {
+        logger.warn(`Cannot calculate Mool Dosha: Moon longitude is NaN. MoonData: ${JSON.stringify(moonData)}`);
+        result.reason = "Moon position unavailable (longitude is NaN).";
         return result;
     }
 
@@ -261,9 +267,42 @@ export function calculateMoolDosha(siderealPositions) {
 
     result.nakshatra = moonNakDetails.name;
 
-    if (moolNakshatras.includes(moonNakDetails.name)) {
+    // Get Moon's Nakshatra at sunrise and next sunrise
+    const { julianDayUT: sunriseJD } = getJulianDateUT(sunrise.toISOString(), latitude, longitude);
+    const sunriseMoonLng = (await calculatePlanetaryPositions(sunriseJD))?.sidereal?.Moon?.longitude;
+    const sunriseNakshatraName = sunriseMoonLng !== undefined && !isNaN(sunriseMoonLng) ? getNakshatraDetails(sunriseMoonLng).name : null;
+
+    const { julianDayUT: nextSunriseJD } = getJulianDateUT(nextSunrise.toISOString(), latitude, longitude);
+    const nextSunriseMoonLng = (await calculatePlanetaryPositions(nextSunriseJD))?.sidereal?.Moon?.longitude;
+    const nextSunriseNakshatraName = nextSunriseMoonLng !== undefined && !isNaN(nextSunriseMoonLng) ? getNakshatraDetails(nextSunriseMoonLng).name : null;
+
+    const isMoolAtSunrise = moolNakshatras.includes(sunriseNakshatraName);
+    const isMoolAtNextSunrise = moolNakshatras.includes(nextSunriseNakshatraName);
+
+    if (moolNakshatras.includes(moonNakDetails.name) || isMoolAtSunrise || isMoolAtNextSunrise) {
         result.present = true;
         result.reason = `Moon is in ${moonNakDetails.name}, which is a Gand Mool Nakshatra.`;
+
+        let finalEntryTime = null;
+        let finalExitTime = null;
+
+        if (isMoolAtSunrise) {
+            finalEntryTime = sunrise.toISOString();
+        } else {
+            const { entryTime } = await getMoonNakshatraEntryExitTimes(dateString, latitude, longitude, moonNakDetails.index, sunrise, nextSunrise);
+            finalEntryTime = entryTime;
+        }
+
+        if (isMoolAtNextSunrise) {
+            finalExitTime = nextSunrise.toISOString();
+        } else {
+            const { exitTime } = await getMoonNakshatraEntryExitTimes(dateString, latitude, longitude, moonNakDetails.index, sunrise, nextSunrise);
+            finalExitTime = exitTime;
+        }
+
+        result.start = finalEntryTime;
+        result.end = finalExitTime;
+
         // Further refinement: Check Pada for intensity (e.g., last pada of water signs, first pada of fire signs)
         // const pada = calculateNakshatraPada(moonData.longitude);
         // Add logic here based on Nakshatra and Pada if needed.

@@ -12,7 +12,7 @@ import {
     PLANET_ORDER, normalizeAngle, getNakshatraDetails, getRashiDetails,
     calculateNakshatraPada, getJulianDateUT, calculateAyanamsa, convertToDMS,
     convertDMSToDegrees, // Added this import
-    calculateMidpoint, calculateHousesAndAscendant, calculateSunMoonTimes,
+    calculateMidpoint, calculateSunMoonTimes,
     calculatePlanetaryPositions, calculateVimshottariBalance, calculateVimshottariDashas,
     calculateNavamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
     calculateMoolDosha, calculatePanchang, calculatePlanetStates, calculateAspects,
@@ -20,8 +20,10 @@ import {
     getResultingFriendship, calculateShadbala, calculateBhinnaAshtakavarga,
     calculateSarvaAshtakavarga, ASHTAKAVARGA_PLANETS, calculateSolarReturnJulianDay,
     calculateMuntha, calculateYearLord, calculateMuddaDasha, RASHIS,
-    getNumberBasedAscendantDegree,
+    getNumberBasedAscendantDegree, getSubLordDetails, getSubSubLordDetails, NAKSHATRA_SPAN
 } from '../utils/index.js'; // Adjust path if your index is elsewhere or import directly
+import { calculateHousesAndAscendant } from '../utils/coreUtils.js';
+import { calculateChoghadiya, calculateHora, calculateLagnasForDay, calculateMuhurta } from '../utils/muhurtaUtils.js';
 
 const router = express.Router();
 
@@ -137,6 +139,9 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const ascendantNakDetails = getNakshatraDetails(siderealAscendantDeg);
         const ascendantRashiDetails = getRashiDetails(siderealAscendantDeg); // Get Rashi details for Ascendant
         const ascendantPada = calculateNakshatraPada(siderealAscendantDeg); // Get Pada for Ascendant
+        const ascendantSubLordDetails = getSubLordDetails(siderealAscendantDeg);
+        const ascendantPositionWithinNakshatra = siderealAscendantDeg - (ascendantNakDetails.index * NAKSHATRA_SPAN);
+        const ascendantSubSubLordDetails = getSubSubLordDetails(ascendantPositionWithinNakshatra, ascendantSubLordDetails);
 
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         // planetaryPositions util now throws on critical failure
@@ -232,7 +237,9 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
                 nakLord: ascendantNakDetails.lord,
                 rashi: ascendantRashiDetails.name, // Use calculated Rashi details
                 rashiLord: ascendantRashiDetails.lord, // Use calculated Rashi details
-                pada: ascendantPada // Use calculated Pada
+                pada: ascendantPada, // Use calculated Pada
+                subLord: ascendantSubLordDetails.lord, // Add Ascendant Sub Lord
+                subSubLord: ascendantSubSubLordDetails.lord // Add Ascendant Sub-Sub Lord
             },
             houses: housesData,
             planetaryPositions, // Contains both tropical and sidereal
@@ -394,11 +401,16 @@ router.post('/calculate-prashna-number', prashnaValidation, async (req, res) => 
         const ascendantNakDetails = getNakshatraDetails(siderealAscendantDeg);
         const ascendantRashiDetails = getRashiDetails(siderealAscendantDeg);
         const ascendantPada = calculateNakshatraPada(siderealAscendantDeg);
+        const ascendantSubLordDetails = getSubLordDetails(siderealAscendantDeg);
+        const ascendantPositionWithinNakshatra = siderealAscendantDeg - (ascendantNakDetails.index * NAKSHATRA_SPAN);
+        const ascendantSubSubLordDetails = getSubSubLordDetails(ascendantPositionWithinNakshatra, ascendantSubLordDetails);
         const ascendantDetails = {
             sidereal_dms: convertToDMS(siderealAscendantDeg),
             nakshatra: ascendantNakDetails.name, nakLord: ascendantNakDetails.lord,
             rashi: ascendantRashiDetails.name, rashiLord: ascendantRashiDetails.lord,
-            pada: ascendantPada
+            pada: ascendantPada,
+            subLord: ascendantSubLordDetails.lord,
+            subSubLord: ascendantSubSubLordDetails.lord
         };
 
         // --- Populate House Data (using potentially overridden cusps) ---
@@ -556,6 +568,38 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
 
     } catch (error) {
         handleRouteError(res, error, '/calculate-varshphal', req.body);
+    }
+});
+
+
+router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const { date, latitude, longitude } = req.body;
+        const latNum = latitude;
+        const lonNum = longitude;
+
+        logger.info(`Starting Muhurta calculation for date=${date}, lat=${latNum}, lon=${lonNum}`);
+
+        const muhurtaResult = await calculateMuhurta(date, latNum, lonNum);
+
+        const responsePayload = {
+            inputParameters: { date, latitude: latNum, longitude: lonNum },
+            choghadiya: muhurtaResult.choghadiya,
+            horas: muhurtaResult.horas,
+            lagnas: muhurtaResult.lagnas,
+            muhurta: muhurtaResult.muhurta,
+        };
+
+        logger.info(`Muhurta calculation successful for date=${date}, lat=${latNum}, lon=${lonNum}`);
+        res.json(responsePayload);
+
+    } catch (error) {
+        handleRouteError(res, error, '/calculate-muhurta', req.body);
     }
 });
 

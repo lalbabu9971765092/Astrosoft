@@ -1,6 +1,6 @@
 // index.js
-import 'dotenv/config';
 import express from 'express';
+ import 'dotenv/config'; 
 import cors from 'cors';
 import path, { dirname } from 'path'; // Import dirname from path
 import helmet from 'helmet';
@@ -84,7 +84,7 @@ const limiter = rateLimit({
     message: 'Too many requests from this IP, please try again after 15 minutes'
 });
 // Apply the rate limiting middleware to API calls only
-app.use('/api', limiter);
+// app.use('/api', limiter);
 
 // --- General Middleware ---
 // Use logger's stream for morgan HTTP request logging

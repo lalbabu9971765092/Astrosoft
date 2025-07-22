@@ -1,7 +1,7 @@
 // utils/varshphalUtils.js
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
-import { normalizeAngle, getJulianDateUT } from './coreUtils.js';
+import { normalizeAngle, getJulianDateUT, calculateHousesAndAscendant } from './coreUtils.js';
 import { calculatePlanetaryPositions } from './planetaryUtils.js';
 import { RASHIS, WEEKDAY_LORDS } from './constants.js';
 
