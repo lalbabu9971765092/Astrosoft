@@ -399,7 +399,6 @@ const AstrologyForm = () => {
                             {t('astrologyForm.ascendantFullLabel')}
                             {gocharAsc.rashi && ` (${t(`rashis.${gocharAsc.rashi}`, { defaultValue: gocharAsc.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${gocharAsc.nakshatra}`, { defaultValue: gocharAsc.nakshatra })} ${t('astrologyForm.padaLabel')}${gocharAsc.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${gocharAsc.nakLord}`, { defaultValue: gocharAsc.nakLord })})`}
                         </p>
-                        </p>
                         {gocharSunMoonTimes && (
                             <>
                                 <p className="result-text">{t('astrologyForm.sunriseLabel')} {formatPanchangTime(gocharSunMoonTimes.sunrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
