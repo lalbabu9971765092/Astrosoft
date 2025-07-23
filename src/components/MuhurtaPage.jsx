@@ -228,10 +228,10 @@ const MuhurtaPage = () => {
             {/* Display Date, Day, Sunrise, Sunset */}
             {muhurtaData && muhurtaData.inputParameters && (
                 <div className="muhurta-info-bar">
-                    <p><strong>{t('muhurtaPage.date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
-                    <p><strong>{t('muhurtaPage.day')}:</strong> {muhurtaData.inputParameters.day}</p>
-                    <p><strong>{t('muhurtaPage.sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
-                    <p><strong>{t('muhurtaPage.sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
+                    <p><strong>{t('date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
+                    <p><strong>{t('day')}:</strong> {muhurtaData.inputParameters.day}</p>
+                    <p><strong>{t('sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
+                    <p><strong>{t('sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
                 </div>
             )}
 
