@@ -175,18 +175,10 @@ export function calculateSunMoonTimes(dateString, latitude, longitude) {
         if (typeof dateString !== 'string' || dateString.length < 10) {
             throw new Error(`Invalid date string format: "${dateString}"`);
         }
-        // Manually parse the date part to avoid timezone issues on the server.
-        const year = parseInt(dateString.substring(0, 4), 10);
-        const month = parseInt(dateString.substring(5, 7), 10) - 1; // JS months are 0-indexed
-        const day = parseInt(dateString.substring(8, 10), 10);
-
-        if (isNaN(year) || isNaN(month) || isNaN(day)) {
-            throw new Error(`Could not parse date from string: "${dateString}"`);
-        }
-
-        // Create a Date object for noon UTC on the specified day.
-        // This provides a stable, timezone-agnostic reference for SunCalc for that entire day.
-        const targetDate = new Date(Date.UTC(year, month, day, 12, 0, 0));
+        // Create a Date object directly from the dateString.
+        // SunCalc will interpret this date in the local timezone of the server,
+        // which is appropriate since the input dateString is expected to be local.
+        const targetDate = new Date(dateString);
 
         if (isNaN(latitude) || isNaN(longitude)) {
              throw new Error(`Invalid coordinates: Lat=${latitude}, Lon=${longitude}`);
