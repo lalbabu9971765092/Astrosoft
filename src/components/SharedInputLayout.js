@@ -213,9 +213,7 @@ const SharedInputLayout = () => {
     }, []);
     const handleGocharTimeChange = useCallback((newDateTimeString) => {
         setAdjustedGocharDateTimeString(newDateTimeString);
-        // Trigger a recalculation with the new gochar date
-        handleCalculateAll(null, newDateTimeString);
-    }, [handleCalculateAll]);
+    }, []);
 
     // Fetch Saved Charts
     const fetchSavedCharts = useCallback(async () => {
