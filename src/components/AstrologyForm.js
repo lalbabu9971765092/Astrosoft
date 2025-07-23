@@ -392,7 +392,10 @@ const AstrologyForm = () => {
                     <div className={`section-content ${openSections.transitBasicInfo ? '' : 'collapsed'}`}>
                         <p className="result-text">{t('astrologyForm.transitTimeTitle')}: {formatDisplayDateTime(adjustedGocharDateTimeString)}</p>
                         <p className="result-text">
-                            {t('astrologyForm.ascendantLabel')} {gocharAsc.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                            {t('astrologyForm.ascendantSiderealLabel')} {gocharAsc.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                        </p>
+                        <p className="result-text">
+                            {t('astrologyForm.ascendantFullLabel')}
                             {gocharAsc.rashi && ` (${t(`rashis.${gocharAsc.rashi}`, { defaultValue: gocharAsc.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${gocharAsc.nakshatra}`, { defaultValue: gocharAsc.nakshatra })} ${t('astrologyForm.padaLabel')}${gocharAsc.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${gocharAsc.nakLord}`, { defaultValue: gocharAsc.nakLord })})`}
                         </p>
                         {gocharSunMoonTimes && (
