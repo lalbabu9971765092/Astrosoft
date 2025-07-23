@@ -12,17 +12,15 @@ const MuhurtaPage = () => {
     const { t } = useTranslation();
     // Get context from SharedInputLayout
     const {
-        calculationInputParams,
-        isLoading: parentIsLoading, // Rename to avoid conflict
-        error: parentError, // Rename to avoid conflict
-        currentDate,
-        currentCoords,
-        currentPlaceName
+        adjustedGocharDateTimeString, // Use the transit time
+        locationForGocharTool, // Use the transit location
+        isLoading: parentIsLoading,
+        error: parentError,
     } = useOutletContext();
 
     const [muhurtaData, setMuhurtaData] = useState(null);
-    const [isLoading, setIsLoading] = useState(false); // Local loading for Muhurta API
-    const [error, setError] = useState(null); // Local error for Muhurta API
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     // State for collapsible sections
     const [isChoghadiyaCollapsed, setIsChoghadiyaCollapsed] = useState(false);
@@ -36,10 +34,9 @@ const MuhurtaPage = () => {
     }, []);
 
     const handleCalculateMuhurta = useCallback(async () => {
-        // Only proceed if parent calculation has valid parameters
-        if (!calculationInputParams || !calculationInputParams.date || !calculationInputParams.latitude || !calculationInputParams.longitude) {
+        if (!adjustedGocharDateTimeString || !locationForGocharTool?.lat || !locationForGocharTool?.lon) {
             setMuhurtaData(null);
-            setError(null);
+            setError(t('muhurtaPage.noDataYet'));
             return;
         }
 
@@ -49,9 +46,9 @@ const MuhurtaPage = () => {
 
         try {
             const payload = {
-                date: calculationInputParams.date,
-                latitude: calculationInputParams.latitude,
-                longitude: calculationInputParams.longitude,
+                date: adjustedGocharDateTimeString,
+                latitude: locationForGocharTool.lat,
+                longitude: locationForGocharTool.lon,
             };
             const response = await api.post('/calculate-muhurta', payload);
             setMuhurtaData(response.data);
@@ -61,9 +58,9 @@ const MuhurtaPage = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [calculationInputParams, t]);
+    }, [adjustedGocharDateTimeString, locationForGocharTool, t]);
 
-    // Trigger Muhurta calculation when main calculation parameters change
+    // Trigger Muhurta calculation when transit time or location change
     useEffect(() => {
         handleCalculateMuhurta();
     }, [handleCalculateMuhurta]);
