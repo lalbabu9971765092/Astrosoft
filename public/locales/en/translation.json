@@ -109,6 +109,8 @@
     "muhurtaPage.noMuhurta": "Muhurta data not available.",
     "muhurtaPage.description": "Description",
     "mainChart": "Main Chart",
+    "planetDetails": "Planet Details",
+    "gochar": "Gochar",
     "timeAdjustmentTool": {
         "adjustTimeLabel": "Adjust Time",
         "waitingForInitialTime": "Waiting for initial time...",
