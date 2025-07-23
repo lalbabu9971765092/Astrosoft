@@ -172,24 +172,28 @@ export async function calculatePanchang(dateString, latitude, longitude) { // Ma
 export function calculateSunMoonTimes(dateString, latitude, longitude) {
     const result = { sunrise: null, sunset: null, moonrise: null, moonset: null };
     try {
-        const date = new Date(dateString);
-         if (isNaN(date.getTime())) {
-            throw new Error(`Invalid date string: "${dateString}"`);
+        if (typeof dateString !== 'string' || dateString.length < 10) {
+            throw new Error(`Invalid date string format: "${dateString}"`);
         }
+        // Manually parse the date part to avoid timezone issues on the server.
+        const year = parseInt(dateString.substring(0, 4), 10);
+        const month = parseInt(dateString.substring(5, 7), 10) - 1; // JS months are 0-indexed
+        const day = parseInt(dateString.substring(8, 10), 10);
+
+        if (isNaN(year) || isNaN(month) || isNaN(day)) {
+            throw new Error(`Could not parse date from string: "${dateString}"`);
+        }
+
+        // Create a Date object for noon UTC on the specified day.
+        // This provides a stable, timezone-agnostic reference for SunCalc for that entire day.
+        const targetDate = new Date(Date.UTC(year, month, day, 12, 0, 0));
+
         if (isNaN(latitude) || isNaN(longitude)) {
              throw new Error(`Invalid coordinates: Lat=${latitude}, Lon=${longitude}`);
         }
-        // Use noon UTC of the target date for reliable SunCalc results across timezones
-        const targetDateForCalc = new Date(Date.UTC(
-            date.getUTCFullYear(),
-            date.getUTCMonth(),
-            date.getUTCDate(),
-            12, 0, 0
-        ));
-        const sunTimes = SunCalc.getTimes(targetDateForCalc, latitude, longitude);
-        // For Moon times, it's better to check a range around the date if possible,
-        // but for simplicity, we'll use the same target date.
-        const moonTimes = SunCalc.getMoonTimes(targetDateForCalc, latitude, longitude);
+
+        const sunTimes = SunCalc.getTimes(targetDate, latitude, longitude);
+        const moonTimes = SunCalc.getMoonTimes(targetDate, latitude, longitude);
 
         // Check if times are valid Date objects before converting to ISO string
         result.sunrise = sunTimes?.sunrise instanceof Date && !isNaN(sunTimes.sunrise) ? sunTimes.sunrise.toISOString() : null;
@@ -202,7 +206,6 @@ export function calculateSunMoonTimes(dateString, latitude, longitude) {
         if (!result.moonrise && moonTimes?.alwaysDown) result.moonrise = "Always Down";
         if (!result.moonset && moonTimes?.alwaysUp) result.moonset = "Always Up";
         if (!result.moonset && moonTimes?.alwaysDown) result.moonset = "Always Down";
-
 
     } catch (error) {
         logger.error(`Error calculating Sun/Moon times for "${dateString}", Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });

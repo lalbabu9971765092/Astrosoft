@@ -280,9 +280,9 @@ export async function calculateLagnasForDay(dateString, latitude, longitude) {
             const rashiDetails = getRashiDetails(siderealAscendantDeg);
 
             if (lastRashi && rashiDetails.name !== lastRashi.rashi) {
-                lagnas[lagnas.length - 1].end_time = currentMoment.format('HH:mm:ss');
+                lagnas[lagnas.length - 1].end_time = currentMoment.toISOString();
                 lagnas.push({
-                    start_time: currentMoment.format('HH:mm:ss'),
+                    start_time: currentMoment.toISOString(),
                     rashi: rashiDetails.name,
                     rashiLord: rashiDetails.lord,
                 });
@@ -290,7 +290,7 @@ export async function calculateLagnasForDay(dateString, latitude, longitude) {
 
             if (!lastRashi) {
                 lagnas.push({
-                    start_time: currentMoment.format('HH:mm:ss'),
+                    start_time: currentMoment.toISOString(),
                     rashi: rashiDetails.name,
                     rashiLord: rashiDetails.lord,
                 });
@@ -305,7 +305,7 @@ export async function calculateLagnasForDay(dateString, latitude, longitude) {
         }
 
         if (lagnas.length > 0) {
-            lagnas[lagnas.length - 1].end_time = nextSunrise.format('HH:mm:ss');
+            lagnas[lagnas.length - 1].end_time = nextSunrise.toISOString();
         }
 
         return lagnas;
