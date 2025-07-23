@@ -567,46 +567,59 @@ export async function calculateGuliKaal(dateString, latitude, longitude) {
         const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
         const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
 
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
+        const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
+        const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
+        const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
+
+        if (!sunrise || !sunset || !nextSunrise || !sunrise.isValid() || !sunset.isValid() || !nextSunrise.isValid()) {
             logger.warn(`Sunrise/Sunset not available for Guli Kaal calculation on ${dateString}`);
-            return null;
+            return []; // Return empty array
         }
 
         const dayDurationMs = sunset.diff(sunrise);
-        const segmentDurationMs = dayDurationMs / 8;
+        const nightDurationMs = nextSunrise.diff(sunset);
+        const daySegmentDurationMs = dayDurationMs / 8;
+        const nightSegmentDurationMs = nightDurationMs / 8;
 
         const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
         // Guli Kaal segment index for each day (0-indexed)
-        // Based on search results: Saturday (1st segment), Friday (2nd), Thursday (3rd), etc.
-        const guliKaalSegmentIndex = {
-            0: 7, // Sunday: 8th segment
-            1: 6, // Monday: 7th segment
-            2: 5, // Tuesday: 6th segment
-            3: 4, // Wednesday: 5th segment
-            4: 3, // Thursday: 4th segment
-            5: 2, // Friday: 3rd segment
-            6: 0  // Saturday: 1st segment
-        }[dayOfWeek];
+        const guliKaalDaySegmentIndex = { 0: 6, 1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0 }[dayOfWeek];
+        const guliKaalNightSegmentIndex = { 0: 2, 1: 1, 2: 0, 3: 6, 4: 5, 5: 4, 6: 3 }[dayOfWeek];
 
-        if (guliKaalSegmentIndex === undefined) {
-            logger.error(`Invalid day of week for Guli Kaal calculation: ${dayOfWeek}`);
-            return null;
+        const guliKaals = [];
+
+        // Day Guli Kaal
+        if (guliKaalDaySegmentIndex !== undefined) {
+            const guliKaalStart = sunrise.clone().add(guliKaalDaySegmentIndex * daySegmentDurationMs, 'milliseconds');
+            const guliKaalEnd = guliKaalStart.clone().add(daySegmentDurationMs, 'milliseconds');
+            guliKaals.push({
+                name: "Guli Kaal (Day)",
+                start: guliKaalStart.toISOString(),
+                end: guliKaalEnd.toISOString(),
+                type: "inauspicious",
+                description: "An inauspicious period; actions performed during this time tend to repeat."
+            });
         }
 
-        const guliKaalStart = sunrise.clone().add(guliKaalSegmentIndex * segmentDurationMs, 'milliseconds');
-        const guliKaalEnd = guliKaalStart.clone().add(segmentDurationMs, 'milliseconds');
+        // Night Guli Kaal
+        if (guliKaalNightSegmentIndex !== undefined) {
+            const guliKaalNightStart = sunset.clone().add(guliKaalNightSegmentIndex * nightSegmentDurationMs, 'milliseconds');
+            const guliKaalNightEnd = guliKaalNightStart.clone().add(nightSegmentDurationMs, 'milliseconds');
+            guliKaals.push({
+                name: "Guli Kaal (Night)",
+                start: guliKaalNightStart.toISOString(),
+                end: guliKaalNightEnd.toISOString(),
+                type: "inauspicious",
+                description: "An inauspicious period during the night."
+            });
+        }
 
-        return {
-            name: "Guli Kaal",
-            start: guliKaalStart.toISOString(),
-            end: guliKaalEnd.toISOString(),
-            type: "inauspicious",
-            description: "An inauspicious period; actions performed during this time tend to repeat."
-        };
+        return guliKaals;
+
     } catch (error) {
         logger.error(`Error calculating Guli Kaal for ${dateString}: ${error.message}`, { stack: error.stack });
-        return null;
+        return []; // Return empty array on error
     }
 }
 
@@ -880,7 +893,7 @@ export async function calculatePradoshKaal(dateString, latitude, longitude) {
 export async function calculateMuhurta(dateString, latitude, longitude) {
     logger.info(`Starting comprehensive Muhurta calculation for ${dateString}, lat: ${latitude}, lon: ${longitude}`);
 
-    const { julianDayUT } = getJulianDateUT(dateString, latitude, longitude);
+    const { julianDayUT, utcDate } = getJulianDateUT(dateString, latitude, longitude);
     if (julianDayUT === null) {
         throw new Error("Invalid date or location for Muhurta calculation.");
     }
@@ -888,6 +901,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
 
     const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
     const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
+    const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
     const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
     const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
     const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
@@ -898,7 +912,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const abhijitMuhurta = await calculateAbhijitMuhurta(dateString, latitude, longitude);
     const rahuKaal = await calculateRahuKaal(dateString, latitude, longitude);
     const yamGhanta = await calculateYamGhanta(dateString, latitude, longitude);
-    const guliKaal = await calculateGuliKaal(dateString, latitude, longitude);
+    const guliKaals = await calculateGuliKaal(dateString, latitude, longitude); // Returns an array
     const durMuhurtas = await calculateDurMuhurta(dateString, latitude, longitude);
     const pradoshKaal = await calculatePradoshKaal(dateString, latitude, longitude);
     const varjyam = await calculateVarjyam(dateString, latitude, longitude);
@@ -909,7 +923,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     if (abhijitMuhurta) muhurtaPeriods.push(abhijitMuhurta);
     if (rahuKaal) muhurtaPeriods.push(rahuKaal);
     if (yamGhanta) muhurtaPeriods.push(yamGhanta);
-    if (guliKaal) muhurtaPeriods.push(guliKaal);
+    if (guliKaals && guliKaals.length > 0) muhurtaPeriods.push(...guliKaals); // Spread the array
     if (durMuhurtas && durMuhurtas.length > 0) muhurtaPeriods.push(...durMuhurtas);
     if (pradoshKaal) muhurtaPeriods.push(pradoshKaal);
     if (varjyam) muhurtaPeriods.push(varjyam);
@@ -922,11 +936,21 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
         description: gandMool.reason || "Gand Mool Dosha is present."
     });
 
+    // Get the day name from the sunrise moment object
+    const dayName = sunrise ? sunrise.format('dddd') : 'N/A';
+
     return {
-        inputParameters: { date: dateString, latitude, longitude },
+        inputParameters: { 
+            date: dateString, 
+            latitude, 
+            longitude, 
+            day: dayName, // Add day name
+            sunrise: sunrise ? sunrise.toISOString() : null, // Add sunrise
+            sunset: sunset ? sunset.toISOString() : null, // Add sunset
+        },
         choghadiya,
         horas,
         lagnas,
-        muhurta: muhurtaPeriods, // Now includes Abhijit and Rahu Kaal
+        muhurta: muhurtaPeriods,
     };
 }

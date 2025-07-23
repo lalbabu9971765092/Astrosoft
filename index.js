@@ -28,7 +28,7 @@ const __dirname = dirname(__filename);
 // --- Configuration ---
 // Use the calculated __dirname here
 const EPHEMERIS_PATH = path.join(__dirname, 'ephe');
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const MONGODB_URI = process.env.MONGODB_URI;
 
