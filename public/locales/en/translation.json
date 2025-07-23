@@ -110,7 +110,16 @@
     "muhurtaPage.description": "Description",
     "mainChart": "Main Chart",
     "nav.planetDetails": "Planet Details",
-    "gochar": "Gochar",
+    "nav.gochar": "Gochar",
+    "nav.kpSignificators": "KP Significators",
+"nav.ashtakavarga": "Ashtakavarga",
+"nav.festivals": "Festivals",
+"nav.prashnaTime": "Prashna Time",
+"nav.prashnaNumber": "Prashna Number",
+"nav.remedies": "Remedies",
+"nav.varshphal": "Varshphal",
+"nav.muhurta": "Muhurta",
+
     "timeAdjustmentTool": {
         "adjustTimeLabel": "Adjust Time",
         "waitingForInitialTime": "Waiting for initial time...",
