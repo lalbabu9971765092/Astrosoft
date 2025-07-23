@@ -110,7 +110,7 @@ function AppWrapper() {
             <ul className={`nav-links ${isNavOpen ? 'active' : ''}`}>
               {/* Use NavLink for active styling */}
               {/* onClick added to close menu on mobile after clicking a link */}
-              <li><NavLink to="/" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.mainChart')}</NavLink></li>
+              <li><NavLink to="/" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('mainChart')}</NavLink></li>
               <li><NavLink to="/planets" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.planetDetails')}</NavLink></li>
               <li><NavLink to="/gochar" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.gochar')}</NavLink></li>
               <li><NavLink to="/kp" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.kpSignificators')}</NavLink></li>

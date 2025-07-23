@@ -108,6 +108,7 @@
     "muhurtaPage.muhurtaTitle": "Muhurta",
     "muhurtaPage.noMuhurta": "Muhurta data not available.",
     "muhurtaPage.description": "Description",
+    "mainChart": "Main Chart",
     "timeAdjustmentTool": {
         "adjustTimeLabel": "Adjust Time",
         "waitingForInitialTime": "Waiting for initial time...",
