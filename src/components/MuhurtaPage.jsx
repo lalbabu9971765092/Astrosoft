@@ -227,6 +227,17 @@ const MuhurtaPage = () => {
     return (
         <div className="muhurta-page">
             <h1 className="page-title">{t('muhurtaPage.pageTitle')}</h1>
+            
+            {/* Display Date, Day, Sunrise, Sunset */}
+            {muhurtaData && muhurtaData.inputParameters && (
+                <div className="muhurta-info-bar">
+                    <p><strong>{t('muhurtaPage.date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
+                    <p><strong>{t('muhurtaPage.day')}:</strong> {muhurtaData.inputParameters.day}</p>
+                    <p><strong>{t('muhurtaPage.sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
+                    <p><strong>{t('muhurtaPage.sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
+                </div>
+            )}
+
             <div className="muhurta-results-container">
                 {(parentIsLoading || isLoading) && <p>{t('muhurtaPage.loadingData')}</p>}
                 {(parentError || error) && <p className="error-text">{parentError || error}</p>}
