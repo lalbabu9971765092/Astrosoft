@@ -84,7 +84,8 @@
         "Saturn": "Saturn",
         "Rahu": "Rahu",
         "Ketu": "Ketu",
-        "Ascendant": "Ascendant"
+        "ascendantLabel": "Ascendant:",
+    "ascendantSiderealLabel": "Ascendant (Sidereal):",
     },
     "muhurtaPage.pageTitle": "Muhurta",
     "muhurtaPage.loadingData": "Loading Muhurta Data...",
@@ -108,4 +109,31 @@
     "muhurtaPage.muhurtaTitle": "Muhurta",
     "muhurtaPage.noMuhurta": "Muhurta data not available.",
     "muhurtaPage.description": "Description"
+},
+"timeAdjustmentTool": {
+    "adjustTimeLabel": "Adjust Time",
+    "waitingForInitialTime": "Waiting for initial time...",
+    "invalidOrNoTime": "Invalid or no time provided.",
+    "currentAdjustedTimeLabel": "Current Adjusted Time:",
+    "yearsLabel": "Years",
+    "minus1YearTitle": "-1 Year",
+    "plus1YearTitle": "+1 Year",
+    "monthsLabel": "Months",
+    "minus1MonthTitle": "-1 Month",
+    "plus1MonthTitle": "+1 Month",
+    "daysLabel": "Days",
+    "minus1DayTitle": "-1 Day",
+    "plus1DayTitle": "+1 Day",
+    "hoursLabel": "Hours",
+    "minus1HourTitle": "-1 Hour",
+    "plus1HourTitle": "+1 Hour",
+    "minutesLabel": "Minutes",
+    "minus10MinTitle": "-10 Min",
+    "minus1MinTitle": "-1 Min",
+    "plus1MinTitle": "+1 Min",
+    "plus10MinTitle": "+10 Min",
+    "resetButtonText": "Reset",
+    "resetButtonTitle": "Reset to initial time",
+    "notAvailable": "N/A"
+}
 }

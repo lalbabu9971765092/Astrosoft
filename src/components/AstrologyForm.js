@@ -550,7 +550,10 @@ const AstrologyForm = () => {
                     </div>
                     <div className={`section-content ${openSections.basicInfo ? '' : 'collapsed'}`}>
                         <p className="result-text">
-                            {t('astrologyForm.ascendantLabel')} {displayResult.ascendant?.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                            {t('astrologyForm.ascendantSiderealLabel')} {displayResult.ascendant?.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                        </p>
+                        <p className="result-text">
+                            {t('astrologyForm.ascendantFullLabel')}
                             {displayResult.ascendant?.rashi &&
                                 ` (${t(`rashis.${displayResult.ascendant.rashi}`, { defaultValue: displayResult.ascendant.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${displayResult.ascendant.nakshatra}`, { defaultValue: displayResult.ascendant.nakshatra })} ${t('astrologyForm.padaLabel')}${displayResult.ascendant.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.ascendant.nakLord}`, { defaultValue: displayResult.ascendant.nakLord })})`}
                         </p>
