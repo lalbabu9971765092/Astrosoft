@@ -168,7 +168,7 @@ const MuhurtaPage = () => {
                             <tbody>
                                 {lagnas.map((l, index) => (
                                     <tr key={index}>
-                                        <td>{`${l.start_time} to ${l.end_time}`}</td>
+                                        <td>{`${moment.utc(l.start_time).format('HH:mm:ss')} to ${moment.utc(l.end_time).format('HH:mm:ss')}`}</td>
                                         <td>{t(`rashis.${l.rashi}`, { defaultValue: l.rashi })}</td>
                                         <td>{t(`planets.${l.rashiLord}`, { defaultValue: l.rashiLord })}</td>
                                     </tr>
