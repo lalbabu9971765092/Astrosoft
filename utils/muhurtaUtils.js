@@ -375,33 +375,24 @@ export async function calculateRahuKaal(dateString, latitude, longitude) {
 
         const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
-        // Rahu Kaal time slots for each day of the week
-        const rahuKaalSlots = {
-            0: { start: '16:30', end: '18:00' }, // Sunday
-            1: { start: '07:30', end: '09:00' }, // Monday
-            2: { start: '15:00', end: '16:30' }, // Tuesday
-            3: { start: '12:00', end: '13:30' }, // Wednesday
-            4: { start: '13:30', end: '15:00' }, // Thursday
-            5: { start: '10:30', end: '12:00' }, // Friday
-            6: { start: '09:00', end: '10:30' }  // Saturday
-        };
+        // Rahu Kaal Muhurta index for each day (0-indexed)
+        const rahuKaalMuhurtaIndex = {
+            0: 7, // Sunday: 8th Muhurta
+            1: 1, // Monday: 2nd Muhurta
+            2: 6, // Tuesday: 7th Muhurta
+            3: 4, // Wednesday: 5th Muhurta
+            4: 5, // Thursday: 6th Muhurta
+            5: 3, // Friday: 4th Muhurta
+            6: 2  // Saturday: 3rd Muhurta
+        }[dayOfWeek];
 
-        const rahuKaalSlot = rahuKaalSlots[dayOfWeek];
-
-        if (!rahuKaalSlot) {
+        if (rahuKaalMuhurtaIndex === undefined) {
             logger.error(`Invalid day of week for Rahu Kaal calculation: ${dayOfWeek}`);
             return null;
         }
 
-        const rahuKaalStart = moment.tz(dateString, moment.tz.guess()).startOf('day').set({
-            hour: parseInt(rahuKaalSlot.start.split(':')[0]),
-            minute: parseInt(rahuKaalSlot.start.split(':')[1])
-        });
-
-        const rahuKaalEnd = moment.tz(dateString, moment.tz.guess()).startOf('day').set({
-            hour: parseInt(rahuKaalSlot.end.split(':')[0]),
-            minute: parseInt(rahuKaalSlot.end.split(':')[1])
-        });
+        const rahuKaalStart = sunrise.clone().add(rahuKaalMuhurtaIndex * muhurtaDurationMs, 'milliseconds');
+        const rahuKaalEnd = rahuKaalStart.clone().add(muhurtaDurationMs, 'milliseconds');
 
         return {
             name: "Rahu Kaal",
@@ -564,51 +555,53 @@ export async function calculateGuliKaal(dateString, latitude, longitude) {
         const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
         const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
 
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
+        const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
+        const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
+        const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
+
+        if (!sunrise || !sunset || !nextSunrise || !sunrise.isValid() || !sunset.isValid() || !nextSunrise.isValid()) {
             logger.warn(`Sunrise/Sunset not available for Guli Kaal calculation on ${dateString}`);
             return []; // Return empty array
         }
 
         const dayDurationMs = sunset.diff(sunrise);
+        const nightDurationMs = nextSunrise.diff(sunset);
         const daySegmentDurationMs = dayDurationMs / 8;
+        const nightSegmentDurationMs = nightDurationMs / 8;
 
         const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
-        // Guli Kaal time slots for each day of the week
-        const guliKaalSlots = {
-            0: { start: '15:00', end: '16:30' }, // Sunday
-            1: { start: '13:30', end: '15:00' }, // Monday
-            2: { start: '12:00', end: '13:30' }, // Tuesday
-            3: { start: '10:30', end: '12:00' }, // Wednesday
-            4: { start: '09:00', end: '10:30' }, // Thursday
-            5: { start: '07:30', end: '09:00' }, // Friday
-            6: { start: '06:00', end: '07:30' }  // Saturday
-        };
+        // Guli Kaal segment index for each day (0-indexed)
+        const guliKaalDaySegmentIndex = { 0: 6, 1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0 }[dayOfWeek];
+        const guliKaalNightSegmentIndex = { 0: 2, 1: 1, 2: 0, 3: 6, 4: 5, 5: 4, 6: 3 }[dayOfWeek];
 
-        const guliKaalSlot = guliKaalSlots[dayOfWeek];
+        const guliKaals = [];
 
-        if (!guliKaalSlot) {
-            logger.error(`Invalid day of week for Guli Kaal calculation: ${dayOfWeek}`);
-            return [];
+        // Day Guli Kaal
+        if (guliKaalDaySegmentIndex !== undefined) {
+            const guliKaalStart = sunrise.clone().add(guliKaalDaySegmentIndex * daySegmentDurationMs, 'milliseconds');
+            const guliKaalEnd = guliKaalStart.clone().add(daySegmentDurationMs, 'milliseconds');
+            guliKaals.push({
+                name: "Guli Kaal (Day)",
+                start: guliKaalStart.toISOString(),
+                end: guliKaalEnd.toISOString(),
+                type: "inauspicious",
+                description: "An inauspicious period; actions performed during this time tend to repeat."
+            });
         }
 
-        const guliKaalStart = moment.tz(dateString, moment.tz.guess()).startOf('day').set({
-            hour: parseInt(guliKaalSlot.start.split(':')[0]),
-            minute: parseInt(guliKaalSlot.start.split(':')[1])
-        });
-
-        const guliKaalEnd = moment.tz(dateString, moment.tz.guess()).startOf('day').set({
-            hour: parseInt(guliKaalSlot.end.split(':')[0]),
-            minute: parseInt(guliKaalSlot.end.split(':')[1])
-        });
-
-        const guliKaals = [{
-            name: "Guli Kaal",
-            start: guliKaalStart.toISOString(),
-            end: guliKaalEnd.toISOString(),
-            type: "inauspicious",
-            description: "An inauspicious period; actions performed during this time tend to repeat."
-        }];
+        // Night Guli Kaal
+        if (guliKaalNightSegmentIndex !== undefined) {
+            const guliKaalNightStart = sunset.clone().add(guliKaalNightSegmentIndex * nightSegmentDurationMs, 'milliseconds');
+            const guliKaalNightEnd = guliKaalNightStart.clone().add(nightSegmentDurationMs, 'milliseconds');
+            guliKaals.push({
+                name: "Guli Kaal (Night)",
+                start: guliKaalNightStart.toISOString(),
+                end: guliKaalNightEnd.toISOString(),
+                type: "inauspicious",
+                description: "An inauspicious period during the night."
+            });
+        }
 
         return guliKaals;
 
@@ -642,23 +635,33 @@ export async function calculateYamGhanta(dateString, latitude, longitude) {
 
         const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
-        // Yam Ghanta is the 5th muhurta of the day, ruled by Jupiter.
-        const yamGhantaMuhurtaIndex = {
-            0: 4, // Sunday
-            1: 3, // Monday
-            2: 2, // Tuesday
-            3: 1, // Wednesday
-            4: 0, // Thursday
-            5: 6, // Friday
-            6: 5  // Saturday
-        }[dayOfWeek];
+        // Planetary rulership sequence for segments: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn
+        const planetarySequence = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+        const weekdayLord = WEEKDAY_LORDS[dayOfWeek]; // WEEKDAY_LORDS is defined in constants.js
 
-        if (yamGhantaMuhurtaIndex === undefined) {
-            logger.error(`Invalid day of week for Yam Ghanta calculation: ${dayOfWeek}`);
+        // Determine the starting planet for the day's segments
+        const startIndex = planetarySequence.indexOf(weekdayLord);
+        if (startIndex === -1) {
+            logger.error(`Day lord ${weekdayLord} not found in planetary sequence for Yam Ghanta.`);
             return null;
         }
 
-        const yamGhantaStart = sunrise.clone().add(yamGhantaMuhurtaIndex * segmentDurationMs, 'milliseconds');
+        // Find Jupiter's position in the sequence relative to the starting planet
+        let jupiterIndex = -1;
+        for (let i = 0; i < 8; i++) { // Iterate through 8 segments
+            const currentPlanet = planetarySequence[(startIndex + i) % planetarySequence.length];
+            if (currentPlanet === "Jupiter") {
+                jupiterIndex = i;
+                break;
+            }
+        }
+
+        if (jupiterIndex === -1) {
+            logger.error("Jupiter not found in Yam Ghanta sequence, this should not happen.");
+            return null;
+        }
+
+        const yamGhantaStart = sunrise.clone().add(jupiterIndex * segmentDurationMs, 'milliseconds');
         const yamGhantaEnd = yamGhantaStart.clone().add(segmentDurationMs, 'milliseconds');
 
         return {
