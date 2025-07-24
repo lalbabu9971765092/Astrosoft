@@ -801,7 +801,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
             date: dateString, 
             latitude, 
             longitude, 
-            day: dayName, // Add day name
+            day: sunrise ? sunrise.format('dddd') : 'N/A', // Get day name from sunrise
             sunrise: sunrise ? sunrise.toISOString() : null, // Add sunrise
             sunset: sunset ? sunset.toISOString() : null, // Add sunset
             nextSunrise: nextSunrise ? nextSunrise.toISOString() : null, // Add nextSunrise
