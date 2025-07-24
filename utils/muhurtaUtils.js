@@ -351,6 +351,18 @@ export async function calculateAbhijitMuhurta(dateString, latitude, longitude) {
     }
 }
 
+// --- Rahu Kaal Constants ---
+// Rahu Kaal Muhurta index for each day (0-indexed, where Sunday is 0)
+const RAHU_KAAL_MUHURTA_INDEX = {
+    0: 7, // Sunday: 8th Muhurta
+    1: 1, // Monday: 2nd Muhurta
+    2: 6, // Tuesday: 7th Muhurta
+    3: 4, // Wednesday: 5th Muhurta
+    4: 5, // Thursday: 6th Muhurta
+    5: 3, // Friday: 4th Muhurta
+    6: 2  // Saturday: 3rd Muhurta
+};
+
 /**
  * Calculates Rahu Kaal for a given date and location.
  * Rahu Kaal is an inauspicious period to avoid new beginnings.
@@ -375,16 +387,7 @@ export async function calculateRahuKaal(dateString, latitude, longitude) {
 
         const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
-        // Rahu Kaal Muhurta index for each day (0-indexed)
-        const rahuKaalMuhurtaIndex = {
-            0: 7, // Sunday: 8th Muhurta
-            1: 1, // Monday: 2nd Muhurta
-            2: 6, // Tuesday: 7th Muhurta
-            3: 4, // Wednesday: 5th Muhurta
-            4: 5, // Thursday: 6th Muhurta
-            5: 3, // Friday: 4th Muhurta
-            6: 2  // Saturday: 3rd Muhurta
-        }[dayOfWeek];
+        const rahuKaalMuhurtaIndex = RAHU_KAAL_MUHURTA_INDEX[dayOfWeek];
 
         if (rahuKaalMuhurtaIndex === undefined) {
             logger.error(`Invalid day of week for Rahu Kaal calculation: ${dayOfWeek}`);
@@ -407,13 +410,25 @@ export async function calculateRahuKaal(dateString, latitude, longitude) {
     }
 }
 
+// --- Dur Muhurta Constants ---
+// 1-based indices of Dur Muhurta for each day of the week (0=Sun)
+const DUR_MUHURTA_INDICES = {
+    0: [8],       // Sunday: 8th
+    1: [6, 11],   // Monday: 6th, 11th
+    2: [4, 12],   // Tuesday: 4th, 12th
+    3: [8],       // Wednesday: 8th
+    4: [2, 11],   // Thursday: 2nd, 11th
+    5: [4, 8],    // Friday: 4th, 8th
+    6: [1]        // Saturday: 1st
+};
+
 /**
  * Calculates Dur Muhurta for a given date and location.
  * Dur Muhurta is an inauspicious period.
  * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
  * @param {number} latitude - Observer's latitude.
  * @param {number} longitude - Observer's longitude.
- * @returns {Object|null} Dur Muhurta details or null if not calculable.
+ * @returns {Array} An array of Dur Muhurta period objects, or an empty array on error.
  */
 export async function calculateDurMuhurta(dateString, latitude, longitude) {
     try {
@@ -421,125 +436,71 @@ export async function calculateDurMuhurta(dateString, latitude, longitude) {
         const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
         const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
 
-        if (!sunrise || !sunrise.isValid()) {
-            logger.warn(`Sunrise not available for Dur Muhurta calculation on ${dateString}`);
-            return null;
+        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
+            logger.warn(`Sunrise/Sunset not available for Dur Muhurta calculation on ${dateString}`);
+            return [];
         }
+
+        const dayDurationMs = sunset.diff(sunrise);
+        const muhurtaDurationMs = dayDurationMs / 15; // Day is divided into 15 muhurtas
 
         const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
-        const durMuhurtaDurationMs = 48 * 60 * 1000; // 48 minutes
+        const durMuhurtaIndices = DUR_MUHURTA_INDICES[dayOfWeek];
 
-        let durMuhurtas = [];
-
-        // Rules based on search results
-        switch (dayOfWeek) {
-            case 0: // Sunday
-                // Starts 10.24 hours after sunrise
-                durMuhurtas.push({
-                    startOffsetHours: 10.24,
-                    name: "Dur Muhurta (Sunday)"
-                });
-                break;
-            case 1: // Monday
-                // Starts 6.24 hours after sunrise, and again at 8.48 hours after sunrise
-                durMuhurtas.push({
-                    startOffsetHours: 6.24,
-                    name: "Dur Muhurta 1 (Monday)"
-                });
-                durMuhurtas.push({
-                    startOffsetHours: 8.48,
-                    name: "Dur Muhurta 2 (Monday)"
-                });
-                break;
-            case 2: // Tuesday
-                // Starts 2.24 hours after sunrise, and again at 5.36 hours after sunset
-                durMuhurtas.push({
-                    startOffsetHours: 2.24,
-                    name: "Dur Muhurta (Tuesday - Day)"
-                });
-                if (sunset && sunset.isValid()) {
-                    const durMuhurtaNightStart = sunset.clone().add(5.36, 'hours');
-                    durMuhurtas.push({
-                        start: durMuhurtaNightStart.toISOString(),
-                        end: durMuhurtaNightStart.clone().add(durMuhurtaDurationMs, 'milliseconds').toISOString(),
-                        name: "Dur Muhurta (Tuesday - Night)",
-                        type: "inauspicious",
-                        description: "An inauspicious period."
-                    });
-                }
-                break;
-            case 3: // Wednesday
-                // Starts 5.36 hours after sunrise
-                durMuhurtas.push({
-                    startOffsetHours: 5.36,
-                    name: "Dur Muhurta (Wednesday)"
-                });
-                break;
-            case 4: // Thursday
-                // Starts 4.00 hours after sunrise, and again at 8.48 hours after sunrise
-                durMuhurtas.push({
-                    startOffsetHours: 4.00,
-                    name: "Dur Muhurta 1 (Thursday)"
-                });
-                durMuhurtas.push({
-                    startOffsetHours: 8.48,
-                    name: "Dur Muhurta 2 (Thursday)"
-                });
-                break;
-            case 5: // Friday
-                // Starts 2.24 hours after sunrise, and again at 8.48 hours after sunrise
-                durMuhurtas.push({
-                    startOffsetHours: 2.24,
-                    name: "Dur Muhurta 1 (Friday)"
-                });
-                durMuhurtas.push({
-                    startOffsetHours: 8.48,
-                    name: "Dur Muhurta 2 (Friday)"
-                });
-                break;
-            case 6: // Saturday
-                // Starts from sunrise and lasts for 1.36 hours.
-                durMuhurtas.push({
-                    startOffsetHours: 0,
-                    durationHours: 1.36,
-                    name: "Dur Muhurta (Saturday)"
-                });
-                break;
-            default:
-                logger.warn(`Unknown day of week for Dur Muhurta calculation: ${dayOfWeek}`);
-                return null;
+        if (!durMuhurtaIndices || durMuhurtaIndices.length === 0) {
+            logger.warn(`No Dur Muhurta defined for day of week: ${dayOfWeek}`);
+            return [];
         }
 
-        const calculatedDurMuhurtas = durMuhurtas.map(dm => {
-            let startMoment;
-            let endMoment;
+        const calculatedDurMuhurtas = durMuhurtaIndices.map((muhurtaIndex, i) => {
+            // muhurtaIndex is 1-based, so subtract 1 for 0-based calculation
+            const zeroBasedIndex = muhurtaIndex - 1;
+            const startMoment = sunrise.clone().add(zeroBasedIndex * muhurtaDurationMs, 'milliseconds');
+            const endMoment = startMoment.clone().add(muhurtaDurationMs, 'milliseconds');
 
-            if (dm.start) { // For Tuesday night case
-                startMoment = moment(dm.start);
-                endMoment = moment(dm.end);
-            } else if (dm.startOffsetHours !== undefined) {
-                startMoment = sunrise.clone().add(dm.startOffsetHours, 'hours');
-                endMoment = startMoment.clone().add(dm.durationHours !== undefined ? dm.durationHours : (durMuhurtaDurationMs / (60 * 60 * 1000)), 'hours');
-            } else {
-                return null; // Should not happen
-            }
+            // Generate a unique name if there are multiple Dur Muhurtas on a day
+            const name = durMuhurtaIndices.length > 1
+                ? `Dur Muhurta ${i + 1}`
+                : "Dur Muhurta";
 
             return {
-                name: dm.name,
+                name: name,
                 start: startMoment.toISOString(),
                 end: endMoment.toISOString(),
                 type: "inauspicious",
-                description: "An inauspicious period."
+                description: "An inauspicious period. Avoid important activities."
             };
-        }).filter(Boolean); // Filter out any nulls
+        });
 
         return calculatedDurMuhurtas;
 
     } catch (error) {
         logger.error(`Error calculating Dur Muhurta for ${dateString}: ${error.message}`, { stack: error.stack });
-        return null;
+        return []; // Return empty array on error
     }
 }
+
+// --- Guli Kaal Constants ---
+const GULI_KAAL_DAY_SEGMENT_INDEX = {
+    0: 6, // Sunday: 7th segment
+    1: 5, // Monday: 6th segment
+    2: 4, // Tuesday: 5th segment
+    3: 3, // Wednesday: 4th segment
+    4: 2, // Thursday: 3rd segment
+    5: 1, // Friday: 2nd segment
+    6: 0  // Saturday: 1st segment
+};
+
+const GULI_KAAL_NIGHT_SEGMENT_INDEX = {
+    0: 2, // Sunday Night: 3rd segment
+    1: 1, // Monday Night: 2nd segment
+    2: 0, // Tuesday Night: 1st segment
+    3: 6, // Wednesday Night: 7th segment
+    4: 5, // Thursday Night: 6th segment
+    5: 4, // Friday Night: 5th segment
+    6: 3  // Saturday Night: 4th segment
+};
+
 
 /**
  * Calculates Guli Kaal for a given date and location.
@@ -572,8 +533,8 @@ export async function calculateGuliKaal(dateString, latitude, longitude) {
         const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
         // Guli Kaal segment index for each day (0-indexed)
-        const guliKaalDaySegmentIndex = { 0: 6, 1: 5, 2: 4, 3: 3, 4: 2, 5: 1, 6: 0 }[dayOfWeek];
-        const guliKaalNightSegmentIndex = { 0: 2, 1: 1, 2: 0, 3: 6, 4: 5, 5: 4, 6: 3 }[dayOfWeek];
+        const guliKaalDaySegmentIndex = GULI_KAAL_DAY_SEGMENT_INDEX[dayOfWeek];
+        const guliKaalNightSegmentIndex = GULI_KAAL_NIGHT_SEGMENT_INDEX[dayOfWeek];
 
         const guliKaals = [];
 
