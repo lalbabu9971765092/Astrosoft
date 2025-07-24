@@ -588,7 +588,7 @@ router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
         const muhurtaResult = await calculateMuhurta(date, latNum, lonNum);
 
         const responsePayload = {
-            inputParameters: { date, latitude: latNum, longitude: lonNum },
+            inputParameters: muhurtaResult.inputParameters,
             choghadiya: muhurtaResult.choghadiya,
             horas: muhurtaResult.horas,
             lagnas: muhurtaResult.lagnas,
