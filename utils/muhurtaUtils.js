@@ -37,38 +37,12 @@ const CHOGHADIYA_TYPES = {
  * @param {number} longitude - Observer's longitude.
  * @returns {Array<Object>} Array of Choghadiya periods for the day.
  */
-export async function calculateChoghadiya(dateString, latitude, longitude) {
+export async function calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek) {
     try {
-        const { utcDate, timezoneOffsetHours } = getJulianDateUT(dateString, latitude, longitude);
-        if (!utcDate) {
-            throw new Error("Invalid date or location for Choghadiya calculation.");
-        }
-
-        const localMoment = moment.tz(dateString, "YYYY-MM-DDTHH:mm:ss", moment.tz.guess()); // Use guessed timezone for local interpretation
-        const startOfDay = localMoment.clone().startOf('day');
-        const endOfDay = localMoment.clone().endOf('day');
-
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
-        const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
-        const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
-        const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
-
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid() || !nextSunrise || !nextSunrise.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Choghadiya calculation on ${dateString}`);
-            return [];
-        }
-
-        const dayDurationMs = sunset.diff(sunrise);
-        const nightDurationMs = nextSunrise.diff(sunset);
-
         const dayChoghadiyaDurationMs = dayDurationMs / 8;
         const nightChoghadiyaDurationMs = nightDurationMs / 8;
 
         const choghadiyas = [];
-        const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
         // Day Choghadiyas
         let currentChoghadiyaStart = sunrise.clone();
@@ -146,38 +120,12 @@ const HORA_SEQUENCE = [
  * @param {number} longitude - Observer's longitude.
  * @returns {Array<Object>} Array of Hora periods for the day.
  */
-export async function calculateHora(dateString, latitude, longitude) {
+export async function calculateHora(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek) {
     try {
-        const { utcDate, timezoneOffsetHours } = getJulianDateUT(dateString, latitude, longitude);
-        if (!utcDate) {
-            throw new Error("Invalid date or location for Hora calculation.");
-        }
-
-        const localMoment = moment.tz(dateString, "YYYY-MM-DDTHH:mm:ss", moment.tz.guess());
-        const startOfDay = localMoment.clone().startOf('day');
-        const endOfDay = localMoment.clone().endOf('day');
-
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
-        const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
-        const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
-        const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
-
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid() || !nextSunrise || !nextSunrise.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Hora calculation on ${dateString}`);
-            return [];
-        }
-
-        const dayDurationMs = sunset.diff(sunrise);
-        const nightDurationMs = nextSunrise.diff(sunset);
-
         const dayHoraDurationMs = dayDurationMs / 12;
         const nightHoraDurationMs = nightDurationMs / 12;
 
         const horas = [];
-        const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
         // Determine the starting Hora lord for the day
         const dayLord = WEEKDAY_LORDS[dayOfWeek];
@@ -321,18 +269,13 @@ export async function calculateLagnasForDay(latitude, longitude, sunrise, nextSu
  * @param {number} longitude - Observer's longitude.
  * @returns {Object|null} Abhijit Muhurta details or null if not calculable.
  */
-export async function calculateAbhijitMuhurta(dateString, latitude, longitude) {
+export async function calculateAbhijitMuhurta(sunrise, sunset, dayDurationMs) {
     try {
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
         if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Abhijit Muhurta calculation on ${dateString}`);
+            logger.warn(`Sunrise/Sunset not available for Abhijit Muhurta calculation.`);
             return null;
         }
 
-        const dayDurationMs = sunset.diff(sunrise);
         const midday = sunrise.clone().add(dayDurationMs / 2, 'milliseconds');
 
         const abhijitStart = midday.clone().subtract(24, 'minutes');
@@ -351,7 +294,8 @@ export async function calculateAbhijitMuhurta(dateString, latitude, longitude) {
     }
 }
 
-// --- Rahu Kaal Constants ---
+// --- 
+//  Kaal Constants ---
 // Rahu Kaal Muhurta index for each day (0-indexed, where Sunday is 0)
 const RAHU_KAAL_MUHURTA_INDEX = {
     0: 7, // Sunday: 8th Muhurta
@@ -371,21 +315,14 @@ const RAHU_KAAL_MUHURTA_INDEX = {
  * @param {number} longitude - Observer's longitude.
  * @returns {Object|null} Rahu Kaal details or null if not calculable.
  */
-export async function calculateRahuKaal(dateString, latitude, longitude) {
+export async function calculateRahuKaal(sunrise, sunset, dayDurationMs, dayOfWeek) {
     try {
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
         if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Rahu Kaal calculation on ${dateString}`);
+            logger.warn(`Sunrise/Sunset not available for Rahu Kaal calculation.`);
             return null;
         }
 
-        const dayDurationMs = sunset.diff(sunrise);
         const muhurtaDurationMs = dayDurationMs / 8; // Day divided into 8 Muhurtas
-
-        const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
         const rahuKaalMuhurtaIndex = RAHU_KAAL_MUHURTA_INDEX[dayOfWeek];
 
@@ -430,21 +367,14 @@ const DUR_MUHURTA_INDICES = {
  * @param {number} longitude - Observer's longitude.
  * @returns {Array} An array of Dur Muhurta period objects, or an empty array on error.
  */
-export async function calculateDurMuhurta(dateString, latitude, longitude) {
+export async function calculateDurMuhurta(sunrise, sunset, dayDurationMs, dayOfWeek) {
     try {
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
         if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Dur Muhurta calculation on ${dateString}`);
+            logger.warn(`Sunrise/Sunset not available for Dur Muhurta calculation.`);
             return [];
         }
 
-        const dayDurationMs = sunset.diff(sunrise);
         const muhurtaDurationMs = dayDurationMs / 15; // Day is divided into 15 muhurtas
-
-        const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
         const durMuhurtaIndices = DUR_MUHURTA_INDICES[dayOfWeek];
 
         if (!durMuhurtaIndices || durMuhurtaIndices.length === 0) {
@@ -510,27 +440,15 @@ const GULI_KAAL_NIGHT_SEGMENT_INDEX = {
  * @param {number} longitude - Observer's longitude.
  * @returns {Object|null} Guli Kaal details or null if not calculable.
  */
-export async function calculateGuliKaal(dateString, latitude, longitude) {
+export async function calculateGuliKaal(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek) {
     try {
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
-        const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
-        const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
-        const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
-
         if (!sunrise || !sunset || !nextSunrise || !sunrise.isValid() || !sunset.isValid() || !nextSunrise.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Guli Kaal calculation on ${dateString}`);
+            logger.warn(`Sunrise/Sunset/NextSunrise not available for Guli Kaal calculation.`);
             return []; // Return empty array
         }
 
-        const dayDurationMs = sunset.diff(sunrise);
-        const nightDurationMs = nextSunrise.diff(sunset);
         const daySegmentDurationMs = dayDurationMs / 8;
         const nightSegmentDurationMs = nightDurationMs / 8;
-
-        const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
         // Guli Kaal segment index for each day (0-indexed)
         const guliKaalDaySegmentIndex = GULI_KAAL_DAY_SEGMENT_INDEX[dayOfWeek];
@@ -580,21 +498,14 @@ export async function calculateGuliKaal(dateString, latitude, longitude) {
  * @param {number} longitude - Observer's longitude.
  * @returns {Object|null} Yam Ghanta details or null if not calculable.
  */
-export async function calculateYamGhanta(dateString, latitude, longitude) {
+export async function calculateYamGhanta(sunrise, sunset, dayDurationMs, dayOfWeek) {
     try {
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
         if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Yam Ghanta calculation on ${dateString}`);
+            logger.warn(`Sunrise/Sunset not available for Yam Ghanta calculation.`);
             return null;
         }
 
-        const dayDurationMs = sunset.diff(sunrise);
         const segmentDurationMs = dayDurationMs / 8;
-
-        const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
 
         // Planetary rulership sequence for segments: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn
         const planetarySequence = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
@@ -646,7 +557,7 @@ export async function calculateYamGhanta(dateString, latitude, longitude) {
  * @param {number} longitude - Observer's longitude.
  * @returns {Object|null} Panchak details or null if not calculable.
  */
-export async function calculatePanchak(dateString, latitude, longitude) {
+export async function calculatePanchak(dateString, latitude, longitude, sunrise, nextSunrise) {
     try {
         const { julianDayUT } = getJulianDateUT(dateString, latitude, longitude);
         if (julianDayUT === null) {
@@ -667,13 +578,6 @@ export async function calculatePanchak(dateString, latitude, longitude) {
         const nakshatraIndex = nakshatraDetails.index;
 
         const panchakNakshatras = ["Dhanishtha", "Shatabhisha", "Purva Bhadrapada", "Uttara Bhadrapada", "Revati"];
-
-        // Determine Panchak type based on day of week and get sunrise/sunset for the day
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
-        const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
-        const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
         if (!sunrise || !nextSunrise || !sunrise.isValid() || !nextSunrise.isValid()) {
             logger.warn(`Sunrise/NextSunrise not available for Panchak calculation on ${dateString}`);
@@ -748,7 +652,7 @@ export async function calculatePanchak(dateString, latitude, longitude) {
  * @param {number} longitude - Observer's longitude.
  * @returns {Object|null} Varjyam details or null if not calculable.
  */
-export async function calculateVarjyam(dateString, latitude, longitude) {
+export async function calculateVarjyam(dateString, latitude, longitude, sunrise, sunset, dayDurationMs) {
     try {
         const { julianDayUT } = getJulianDateUT(dateString, latitude, longitude);
         if (julianDayUT === null) {
@@ -767,16 +671,11 @@ export async function calculateVarjyam(dateString, latitude, longitude) {
         const nakshatraDetails = getNakshatraDetails(moonLongitude);
         const nakshatraName = nakshatraDetails.name;
 
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
         if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
             logger.warn(`Sunrise/Sunset not available for simplified Varjyam calculation on ${dateString}`);
             return null;
         }
 
-        const dayDurationMs = sunset.diff(sunrise);
         const varjyamDurationMs = 96 * 60 * 1000; // 96 minutes
 
         // Simplified start: Arbitrarily set to start 1/3rd of the way through the day duration
@@ -805,13 +704,10 @@ export async function calculateVarjyam(dateString, latitude, longitude) {
  * @param {number} longitude - Observer's longitude.
  * @returns {Object|null} Pradosh Kaal details or null if not calculable.
  */
-export async function calculatePradoshKaal(dateString, latitude, longitude) {
+export async function calculatePradoshKaal(sunset) {
     try {
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-
         if (!sunset || !sunset.isValid()) {
-            logger.warn(`Sunset not available for Pradosh Kaal calculation on ${dateString}`);
+            logger.warn(`Sunset not available for Pradosh Kaal calculation.`);
             return null;
         }
 
@@ -855,17 +751,29 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
     const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
-    const choghadiya = await calculateChoghadiya(dateString, latitude, longitude);
-    const horas = await calculateHora(dateString, latitude, longitude);
+    if (!sunrise || !sunset || !nextSunrise || !sunrise.isValid() || !sunset.isValid() || !nextSunrise.isValid()) {
+        logger.warn(`Sunrise/Sunset/NextSunrise not available for comprehensive Muhurta calculation on ${dateString}`);
+        return {
+            inputParameters: { date: dateString, latitude, longitude, day: 'N/A', sunrise: null, sunset: null },
+            choghadiya: [], horas: [], lagnas: [], muhurta: []
+        };
+    }
+
+    const dayDurationMs = sunset.diff(sunrise);
+    const nightDurationMs = nextSunrise.diff(sunset);
+    const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
+
+    const choghadiya = await calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
+    const horas = await calculateHora(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
     const lagnas = await calculateLagnasForDay(latitude, longitude, sunrise, nextSunrise);
-    const abhijitMuhurta = await calculateAbhijitMuhurta(dateString, latitude, longitude);
-    const rahuKaal = await calculateRahuKaal(dateString, latitude, longitude);
-    const yamGhanta = await calculateYamGhanta(dateString, latitude, longitude);
-    const guliKaals = await calculateGuliKaal(dateString, latitude, longitude); // Returns an array
-    const durMuhurtas = await calculateDurMuhurta(dateString, latitude, longitude);
-    const pradoshKaal = await calculatePradoshKaal(dateString, latitude, longitude);
-    const varjyam = await calculateVarjyam(dateString, latitude, longitude);
-    const panchak = await calculatePanchak(dateString, latitude, longitude);
+    const abhijitMuhurta = await calculateAbhijitMuhurta(sunrise, sunset, dayDurationMs);
+    const rahuKaal = await calculateRahuKaal(sunrise, sunset, dayDurationMs, dayOfWeek);
+    const yamGhanta = await calculateYamGhanta(sunrise, sunset, dayDurationMs, dayOfWeek);
+    const guliKaals = await calculateGuliKaal(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek); // Returns an array
+    const durMuhurtas = await calculateDurMuhurta(sunrise, sunset, dayDurationMs, dayOfWeek);
+    const pradoshKaal = await calculatePradoshKaal(sunset);
+    const varjyam = await calculateVarjyam(dateString, latitude, longitude, sunrise, sunset, dayDurationMs);
+    const panchak = await calculatePanchak(dateString, latitude, longitude, sunrise, nextSunrise);
     const gandMool = await calculateMoolDosha(dateString, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
 
     const muhurtaPeriods = [];
@@ -896,6 +804,9 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
             day: dayName, // Add day name
             sunrise: sunrise ? sunrise.toISOString() : null, // Add sunrise
             sunset: sunset ? sunset.toISOString() : null, // Add sunset
+            nextSunrise: nextSunrise ? nextSunrise.toISOString() : null, // Add nextSunrise
+            dayDurationMs: dayDurationMs, // Add dayDurationMs
+            nightDurationMs: nightDurationMs, // Add nightDurationMs
         },
         choghadiya,
         horas,
