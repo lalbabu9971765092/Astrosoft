@@ -242,23 +242,12 @@ export async function calculateHora(dateString, latitude, longitude) {
  * @param {number} longitude - Observer's longitude.
  * @returns {Array<Object>} Array of Lagna details for each hour.
  */
-export async function calculateLagnasForDay(dateString, latitude, longitude) {
+export async function calculateLagnasForDay(latitude, longitude, sunrise, nextSunrise) {
     try {
         const lagnas = [];
-        const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
-        const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
 
-        if (!sunrise || !sunrise.isValid()) {
-            logger.warn(`Sunrise not available for Lagna calculation on ${dateString}`);
-            return [];
-        }
-
-        const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
-        const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
-        const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
-
-        if (!nextSunrise || !nextSunrise.isValid()) {
-            logger.warn(`Next day sunrise not available for Lagna calculation on ${dateString}`);
+        if (!sunrise || !sunrise.isValid() || !nextSunrise || !nextSunrise.isValid()) {
+            logger.warn(`Invalid sunrise or nextSunrise provided for Lagna calculation.`);
             return [];
         }
 
@@ -279,15 +268,15 @@ export async function calculateLagnasForDay(dateString, latitude, longitude) {
             const rashiDetails = getRashiDetails(siderealAscendantDeg);
 
             if (lastRashi && rashiDetails.name !== lastRashi.rashi) {
-                lagnas[lagnas.length - 1].end_time = currentMoment.toISOString();
+                if (lagnas.length > 0) {
+                    lagnas[lagnas.length - 1].end_time = currentMoment.toISOString();
+                }
                 lagnas.push({
                     start_time: currentMoment.toISOString(),
                     rashi: rashiDetails.name,
                     rashiLord: rashiDetails.lord,
                 });
-            }
-
-            if (!lastRashi) {
+            } else if (!lastRashi) {
                 lagnas.push({
                     start_time: currentMoment.toISOString(),
                     rashi: rashiDetails.name,
@@ -309,7 +298,7 @@ export async function calculateLagnasForDay(dateString, latitude, longitude) {
 
         return lagnas;
     } catch (error) {
-        logger.error(`Error calculating Lagnas for day ${dateString}: ${error.message}`, { stack: error.stack });
+        logger.error(`Error calculating Lagnas for day: ${error.message}`, { stack: error.stack });
         throw new Error(`Failed to calculate Lagnas: ${error.message}`);
     }
 }
@@ -907,7 +896,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
 
     const choghadiya = await calculateChoghadiya(dateString, latitude, longitude);
     const horas = await calculateHora(dateString, latitude, longitude);
-    const lagnas = await calculateLagnasForDay(dateString, latitude, longitude);
+    const lagnas = await calculateLagnasForDay(latitude, longitude, sunrise, nextSunrise);
     const abhijitMuhurta = await calculateAbhijitMuhurta(dateString, latitude, longitude);
     const rahuKaal = await calculateRahuKaal(dateString, latitude, longitude);
     const yamGhanta = await calculateYamGhanta(dateString, latitude, longitude);
