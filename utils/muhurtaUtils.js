@@ -266,8 +266,7 @@ export async function calculateLagnasForDay(dateString, latitude, longitude) {
         let lastRashi = null;
 
         while (currentMoment.isBefore(nextSunrise)) {
-            const currentDateTimeString = currentMoment.format("YYYY-MM-DDTHH:mm:ss");
-            const { julianDayUT } = getJulianDateUT(currentDateTimeString, latitude, longitude);
+            const { julianDayUT } = getJulianDateUT(currentMoment.toISOString(), latitude, longitude);
 
             if (julianDayUT === null) {
                 currentMoment.add(1, 'minute');
