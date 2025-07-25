@@ -736,25 +736,34 @@ export async function calculatePradoshKaal(sunset) {
  * @returns {Object} Object containing Choghadiya, Horas, Lagnas, Abhijit Muhurta, Rahu Kaal, Yam Ghanta, Guli Kaal, Dur Muhurta, Pradosh Kaal, Varjyam, and Panchak.
  */
 export async function calculateMuhurta(dateString, latitude, longitude) {
-    logger.info(`Starting comprehensive Muhurta calculation for ${dateString}, lat: ${latitude}, lon: ${longitude}`);
+    // --- Date Standardization ---
+    // Use moment to parse the potentially messy incoming date string (e.g., from JS new Date()).
+    const momentDate = moment(dateString);
+    if (!momentDate.isValid()) {
+        throw new Error(`Invalid date string provided to calculateMuhurta: "${dateString}"`);
+    }
+    // Standardize the date into the format expected by other utils.
+    const standardizedDateString = momentDate.format('YYYY-MM-DDTHH:mm:ss');
+    logger.info(`Starting comprehensive Muhurta calculation for "${standardizedDateString}", lat: ${latitude}, lon: ${longitude}`);
+    // --- End Standardization ---
 
-    const { julianDayUT, utcDate } = getJulianDateUT(dateString, latitude, longitude);
+    const { julianDayUT, utcDate } = getJulianDateUT(standardizedDateString, latitude, longitude);
     if (julianDayUT === null) {
         throw new Error("Invalid date or location for Muhurta calculation.");
     }
     const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
 
-    const sunMoonTimes = await calculateSunMoonTimes(dateString, latitude, longitude);
+    const sunMoonTimes = await calculateSunMoonTimes(standardizedDateString, latitude, longitude);
     const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
     const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-    const nextDayDateString = moment(dateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
+    const nextDayDateString = moment(standardizedDateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
     const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
     const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
     if (!sunrise || !sunset || !nextSunrise || !sunrise.isValid() || !sunset.isValid() || !nextSunrise.isValid()) {
-        logger.warn(`Sunrise/Sunset/NextSunrise not available for comprehensive Muhurta calculation on ${dateString}`);
+        logger.warn(`Sunrise/Sunset/NextSunrise not available for comprehensive Muhurta calculation on ${standardizedDateString}`);
         return {
-            inputParameters: { date: dateString, latitude, longitude, day: 'N/A', sunrise: null, sunset: null },
+            inputParameters: { date: standardizedDateString, latitude, longitude, day: 'N/A', sunrise: null, sunset: null },
             choghadiya: [], horas: [], lagnas: [], muhurta: []
         };
     }
@@ -772,9 +781,9 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const guliKaals = await calculateGuliKaal(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek); // Returns an array
     const durMuhurtas = await calculateDurMuhurta(sunrise, sunset, dayDurationMs, dayOfWeek);
     const pradoshKaal = await calculatePradoshKaal(sunset);
-    const varjyam = await calculateVarjyam(dateString, latitude, longitude, sunrise, sunset, dayDurationMs);
-    const panchak = await calculatePanchak(dateString, latitude, longitude, sunrise, nextSunrise);
-    const gandMool = await calculateMoolDosha(dateString, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
+    const varjyam = await calculateVarjyam(standardizedDateString, latitude, longitude, sunrise, sunset, dayDurationMs);
+    const panchak = await calculatePanchak(standardizedDateString, latitude, longitude, sunrise, nextSunrise);
+    const gandMool = await calculateMoolDosha(standardizedDateString, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
 
     const muhurtaPeriods = [];
     if (abhijitMuhurta) muhurtaPeriods.push(abhijitMuhurta);
@@ -798,7 +807,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
 
     return {
         inputParameters: { 
-            date: dateString, 
+            date: standardizedDateString, 
             latitude, 
             longitude, 
             day: sunrise ? sunrise.format('dddd') : 'N/A', // Get day name from sunrise
