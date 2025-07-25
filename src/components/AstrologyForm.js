@@ -444,7 +444,7 @@ const AstrologyForm = () => {
                  </div>
                  <div className="result-section lordships-section">
                     <div className="section-header" onClick={() => toggleSection('transitLordships')}>
-                        <h3 className="result-sub-title">{t('astrologyForm.lordshipsTitle')}</h3>
+                        <h3 className="result-sub-title">{t('Transit Time Lordship')}</h3>
                         <button className="toggle-button">{openSections.transitLordships ? '−' : '+'}</button>
                     </div>
                     <div className={`section-content ${openSections.transitLordships ? '' : 'collapsed'}`}>
@@ -636,7 +636,7 @@ const AstrologyForm = () => {
                 </div>
                 <div className="result-section lordships-section">
                     <div className="section-header" onClick={() => toggleSection('lordships')}>
-                        <h3 className="result-sub-title">{t('astrologyForm.lordshipsTitle')}</h3>
+                        <h3 className="result-sub-title">{t('Birth Time Lordship')}</h3>
                         <button className="toggle-button">{openSections.lordships ? '−' : '+'}</button>
                     </div>
                     <div className={`section-content ${openSections.lordships ? '' : 'collapsed'}`}>
