@@ -81,6 +81,7 @@ const { favorableHouses, unfavorableHouses } = useMemo(() => {
 }, [selectedEvent]);
     // --- useEffect to fetch data ---
     useEffect(() => {
+        console.log("useEffect triggered. adjustedBirthDateTimeString:", adjustedBirthDateTimeString, "calculationInputParams:", calculationInputParams);
         const shouldUseAdjusted = adjustedBirthDateTimeString &&
                                   calculationInputParams?.date &&
                                   adjustedBirthDateTimeString !== calculationInputParams.date;
@@ -88,6 +89,7 @@ const { favorableHouses, unfavorableHouses } = useMemo(() => {
         const latToUse = calculationInputParams?.latitude;
         const lonToUse = calculationInputParams?.longitude;
         const placeNameToUse = calculationInputParams?.placeName;
+        console.log("Date being used for calculation:", dateToUse);
 
         // Clear previous data and errors if inputs are missing
         if (!dateToUse || latToUse === undefined || lonToUse === undefined) {

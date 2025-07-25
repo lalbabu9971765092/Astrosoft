@@ -62,7 +62,7 @@ const TimeAdjustmentTool = ({
         }
         // Depend on 'value' to react to external changes.
         // Include currentDateTime to prevent loop if valueDate is same as currentDateTime.
-    }, [value]);
+    }, [value, currentDateTime]);
 
     // Callback to adjust the date/time using functional state update
     const adjustTime = useCallback((amount, unit) => {

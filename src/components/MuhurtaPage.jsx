@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOutletContext } from 'react-router-dom';
 import api from './api';
-import { parseAndValidateCoords } from './AstrologyUtils';
+
 import moment from 'moment-timezone';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'; // Import icons
 import '../../src/styles/MuhurtaPage.css'; // Import the new CSS file
@@ -168,7 +168,7 @@ const MuhurtaPage = () => {
                             <tbody>
                                 {lagnas.map((l, index) => (
                                     <tr key={index}>
-                                        <td>{`${moment.utc(l.start_time).format('HH:mm:ss')} to ${moment.utc(l.end_time).format('HH:mm:ss')}`}</td>
+                                        <td>{`${moment(l.start_time).format('HH:mm:ss')} to ${moment(l.end_time).format('HH:mm:ss')}`}</td>
                                         <td>{t(`rashis.${l.rashi}`, { defaultValue: l.rashi })}</td>
                                         <td>{t(`planets.${l.rashiLord}`, { defaultValue: l.rashiLord })}</td>
                                     </tr>

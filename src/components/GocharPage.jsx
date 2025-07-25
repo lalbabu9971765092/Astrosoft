@@ -136,7 +136,7 @@ const GocharPage = () => {
         };
         const timerId = setTimeout(fetchRectifiedNatalData, 300);
         return () => clearTimeout(timerId);
-    }, [adjustedBirthDateTimeString, calculationInputParams, t]); // Add t dependency
+    }, [adjustedBirthDateTimeString, calculationInputParams, t, rectificationError, rectifiedNatalResult]); // Add t dependency
 
     // --- Effect to Fetch TRANSIT Data ---
     useEffect(() => {
@@ -177,7 +177,7 @@ const GocharPage = () => {
         };
         const timerId = setTimeout(fetchTransitData, 300);
         return () => clearTimeout(timerId);
-    }, [adjustedGocharDateTimeString, locationForGocharTool, t]); // Add t dependency
+    }, [adjustedGocharDateTimeString, locationForGocharTool, t, transitData, transitError]); // Add t dependency
 
     // --- Determine which NATAL result set to display (Unchanged) ---
     const displayNatalResult = rectifiedNatalResult || mainResult;

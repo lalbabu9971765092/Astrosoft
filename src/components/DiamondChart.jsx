@@ -168,18 +168,7 @@ const DiamondChart = ({
     // const houseLineRadius = radius; // Used only if houses prop is passed
     // const houseLabelRadius = radius * 0.5; // Used only if houses prop is passed
     const planetSymbolFontSize = scores ? 9 : 10; // Slightly smaller if scores are present
-    const planetDegreeFontSize = 8; // Keep degree font size consistent
-    const degreeTextOffset = planetSymbolFontSize * 0.8; // Adjust offset based on symbol size
-
-    // Define getPosition here as it's used in the return statement context
-    const getPosition = (angleDegrees, r) => {
-        const centerPos = chartSize / 2; // Use chartSize
-        const angleRad = ((angleDegrees - 90) * Math.PI) / 180; // 0 degrees = Top
-        return {
-            x: centerPos + r * Math.cos(angleRad),
-            y: centerPos + r * Math.sin(angleRad),
-        };
-    };
+    
 
 
     return (

@@ -392,11 +392,11 @@ const AstrologyForm = () => {
                     <div className={`section-content ${openSections.transitBasicInfo ? '' : 'collapsed'}`}>
                         <p className="result-text">{t('astrologyForm.transitTimeTitle')}: {formatDisplayDateTime(adjustedGocharDateTimeString)}</p>
                         <p className="result-text">
-                            {t('astrologyForm.ascendantSiderealLabel')} {gocharAsc.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                            {t('Transit Ascendent')} {gocharAsc.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
                             {gocharAsc.rashi && ` (${t(`rashis.${gocharAsc.rashi}`, { defaultValue: gocharAsc.rashi })} - ${t(`planets.${gocharAsc.rashiLord}`, { defaultValue: gocharAsc.rashiLord })})`}
                         </p>
                         <p className="result-text">
-                            {t('astrologyForm.ascendantFullLabel')}
+                            {t('Transit Ascendent Detail')}
                             {gocharAsc.rashi && ` (${t(`rashis.${gocharAsc.rashi}`, { defaultValue: gocharAsc.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${gocharAsc.nakshatra}`, { defaultValue: gocharAsc.nakshatra })} ${t('astrologyForm.padaLabel')}${gocharAsc.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${gocharAsc.nakLord}`, { defaultValue: gocharAsc.nakLord })})`}
                         </p>
                         {gocharSunMoonTimes && (
@@ -449,14 +449,14 @@ const AstrologyForm = () => {
                     </div>
                     <div className={`section-content ${openSections.transitLordships ? '' : 'collapsed'}`}>
                         <div className="lordship-column">
-                            <h4>{t('astrologyForm.transitTitle')}</h4>
-                            <p>{t('astrologyForm.dayLordLabel')}: {t(`planets.${gocharDayLord}`, { defaultValue: 'N/A' })}</p>
-                            <p>{t('astrologyForm.ascendantLordLabel')}: {t(`planets.${gocharData?.ascendant?.rashiLord}`, { defaultValue: gocharData?.ascendant?.rashiLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.ascendantNakshatraLord')}: {t(`planets.${gocharData?.ascendant?.nakLord}`, { defaultValue: gocharData?.ascendant?.nakLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.ascendantNakshatraSubLord')}: {t(`planets.${gocharData?.ascendant?.subLord}`, { defaultValue: gocharData?.ascendant?.subLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.moonRashiLord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.rashiLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.rashiLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.moonNakshatraLord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.nakLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.nakLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.moonNakshatraSubLord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.subLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.subLord ?? 'N/A' })}</p>
+                            <h4>{t('Transit Details')}</h4>
+                            <p>{t('Day Lord')}: {t(`planets.${gocharDayLord}`, { defaultValue: 'N/A' })}</p>
+                            <p>{t('Ascendent Lord')}: {t(`planets.${gocharData?.ascendant?.rashiLord}`, { defaultValue: gocharData?.ascendant?.rashiLord ?? 'N/A' })}</p>
+                            <p>{t('Ascendant Nakshatra Lord')}: {t(`planets.${gocharData?.ascendant?.nakLord}`, { defaultValue: gocharData?.ascendant?.nakLord ?? 'N/A' })}</p>
+                            <p>{t('Ascendant Nakshatra SubLord')}: {t(`planets.${gocharData?.ascendant?.subLord}`, { defaultValue: gocharData?.ascendant?.subLord ?? 'N/A' })}</p>
+                            <p>{t('Moon Rashi Lord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.rashiLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.rashiLord ?? 'N/A' })}</p>
+                            <p>{t('Moon Nakshatra Lord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.nakLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.nakLord ?? 'N/A' })}</p>
+                            <p>{t('Moon Nakshatra SubLord')}: {t(`planets.${gocharData?.planetaryPositions?.sidereal?.Moon?.subLord}`, { defaultValue: gocharData?.planetaryPositions?.sidereal?.Moon?.subLord ?? 'N/A' })}</p>
                         </div>
                     </div>
                 </div>
@@ -554,12 +554,12 @@ const AstrologyForm = () => {
                     </div>
                     <div className={`section-content ${openSections.basicInfo ? '' : 'collapsed'}`}>
                         <p className="result-text">
-                            {t('astrologyForm.ascendantSiderealLabel')} {displayResult.ascendant?.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                            {t('Birth Ascendant')} {displayResult.ascendant?.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
                             {displayResult.ascendant?.rashi &&
                                 ` (${t(`rashis.${displayResult.ascendant.rashi}`, { defaultValue: displayResult.ascendant.rashi })} - ${t(`planets.${displayResult.ascendant.rashiLord}`, { defaultValue: displayResult.ascendant.rashiLord })})`}
                         </p>
                         <p className="result-text">
-                            {t('astrologyForm.ascendantFullLabel')}
+                            {t('Birth Ascendant Detail')}
                             {displayResult.ascendant?.rashi &&
                                 ` (${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${displayResult.ascendant.nakshatra}`, { defaultValue: displayResult.ascendant.nakshatra })} ${t('astrologyForm.padaLabel')}${displayResult.ascendant.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.ascendant.nakLord}`, { defaultValue: displayResult.ascendant.nakLord })})`}
                         </p>
@@ -641,14 +641,14 @@ const AstrologyForm = () => {
                     </div>
                     <div className={`section-content ${openSections.lordships ? '' : 'collapsed'}`}>
                         <div className="lordship-column">
-                            <h4>{t('astrologyForm.birthTitle')}</h4>
-                            <p>{t('astrologyForm.dayLordLabel')}: {t(`planets.${birthDayLord}`, { defaultValue: 'N/A' })}</p>
-                            <p>{t('astrologyForm.ascendantLordLabel')}: {t(`planets.${displayResult?.ascendant?.rashiLord}`, { defaultValue: displayResult?.ascendant?.rashiLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.ascendantNakshatraLord')}: {t(`planets.${displayResult?.ascendant?.nakLord}`, { defaultValue: displayResult?.ascendant?.nakLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.ascendantNakshatraSubLord')}: {t(`planets.${displayResult?.ascendant?.subLord}`, { defaultValue: displayResult?.ascendant?.subLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.moonRashiLord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.rashiLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.rashiLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.moonNakshatraLord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.nakLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.nakLord ?? 'N/A' })}</p>
-                            <p>{t('astrologyForm.moonNakshatraSubLord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.subLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.subLord ?? 'N/A' })}</p>
+                            <h4>{t('Birth Details')}</h4>
+                            <p>{t('Day Lord')}: {t(`planets.${birthDayLord}`, { defaultValue: 'N/A' })}</p>
+                            <p>{t('Ascendant Lord')}: {t(`planets.${displayResult?.ascendant?.rashiLord}`, { defaultValue: displayResult?.ascendant?.rashiLord ?? 'N/A' })}</p>
+                            <p>{t('Ascendant Nakshatra Lord')}: {t(`planets.${displayResult?.ascendant?.nakLord}`, { defaultValue: displayResult?.ascendant?.nakLord ?? 'N/A' })}</p>
+                            <p>{t('Ascendant Nakshatra SubLord')}: {t(`planets.${displayResult?.ascendant?.subLord}`, { defaultValue: displayResult?.ascendant?.subLord ?? 'N/A' })}</p>
+                            <p>{t('Moon Rashi Lord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.rashiLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.rashiLord ?? 'N/A' })}</p>
+                            <p>{t('Moon Nakshatra Lord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.nakLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.nakLord ?? 'N/A' })}</p>
+                            <p>{t('Moon Nakshatra SubLord')}: {t(`planets.${displayResult?.planetaryPositions?.sidereal?.Moon?.subLord}`, { defaultValue: displayResult?.planetaryPositions?.sidereal?.Moon?.subLord ?? 'N/A' })}</p>
                         </div>
                     </div>
                 </div>
