@@ -695,7 +695,7 @@ const AstrologyForm = () => {
                                             title={t('astrologyForm.chartD1Title')}
                                             houses={displayResult.houses}
                                             planets={displayResult.planetaryPositions.sidereal}
-                                            chartType="lagna" size={250}
+                                            chartType="lagna" size={500}
                                         />
                                     ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD1')}</div>}
                                 </div>
