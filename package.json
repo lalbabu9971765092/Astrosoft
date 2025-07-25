@@ -49,7 +49,7 @@
      "semver": "^7.5.4",
     "webpack": "^5.76.0",
     "http-proxy": "^1.18.1",
-    "ajv-keywords": "^5.1.0",
+    
     "yaml": "^2.2.2",
      "@babel/traverse": "^7.23.2",
     "webpack-dev-server": "^5.0.4"
