@@ -695,7 +695,7 @@ const AstrologyForm = () => {
                                             title={t('astrologyForm.chartD1Title')}
                                             houses={displayResult.houses}
                                             planets={displayResult.planetaryPositions.sidereal}
-                                            chartType="lagna" size={500}
+                                            chartType="lagna" size={450}
                                         />
                                     ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD1')}</div>}
                                 </div>
@@ -705,7 +705,7 @@ const AstrologyForm = () => {
                                             title={t('astrologyForm.chartBhavaTitle')}
                                             houses={displayResult.houses}
                                             planetHousePlacements={bhavaPlanetPlacements}
-                                            chartType="bhava" size={250} // Pass the calculated placements
+                                            chartType="bhava" size={450} // Pass the calculated placements
                                         />
                                     ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderBhava')}</div>}
                                 </div>
@@ -716,7 +716,7 @@ const AstrologyForm = () => {
                                             title={t('astrologyForm.chartD9Title')}
                                             houses={d9Houses}
                                             planets={displayResult.d9_planets}
-                                            chartType="d9" size={250}
+                                            chartType="d9" size={450}
                                         />
                                     ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD9')}</div>}
                                 </div>
@@ -728,7 +728,7 @@ const AstrologyForm = () => {
                                             title={t('astrologyForm.chartGocharTitle')}
                                             houses={gocharHouses}
                                             planets={gocharData.planetaryPositions.sidereal}
-                                            chartType="gochar" size={250}
+                                            chartType="gochar" size={450}
                                         />
                                     ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderGochar')}</div>}
                                 </div>
