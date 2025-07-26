@@ -164,7 +164,7 @@ export async function calculatePanchang(dateString, latitude, longitude) { // Ma
 
 /**
  * Calculates sunrise, sunset, moonrise, moonset times using SunCalc.
- * @param {string} dateString - ISO 8601 date string (YYYY-MM-DDTHH:MM:SS).
+ * @param {Date} utcDateObject - A JavaScript Date object representing the time in UTC.
  * @param {number} latitude - Observer's latitude.
  * @param {number} longitude - Observer's longitude.
  * @returns {{sunrise: string|null, sunset: string|null, moonrise: string|null, moonset: string|null}} Object with ISO time strings or null if calculation fails.

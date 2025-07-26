@@ -150,12 +150,12 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         // planetaryPositions util now throws on critical failure
 
-        const siderealPositions = planetaryPositions.sidereal; // Extract for convenience
-        const sunMoonTimes = calculateSunMoonTimes(date, latNum, lonNum);
+        const siderealPositions = planetaryPositions.sidereal; // Extract for convenience        
+        const sunMoonTimes = calculateSunMoonTimes(utcDate, latNum, lonNum); // Pass UTC Date object
 
         // --- Calculate sunrise/nextSunrise moments for Mool Dosha timing ---
-        const nextDayDateString = moment(date).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
-        const nextDaySunMoonTimes = calculateSunMoonTimes(nextDayDateString, latNum, lonNum);
+        const nextDayUtcDate = moment(utcDate).add(1, 'day').toDate();
+        const nextDaySunMoonTimes = calculateSunMoonTimes(nextDayUtcDate, latNum, lonNum); // Pass UTC Date object
         const sunriseMoment = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
         const nextSunriseMoment = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
