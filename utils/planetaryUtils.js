@@ -1,12 +1,14 @@
+
 // utils/planetaryUtils.js
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
 import {
     NAKSHATRAS, NAKSHATRA_SPAN, RASHIS, RASHI_LORDS, RASHI_SPAN,
-    PLANET_ORDER, SUBLORD_DATA, VIMS_DASHA_SEQUENCE, VIMS_DASHA_YEARS // Import Dasha constants
+    PLANET_ORDER, SUBLORD_DATA, VIMS_DASHA_SEQUENCE, VIMS_DASHA_YEARS
 } from './constants.js';
 import { normalizeAngle, convertToDMS, calculateAyanamsa, getJulianDateUT } from './coreUtils.js';
 import moment from 'moment-timezone';
+import { calculateKpSignificators } from './kpUtils.js';
 
 /**
  * Gets the Nakshatra details (name, lord) for a given sidereal longitude.
@@ -25,7 +27,6 @@ export function getNakshatraDetails(siderealLongitude) {
         const nak = NAKSHATRAS[nakshatraIndex];
         return { name: nak.name, lord: nak.lord, index: nakshatraIndex };
     } else {
-        // This should ideally not happen if normalizeAngle works correctly
         logger.warn(`Could not determine Nakshatra for longitude: ${siderealLongitude} (Normalized: ${normalizedLng}, Index: ${nakshatraIndex})`);
         return { name: "Unknown", lord: "N/A", index: -1 };
     }
@@ -66,7 +67,6 @@ export function calculateNakshatraPada(siderealLongitude) {
     const padaSpan = NAKSHATRA_SPAN / 4; // Each pada is 3° 20'
     const pada = Math.floor(positionWithinNakshatra / padaSpan) + 1;
 
-    // Ensure pada is between 1 and 4
     return Math.min(Math.max(pada, 1), 4);
 }
 
@@ -81,35 +81,28 @@ export function calculateNavamsaLongitude(siderealLongitude) {
         return NaN;
     }
 
-    // Find the Rashi index (0-11) and position within the Rashi (0-30)
     const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN);
     const positionInRashi = normalizedLng % RASHI_SPAN;
 
-    // Each Navamsa is 3° 20' (RASHI_SPAN / 9)
     const navamsaSpan = RASHI_SPAN / 9;
-    const navamsaIndexInRashi = Math.floor(positionInRashi / navamsaSpan); // 0-8
+    const navamsaIndexInRashi = Math.floor(positionInRashi / navamsaSpan);
 
-    // Determine the starting Navamsa sign index based on the Rashi type
     let startingNavamsaSignIndex;
-    if ([0, 4, 8].includes(rashiIndex)) { // Fiery signs (Aries, Leo, Sagittarius) start from Aries (0)
+    if ([0, 4, 8].includes(rashiIndex)) { 
         startingNavamsaSignIndex = 0;
-    } else if ([1, 5, 9].includes(rashiIndex)) { // Earthy signs (Taurus, Virgo, Capricorn) start from Capricorn (9)
+    } else if ([1, 5, 9].includes(rashiIndex)) { 
         startingNavamsaSignIndex = 9;
-    } else if ([2, 6, 10].includes(rashiIndex)) { // Airy signs (Gemini, Libra, Aquarius) start from Libra (6)
+    } else if ([2, 6, 10].includes(rashiIndex)) {
         startingNavamsaSignIndex = 6;
-    } else { // Watery signs (Cancer, Scorpio, Pisces) start from Cancer (3)
+    } else { 
         startingNavamsaSignIndex = 3;
     }
 
-    // Calculate the Navamsa sign index
     const navamsaSignIndex = (startingNavamsaSignIndex + navamsaIndexInRashi) % 12;
 
-    // Calculate the position within the Navamsa sign
-    // The position within the 3°20' Navamsa segment maps directly to the 30° Rashi span
     const positionInNavamsaSegment = positionInRashi % navamsaSpan;
     const positionInNavamsaSign = (positionInNavamsaSegment / navamsaSpan) * RASHI_SPAN;
 
-    // Calculate the final Navamsa longitude
     const navamsaLongitude = (navamsaSignIndex * RASHI_SPAN) + positionInNavamsaSign;
 
     return normalizeAngle(navamsaLongitude);
@@ -135,7 +128,7 @@ export function getSubLordDetails(siderealLongitude) {
     const nakshatraName = nakDetails.name;
     const nakshatraStart = nakDetails.index * NAKSHATRA_SPAN;
     const positionWithinNakshatra = normalizedLng - nakshatraStart;
-    const epsilon = 1e-9; // Tolerance for floating point comparisons
+    const epsilon = 1e-9;
 
     if (SUBLORD_DATA && SUBLORD_DATA[nakshatraName]) {
         let currentPos = 0;
@@ -144,8 +137,6 @@ export function getSubLordDetails(siderealLongitude) {
             const subStart = currentPos;
             const subEnd = currentPos + subSpan;
 
-            // Check if position falls within [start, end) using epsilon
-            // Handle edge case where position is exactly at the end of the last sublord span
             if ((positionWithinNakshatra >= subStart - epsilon && positionWithinNakshatra < subEnd - epsilon) ||
                 (Math.abs(positionWithinNakshatra - NAKSHATRA_SPAN) < epsilon && sub === SUBLORD_DATA[nakshatraName][SUBLORD_DATA[nakshatraName].length - 1]))
             {
@@ -157,7 +148,6 @@ export function getSubLordDetails(siderealLongitude) {
             }
             currentPos = subEnd;
         }
-        // If loop finishes without finding (e.g., due to rounding or incomplete data)
         logger.warn(`Sublord not found within defined spans for ${nakshatraName} at ${positionWithinNakshatra.toFixed(4)} deg`);
         return { lord: "Error finding SubLord" };
     } else {
@@ -174,7 +164,6 @@ export function getSubLordDetails(siderealLongitude) {
  */
 export function getSubSubLordDetails(positionWithinNakshatra, subLordDetails) {
     if (!subLordDetails || !subLordDetails.lord || subLordDetails.lord.startsWith("Error") || subLordDetails.lord.startsWith("N/A") || subLordDetails.lord.startsWith("Invalid") || subLordDetails.lord.startsWith("Unknown")) {
-        // Cannot calculate SubSubLord if SubLord is invalid
         return { lord: "N/A" };
     }
     if (isNaN(positionWithinNakshatra) || isNaN(subLordDetails.startDegInNak) || isNaN(subLordDetails.endDegInNak)) {
@@ -188,10 +177,8 @@ export function getSubSubLordDetails(positionWithinNakshatra, subLordDetails) {
         return { lord: "N/A" };
     }
 
-    // Calculate the position *within* the SubLord's span
     const positionWithinSubLordSpan = positionWithinNakshatra - subLordDetails.startDegInNak;
 
-    // Determine the starting lord for the SubSub sequence (starts with the SubLord itself)
     const subLordIndex = VIMS_DASHA_SEQUENCE.indexOf(subLordDetails.lord);
     if (subLordIndex === -1) {
         logger.warn(`SubLord "${subLordDetails.lord}" not found in Vimsottari sequence.`);
@@ -199,9 +186,8 @@ export function getSubSubLordDetails(positionWithinNakshatra, subLordDetails) {
     }
 
     let cumulativeProportion = 0;
-    const epsilon = 1e-9; // Tolerance
+    const epsilon = 1e-9;
 
-    // Iterate through the Vimshottari sequence starting from the SubLord
     for (let i = 0; i < VIMS_DASHA_SEQUENCE.length; i++) {
         const currentSubSubIndex = (subLordIndex + i) % VIMS_DASHA_SEQUENCE.length;
         const subSubLordName = VIMS_DASHA_SEQUENCE[currentSubSubIndex];
@@ -212,16 +198,14 @@ export function getSubSubLordDetails(positionWithinNakshatra, subLordDetails) {
             continue;
         }
 
-        // Calculate the proportion of the SubLord's span this SubSubLord occupies
-        const proportionOfSpan = subSubLordYears / 120; // Based on 120 year Vimshottari cycle
+        const proportionOfSpan = subSubLordYears / 120;
         const subSubLordSpanDegrees = proportionOfSpan * subLordSpan;
 
         const subSubStart = cumulativeProportion * subLordSpan;
         const subSubEnd = subSubStart + subSubLordSpanDegrees;
 
-        // Check if the position falls within this SubSubLord's segment
         if ((positionWithinSubLordSpan >= subSubStart - epsilon && positionWithinSubLordSpan < subSubEnd - epsilon) ||
-            (Math.abs(positionWithinSubLordSpan - subLordSpan) < epsilon && i === VIMS_DASHA_SEQUENCE.length - 1)) // Handle edge case at the very end
+            (Math.abs(positionWithinSubLordSpan - subLordSpan) < epsilon && i === VIMS_DASHA_SEQUENCE.length - 1))
         {
             return { lord: subSubLordName };
         }
@@ -229,7 +213,6 @@ export function getSubSubLordDetails(positionWithinNakshatra, subLordDetails) {
         cumulativeProportion += proportionOfSpan;
     }
 
-    // Should not be reached if data and logic are correct
     logger.warn(`SubSubLord calculation failed unexpectedly for position ${positionWithinNakshatra} within SubLord ${subLordDetails.lord}`);
     return { lord: "Error" };
 }
@@ -239,14 +222,12 @@ export function getSubSubLordDetails(positionWithinNakshatra, subLordDetails) {
  * Calculates sidereal and tropical positions for planets and Ascendant.
  * @param {number} julianDayUT - Julian Day in Universal Time.
  * @returns {object} Object containing tropical and sidereal positions, or null on error.
- * Example structure: { tropical: { Sun: { ... } }, sidereal: { Sun: { ..., subSubLord }, ... } }
  */
 export function calculatePlanetaryPositions(julianDayUT) {
     if (typeof julianDayUT !== 'number' || isNaN(julianDayUT)) {
         throw new Error(`calculatePlanetaryPositions received invalid Julian Day: ${julianDayUT}`);
     }
 
-    // Use a map for a more robust link between planet ID and name
     const planetMap = {
         [swisseph.SE_SUN]: 'Sun',
         [swisseph.SE_MOON]: 'Moon',
@@ -260,10 +241,10 @@ export function calculatePlanetaryPositions(julianDayUT) {
         [swisseph.SE_NEPTUNE]: 'Neptune',
         [swisseph.SE_PLUTO]: 'Pluto'
     };
-    const planetsToCalc = Object.keys(planetMap).map(Number); // Get array of planet IDs
+    const planetsToCalc = Object.keys(planetMap).map(Number);
 
     const flags = swisseph.SEFLG_SPEED | swisseph.SEFLG_SIDEREAL;
-    const tropicalFlags = swisseph.SEFLG_SPEED; // For tropical positions
+    const tropicalFlags = swisseph.SEFLG_SPEED;
 
     const results = { tropical: {}, sidereal: {} };
 
@@ -280,21 +261,11 @@ export function calculatePlanetaryPositions(julianDayUT) {
             const siderealCalc = swisseph.swe_calc_ut(julianDayUT, planetId, flags);
             const tropicalCalc = swisseph.swe_calc_ut(julianDayUT, planetId, tropicalFlags);
 
-            logger.debug(`  Sidereal Calc for ${planetName}: ${JSON.stringify(siderealCalc)}`);
-            logger.debug(`  Tropical Calc for ${planetName}: ${JSON.stringify(tropicalCalc)}`);
-
-            // Initialize results for the current planet to ensure they always exist
             results.sidereal[planetName] = { longitude: NaN, latitude: NaN, distance: NaN, speedLongitude: NaN, speedLatitude: NaN, speedDistance: NaN, dms: "N/A", rashi: "N/A", rashiLord: "N/A", nakshatra: "N/A", nakLord: "N/A", pada: NaN, subLord: "N/A", subSubLord: "N/A" };
             results.tropical[planetName] = { longitude: NaN, latitude: NaN, distance: NaN, speedLongitude: NaN, speedLatitude: NaN, speedDistance: NaN };
 
-           
-
-            logger.debug(`  Sidereal Calc for ${planetName}: ${JSON.stringify(siderealCalc)}`);
-            logger.debug(`  Tropical Calc for ${planetName}: ${JSON.stringify(tropicalCalc)}`);
-
             let siderealSuccess = false;
             if (siderealCalc && typeof siderealCalc === 'object' && typeof siderealCalc.longitude === 'number' && !isNaN(siderealCalc.longitude)) {
-                // Store Sidereal Data and enrich it
                 const siderealLongitude = normalizeAngle(siderealCalc.longitude);
                 const nakDetails = getNakshatraDetails(siderealLongitude);
                 const rashiDetails = getRashiDetails(siderealLongitude);
@@ -337,14 +308,11 @@ export function calculatePlanetaryPositions(julianDayUT) {
                 logger.error(`Failed to calculate tropical position for ${planetName} (ID: ${planetId}) at JD ${julianDayUT}. Result: ${JSON.stringify(tropicalCalc)}`);
             }
 
-            // If neither sidereal nor tropical calculation was successful, ensure the entry is still marked as failed.
-            // This is already handled by the initial NaN assignment and subsequent conditional updates.
             if (!siderealSuccess) {
                 logger.warn(`Sidereal calculation for ${planetName} was not successful, retaining NaN values.`);
             }
         }
 
-        // Calculate Ketu (Mean Node + 180 degrees)
         const rahuData = results.sidereal.Rahu;
         if (rahuData && typeof rahuData.longitude === 'number' && !isNaN(rahuData.longitude)) {
             const ketuLongitude = normalizeAngle(rahuData.longitude + 180);
@@ -352,10 +320,8 @@ export function calculatePlanetaryPositions(julianDayUT) {
             const ketuRashiDetails = getRashiDetails(ketuLongitude);
             const ketuPada = calculateNakshatraPada(ketuLongitude);
             const ketuSubLordDetails = getSubLordDetails(ketuLongitude);
-            // *** Calculate Ketu's SubSubLord ***
             const ketuPositionWithinNak = ketuLongitude - (ketuNakDetails.index * NAKSHATRA_SPAN);
             const ketuSubSubLordDetails = getSubSubLordDetails(ketuPositionWithinNak, ketuSubLordDetails);
-            // *** End Ketu SubSubLord Calculation ***
 
             const tropicalRahuLon = results.tropical.Rahu?.longitude;
             const tropicalKetuLon = (tropicalRahuLon !== undefined && !isNaN(tropicalRahuLon))
@@ -376,7 +342,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
                 nakLord: ketuNakDetails.lord,
                 pada: ketuPada,
                 subLord: ketuSubLordDetails.lord,
-                subSubLord: ketuSubSubLordDetails.lord, // Add Ketu's SubSubLord
+                subSubLord: ketuSubSubLordDetails.lord,
             };
             results.tropical.Ketu = {
                  longitude: tropicalKetuLon,
@@ -419,28 +385,25 @@ export function calculateHousesAndAscendant(julianDayUT, latitude, longitude) {
         const placidusFlag = swisseph.SE_HSYS_PLACIDUS || 'P';
         const houseResult = swisseph.swe_houses(julianDayUT, latitude, longitude, placidusFlag);
 
-        // --- REVISED CHECK (Accepting length 12 for 'house') ---
         let isValidResult = houseResult &&
                             !houseResult.error &&
                             typeof houseResult.ascendant === 'number' &&
                             !isNaN(houseResult.ascendant) &&
                             Array.isArray(houseResult.house) &&
-                            houseResult.house.length === 12; // Expect exactly 12 cusps
+                            houseResult.house.length === 12;
 
         if (!isValidResult) {
-            // Log the reason for failure more clearly
             let failureReason = "Unknown reason";
             if (!houseResult) failureReason = "No result object returned.";
             else if (houseResult.error) failureReason = `Explicit error: ${houseResult.error}`;
             else if (typeof houseResult.ascendant !== 'number' || isNaN(houseResult.ascendant)) failureReason = `Invalid ascendant: ${houseResult.ascendant}`;
             else if (!Array.isArray(houseResult.house)) failureReason = `'house' is not an array: ${typeof houseResult.house}`;
-            else if (houseResult.house.length !== 12) failureReason = `'house' array length is not 12: length ${houseResult.house.length}`; // Updated log message
+            else if (houseResult.house.length !== 12) failureReason = `'house' array length is not 12: length ${houseResult.house.length}`;
 
             logger.error(`swisseph.swe_houses returned invalid result. Reason: ${failureReason}. Full result: ${JSON.stringify(houseResult)}`, {
                  jd: julianDayUT, lat: latitude, lon: longitude
             });
 
-            // --- Fallback Logic ---
             const ascFallback = swisseph.swe_calc_ut(julianDayUT, swisseph.SE_ASC, 0);
             if (ascFallback && typeof ascFallback.longitude === 'number' && !isNaN(ascFallback.longitude)) {
                  logger.warn("swe_houses failed, using fallback Ascendant calculation. Cusps will be unavailable.");
@@ -449,22 +412,16 @@ export function calculateHousesAndAscendant(julianDayUT, latitude, longitude) {
                  logger.error("swe_houses failed AND fallback Ascendant calculation failed.");
                  throw new Error("Failed to calculate valid house cusps and Ascendant.");
             }
-            // --- End Fallback Logic ---
         }
-        // --- END REVISED CHECK ---
 
-        // If the check passed, process the valid result using houseResult.house
-        // Assuming the 12 elements directly correspond to cusps 1-12
-        const tropicalCusps = houseResult.house.map(c => normalizeAngle(c)); // Use the whole array
+        const tropicalCusps = houseResult.house.map(c => normalizeAngle(c));
         const tropicalAscendant = normalizeAngle(houseResult.ascendant);
 
-        // Final validation on processed values
         if (tropicalCusps.some(isNaN) || isNaN(tropicalAscendant)) {
-             logger.error("Calculated cusps or ascendant contain NaN values after processing.", { rawCusps: houseResult.house, rawAsc: houseResult.ascendant }); // Log raw values
+             logger.error("Calculated cusps or ascendant contain NaN values after processing.", { rawCusps: houseResult.house, rawAsc: houseResult.ascendant });
              throw new Error("Calculated cusps or ascendant contain NaN values after processing.");
         }
 
-        // logger.debug("Successfully calculated houses and ascendant using swe_houses.");
         return { tropicalAscendant, tropicalCusps };
 
     } catch (error) {
@@ -476,23 +433,18 @@ export function calculateHousesAndAscendant(julianDayUT, latitude, longitude) {
 
 /**
  * Calculates aspects between planets.
- * NOTE: This is a simplified version considering major aspects (Conjunction, Opposition, Square, Trine).
- * A full implementation would include orbs and potentially minor aspects.
  * @param {object} siderealPositions - Object containing sidereal positions { Sun: { longitude, ... }, ... }.
  * @returns {object} Object mapping each planet to an array of aspecting planets.
- * Example: { Sun: ["Mars", "Jupiter"], Moon: ["Saturn"], ... }
  */
 export function calculateAspects(siderealPositions) {
     const aspects = {};
-    const planets = Object.keys(siderealPositions).filter(p => p !== 'Ketu'); // Use calculated positions, exclude Ketu initially
+    const planets = Object.keys(siderealPositions).filter(p => p !== 'Ketu');
 
-    // Define aspect angles and orbs (simplified)
     const aspectDefinitions = [
         { type: 'Conjunction', angle: 0, orb: 8 },
         { type: 'Opposition', angle: 180, orb: 8 },
         { type: 'Square', angle: 90, orb: 7 },
         { type: 'Trine', angle: 120, orb: 7 },
-        // Add Sextile (60 deg), etc. if needed
     ];
 
     for (let i = 0; i < planets.length; i++) {
@@ -500,7 +452,7 @@ export function calculateAspects(siderealPositions) {
         const planet1Data = siderealPositions[planet1Name];
         if (!planet1Data || isNaN(planet1Data.longitude)) continue;
 
-        aspects[planet1Name] = []; // Initialize aspect list for planet1
+        aspects[planet1Name] = [];
 
         for (let j = i + 1; j < planets.length; j++) {
             const planet2Name = planets[j];
@@ -509,31 +461,27 @@ export function calculateAspects(siderealPositions) {
 
             let angleDiff = Math.abs(planet1Data.longitude - planet2Data.longitude);
             if (angleDiff > 180) {
-                angleDiff = 360 - angleDiff; // Use the shorter angle
+                angleDiff = 360 - angleDiff;
             }
 
             for (const aspect of aspectDefinitions) {
                 if (Math.abs(angleDiff - aspect.angle) <= aspect.orb) {
-                    // Found an aspect
                     if (!aspects[planet1Name]) aspects[planet1Name] = [];
                     if (!aspects[planet2Name]) aspects[planet2Name] = [];
 
                     aspects[planet1Name].push(planet2Name);
                     aspects[planet2Name].push(planet1Name);
-                    // Optional: Store aspect type and orb details if needed later
-                    break; // Move to next planet pair once an aspect is found (simplification)
+                    break;
                 }
             }
         }
     }
-     // Add Ketu aspects (opposite of Rahu's aspects) - Simplification
      if (aspects.Rahu && siderealPositions.Ketu) {
-         aspects.Ketu = aspects.Rahu.slice(); // Copy Rahu's aspects
-         // Also add Rahu itself as opposing Ketu
+         aspects.Ketu = aspects.Rahu.slice();
          if (!aspects.Ketu.includes('Rahu')) aspects.Ketu.push('Rahu');
-         if (!aspects.Rahu.includes('Ketu')) aspects.Ketu.push('Ketu');
+         if (!aspects.Rahu.includes('Ketu')) aspects.Rahu.push('Ketu');
      } else if (siderealPositions.Ketu) {
-         aspects.Ketu = ['Rahu']; // At least opposes Rahu
+         aspects.Ketu = ['Rahu'];
          if (!aspects.Rahu) aspects.Rahu = [];
          if (!aspects.Rahu.includes('Ketu')) aspects.Rahu.push('Ketu');
      }
@@ -544,24 +492,21 @@ export function calculateAspects(siderealPositions) {
 
 /**
  * Calculates basic planetary states (e.g., exaltation, debilitation, own sign, moolatrikona).
- * NOTE: This is a simplified check based on Rashi only. Full state requires degrees.
  * @param {object} siderealPositions - Object containing sidereal positions { Sun: { longitude, rashi, ... }, ... }.
  * @returns {object} Object mapping planet names to their calculated state string.
  */
 export function calculatePlanetStates(siderealPositions) {
     const states = {};
-    // Define state rules (simplified - Rashi based)
     const stateRules = {
         Sun: { exalt: "Aries", debilitate: "Libra", own: ["Leo"], moolatrikona: "Leo" },
         Moon: { exalt: "Taurus", debilitate: "Scorpio", own: ["Cancer"], moolatrikona: "Taurus" },
         Mars: { exalt: "Capricorn", debilitate: "Cancer", own: ["Aries", "Scorpio"], moolatrikona: "Aries" },
         Mercury: { exalt: "Virgo", debilitate: "Pisces", own: ["Gemini", "Virgo"], moolatrikona: "Virgo" },
         Jupiter: { exalt: "Cancer", debilitate: "Capricorn", own: ["Sagittarius", "Pisces"], moolatrikona: "Sagittarius" },
-        Venus: { exalt: "Pisces", debilitate: "Virgo", own: ["Taurus", "Libra"], moolatrikona: "Libra" }, // Some say Moolatrikona is Libra, some Taurus
+        Venus: { exalt: "Pisces", debilitate: "Virgo", own: ["Taurus", "Libra"], moolatrikona: "Libra" },
         Saturn: { exalt: "Libra", debilitate: "Aries", own: ["Capricorn", "Aquarius"], moolatrikona: "Aquarius" },
-        // Rahu/Ketu states are debated, often linked to signs of Mercury/Jupiter/Saturn
-        Rahu: { exalt: "Taurus", debilitate: "Scorpio", own: ["Aquarius"], moolatrikona: "Gemini" }, // Example rules
-        Ketu: { exalt: "Scorpio", debilitate: "Taurus", own: ["Pisces"], moolatrikona: "Sagittarius" } // Example rules
+        Rahu: { exalt: "Taurus", debilitate: "Scorpio", own: ["Aquarius"], moolatrikona: "Gemini" },
+        Ketu: { exalt: "Scorpio", debilitate: "Taurus", own: ["Pisces"], moolatrikona: "Sagittarius" }
     };
 
     for (const planetName in siderealPositions) {
@@ -573,21 +518,19 @@ export function calculatePlanetStates(siderealPositions) {
 
         const rules = stateRules[planetName];
         if (!rules) {
-            states[planetName] = "Standard"; // Default if no specific rules
+            states[planetName] = "Standard";
             continue;
         }
 
         const rashi = planetData.rashi;
-        let state = "Standard"; // Default
+        let state = "Standard";
 
         if (rashi === rules.exalt) state = "Exalted";
         else if (rashi === rules.debilitate) state = "Debilitated";
         else if (rules.own.includes(rashi)) {
-             // Check Moolatrikona within own sign (requires degree check ideally)
-             if (rashi === rules.moolatrikona) state = "Moolatrikona"; // Simplified
+             if (rashi === rules.moolatrikona) state = "Moolatrikona";
              else state = "Own Sign";
         }
-        // Could add checks for friendly/enemy signs here based on friendship data
 
         states[planetName] = state;
     }
@@ -599,28 +542,24 @@ export function getHouseOfPlanet(longitude, siderealCuspStartDegrees) {
         return null;
     }
     const normalizedLng = normalizeAngle(longitude);
-    if (isNaN(normalizedLng)) return null; // Should not happen if longitude is valid
+    if (isNaN(normalizedLng)) return null;
 
     for (let i = 0; i < 12; i++) {
         const currentCusp = normalizeAngle(siderealCuspStartDegrees[i]);
         const nextCusp = normalizeAngle(siderealCuspStartDegrees[(i + 1) % 12]);
 
-        // Handle wrap-around (e.g., House 12 cusp > House 1 cusp)
         if (currentCusp <= nextCusp) {
-            // Normal case: Cusp degrees increase
             if (normalizedLng >= currentCusp && normalizedLng < nextCusp) {
-                return i + 1; // House number is index + 1
+                return i + 1;
             }
         } else {
-            // Wrap-around case: e.g., House 12 starts at 330°, House 1 starts at 10°
-            // The planet is in the house if it's >= currentCusp OR < nextCusp
             if (normalizedLng >= currentCusp || normalizedLng < nextCusp) {
                 return i + 1;
             }
         }
     }
     console.warn(`Longitude ${longitude} did not fall into any house range based on cusps: ${siderealCuspStartDegrees}`);
-    return null; // Should technically not be reached if cusps cover 360 degrees
+    return null;
 }
 /**
  * Calculates the houses owned by a planet based on the Rashi lordships of the house cusps.
@@ -696,24 +635,19 @@ export function calculateVimshottariDashaBalance(moonLongitude) {
         return { lord: "Error", balanceYears: NaN, balanceYMD: { years: 0, months: 0, days: 0 } };
     }
 
-    // Calculate the start longitude of the current Nakshatra
     const nakshatraStartLongitude = currentNakshatraIndex * NAKSHATRA_SPAN;
 
-    // Calculate how much of the current Nakshatra the Moon has already traversed
     const traversedDegreesInNakshatra = normalizedMoonLng - nakshatraStartLongitude;
 
-    // Calculate the remaining proportion of the Nakshatra
     const remainingProportion = (NAKSHATRA_SPAN - traversedDegreesInNakshatra) / NAKSHATRA_SPAN;
 
-    // Calculate the balance of the Dasha period
     const balanceYears = remainingProportion * totalDashaYears;
 
-    // Convert balance years to years, months, days
     const years = Math.floor(balanceYears);
     const remainingAfterYears = balanceYears - years;
     const months = Math.floor(remainingAfterYears * 12);
     const remainingAfterMonths = remainingAfterYears * 12 - months;
-    const days = Math.round(remainingAfterMonths * 30); // Using 30 days per month for simplicity
+    const days = Math.round(remainingAfterMonths * 30);
 
     return {
         lord: currentNakshatraLord,
@@ -738,7 +672,6 @@ export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longi
     let entryTime = null;
     let exitTime = null;
 
-    // Find the nakshatra at the beginning of the astrological day (sunrise)
     const { julianDayUT: sunriseJD } = getJulianDateUT(startOfAstrologicalDay.toISOString(), latitude, longitude);
     let prevNakshatraIndex = -1;
     if (sunriseJD !== null) {
@@ -748,12 +681,10 @@ export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longi
         }
     }
 
-    // If the target nakshatra is already present at sunrise, the entry time is the sunrise itself.
     if (prevNakshatraIndex === targetNakshatraIndex) {
         entryTime = startOfAstrologicalDay.toISOString();
     }
 
-    // Iterate through the astrological day in small steps (e.g., 5 minutes)
     const stepMinutes = 5;
     let currentMoment = startOfAstrologicalDay.clone();
 
@@ -776,7 +707,6 @@ export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longi
 
         const currentNakshatraIndex = getNakshatraDetails(moonLongitude).index;
 
-        // Check for entry into target Nakshatra
         if (entryTime === null && currentNakshatraIndex === targetNakshatraIndex && prevNakshatraIndex !== targetNakshatraIndex) {
             entryTime = await refineNakshatraTransitTime(
                 currentMoment.clone().subtract(stepMinutes, 'minutes'),
@@ -785,11 +715,10 @@ export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longi
                 longitude,
                 targetNakshatraIndex,
                 'entry',
-                10, // iterations
-                endOfAstrologicalDay.toISOString() // Pass nextSunrise as a string
+                10, 
+                endOfAstrologicalDay.toISOString()
             );
         }
-        // Check for exit from target Nakshatra
         if (exitTime === null && currentNakshatraIndex !== targetNakshatraIndex && prevNakshatraIndex === targetNakshatraIndex) {
             exitTime = await refineNakshatraTransitTime(
                 currentMoment.clone().subtract(stepMinutes, 'minutes'),
@@ -798,8 +727,8 @@ export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longi
                 longitude,
                 targetNakshatraIndex,
                 'exit',
-                10, // iterations
-                endOfAstrologicalDay.toISOString() // Pass nextSunrise as a string
+                10, 
+                endOfAstrologicalDay.toISOString()
             );
         }
 
@@ -807,7 +736,6 @@ export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longi
         currentMoment.add(stepMinutes, 'minutes');
     }
 
-    // If the moon is still in the target nakshatra at the end of the astrological day, the exit time is the next sunrise.
     if (exitTime === null && prevNakshatraIndex === targetNakshatraIndex) {
         exitTime = endOfAstrologicalDay.toISOString();
     }
@@ -832,7 +760,6 @@ async function refineNakshatraTransitTime(startTime, endTime, latitude, longitud
     let high = endTime.clone();
     const endOfAstrologicalDay = moment(nextSunrise);
 
-    // Ensure high does not exceed the end of the astrological day
     if (high.isAfter(endOfAstrologicalDay)) {
         high = endOfAstrologicalDay;
     }
@@ -845,7 +772,7 @@ async function refineNakshatraTransitTime(startTime, endTime, latitude, longitud
 
         if (julianDayUT === null) {
             logger.warn(`Invalid JD during transit refinement at ${mid.toISOString()}`);
-            return mid.toISOString(); // Return approximate if JD is invalid
+            return mid.toISOString();
         }
 
         const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
@@ -853,7 +780,7 @@ async function refineNakshatraTransitTime(startTime, endTime, latitude, longitud
 
         if (moonLongitude === undefined || isNaN(moonLongitude)) {
             logger.warn(`Moon longitude not available during transit refinement at ${mid.toISOString()}`);
-            return mid.toISOString(); // Return approximate if Moon longitude is invalid
+            return mid.toISOString();
         }
 
         const currentNakshatraIndex = getNakshatraDetails(moonLongitude).index;
@@ -861,23 +788,22 @@ async function refineNakshatraTransitTime(startTime, endTime, latitude, longitud
         if (type === 'entry') {
             if (currentNakshatraIndex === targetNakshatraIndex) {
                 preciseTime = mid;
-                high = mid; // Try to find an earlier time
+                high = mid;
             } else {
-                low = mid; // Moon hasn't entered yet, search later
+                low = mid;
             }
-        } else { // type === 'exit'
+        } else { 
             if (currentNakshatraIndex === targetNakshatraIndex) {
-                low = mid; // Moon is still in, search later
+                low = mid;
             } else {
                 preciseTime = mid;
-                high = mid; // Moon has exited, try to find an earlier exit
+                high = mid;
             }
         }
     }
 
     const finalTime = preciseTime || (type === 'entry' ? high : low);
 
-    // Ensure the final time does not exceed the astrological day boundaries
     if (finalTime.isAfter(endOfAstrologicalDay)) {
         return endOfAstrologicalDay.toISOString();
     }
@@ -902,7 +828,6 @@ export async function calculateKpRulingPlanets(dateString, latitude, longitude) 
 
         const rulingPlanets = new Set();
 
-        // 1. Ascendant Lord
         const { tropicalAscendant, tropicalCusps } = calculateHousesAndAscendant(julianDayUT, latitude, longitude);
         const ayanamsa = calculateAyanamsa(julianDayUT);
         const siderealAscendantDeg = normalizeAngle(tropicalAscendant - ayanamsa);
@@ -911,32 +836,27 @@ export async function calculateKpRulingPlanets(dateString, latitude, longitude) 
             rulingPlanets.add(ascendantRashiDetails.lord);
         }
 
-        // 2. Moon's Rashi Lord
         const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
         const moonData = planetaryPositions.sidereal.Moon;
         if (moonData && moonData.rashiLord) {
             rulingPlanets.add(moonData.rashiLord);
         }
 
-        // 3. Moon's Nakshatra Lord
         if (moonData && moonData.nakLord) {
             rulingPlanets.add(moonData.nakLord);
         }
 
-        // 4. Moon's Sub Lord
         if (moonData && moonData.subLord) {
             rulingPlanets.add(moonData.subLord);
         }
 
-        // 5. Day Lord (Lord of the weekday)
         const date = new Date(dateString);
-        const dayOfWeek = date.getDay(); // 0 for Sunday, 6 for Saturday
+        const dayOfWeek = date.getDay();
         const dayLord = WEEKDAY_LORDS[dayOfWeek];
         if (dayLord) {
             rulingPlanets.add(dayLord);
         }
 
-        // Convert Set to Array and sort by PLANET_ORDER
         const sortedRulingPlanets = Array.from(rulingPlanets).sort((a, b) => {
             const indexA = PLANET_ORDER.indexOf(a);
             const indexB = PLANET_ORDER.indexOf(b);
@@ -968,11 +888,10 @@ export function calculateBadhakDetails(siderealAscendantDeg) {
         return { error: "Could not determine Ascendant Rashi." };
     }
 
-    const ascRashiIndex = ascRashiDetails.index; // 0 for Aries, 1 for Taurus, etc.
+    const ascRashiIndex = ascRashiDetails.index;
 
-    const movableSigns = [0, 3, 6, 9]; // Aries, Cancer, Libra, Capricorn
-    const fixedSigns = [1, 4, 7, 10]; // Taurus, Leo, Scorpio, Aquarius
-    // Dual signs are the rest
+    const movableSigns = [0, 3, 6, 9];
+    const fixedSigns = [1, 4, 7, 10];
 
     let badhakHouseNumber;
 
@@ -980,7 +899,7 @@ export function calculateBadhakDetails(siderealAscendantDeg) {
         badhakHouseNumber = 11;
     } else if (fixedSigns.includes(ascRashiIndex)) {
         badhakHouseNumber = 9;
-    } else { // Dual signs
+    } else { 
         badhakHouseNumber = 7;
     }
 
@@ -1008,7 +927,6 @@ export function calculateLongevityFactors(housesData) {
         return { error: "Invalid house data provided." };
     }
 
-    // House data is 0-indexed (house 1 is at index 0)
     const secondLord = housesData[1]?.mean_rashi_lord;
     const seventhLord = housesData[6]?.mean_rashi_lord;
     const eighthLord = housesData[7]?.mean_rashi_lord;
@@ -1018,8 +936,7 @@ export function calculateLongevityFactors(housesData) {
         return { error: "Missing house lord data." };
     }
 
-    // Maraka lords are the lords of the 2nd and 7th houses.
-    const marakaLords = [...new Set([secondLord, seventhLord])]; // Use Set to handle cases where one planet rules both
+    const marakaLords = [...new Set([secondLord, seventhLord])];
 
     return { marakaLords, secondLord, seventhLord, eighthLord };
 }
@@ -1035,33 +952,27 @@ export function calculateLongevityFactors(housesData) {
 function getKpSignificatorsForPlanet(planetName, siderealPositions, siderealCuspStartDegrees) {
     const significations = new Set();
 
-    // Planet itself
     const planetData = siderealPositions[planetName];
     if (!planetData || isNaN(planetData.longitude)) {
         logger.warn(`[Longevity] Skipping significators for ${planetName}: missing position data.`);
         return [];
     }
 
-    // 1. House occupied by the planet
     const occupiedHouse = getHouseOfPlanet(planetData.longitude, siderealCuspStartDegrees);
     if (occupiedHouse !== null) significations.add(occupiedHouse);
 
-    // 2. Houses owned by the planet (not for Rahu/Ketu)
     if (planetName !== 'Rahu' && planetName !== 'Ketu') {
         const ownedHouses = getHousesRuledByPlanet(planetName, siderealCuspStartDegrees);
         ownedHouses.forEach(h => significations.add(h));
     }
 
-    // Nakshatra Lord
     const nakLordName = planetData.nakLord;
     if (nakLordName && nakLordName !== "N/A" && nakLordName !== "Error") {
         const nakLordData = siderealPositions[nakLordName];
         if (nakLordData && !isNaN(nakLordData.longitude)) {
-            // 3. House occupied by Nakshatra Lord
             const nlOccupiedHouse = getHouseOfPlanet(nakLordData.longitude, siderealCuspStartDegrees);
             if (nlOccupiedHouse !== null) significations.add(nlOccupiedHouse);
 
-            // 4. Houses owned by Nakshatra Lord (not for Rahu/Ketu)
             if (nakLordName !== 'Rahu' && nakLordName !== 'Ketu') {
                 const nlOwnedHouses = getHousesRuledByPlanet(nakLordName, siderealCuspStartDegrees);
                 nlOwnedHouses.forEach(h => significations.add(h));
@@ -1076,9 +987,6 @@ function getKpSignificatorsForPlanet(planetName, siderealPositions, siderealCusp
 
 /**
  * Calculates longevity based on a house scoring method.
- * Score A = Sum of life-increasing houses in KP significators of 7 planets.
- * Score B = Sum of life-reducing houses in KP significators of 7 planets.
- * Longevity = (A / (A + B)) * 120.
  * @param {object} siderealPositions - Object of sidereal planetary positions.
  * @param {number[]} siderealCuspStartDegrees - Array of 12 sidereal cusp start degrees.
  * @param {object} badhakDetails - Object containing badhakHouse number.
@@ -1102,10 +1010,8 @@ export function calculateHouseBasedLongevity(siderealPositions, siderealCuspStar
     let scoreA = 0; let scoreB = 0;
 
     for (const planetName of planetsToConsider) {
-        // Get all houses signified by the planet using KP rules
         const signifiedHouses = getKpSignificatorsForPlanet(planetName, siderealPositions, siderealCuspStartDegrees);
 
-        // Count how many of these signified houses fall into each category
         for (const house of signifiedHouses) {
             if (lifeIncreasingHouses.includes(house)) {
                 scoreA++;
@@ -1119,4 +1025,58 @@ export function calculateHouseBasedLongevity(siderealPositions, siderealCuspStar
     if (totalScore === 0) return { longevity: 0, scoreA, scoreB, reason: "Indeterminate" };
     const longevity = (scoreA / totalScore) * 120;
     return { longevity: parseFloat(longevity.toFixed(2)), scoreA, scoreB };
+}
+
+/**
+ * Calculates the Dasha periods based on Vimshottari Dasha system.
+ * @param {object} birthChartData - The main chart data object containing date, time, location, and planetary positions.
+ * @returns {Array<object>} An array of Dasha period objects.
+ */
+export function calculateDashaPeriods(birthChartData) {
+    const { date, latitude, longitude } = birthChartData;
+    const moonLongitude = birthChartData.planetaryPositions.sidereal.Moon.longitude;
+
+    if (isNaN(moonLongitude)) {
+        logger.error("Cannot calculate Dasha periods: Moon longitude is not available.");
+        return [];
+    }
+
+    const dashaBalance = calculateVimshottariDashaBalance(moonLongitude);
+    if (dashaBalance.lord === "Error") {
+        logger.error("Cannot calculate Dasha periods: Failed to get Dasha balance.");
+        return [];
+    }
+
+    const dashaPeriods = [];
+    let currentDashaLord = dashaBalance.lord;
+    let currentDashaLordIndex = VIMS_DASHA_SEQUENCE.indexOf(currentDashaLord);
+    let currentDashaStartDate = moment(date);
+
+    const firstDashaEndDate = currentDashaStartDate.clone().add(dashaBalance.balanceYears * 365.25, 'days');
+    dashaPeriods.push({
+        lord: currentDashaLord,
+        startDate: currentDashaStartDate.format('YYYY-MM-DD'),
+        endDate: firstDashaEndDate.format('YYYY-MM-DD'),
+        type: 'MahaDasha'
+    });
+
+    let dashaCount = 0;
+    while (dashaCount < 10) {
+        currentDashaLordIndex = (currentDashaLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
+        currentDashaLord = VIMS_DASHA_SEQUENCE[currentDashaLordIndex];
+        const dashaDuration = VIMS_DASHA_YEARS[currentDashaLord];
+
+        const dashaStartDate = dashaPeriods[dashaPeriods.length - 1].endDate;
+        const dashaEndDate = moment(dashaStartDate).add(dashaDuration, 'years');
+
+        dashaPeriods.push({
+            lord: currentDashaLord,
+            startDate: moment(dashaStartDate).format('YYYY-MM-DD'),
+            endDate: dashaEndDate.format('YYYY-MM-DD'),
+            type: 'MahaDasha'
+        });
+        dashaCount++;
+    }
+
+    return dashaPeriods;
 }
