@@ -182,6 +182,12 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             });
         }
 
+        // Calculate Longevity Factors (Maraka, etc.)
+        const longevityFactors = calculateLongevityFactors(housesData);
+
+        // Calculate House-Based Longevity
+        const houseBasedLongevity = calculateHouseBasedLongevity(siderealPositions, siderealCuspStartDegrees, badhakDetails);
+
         const dashaBalance = calculateVimshottariBalance(siderealPositions['Moon']?.longitude); // Throws on error
         const dashaPeriods = calculateVimshottariDashas(utcDate, dashaBalance); // Throws on error
 
@@ -253,6 +259,8 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
                 subSubLord: ascendantSubSubLordDetails.lord // Add Ascendant Sub-Sub Lord
             },
             badhakDetails: badhakDetails,
+            longevityFactors: longevityFactors,
+            houseBasedLongevity: houseBasedLongevity,
             houses: housesData,
             planetaryPositions, // Contains both tropical and sidereal
             sunMoonTimes: {

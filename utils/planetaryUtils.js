@@ -996,3 +996,137 @@ export function calculateBadhakDetails(siderealAscendantDeg) {
         badhakesh: badhakesh
     };
 }
+
+/**
+ * Calculates key longevity factors like Maraka and 8th Lord.
+ * @param {Array<object>} housesData - Array of house data objects from the main calculation.
+ * @returns {{marakaLords: string[], secondLord: string, seventhLord: string, eighthLord: string} | {error: string}}
+ */
+export function calculateLongevityFactors(housesData) {
+    if (!Array.isArray(housesData) || housesData.length !== 12) {
+        logger.warn("Cannot calculate longevity factors: Invalid housesData array.");
+        return { error: "Invalid house data provided." };
+    }
+
+    // House data is 0-indexed (house 1 is at index 0)
+    const secondLord = housesData[1]?.mean_rashi_lord;
+    const seventhLord = housesData[6]?.mean_rashi_lord;
+    const eighthLord = housesData[7]?.mean_rashi_lord;
+
+    if (!secondLord || !seventhLord || !eighthLord) {
+        logger.warn("Cannot calculate longevity factors: Missing lord data for 2nd, 7th, or 8th house.");
+        return { error: "Missing house lord data." };
+    }
+
+    // Maraka lords are the lords of the 2nd and 7th houses.
+    const marakaLords = [...new Set([secondLord, seventhLord])]; // Use Set to handle cases where one planet rules both
+
+    return { marakaLords, secondLord, seventhLord, eighthLord };
+}
+
+/**
+ * Calculates longevity based on a house scoring method.
+ * (A / (A + B)) * 120
+ * @param {object} siderealPositions - Object of sidereal planetary positions.
+ * @param {number[]} siderealCuspStartDegrees - Array of 12 sidereal cusp start degrees.
+ * @param {object} badhakDetails - Object containing badhakHouse number.
+ * @returns {{longevity: number, scoreA: number, scoreB: number} | {error: string}}
+ */
+export function calculateHouseBasedLongevity(siderealPositions, siderealCuspStartDegrees, badhakDetails) {
+    if (!siderealPositions || !Array.isArray(siderealCuspStartDegrees) || siderealCuspStartDegrees.length !== 12 || !badhakDetails) {
+        logger.warn("Cannot calculate house-based longevity: Invalid input provided.");
+        return { error: "Invalid input for longevity calculation." };
+    }
+    if (badhakDetails.error || !badhakDetails.badhakHouse) {
+        logger.warn(`Cannot calculate house-based longevity: Badhak details are missing or have an error. Details: ${JSON.stringify(badhakDetails)}`);
+        return { error: "Badhak details unavailable for longevity calculation." };
+    }
+
+    const lifeIncreasingHouses = [1, 5, 9, 10, 11];
+    const deathInflictingHouses = [6, 8, 12, badhakDetails.badhakHouse];
+    const uniqueDeathHouses = [...new Set(deathInflictingHouses)];
+
+    const planetsToConsider = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+    let scoreA = 0; let scoreB = 0;
+
+    for (const planetName of planetsToConsider) {
+        const planetData = siderealPositions[planetName];
+        if (!planetData || isNaN(planetData.longitude)) continue;
+        const house = getHouseOfPlanet(planetData.longitude, siderealCuspStartDegrees);
+        if (house === null) continue;
+        if (lifeIncreasingHouses.includes(house)) scoreA++;
+        else if (uniqueDeathHouses.includes(house)) scoreB++;
+    }
+
+    const totalScore = scoreA + scoreB;
+    if (totalScore === 0) return { longevity: 0, scoreA, scoreB, reason: "Indeterminate" };
+    const longevity = (scoreA / totalScore) * 120;
+    return { longevity: parseFloat(longevity.toFixed(2)), scoreA, scoreB };
+}
+
+/**
+ * Calculates key longevity factors like Maraka and 8th Lord.
+ * @param {Array<object>} housesData - Array of house data objects from the main calculation.
+ * @returns {{marakaLords: string[], secondLord: string, seventhLord: string, eighthLord: string} | {error: string}}
+ */
+export function calculateLongevityFactors(housesData) {
+    if (!Array.isArray(housesData) || housesData.length !== 12) {
+        logger.warn("Cannot calculate longevity factors: Invalid housesData array.");
+        return { error: "Invalid house data provided." };
+    }
+
+    // House data is 0-indexed (house 1 is at index 0)
+    const secondLord = housesData[1]?.mean_rashi_lord;
+    const seventhLord = housesData[6]?.mean_rashi_lord;
+    const eighthLord = housesData[7]?.mean_rashi_lord;
+
+    if (!secondLord || !seventhLord || !eighthLord) {
+        logger.warn("Cannot calculate longevity factors: Missing lord data for 2nd, 7th, or 8th house.");
+        return { error: "Missing house lord data." };
+    }
+
+    // Maraka lords are the lords of the 2nd and 7th houses.
+    const marakaLords = [...new Set([secondLord, seventhLord])]; // Use Set to handle cases where one planet rules both
+
+    return { marakaLords, secondLord, seventhLord, eighthLord };
+}
+
+/**
+ * Calculates longevity based on a house scoring method.
+ * (A / (A + B)) * 120
+ * @param {object} siderealPositions - Object of sidereal planetary positions.
+ * @param {number[]} siderealCuspStartDegrees - Array of 12 sidereal cusp start degrees.
+ * @param {object} badhakDetails - Object containing badhakHouse number.
+ * @returns {{longevity: number, scoreA: number, scoreB: number} | {error: string}}
+ */
+export function calculateHouseBasedLongevity(siderealPositions, siderealCuspStartDegrees, badhakDetails) {
+    if (!siderealPositions || !Array.isArray(siderealCuspStartDegrees) || siderealCuspStartDegrees.length !== 12 || !badhakDetails) {
+        logger.warn("Cannot calculate house-based longevity: Invalid input provided.");
+        return { error: "Invalid input for longevity calculation." };
+    }
+    if (badhakDetails.error || !badhakDetails.badhakHouse) {
+        logger.warn(`Cannot calculate house-based longevity: Badhak details are missing or have an error. Details: ${JSON.stringify(badhakDetails)}`);
+        return { error: "Badhak details unavailable for longevity calculation." };
+    }
+
+    const lifeIncreasingHouses = [1, 5, 9, 10, 11];
+    const deathInflictingHouses = [6, 8, 12, badhakDetails.badhakHouse];
+    const uniqueDeathHouses = [...new Set(deathInflictingHouses)];
+
+    const planetsToConsider = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
+    let scoreA = 0; let scoreB = 0;
+
+    for (const planetName of planetsToConsider) {
+        const planetData = siderealPositions[planetName];
+        if (!planetData || isNaN(planetData.longitude)) continue;
+        const house = getHouseOfPlanet(planetData.longitude, siderealCuspStartDegrees);
+        if (house === null) continue;
+        if (lifeIncreasingHouses.includes(house)) scoreA++;
+        else if (uniqueDeathHouses.includes(house)) scoreB++;
+    }
+
+    const totalScore = scoreA + scoreB;
+    if (totalScore === 0) return { longevity: 0, scoreA, scoreB, reason: "Indeterminate" };
+    const longevity = (scoreA / totalScore) * 120;
+    return { longevity: parseFloat(longevity.toFixed(2)), scoreA, scoreB };
+}
