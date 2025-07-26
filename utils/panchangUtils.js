@@ -130,7 +130,7 @@ export async function calculatePanchang(dateString, latitude, longitude) { // Ma
         }
 
         // Add sunrise/sunset from SunCalc
-        const sunTimes = calculateSunMoonTimes(dateString, latitude, longitude);
+        const sunTimes = calculateSunMoonTimes(date, latitude, longitude);
         panchangDetails.Sunrise = sunTimes.sunrise;
         panchangDetails.Sunset = sunTimes.sunset;
 
