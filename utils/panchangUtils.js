@@ -169,16 +169,16 @@ export async function calculatePanchang(dateString, latitude, longitude) { // Ma
  * @param {number} longitude - Observer's longitude.
  * @returns {{sunrise: string|null, sunset: string|null, moonrise: string|null, moonset: string|null}} Object with ISO time strings or null if calculation fails.
  */
-export function calculateSunMoonTimes(dateString, latitude, longitude) {
+export function calculateSunMoonTimes(dateInput, latitude, longitude) {
     const result = { sunrise: null, sunset: null, moonrise: null, moonset: null };
     try {
-        if (typeof dateString !== 'string' || dateString.length < 10) {
-            throw new Error(`Invalid date string format: "${dateString}"`);
+        // Accept either a string or a Date object for flexibility.
+        const targetDate = (typeof dateInput === 'string') ? new Date(dateInput) : dateInput;
+
+        // Validate that we have a valid Date object to work with.
+        if (!(targetDate instanceof Date) || isNaN(targetDate.getTime())) {
+            throw new Error(`Invalid date input provided: "${dateInput}"`);
         }
-        // Create a Date object directly from the dateString.
-        // SunCalc will interpret this date in the local timezone of the server,
-        // which is appropriate since the input dateString is expected to be local.
-        const targetDate = new Date(dateString);
 
         if (isNaN(latitude) || isNaN(longitude)) {
              throw new Error(`Invalid coordinates: Lat=${latitude}, Lon=${longitude}`);
@@ -200,7 +200,7 @@ export function calculateSunMoonTimes(dateString, latitude, longitude) {
         if (!result.moonset && moonTimes?.alwaysDown) result.moonset = "Always Down";
 
     } catch (error) {
-        logger.error(`Error calculating Sun/Moon times for "${dateString}", Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });
+        logger.error(`Error calculating Sun/Moon times for "${String(dateInput)}", Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });
         // Return object with nulls
     }
     return result;
