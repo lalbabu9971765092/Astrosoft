@@ -12,8 +12,8 @@ import logger from '../utils/logger.js';
 import {
     PLANET_ORDER, normalizeAngle, getNakshatraDetails, getRashiDetails,
     calculateNakshatraPada, getJulianDateUT, calculateAyanamsa, convertToDMS,
-    convertDMSToDegrees, // Added this import
-    calculateMidpoint, calculateSunMoonTimes, calculateBadhakDetails,
+    convertDMSToDegrees,
+    calculateMidpoint, calculateSunMoonTimes, calculateBadhakDetails, calculateLongevityFactors, calculateHouseBasedLongevity,
     calculatePlanetaryPositions, calculateVimshottariBalance, calculateVimshottariDashas,
     calculateNavamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
     calculateMoolDosha, calculatePanchang, calculatePlanetStates, calculateAspects,
