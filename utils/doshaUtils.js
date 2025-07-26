@@ -241,7 +241,7 @@ export function calculateKaalsarpaDosha(siderealPositions) {
  * @returns {{ present: boolean, nakshatra: string, reason: string }} Mool Dosha details.
  */
 export async function calculateMoolDosha(dateString, latitude, longitude, siderealPositions, sunrise, nextSunrise) {
-    const result = { present: false, nakshatra: "", reason: "", start: null, end: null };
+    const result = { present: false, nakshatra: "", reason: "Calculation could not be completed.", start: null, end: null };
     const moolNakshatras = ["Ashwini", "Ashlesha", "Magha", "Jyeshtha", "Mula", "Revati"];
 
     const moonData = siderealPositions?.Moon;
@@ -252,9 +252,9 @@ export async function calculateMoolDosha(dateString, latitude, longitude, sidere
         return result;
     }
 
-    if (isNaN(moonData.longitude)) {
-        logger.warn(`Cannot calculate Mool Dosha: Moon longitude is NaN. MoonData: ${JSON.stringify(moonData)}`);
-        result.reason = "Moon position unavailable (longitude is NaN).";
+    if (moonData.longitude === undefined || isNaN(moonData.longitude)) {
+        logger.warn(`Cannot calculate Mool Dosha: Moon longitude is invalid. MoonData: ${JSON.stringify(moonData)}`);
+        result.reason = "Moon position unavailable (invalid longitude).";
         return result;
     }
 
@@ -266,6 +266,20 @@ export async function calculateMoolDosha(dateString, latitude, longitude, sidere
     }
 
     result.nakshatra = moonNakDetails.name;
+
+    // If sunrise/nextSunrise are not available, we can still determine if the dosha is present,
+    // but not its start/end time. This makes the function more robust.
+    if (!sunrise || !nextSunrise || !sunrise.isValid() || !nextSunrise.isValid()) {
+        logger.warn(`Sunrise/NextSunrise not available for Mool Dosha start/end calculation on ${dateString}`);
+        if (moolNakshatras.includes(moonNakDetails.name)) {
+            result.present = true;
+            result.reason = `Moon is in ${moonNakDetails.name}, which is a Gand Mool Nakshatra. Start/end times unavailable.`;
+        } else {
+            result.present = false;
+            result.reason = `Moon is in ${moonNakDetails.name}, which is not a Gand Mool Nakshatra.`;
+        }
+        return result;
+    }
 
     // Get Moon's Nakshatra at sunrise and next sunrise
     const { julianDayUT: sunriseJD } = getJulianDateUT(sunrise.toISOString(), latitude, longitude);

@@ -2,6 +2,7 @@
 import express from 'express'; // Using import syntax
 import mongoose from 'mongoose';
 import { body, query, param, validationResult } from 'express-validator';
+import moment from 'moment-timezone';
 import Chart from '../models/Chart.js';
 // --- Import Logger ---
 import logger from '../utils/logger.js';
@@ -151,6 +152,13 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
 
         const siderealPositions = planetaryPositions.sidereal; // Extract for convenience
         const sunMoonTimes = calculateSunMoonTimes(date, latNum, lonNum);
+
+        // --- Calculate sunrise/nextSunrise moments for Mool Dosha timing ---
+        const nextDayDateString = moment(date).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
+        const nextDaySunMoonTimes = calculateSunMoonTimes(nextDayDateString, latNum, lonNum);
+        const sunriseMoment = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
+        const nextSunriseMoment = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
+
         const detailedPanchang = await calculatePanchang(utcDate, latNum, lonNum); // Throws on error
  // *** CONSISTENCY FIX: Ensure Panchang Nakshatra name matches Moon's calculated Nakshatra ***
  const moonNakshatraNameFromPosition = siderealPositions['Moon']?.nakshatra;
@@ -205,7 +213,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
 
         const mangalDoshaResult = calculateMangalDosha(siderealPositions, siderealCuspStartDegrees, siderealAscendantDeg);
         const kaalsarpaDoshaResult = calculateKaalsarpaDosha(siderealPositions);
-        const moolDoshaResult = calculateMoolDosha(siderealPositions);
+        const moolDoshaResult = await calculateMoolDosha(date, latNum, lonNum, siderealPositions, sunriseMoment, nextSunriseMoment);
         const aspectData = calculateAspects(siderealPositions);
         const planetStateData = calculatePlanetStates(siderealPositions);
 
