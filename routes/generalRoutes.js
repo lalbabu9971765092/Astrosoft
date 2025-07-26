@@ -400,7 +400,7 @@ router.get("/sankranti/:year",
 
             // Get initial Rashi
             try {
-                const { julianDayUT: initialJd } = getJulianDateUT(currentDate.toISOString(), lon);
+                const { julianDayUT: initialJd } = getJulianDateUT(currentDate.toISOString(), lat, lon);
                 const initialPositions = calculatePlanetaryPositions(initialJd);
                 const initialSunLon = initialPositions?.sidereal?.Sun?.longitude;
                 if (initialSunLon !== undefined && !isNaN(initialSunLon)) {
