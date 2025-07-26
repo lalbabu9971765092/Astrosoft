@@ -1,3 +1,4 @@
+
 // utils/planetaryUtils.js
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
@@ -7,7 +8,7 @@ import {
 } from './constants.js';
 import { normalizeAngle, convertToDMS, calculateAyanamsa, getJulianDateUT } from './coreUtils.js';
 import moment from 'moment-timezone';
-import { calculateKpSignificators, getKpSignificatorsForPlanet } from './kpUtils.js';
+import { calculateKpSignificators } from './kpUtils.js';
 
 /**
  * Gets the Nakshatra details (name, lord) for a given sidereal longitude.
@@ -940,49 +941,7 @@ export function calculateLongevityFactors(housesData) {
     return { marakaLords, secondLord, seventhLord, eighthLord };
 }
 
-/**
- * Gets all houses signified by a planet according to KP astrology rules.
- * A planet signifies: house it's in, houses it owns, house its Nakshatra lord is in, houses its Nakshatra lord owns.
- * @param {string} planetName - The name of the planet.
- * @param {object} siderealPositions - The complete object of sidereal planetary positions.
- * @param {number[]} siderealCuspStartDegrees - Array of 12 sidereal cusp start degrees.
- * @returns {number[]} A sorted array of unique house numbers signified by the planet.
- */
-function getKpSignificatorsForPlanet(planetName, siderealPositions, siderealCuspStartDegrees) {
-    const significations = new Set();
 
-    const planetData = siderealPositions[planetName];
-    if (!planetData || isNaN(planetData.longitude)) {
-        logger.warn(`[Longevity] Skipping significators for ${planetName}: missing position data.`);
-        return [];
-    }
-
-    const occupiedHouse = getHouseOfPlanet(planetData.longitude, siderealCuspStartDegrees);
-    if (occupiedHouse !== null) significations.add(occupiedHouse);
-
-    if (planetName !== 'Rahu' && planetName !== 'Ketu') {
-        const ownedHouses = getHousesRuledByPlanet(planetName, siderealCuspStartDegrees);
-        ownedHouses.forEach(h => significations.add(h));
-    }
-
-    const nakLordName = planetData.nakLord;
-    if (nakLordName && nakLordName !== "N/A" && nakLordName !== "Error") {
-        const nakLordData = siderealPositions[nakLordName];
-        if (nakLordData && !isNaN(nakLordData.longitude)) {
-            const nlOccupiedHouse = getHouseOfPlanet(nakLordData.longitude, siderealCuspStartDegrees);
-            if (nlOccupiedHouse !== null) significations.add(nlOccupiedHouse);
-
-            if (nakLordName !== 'Rahu' && nakLordName !== 'Ketu') {
-                const nlOwnedHouses = getHousesRuledByPlanet(nakLordName, siderealCuspStartDegrees);
-                nlOwnedHouses.forEach(h => significations.add(h));
-            }
-        } else {
-             logger.warn(`[Longevity] Could not find position data for Nakshatra Lord: ${nakLordName}`);
-        }
-    }
-
-    return Array.from(significations).sort((a, b) => a - b);
-}
 
 /**
  * Calculates longevity based on a house scoring method.
