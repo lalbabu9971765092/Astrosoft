@@ -563,6 +563,15 @@ const AstrologyForm = () => {
                             {displayResult.ascendant?.rashi &&
                                 ` (${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${displayResult.ascendant.nakshatra}`, { defaultValue: displayResult.ascendant.nakshatra })} ${t('astrologyForm.padaLabel')}${displayResult.ascendant.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.ascendant.nakLord}`, { defaultValue: displayResult.ascendant.nakLord })})`}
                         </p>
+                        {/* Badhak Details */}
+                        {displayResult.badhakDetails && !displayResult.badhakDetails.error && (
+                            <p className="result-text">
+                                <strong>{t('astrologyForm.badhakTitle', 'Badhak:')}</strong>
+                                {` ${t('astrologyForm.badhakHouseLabel', 'House')} ${displayResult.badhakDetails.badhakHouse} `}
+                                {`(${t(`rashis.${displayResult.badhakDetails.badhakSign}`, { defaultValue: displayResult.badhakDetails.badhakSign })}, `}
+                                {`${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.badhakDetails.badhakesh}`, { defaultValue: displayResult.badhakDetails.badhakesh })})`}
+                            </p>
+                        )}
                         {birthSunMoonTimes && (
                             <>
                                 <p className="result-text">{t('astrologyForm.sunriseLabel')} {formatPanchangTime(birthSunMoonTimes.sunrise, t) ?? t('utils.notAvailable', 'N/A')}</p>
