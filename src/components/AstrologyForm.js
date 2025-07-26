@@ -108,6 +108,7 @@ const AstrologyForm = () => {
         basicInfo: true,
         dashaBalance: true,
         doshas: true,
+        longevityFactors: true,
         panchanga: true,
         lordships: true,
         charts: true,
@@ -607,6 +608,33 @@ const AstrologyForm = () => {
                         <p className="result-text">{t('astrologyForm.moolDoshaLabel')} {formatDosha('mool')}</p>
                     </div>
                 </div>
+                {/* Longevity Factors */}
+                {displayResult.longevityFactors && !displayResult.longevityFactors.error && (
+                    <div className="result-section">
+                        <div className="section-header" onClick={() => toggleSection('longevityFactors')}>
+                            <h3 className="result-sub-title">{t('astrologyForm.longevityFactorsTitle', 'Longevity Factors')}</h3>
+                            <button className="toggle-button">{openSections.longevityFactors ? '−' : '+'}</button>
+                        </div>
+                        <div className={`section-content ${openSections.longevityFactors ? '' : 'collapsed'}`}>
+                            {/* House-Based Longevity */}
+                            {displayResult.houseBasedLongevity && !displayResult.houseBasedLongevity.error && (
+                                <>
+                                    <p className="result-text">
+                                        <strong>{t('astrologyForm.longevityScoreLabel', 'Calculated Longevity:')}</strong>
+                                        {` ${displayResult.houseBasedLongevity.longevity} ${t('astrologyForm.yearsLabel', 'years')}`}
+                                    </p>
+                                    <p className="result-text hint-text">
+                                        ({t('astrologyForm.scoreALabel', 'Score A (Life+)')}: {displayResult.houseBasedLongevity.scoreA}, {t('astrologyForm.scoreBLabel', 'Score B (Life-)')}: {displayResult.houseBasedLongevity.scoreB})
+                                    </p>
+                                </>
+                            )}
+                            {/* Maraka/Badhaka */}
+                            <p className="result-text"><strong>{t('astrologyForm.marakaPlanetsLabel', 'Maraka Planets (2nd & 7th Lords):')}</strong>{` ${displayResult.longevityFactors.marakaLords.map(lord => t(`planets.${lord}`, { defaultValue: lord })).join(', ')}`}</p>
+                            <p className="result-text"><strong>{t('astrologyForm.eighthLordLabel', '8th Lord:')}</strong> {t(`planets.${displayResult.longevityFactors.eighthLord}`, { defaultValue: displayResult.longevityFactors.eighthLord })}</p>
+                            {displayResult.badhakDetails && !displayResult.badhakDetails.error && (<p className="result-text"><strong>{t('astrologyForm.badhakeshLabel', 'Badhakesh (Obstructor):')}</strong> {t(`planets.${displayResult.badhakDetails.badhakesh}`, { defaultValue: displayResult.badhakDetails.badhakesh })}</p>)}
+                        </div>
+                    </div>
+                )}
                 {/* Panchanga Details */}
                 <div className="result-section">
                     <div className="section-header" onClick={() => toggleSection('panchanga')}>
