@@ -198,7 +198,7 @@ export function calculateSunMoonTimes(utcDateObject, latitude, longitude) {
         if (!result.moonset && moonTimes?.alwaysDown) result.moonset = "Always Down";
 
     } catch (error) {
-        logger.error(`Error calculating Sun/Moon times for "${String(dateInput)}", Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });
+        logger.error(`Error calculating Sun/Moon times for "${String(utcDateObject)}", Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });
         // Return object with nulls
     }
     return result;
