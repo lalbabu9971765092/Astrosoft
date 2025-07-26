@@ -682,7 +682,7 @@ const AstrologyForm = () => {
                 {/* --- Charts Grid (2x2) --- */}
                 <div className="result-section">
                     <div className="section-header" onClick={() => toggleSection('charts')}>
-                        <h3 className="result-sub-title">{t('astrologyForm.chartsTitle')}</h3>
+                        <h3 className="result-sub-title">{t('Main Charts')}</h3>
                         <button className="toggle-button">{openSections.charts ? '−' : '+'}</button>
                     </div>
                     <div className={`section-content ${openSections.charts ? '' : 'collapsed'}`}>

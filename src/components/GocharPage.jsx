@@ -92,18 +92,16 @@ const GocharPage = () => {
     // --- Effect to Fetch Rectified NATAL Data ---
     useEffect(() => {
         if (!adjustedBirthDateTimeString || !calculationInputParams?.latitude || !calculationInputParams?.longitude || !calculationInputParams?.date) {
-            if (rectifiedNatalResult) setRectifiedNatalResult(null);
-            if (rectificationError) setRectificationError(null);
+            setRectifiedNatalResult(null);
+            setRectificationError(null);
             return;
         }
         try {
             const originalDate = new Date(calculationInputParams.date);
             const adjustedDate = new Date(adjustedBirthDateTimeString);
             if (!isNaN(originalDate) && !isNaN(adjustedDate) && originalDate.getTime() === adjustedDate.getTime()) {
-                if (rectifiedNatalResult) {
-                    setRectifiedNatalResult(null);
-                    setRectificationError(null);
-                }
+                setRectifiedNatalResult(null);
+                setRectificationError(null);
                 return;
             }
         } catch (e) { console.error("GocharPage (Natal Rectification): Date comparison error:", e); }
@@ -136,17 +134,16 @@ const GocharPage = () => {
         };
         const timerId = setTimeout(fetchRectifiedNatalData, 300);
         return () => clearTimeout(timerId);
-    }, [adjustedBirthDateTimeString, calculationInputParams, t, rectificationError, rectifiedNatalResult]); // Add t dependency
+    }, [adjustedBirthDateTimeString, calculationInputParams, t]); // Add t dependency
 
     // --- Effect to Fetch TRANSIT Data ---
     useEffect(() => {
         if (!adjustedGocharDateTimeString || !locationForGocharTool?.lat || !locationForGocharTool?.lon) {
-            if (transitData) setTransitData(null);
-            if (transitError) setTransitError(null);
+            setTransitData(null);
             if (!locationForGocharTool?.lat || !locationForGocharTool?.lon) {
                 // Translate location required error
                 setTransitError(t('gocharPage.validLocationRequired'));
-            } else { setTransitError(null); }
+            } else { setTransitError(null); } // Clear error if location becomes available but time is not
             return;
         }
         // Pass 't' to validation function
@@ -177,7 +174,7 @@ const GocharPage = () => {
         };
         const timerId = setTimeout(fetchTransitData, 300);
         return () => clearTimeout(timerId);
-    }, [adjustedGocharDateTimeString, locationForGocharTool, t, transitData, transitError]); // Add t dependency
+    }, [adjustedGocharDateTimeString, locationForGocharTool, t]); // Add t dependency
 
     // --- Determine which NATAL result set to display (Unchanged) ---
     const displayNatalResult = rectifiedNatalResult || mainResult;
