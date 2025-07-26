@@ -246,12 +246,23 @@ export function calculatePlanetaryPositions(julianDayUT) {
         throw new Error(`calculatePlanetaryPositions received invalid Julian Day: ${julianDayUT}`);
     }
 
-    const planets = [
-        swisseph.SE_SUN, swisseph.SE_MOON, swisseph.SE_MARS, swisseph.SE_MERCURY,
-        swisseph.SE_JUPITER, swisseph.SE_VENUS, swisseph.SE_SATURN,
-        swisseph.SE_TRUE_NODE // Rahu (True Node)
-    ];
-    const flags = swisseph.SEFLG_SPEED | swisseph.SEFLG_SIDEREAL; // Request speed and use sidereal mode set globally
+    // Use a map for a more robust link between planet ID and name
+    const planetMap = {
+        [swisseph.SE_SUN]: 'Sun',
+        [swisseph.SE_MOON]: 'Moon',
+        [swisseph.SE_MARS]: 'Mars',
+        [swisseph.SE_MERCURY]: 'Mercury',
+        [swisseph.SE_JUPITER]: 'Jupiter',
+        [swisseph.SE_VENUS]: 'Venus',
+        [swisseph.SE_SATURN]: 'Saturn',
+        [swisseph.SE_TRUE_NODE]: 'Rahu',
+        [swisseph.SE_URANUS]: 'Uranus',
+        [swisseph.SE_NEPTUNE]: 'Neptune',
+        [swisseph.SE_PLUTO]: 'Pluto'
+    };
+    const planetsToCalc = Object.keys(planetMap).map(Number); // Get array of planet IDs
+
+    const flags = swisseph.SEFLG_SPEED | swisseph.SEFLG_SIDEREAL;
     const tropicalFlags = swisseph.SEFLG_SPEED; // For tropical positions
 
     const results = { tropical: {}, sidereal: {} };
@@ -262,8 +273,8 @@ export function calculatePlanetaryPositions(julianDayUT) {
              throw new Error(`Cannot calculate positions without a valid Ayanamsa for JD ${julianDayUT}`);
         }
 
-        for (const planetId of planets) {
-            const planetName = PLANET_ORDER[planets.indexOf(planetId)];
+        for (const planetId of planetsToCalc) {
+            const planetName = planetMap[planetId];
             logger.debug(`Processing planet: ${planetName} (ID: ${planetId})`);
 
             const siderealCalc = swisseph.swe_calc_ut(julianDayUT, planetId, flags);

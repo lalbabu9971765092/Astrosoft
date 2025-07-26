@@ -46,7 +46,8 @@ export const RASHI_LORDS = [
 
 // Order for calculations and display
 export const PLANET_ORDER = [
-    "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"
+    "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu",
+    "Uranus", "Neptune", "Pluto"
 ];
 
 // Order specifically for friendship calculations
