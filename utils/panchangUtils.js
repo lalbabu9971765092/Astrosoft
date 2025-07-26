@@ -169,11 +169,13 @@ export async function calculatePanchang(dateString, latitude, longitude) { // Ma
  * @param {number} longitude - Observer's longitude.
  * @returns {{sunrise: string|null, sunset: string|null, moonrise: string|null, moonset: string|null}} Object with ISO time strings or null if calculation fails.
  */
-export function calculateSunMoonTimes(dateInput, latitude, longitude) {
+export function calculateSunMoonTimes(utcDateObject, latitude, longitude) {
     const result = { sunrise: null, sunset: null, moonrise: null, moonset: null };
     try {
-        // Accept either a string or a Date object for flexibility.
-        const targetDate = (typeof dateInput === 'string') ? new Date(dateInput) : dateInput;
+        // Ensure utcDateObject is a valid Date object
+        if (!(utcDateObject instanceof Date) || isNaN(utcDateObject.getTime())) {
+            throw new Error(`Invalid UTC date object provided: ${utcDateObject}`);
+        }
 
         // Validate that we have a valid Date object to work with.
         if (!(targetDate instanceof Date) || isNaN(targetDate.getTime())) {

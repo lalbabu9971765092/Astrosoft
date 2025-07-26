@@ -753,11 +753,11 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     }
     const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
 
-    const sunMoonTimes = await calculateSunMoonTimes(standardizedDateString, latitude, longitude);
+    const sunMoonTimes = await calculateSunMoonTimes(utcDate, latitude, longitude);
     const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
     const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-    const nextDayDateString = moment(standardizedDateString).add(1, 'day').format('YYYY-MM-DDTHH:mm:ss');
-    const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayDateString, latitude, longitude);
+    const nextDayUtcDate = moment(utcDate).add(1, 'day').toDate(); // Get UTC date for next day
+    const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayUtcDate, latitude, longitude);
     const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
     if (!sunrise || !sunset || !nextSunrise || !sunrise.isValid() || !sunset.isValid() || !nextSunrise.isValid()) {
@@ -781,9 +781,9 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const guliKaals = await calculateGuliKaal(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek); // Returns an array
     const durMuhurtas = await calculateDurMuhurta(sunrise, sunset, dayDurationMs, dayOfWeek);
     const pradoshKaal = await calculatePradoshKaal(sunset);
-    const varjyam = await calculateVarjyam(standardizedDateString, latitude, longitude, sunrise, sunset, dayDurationMs);
-    const panchak = await calculatePanchak(standardizedDateString, latitude, longitude, sunrise, nextSunrise);
-    const gandMool = await calculateMoolDosha(standardizedDateString, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
+    const varjyam = await calculateVarjyam(utcDate, latitude, longitude, sunrise, sunset, dayDurationMs);
+    const panchak = await calculatePanchak(utcDate, latitude, longitude, sunrise, nextSunrise);
+    const gandMool = await calculateMoolDosha(utcDate, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
 
     const muhurtaPeriods = [];
     if (abhijitMuhurta) muhurtaPeriods.push(abhijitMuhurta);
