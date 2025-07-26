@@ -1025,8 +1025,60 @@ export function calculateLongevityFactors(housesData) {
 }
 
 /**
+ * Gets all houses signified by a planet according to KP astrology rules.
+ * A planet signifies: house it's in, houses it owns, house its Nakshatra lord is in, houses its Nakshatra lord owns.
+ * @param {string} planetName - The name of the planet.
+ * @param {object} siderealPositions - The complete object of sidereal planetary positions.
+ * @param {number[]} siderealCuspStartDegrees - Array of 12 sidereal cusp start degrees.
+ * @returns {number[]} A sorted array of unique house numbers signified by the planet.
+ */
+function getKpSignificatorsForPlanet(planetName, siderealPositions, siderealCuspStartDegrees) {
+    const significations = new Set();
+
+    // Planet itself
+    const planetData = siderealPositions[planetName];
+    if (!planetData || isNaN(planetData.longitude)) {
+        logger.warn(`[Longevity] Skipping significators for ${planetName}: missing position data.`);
+        return [];
+    }
+
+    // 1. House occupied by the planet
+    const occupiedHouse = getHouseOfPlanet(planetData.longitude, siderealCuspStartDegrees);
+    if (occupiedHouse !== null) significations.add(occupiedHouse);
+
+    // 2. Houses owned by the planet (not for Rahu/Ketu)
+    if (planetName !== 'Rahu' && planetName !== 'Ketu') {
+        const ownedHouses = getHousesRuledByPlanet(planetName, siderealCuspStartDegrees);
+        ownedHouses.forEach(h => significations.add(h));
+    }
+
+    // Nakshatra Lord
+    const nakLordName = planetData.nakLord;
+    if (nakLordName && nakLordName !== "N/A" && nakLordName !== "Error") {
+        const nakLordData = siderealPositions[nakLordName];
+        if (nakLordData && !isNaN(nakLordData.longitude)) {
+            // 3. House occupied by Nakshatra Lord
+            const nlOccupiedHouse = getHouseOfPlanet(nakLordData.longitude, siderealCuspStartDegrees);
+            if (nlOccupiedHouse !== null) significations.add(nlOccupiedHouse);
+
+            // 4. Houses owned by Nakshatra Lord (not for Rahu/Ketu)
+            if (nakLordName !== 'Rahu' && nakLordName !== 'Ketu') {
+                const nlOwnedHouses = getHousesRuledByPlanet(nakLordName, siderealCuspStartDegrees);
+                nlOwnedHouses.forEach(h => significations.add(h));
+            }
+        } else {
+             logger.warn(`[Longevity] Could not find position data for Nakshatra Lord: ${nakLordName}`);
+        }
+    }
+
+    return Array.from(significations).sort((a, b) => a - b);
+}
+
+/**
  * Calculates longevity based on a house scoring method.
- * (A / (A + B)) * 120
+ * Score A = Sum of life-increasing houses in KP significators of 7 planets.
+ * Score B = Sum of life-reducing houses in KP significators of 7 planets.
+ * Longevity = (A / (A + B)) * 120.
  * @param {object} siderealPositions - Object of sidereal planetary positions.
  * @param {number[]} siderealCuspStartDegrees - Array of 12 sidereal cusp start degrees.
  * @param {object} badhakDetails - Object containing badhakHouse number.
@@ -1050,12 +1102,17 @@ export function calculateHouseBasedLongevity(siderealPositions, siderealCuspStar
     let scoreA = 0; let scoreB = 0;
 
     for (const planetName of planetsToConsider) {
-        const planetData = siderealPositions[planetName];
-        if (!planetData || isNaN(planetData.longitude)) continue;
-        const house = getHouseOfPlanet(planetData.longitude, siderealCuspStartDegrees);
-        if (house === null) continue;
-        if (lifeIncreasingHouses.includes(house)) scoreA++;
-        else if (uniqueDeathHouses.includes(house)) scoreB++;
+        // Get all houses signified by the planet using KP rules
+        const signifiedHouses = getKpSignificatorsForPlanet(planetName, siderealPositions, siderealCuspStartDegrees);
+
+        // Count how many of these signified houses fall into each category
+        for (const house of signifiedHouses) {
+            if (lifeIncreasingHouses.includes(house)) {
+                scoreA++;
+            } else if (uniqueDeathHouses.includes(house)) {
+                scoreB++;
+            }
+        }
     }
 
     const totalScore = scoreA + scoreB;
