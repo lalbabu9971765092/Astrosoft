@@ -12,7 +12,7 @@ import {
     PLANET_ORDER, normalizeAngle, getNakshatraDetails, getRashiDetails,
     calculateNakshatraPada, getJulianDateUT, calculateAyanamsa, convertToDMS,
     convertDMSToDegrees, // Added this import
-    calculateMidpoint, calculateSunMoonTimes,
+    calculateMidpoint, calculateSunMoonTimes, calculateBadhakDetails,
     calculatePlanetaryPositions, calculateVimshottariBalance, calculateVimshottariDashas,
     calculateNavamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
     calculateMoolDosha, calculatePanchang, calculatePlanetStates, calculateAspects,
@@ -143,6 +143,9 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const ascendantPositionWithinNakshatra = siderealAscendantDeg - (ascendantNakDetails.index * NAKSHATRA_SPAN);
         const ascendantSubSubLordDetails = getSubSubLordDetails(ascendantPositionWithinNakshatra, ascendantSubLordDetails);
 
+        // Calculate Badhak details
+        const badhakDetails = calculateBadhakDetails(siderealAscendantDeg);
+
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         // planetaryPositions util now throws on critical failure
 
@@ -241,6 +244,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
                 subLord: ascendantSubLordDetails.lord, // Add Ascendant Sub Lord
                 subSubLord: ascendantSubSubLordDetails.lord // Add Ascendant Sub-Sub Lord
             },
+            badhakDetails: badhakDetails,
             houses: housesData,
             planetaryPositions, // Contains both tropical and sidereal
             sunMoonTimes: {

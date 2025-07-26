@@ -950,3 +950,49 @@ export async function calculateKpRulingPlanets(dateString, latitude, longitude) 
         throw new Error(`Failed to calculate KP Ruling Planets: ${error.message}`);
     }
 }
+
+/**
+ * Calculates Badhak house and Badhakesh (lord of Badhak house).
+ * @param {number} siderealAscendantDeg - Sidereal longitude of the Ascendant.
+ * @returns {{ badhakHouse: number, badhakSign: string, badhakesh: string } | { error: string }}
+ */
+export function calculateBadhakDetails(siderealAscendantDeg) {
+    if (isNaN(siderealAscendantDeg)) {
+        logger.warn(`Cannot calculate Badhak details: Invalid Ascendant degree.`);
+        return { error: "Invalid Ascendant degree." };
+    }
+
+    const ascRashiDetails = getRashiDetails(siderealAscendantDeg);
+    if (!ascRashiDetails || ascRashiDetails.index === -1) {
+        logger.warn(`Cannot calculate Badhak details: Could not determine Ascendant Rashi.`);
+        return { error: "Could not determine Ascendant Rashi." };
+    }
+
+    const ascRashiIndex = ascRashiDetails.index; // 0 for Aries, 1 for Taurus, etc.
+
+    const movableSigns = [0, 3, 6, 9]; // Aries, Cancer, Libra, Capricorn
+    const fixedSigns = [1, 4, 7, 10]; // Taurus, Leo, Scorpio, Aquarius
+    // Dual signs are the rest
+
+    let badhakHouseNumber;
+
+    if (movableSigns.includes(ascRashiIndex)) {
+        badhakHouseNumber = 11;
+    } else if (fixedSigns.includes(ascRashiIndex)) {
+        badhakHouseNumber = 9;
+    } else { // Dual signs
+        badhakHouseNumber = 7;
+    }
+
+    const badhakSignIndex = (ascRashiIndex + badhakHouseNumber - 1) % 12;
+    const badhakSign = RASHIS[badhakSignIndex];
+    const badhakesh = RASHI_LORDS[badhakSignIndex];
+
+    logger.debug(`Badhak calculation for Asc ${ascRashiDetails.name}: House ${badhakHouseNumber}, Sign ${badhakSign}, Lord ${badhakesh}`);
+
+    return {
+        badhakHouse: badhakHouseNumber,
+        badhakSign: badhakSign,
+        badhakesh: badhakesh
+    };
+}
