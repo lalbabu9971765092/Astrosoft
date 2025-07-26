@@ -1,4 +1,3 @@
-
 // utils/planetaryUtils.js
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
@@ -8,7 +7,7 @@ import {
 } from './constants.js';
 import { normalizeAngle, convertToDMS, calculateAyanamsa, getJulianDateUT } from './coreUtils.js';
 import moment from 'moment-timezone';
-import { calculateKpSignificators } from './kpUtils.js';
+import { calculateKpSignificators, getKpSignificatorsForPlanet } from './kpUtils.js';
 
 /**
  * Gets the Nakshatra details (name, lord) for a given sidereal longitude.
