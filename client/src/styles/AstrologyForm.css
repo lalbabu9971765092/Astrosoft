@@ -1,0 +1,283 @@
+/* src/styles/AstrologyFormContent.css */
+
+/* --- Main Content Area Layout --- */
+.astrology-form-content {
+  display: flex;
+  flex-wrap: wrap; /* Allow columns to wrap on smaller screens */
+  gap: 20px; /* Space between columns */
+  align-items: flex-start; /* Align columns to the top */
+  padding: 15px 0; /* Add some vertical padding */
+}
+
+/* --- Column Styling --- */
+.results-column {
+  flex: 1; /* Allow columns to grow and shrink equally by default */
+  min-width: 300px; /* Minimum width before wrapping */
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box; /* Include padding and border in width */
+}
+
+.results-column.left-column {
+  /* Specific styles for left column if needed */
+}
+
+.results-column.middle-column {
+  /* Specific styles for middle column if needed */
+  /* Example: Give it more space if desired */
+  /* flex-grow: 1.5; */
+}
+
+.results-column.right-column {
+  /* Specific styles for right column if needed */
+}
+
+.column-title {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 1.3em;
+  color: #333;
+  border-bottom: 2px solid #007bff; /* Accent color */
+  padding-bottom: 8px;
+  text-align: center;
+}
+
+/* --- Section Styling within Columns --- */
+.result-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px dashed #eee; /* Lighter separator */
+}
+.result-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.result-sub-title {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.1em;
+  color: #444;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.result-text {
+  margin: 5px 0;
+  line-height: 1.5;
+  font-size: 0.95em;
+  color: #555;
+}
+.result-text strong {
+  color: #333;
+}
+
+/* --- Input Summary --- */
+.input-summary p {
+  margin: 4px 0;
+  font-size: 0.9em;
+}
+
+/* --- Dasha Balance --- */
+.dasha-balance p {
+  margin: 4px 0;
+}
+
+/* --- Dosha Details --- */
+.dosha-details p {
+  margin: 4px 0;
+}
+.dosha-status {
+  font-weight: bold;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 0.85em;
+  margin-left: 5px;
+}
+.dosha-present { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.dosha-absent { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.dosha-na { background-color: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+.dosha-error { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+/* --- Chart Styling --- */
+.charts-grid-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+  gap: 15px; /* Space between charts */
+  margin-bottom: 20px;
+}
+
+.chart-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* Align chart to top */
+  /* border: 1px solid #eee; */ /* Optional border for cells */
+  /* padding: 5px; */
+}
+
+.chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 250px; /* Match chart size */
+  width: 100%;
+  background-color: #f8f9fa;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+  color: #6c757d;
+  font-style: italic;
+  font-size: 0.9em;
+  text-align: center;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* Ensure SVG charts scale */
+.chart-cell svg,
+.birth-chart-container svg { /* Target the SVG directly */
+  max-width: 100%;
+  height: auto; /* Maintain aspect ratio */
+  display: block; /* Prevent extra space below */
+}
+
+/* --- Table Styling --- */
+.table-wrapper {
+  overflow-x: auto; /* Enable horizontal scroll on overflow */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  max-width: 100%; /* Prevent wrapper from exceeding column width */
+  margin-bottom: 1em; /* Add some space below tables */
+  border: 1px solid #ddd; /* Add border around scrollable area */
+  border-radius: 4px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em; /* Slightly smaller font for tables */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.results-table th,
+.results-table td {
+  border: 1px solid #ddd;
+  padding: 6px 8px; /* Adjust padding */
+  text-align: left;
+  vertical-align: middle;
+}
+
+.results-table thead th {
+  background-color: #f8f9fa; /* Light header background */
+  font-weight: bold;
+  position: sticky; /* Make header sticky within the wrapper */
+  top: 0;
+  z-index: 1;
+}
+
+.results-table tbody tr:nth-child(even) {
+  background-color: #fdfdfd; /* Subtle striping */
+}
+
+.results-table tbody tr:hover {
+  background-color: #f1f1f1; /* Hover effect */
+}
+
+/* Specific table adjustments if needed */
+.houses-table { /* Example */ }
+.planets-table { /* Example */ }
+
+/* --- Gochar Details --- */
+.gochar-details-content .result-section {
+  border-bottom: 1px solid #eee; /* Lighter separator for gochar */
+}
+.gochar-details-content .result-text {
+  font-size: 0.9em; /* Slightly smaller for gochar */
+}
+
+/* --- Loading / Error / Info States --- */
+.loader, .loading-overlay {
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+  color: #666;
+}
+.small-loader { padding: 5px; font-size: 0.9em; }
+.tiny-loader { padding: 2px; font-size: 0.8em; }
+
+.error-text, .error-overlay {
+  color: #dc3545;
+  font-weight: bold;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+.small-error { font-size: 0.85em; padding: 5px 8px; margin-top: 5px; }
+.tiny-error { font-size: 0.8em; padding: 3px 6px; margin-top: 3px; }
+
+.info-text {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 15px;
+}
+.small-info { font-size: 0.9em; padding: 8px; }
+
+.placeholder-message {
+  padding: 40px 20px;
+  text-align: center;
+  font-size: 1.1em;
+  color: #6c757d;
+  border: 2px dashed #ced4da;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) {
+  .astrology-form-content {
+    flex-direction: column; /* Stack columns */
+    gap: 25px;
+  }
+  .results-column {
+    min-width: 100%; /* Allow columns to take full width */
+  }
+  .charts-grid-2x2 {
+    /* Optional: Stack charts on medium screens too */
+    /* grid-template-columns: 1fr; */
+  }
+}
+
+@media (max-width: 768px) {
+  .charts-grid-2x2 {
+    grid-template-columns: 1fr; /* Stack charts in a single column */
+    gap: 20px;
+  }
+  .results-table {
+    font-size: 0.8em; /* Further reduce font size */
+  }
+  .results-table th,
+  .results-table td {
+    padding: 4px 6px;
+  }
+  .column-title {
+    font-size: 1.2em;
+  }
+  .result-sub-title {
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .results-column {
+    padding: 10px;
+  }
+  .charts-grid-2x2 {
+    gap: 10px;
+  }
+}

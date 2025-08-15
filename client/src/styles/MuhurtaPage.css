@@ -1,0 +1,184 @@
+/* src/styles/MuhurtaPage.css */
+
+.muhurta-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.page-title {
+    text-align: center;
+    color: var(--text-color-primary);
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+.muhurta-results-container {
+    background-color: var(--card-bg-color);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+    padding: 25px;
+}
+
+.muhurta-details {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--header-bg-color);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.section-header:hover {
+    background-color: var(--header-bg-hover-color);
+}
+
+.section-header h3 {
+    margin: 0;
+    color: var(--header-text-color);
+    font-size: 1.4em;
+    font-weight: 600;
+}
+
+.toggle-button {
+    background: none;
+    border: none;
+    color: var(--header-text-color);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.section-content {
+    max-height: 1000px; /* Arbitrarily large value */
+    
+    overflow-y: auto;
+    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.section-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 15px;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 0.95em;
+}
+
+.results-table th,
+.results-table td {
+    border: 1px solid var(--table-border-color);
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.results-table th {
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.results-table tr:nth-child(even) {
+    background-color: var(--table-row-even-bg);
+}
+
+.results-table tr:hover {
+    background-color: var(--table-row-hover-bg);
+}
+
+.result-sub-title {
+    color: var(--text-color-secondary);
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.error-text {
+    color: var(--error-color);
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.loading-text {
+    text-align: center;
+    color: var(--text-color-secondary);
+    margin-top: 20px;
+}
+
+.tool-placeholder {
+    text-align: center;
+    color: var(--text-color-secondary);
+    padding: 20px;
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2em;
+    }
+
+    .section-header h3 {
+        font-size: 1.2em;
+    }
+
+    .results-table th,
+    .results-table td {
+        padding: 8px 10px;
+        font-size: 0.85em;
+    }
+}
+
+@media (max-width: 480px) {
+    .muhurta-page {
+        padding: 10px;
+    }
+
+    .page-title {
+        font-size: 1.8em;
+    }
+
+    .section-header {
+        padding: 10px 15px;
+    }
+
+    .section-header h3 {
+        font-size: 1em;
+    }
+
+    .toggle-button {
+        font-size: 1em;
+    }
+
+    .results-table {
+        font-size: 0.8em;
+    }
+}

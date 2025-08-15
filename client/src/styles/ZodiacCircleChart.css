@@ -1,0 +1,67 @@
+/* src/ZodiacCircleChart.css */
+.zodiac-chart-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.chart-title {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.zodiac-chart-svg {
+    border: 1px solid #eee;
+    border-radius: 50%;
+    background-color: #fdfdfd;
+}
+
+.zodiac-chart-placeholder {
+    width: 300px; /* Match default size */
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #ccc;
+    color: #888;
+    margin: 20px 0;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Add more specific styles for text, lines, etc. as needed */
+
+/* src/ZodiacCircleChart.css */
+/* ... (existing styles) ... */
+
+.zodiac-chart-container .legend {
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.zodiac-chart-svg .planet-symbol {
+    /* Common styles for all planet symbols */
+    cursor: default; /* Indicate non-interactive */
+}
+
+.zodiac-chart-svg .natal-planet {
+    /* Specific styles for natal planets if needed */
+}
+
+.zodiac-chart-svg .transit-planet {
+    /* Specific styles for transit planets if needed */
+    /* Example: slightly different font weight? */
+    /* font-weight: normal; */
+}
+
+/* Add styles for the legend if you implement one */
+.zodiac-chart-svg text[fill="#333"] { /* Crude way to style legend text based on color */
+   /* font-weight: bold; */
+}
+.zodiac-chart-svg text[fill="#007bff"] {
+   /* font-weight: bold; */
+}
+

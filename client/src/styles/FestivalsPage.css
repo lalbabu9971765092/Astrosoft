@@ -1,0 +1,276 @@
+/* src/FestivalsPage.css */
+
+/* --- General Page Styles --- */
+.festivals-page {
+  padding: 20px;
+  max-width: 1600px; /* Allow wider layout for 4 columns */
+  margin: 0 auto;
+}
+
+.festivals-page .result-title { /* Assuming a main title exists */
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+/* --- Styles for Centered Controls --- */
+.main-controls-container.centered-controls {
+    display: flex;
+    flex-direction: column; /* Stack year input and button group vertically */
+    align-items: center; /* Center items horizontally */
+    padding: 20px;
+    background-color: #f0f0f0; /* Optional background */
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 500px; /* Limit width */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.main-controls-container .result-title { /* Title within controls */
+    margin-bottom: 15px;
+    width: 100%; /* Ensure title spans width before centering text */
+    text-align: center;
+    font-size: 1.2em; /* Adjust size */
+    color: #333;
+}
+
+.controls-group.year-control-group {
+    margin-bottom: 15px; /* Space between year input and buttons */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.controls-group.year-control-group label {
+    font-weight: bold;
+}
+.controls-group.year-control-group input[type="number"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100px;
+    text-align: center;
+}
+
+
+.action-buttons-group {
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    justify-content: center; /* Center buttons within the group */
+    gap: 10px; /* Space between buttons */
+}
+
+.action-button { /* Style for buttons in the main control group */
+    padding: 8px 15px;
+    font-size: 0.95em;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    color: white;
+    white-space: nowrap; /* Prevent button text wrapping */
+}
+.action-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Specific button colors (adjust as needed) */
+.sankranti-button { background-color: #ff9800; } /* Orange */
+.sankranti-button:hover:not(:disabled) { background-color: #e68a00; }
+
+.tithi-festival-button { background-color: #007bff; } /* Blue */
+.tithi-festival-button:hover:not(:disabled) { background-color: #0056b3; }
+
+.recurring-tithi-button { background-color: #6c757d; } /* Gray */
+.recurring-tithi-button:hover:not(:disabled) { background-color: #5a6268; }
+
+
+/* --- Styles for Four Column Layout --- */
+.results-grid-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow columns to wrap */
+    gap: 20px; /* Space between columns */
+    margin-top: 20px;
+    align-items: stretch; /* Make columns equal height if wrapping */
+}
+
+.results-column {
+    flex: 1; /* Allow columns to grow */
+    min-width: 280px; /* Minimum width before wrapping - adjust as needed */
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    display: flex; /* Use flex column inside each column for alignment */
+    flex-direction: column;
+}
+
+.results-column .result-title { /* Title within each column */
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    font-size: 1.1em; /* Adjust size */
+}
+
+.results-column .result-sub-title {
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 1em; /* Adjust size */
+    color: #555;
+}
+
+.results-column .table-container {
+    overflow-x: auto; /* Allow horizontal scrolling for tables if needed */
+    flex-grow: 1; /* Allow table container to take remaining space */
+    border: 1px solid #ddd; /* Add border around scrollable area */
+    border-radius: 4px;
+    margin-top: 10px; /* Space above table */
+}
+
+/* General Table Styles within columns */
+.results-column table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+.results-column th,
+.results-column td {
+    padding: 6px 8px;
+    border: 1px solid #eee;
+    text-align: left;
+    white-space: nowrap;
+}
+.results-column th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    position: sticky; /* Make header sticky within .table-container */
+    top: 0;
+    z-index: 1;
+}
+.results-column tbody tr:nth-child(even) {
+    background-color: #fdfdfd;
+}
+
+.results-column .info-text {
+    text-align: center;
+    margin-top: 15px;
+    color: #666;
+    font-style: italic;
+    flex-grow: 1; /* Allow text to take space if no table */
+    display: flex;
+    align-items: center; /* Center text vertically */
+    justify-content: center;
+    padding: 10px;
+}
+.results-column .info-text.note {
+    font-style: normal;
+    font-size: 0.9em;
+    background-color: #fff3cd;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+
+/* Styles for the Manual Tithi Finder within its column */
+.tithi-finder-column .tithi-finder-controls {
+    display: flex;
+    flex-direction: column; /* Stack controls vertically */
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+.tithi-finder-column .tithi-finder-controls label {
+    margin-right: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+.tithi-finder-column .tithi-finder-controls input,
+.tithi-finder-column .tithi-finder-controls select {
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95em;
+}
+.tithi-finder-column .tithi-finder-controls button {
+    padding: 8px 12px;
+    /* Use existing button styles or define specific ones */
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+.tithi-finder-column .tithi-finder-controls button:hover:not(:disabled) {
+    background-color: #218838;
+}
+.tithi-finder-column .tithi-finder-controls button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.tithi-finder-column .tithi-results-section {
+    margin-top: 15px;
+}
+.tithi-finder-column .tithi-results-table { /* Specific table styles if needed */
+    min-width: 0; /* Override min-width from other tables if necessary */
+}
+.tithi-finder-column .tithi-results-table td,
+.tithi-finder-column .tithi-results-table th {
+    white-space: normal; /* Allow wrapping in this specific table */
+}
+
+
+/* Common Loader and Error Styles (ensure these exist) */
+.loader {
+    text-align: center;
+    padding: 15px;
+    color: #555;
+    font-style: italic;
+}
+.error-text {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+/* --- Responsive Adjustments for 4-Column Layout --- */
+@media (max-width: 1200px) { /* Below 1200px, switch to 2 columns */
+    .results-column {
+        min-width: calc(50% - 10px); /* Two columns (adjust gap subtraction) */
+        flex-basis: calc(50% - 10px);
+    }
+}
+
+@media (max-width: 768px) { /* Below 768px, stack to 1 column */
+    .results-grid-container {
+        flex-direction: column; /* Stack columns vertically */
+    }
+    .results-column {
+        min-width: 100%; /* Full width */
+        flex-basis: auto;
+    }
+    .action-buttons-group {
+        flex-direction: column; /* Stack main buttons on small screens */
+        align-items: stretch; /* Make buttons full width */
+    }
+    .main-controls-container.centered-controls {
+        padding: 15px;
+    }
+}

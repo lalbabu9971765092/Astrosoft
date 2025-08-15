@@ -1,0 +1,192 @@
+/* src/VarshphalPage.css */
+.varshphal-page {
+    padding: 20px;
+    max-width: 1400px; /* Increased to allow more space for columns */
+    margin: 0 auto;
+}
+
+.varshphal-page h1 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.varshphal-controls {
+    background-color: #f9f9f9;
+    padding: 15px 20px; /* Added horizontal padding */
+    border-radius: 8px;
+    margin-bottom: 30px; /* Increased margin */
+    border: 1px solid #ddd;
+    max-width: 400px; /* Limit width of controls */
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+/* Reuse form-row, input-group styles from PrashnaPage.css if applicable */
+.varshphal-controls .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    /* margin-bottom: 15px; */ /* Removed if only one row */
+    align-items: center; /* Align label and input */
+    justify-content: center; /* Center content */
+}
+
+.varshphal-controls .input-group {
+    flex: 1; /* Allow groups to grow */
+    min-width: 150px; /* Prevent excessive shrinking */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center label/input */
+}
+
+.varshphal-controls .input-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+
+.varshphal-controls .input-group input[type="number"] {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 120px; /* Fixed width for year input */
+    text-align: center;
+}
+
+/* Removed button styles as there's no explicit calculate button shown */
+
+.varshphal-results {
+    margin-top: 25px;
+}
+
+.varshphal-results-area {
+    /* Styles for the results container */
+}
+
+.result-section {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 20px; /* Increased spacing */
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #eee; /* Added subtle border */
+}
+.input-summary {
+    font-style: italic;
+    color: #555;
+    background-color: #eef;
+    border-left: 3px solid #007bff;
+    font-size: 0.9em; /* Slightly smaller */
+    line-height: 1.4;
+}
+
+.result-sub-title {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px; /* Increased padding */
+    color: #333;
+    font-size: 1.15em; /* Slightly larger */
+}
+
+/* Styles for tables within results columns */
+.results-column table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    table-layout: fixed; /* Ensures columns are equally sized */
+}
+
+.results-column th,
+.results-column td {
+    border: 1px solid #ddd;
+    padding: 8px; /* Ensure adequate padding */
+    text-align: left;
+    word-wrap: break-word; /* Prevents long words from overflowing */
+    white-space: normal; /* Allow text to wrap naturally */
+}
+
+.results-column th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+/* Wrapper for tables to enable horizontal scrolling if content overflows */
+.result-section.planetary-positions,
+.result-section.house-cusps,
+.result-section.kp-significators,
+.result-section.mudda-dasha {
+    overflow-x: auto; /* Enable horizontal scrolling for tables */
+}
+
+.varshphal-chart-wrapper {
+    display: flex;
+    justify-content: center; /* Center the chart */
+    align-items: center; /* Center vertically */
+    width: 400px; /* Fixed width for the chart container */
+    height: 400px; /* Fixed height for the chart container */
+    margin: 0 auto 20px auto; /* Center horizontally and add bottom margin */
+    overflow: hidden; /* Hide overflowing content */
+    /* Optional: Add a border or background to visualize the container */
+    /* border: 1px dashed blue; */
+}
+
+.varshphal-details h4 { /* Style for the "Key Details" heading */
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.05em;
+    color: #444;
+}
+.varshphal-details p {
+    margin: 8px 0; /* Increased spacing */
+    line-height: 1.5;
+}
+.varshphal-details strong {
+    margin-right: 5px;
+}
+
+/* Reuse loader, error-text, info-text styles */
+.loader {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #666;
+}
+.error-text {
+    color: #dc3545;
+    font-weight: bold;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    text-align: center;
+}
+.info-text {
+    color: grey;
+    text-align: center;
+    padding: 15px;
+}
+
+/* Two-column layout using CSS Grid */
+.two-column-layout {
+    display: grid;
+    /* Creates 2 columns if space allows (min 350px each), otherwise 1 column */
+    grid-template-columns: 1fr 1fr; /* Ensure both columns take equal fractions of available space */
+    gap: 25px; /* Increased gap */
+}
+
+.results-column {
+    /* Styles for individual columns */
+    /* No flex properties needed when using grid like this */
+}
+
+/* Media query for very small screens if needed */
+@media (max-width: 400px) {
+    .two-column-layout {
+        /* Ensure single column even if minmax allows two */
+        grid-template-columns: 1fr;
+    }
+}

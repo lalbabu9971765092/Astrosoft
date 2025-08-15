@@ -1,0 +1,304 @@
+/* src/PlanetDetailsPage.css */
+
+.planet-details-page {
+    padding: 15px;
+}
+
+.planet-details-page .result-section {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.planet-details-page .result-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0; /* Remove margin from the very last section */
+}
+
+.planet-details-page .result-sub-title {
+    color: #333;
+    font-size: 1.1em;
+}
+
+.planet-details-page .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--header-bg-color);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.planet-details-page .section-header:hover {
+    background-color: var(--header-bg-hover-color);
+}
+
+.planet-details-page .section-header h3 {
+    margin: 0;
+    color: var(--header-text-color);
+    font-size: 1.4em;
+    font-weight: 600;
+}
+
+.planet-details-page .toggle-button {
+    background: none;
+    border: none;
+    color: var(--header-text-color);
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.planet-details-page .section-content {
+    max-height: 1000px; /* Arbitrarily large value */
+    overflow-y: auto;
+    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    opacity: 1;
+}
+
+.planet-details-page .section-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* --- General Table Wrapper --- */
+.planet-details-page .table-wrapper {
+    max-height: 500px; /* Increased max-height slightly */
+    overflow-x: auto; /* Enable horizontal scroll */
+    overflow-y: auto; /* Enable vertical scroll */
+    border: 1px solid #ddd;
+    border-radius: 4px; /* Add slight rounding */
+    margin-top: 10px; /* Space above the table */
+}
+
+/* --- General Results Table Styling --- */
+.planet-details-page .results-table {
+    width: 100%;
+    min-width: 600px; /* Ensure table has a minimum width before scrolling */
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.planet-details-page .results-table th,
+.planet-details-page .results-table td {
+    border: 1px solid #e0e0e0; /* Lighter border */
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap; /* Prevent wrapping by default, rely on scroll */
+}
+
+.planet-details-page .results-table thead th {
+    background-color: #f8f9fa;
+    position: sticky; /* Keep header visible on scroll */
+    top: 0;
+    z-index: 1;
+    font-weight: bold; /* Ensure header is bold */
+}
+
+.planet-details-page .results-table tbody tr:nth-child(even) {
+    background-color: #fdfdfd;
+}
+
+.planet-details-page .results-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* --- Specific Table Styles --- */
+
+/* Planetary Positions Table */
+.planets-table td, .planets-table th {
+    /* Add specific widths if needed, e.g. */
+    /* &.col-planet { min-width: 60px; } */
+}
+
+/* Aspects Table */
+.aspect-table-wrapper {
+    /* Wrapper specific styles if needed */
+}
+.aspect-table th, .aspect-table td {
+    text-align: center;
+    min-width: 45px; /* Small min-width for aspect marks */
+    padding: 5px;
+}
+.aspect-table th:first-child, /* Row header */
+.aspect-table td:first-child {
+    text-align: left;
+    min-width: 80px;
+    font-weight: bold;
+}
+
+/* Friendship Table */
+.friendship-table-wrapper {
+    /* No max-width needed, let table-wrapper handle scrolling */
+}
+.friendship-table {
+    table-layout: auto; /* Let browser decide column widths */
+    min-width: 500px; /* Adjust minimum width as needed */
+}
+.friendship-table th, .friendship-table td {
+    text-align: center;
+    min-width: 50px; /* Adjust min-width for readability */
+    padding: 5px;
+    white-space: normal; /* Allow wrapping for friendship terms */
+}
+.friendship-table th:first-child, /* Row header */
+.friendship-table td:first-child {
+    text-align: left;
+    min-width: 80px;
+    font-weight: bold;
+    white-space: nowrap; /* Keep planet name from wrapping */
+}
+.friendship-table thead th {
+    font-size: 0.9em;
+}
+
+/* Shadbala Table */
+.shadbala-table td, .shadbala-table th {
+    min-width: 65px; /* Slightly wider columns */
+    text-align: right; /* Right-align numerical data */
+    padding: 6px 10px;
+}
+.shadbala-table th:first-child, /* Planet column header */
+.shadbala-table td:first-child { /* Planet column cells */
+    text-align: left;
+    font-weight: bold;
+    min-width: 70px;
+}
+.shadbala-table th:last-child, /* Rank header */
+.shadbala-table td:last-child { /* Rank cells */
+    text-align: center;
+    font-weight: bold;
+}
+.shadbala-table td:nth-last-child(2) strong { /* Total Rupas value */
+    /* Optional: Add specific style if needed */
+}
+
+/* Shadbala Minimums & Note */
+.shadbala-minimums {
+    font-size: 0.85em;
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #f0f8ff; /* Light blue background */
+    border: 1px solid #b0e0e6;
+    border-radius: 4px;
+}
+.shadbala-minimums ul {
+    margin: 5px 0 0 20px;
+    padding: 0;
+}
+.shadbala-minimums li {
+    margin-bottom: 3px;
+}
+.shadbala-note {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 5px;
+    margin-bottom: 0; /* Remove bottom margin if it's the last element */
+}
+
+
+/* --- Highlighting & Colors --- */
+.highlight-combust,
+.highlight-retrograde {
+    font-weight: bold;
+    color: #e63946; /* Example highlight color */
+}
+
+/* Resulting Friendship Colors */
+.friendship-great-friend {
+    background-color: #c3e6cb; /* Darker green background */
+    color: #155724;
+    font-weight: bold;
+}
+.friendship-friend {
+    background-color: #d4edda; /* Lighter green background */
+    color: #155724;
+    font-weight: bold;
+}
+.friendship-neutral {
+    background-color: #e2e3e5; /* Grey background */
+    color: #383d41;
+}
+.friendship-enemy {
+    background-color: #f8d7da; /* Lighter red background */
+    color: #721c24;
+    font-weight: bold;
+}
+.friendship-great-enemy {
+    background-color: #f5c6cb; /* Darker red background */
+    color: #721c24;
+    font-weight: bold;
+}
+
+/* --- Helper Text --- */
+.hint-text {
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: -5px;
+    margin-bottom: 10px;
+}
+
+/* --- Loading / Error / Placeholder --- */
+.loader.secondary-loader { /* Loader shown when rectifying */
+    text-align: center;
+    padding: 10px;
+    font-style: italic;
+    color: #555;
+}
+.error-text.secondary-error { /* Error shown when rectifying */
+    color: #dc3545;
+    font-size: 0.9em;
+    margin-top: 5px;
+    text-align: center;
+}
+.placeholder-message { /* Message if no initial data */
+    text-align: center;
+    padding: 50px;
+    color: #666;
+    font-size: 1.1em;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .planet-details-page .results-table {
+        font-size: 0.85em; /* Slightly smaller font on mobile */
+        min-width: 0; /* Remove min-width, rely on scrolling */
+    }
+
+    .planet-details-page .results-table th,
+    .planet-details-page .results-table td {
+        padding: 4px 5px; /* Reduce padding */
+        white-space: nowrap; /* Force nowrap and scrolling */
+    }
+
+    .friendship-table th, .friendship-table td {
+        min-width: 35px; /* Further reduce min-width for friendship */
+        font-size: 0.9em; /* Adjust font size within friendship table */
+    }
+    .friendship-table th:first-child,
+    .friendship-table td:first-child {
+        min-width: 60px;
+    }
+
+    .shadbala-table td, .shadbala-table th {
+        min-width: 50px; /* Reduce min-width */
+    }
+     .shadbala-table th:first-child,
+    .shadbala-table td:first-child {
+        min-width: 55px;
+    }
+
+    .planet-details-page .result-sub-title {
+        font-size: 1em; /* Slightly smaller sub-titles */
+    }
+}

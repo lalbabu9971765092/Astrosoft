@@ -1,0 +1,193 @@
+/* src/RemediesPage.css */
+.remedies-page {
+    padding: 20px;
+    max-width: 900px; /* Adjust as needed */
+    margin: 0 auto;
+}
+
+.remedy-controls {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 1px solid #ddd;
+    display: flex; /* Use flex for alignment */
+    justify-content: center; /* Center the dropdown */
+}
+
+.remedy-controls .input-group {
+    flex-basis: 300px; /* Give the dropdown a reasonable width */
+    max-width: 100%;
+}
+
+.remedy-controls label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.remedy-controls select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 100%; /* Make select fill the input-group */
+}
+
+.remedy-details {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.remedy-details .result-sub-title {
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    color: #333;
+    text-align: center;
+}
+
+.remedy-item {
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #eee; /* Optional separator */
+}
+.remedy-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.remedy-item strong {
+    display: block; /* Make label appear on its own line */
+    margin-bottom: 5px;
+    color: #555;
+    font-size: 1.05em;
+}
+
+.remedy-item p {
+    margin: 0;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap; /* Preserve line breaks in mantras if needed */
+}
+
+/* Reuse styles if available */
+.result-section {
+    /* Styles for result sections */
+}
+.info-text {
+    color: grey;
+    text-align: center;
+}
+.form-row {
+    /* Styles for form rows */
+}
+.input-group {
+    /* Styles for input groups */
+}
+
+/* src/RemediesPage.css */
+
+/* ... existing styles ... */
+
+.remedy-item {
+  margin-bottom: 1.5em;
+  padding-bottom: 1em;
+  border-bottom: 1px solid #eee;
+}
+
+.remedy-item:last-child {
+  border-bottom: none;
+}
+
+.remedy-item strong {
+  display: block;
+  margin-bottom: 0.3em;
+  color: #333;
+}
+
+.remedy-item p {
+  margin-top: 0;
+  line-height: 1.6;
+  color: #555;
+}
+
+/* --- Styles for Download Link --- */
+.remedy-header {
+  display: flex;
+  justify-content: space-between; /* Pushes label and link apart */
+  align-items: center; /* Vertically aligns label and link */
+  margin-bottom: 0.3em;
+}
+
+.download-link {
+  font-size: 0.85em;
+  margin-left: 10px; /* Space between label and link */
+  color: #007bff; /* Link color */
+  text-decoration: none;
+  padding: 2px 5px;
+  border: 1px solid #007bff;
+  border-radius: 3px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.download-link:hover {
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+}
+
+/* Style for download icon if using react-icons */
+.download-link svg {
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* --- End Download Link Styles --- */
+
+.info-text {
+  text-align: center;
+  color: #6c757d;
+  margin-top: 20px;
+}
+
+.remedy-controls {
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.remedy-controls .input-group {
+    max-width: 300px;
+}
+
+.remedy-controls label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.remedy-controls select {
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    min-width: 150px;
+}
+
+.remedy-details {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    border: 1px solid #eee;
+}
+
+.remedy-details .result-sub-title {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}

@@ -1,0 +1,157 @@
+/* src/styles/DashaTable.css */
+
+.dasha-table-container {
+  /* Inherits from .result-section if used */
+  margin-bottom: 20px; /* Add space below the table section */
+}
+
+/* Wrapper enables vertical scrolling */
+.dasha-table-wrapper {
+  max-height: 60vh; /* Use viewport height for better adaptability */
+  overflow-y: auto; /* Enable vertical scroll if content exceeds max height */
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.dasha-table {
+  width: 100%;
+  border-collapse: collapse; /* Remove gaps between cells */
+}
+
+.dasha-table th,
+.dasha-table td {
+  padding: 6px 10px; /* Slightly more horizontal padding */
+  text-align: left;
+  border-bottom: 1px solid #eee; /* Light line between rows */
+  font-size: 0.9em;
+  vertical-align: middle; /* Align content vertically */
+  white-space: nowrap; /* Prevent wrapping, rely on scroll */
+}
+
+.dasha-table th {
+  background-color: #f8f9fa; /* Light header background */
+  font-weight: bold;
+  position: sticky; /* Make header sticky within the scrollable wrapper */
+  top: 0;
+  z-index: 1; /* Ensure header stays above scrolling content */
+}
+
+/* --- Row Styling --- */
+.mahadasha-row {
+  background-color: #f0f2f5; /* Slightly distinct background for Mahadasha */
+  /* font-weight: bold; */ /* Keep MD bold via the strong tag in JSX */
+}
+.mahadasha-row > td:first-child {
+    /* Ensure first cell aligns button/indicator */
+    width: 60px; /* Fixed width for the first column (Level) */
+}
+
+
+.antardasha-row {
+  background-color: #ffffff; /* Standard background */
+}
+/* Indentation for Antardasha rows (applied to all cells except the first) */
+.antardasha-row td:not(:first-child) {
+    padding-left: 30px; /* Indent Antardasha text */
+}
+/* Style for the level indicator in the first cell */
+.antardasha-row .level-indicator.nested {
+    padding-left: 25px; /* Indent the 'AD' text itself */
+}
+
+
+/* Add styles for Pratyantardasha if implemented later */
+/*
+.pratyantardasha-row {
+  background-color: #fdfdfd;
+  font-size: 0.85em;
+  color: #444;
+}
+.pratyantardasha-row td:not(:first-child) {
+    padding-left: 50px;
+}
+.pratyantardasha-row .level-indicator.nested-2 {
+    padding-left: 45px;
+}
+*/
+
+
+/* --- Toggle Button Styling --- */
+.toggle-button {
+  background-color: #6c757d; /* Grey */
+  color: white;
+  border: none;
+  border-radius: 4px; /* Slightly more rounded */
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9em; /* Slightly larger for clarity */
+  width: 22px; /* Adjust size */
+  height: 22px;
+  line-height: 22px; /* Center the +/- vertically */
+  text-align: center;
+  padding: 0;
+  margin-right: 8px; /* Space between button and text */
+  transition: background-color 0.2s ease;
+  vertical-align: middle; /* Align with text */
+}
+
+.toggle-button:hover {
+  background-color: #5a6268; /* Darker grey on hover */
+}
+
+/* No specific style needed for .expanded, hover handles visual change */
+/* .toggle-button.expanded { } */
+
+
+/* --- Level Indicator (when no button) --- */
+.level-indicator {
+  display: inline-block;
+  font-size: 0.85em;
+  color: #666;
+  width: 22px; /* Match button width for alignment */
+  text-align: center;
+  margin-right: 8px; /* Match button margin */
+  font-weight: bold;
+  vertical-align: middle; /* Align with text */
+}
+/* Specific indentation for nested level indicators */
+.level-indicator.nested {
+    /* Indentation handled by padding on the cell */
+}
+
+
+/* --- Info Text (if no data) --- */
+.info-text {
+  color: #6c757d;
+  font-style: italic;
+  text-align: center;
+  padding: 20px; /* More padding */
+}
+
+/* Example CSS additions in DashaTable.css */
+.results-table.dasha-table td .level-indicator.nested {
+    margin-left: 20px; /* Existing indentation for AD */
+}
+
+.results-table.dasha-table td .toggle-button.nested {
+     margin-left: 5px; /* Adjust toggle button position for AD */
+}
+
+.results-table.dasha-table .pratyantardasha-row td {
+    /* Style for PD rows, e.g., slightly different background or border */
+    /* background-color: #fdfdfd; */
+    font-size: 0.9em; /* Slightly smaller font maybe */
+}
+
+.results-table.dasha-table td .level-indicator.nested-more {
+    margin-left: 40px; /* Increased indentation for PD */
+    display: inline-block; /* Ensure margin works */
+    width: 30px; /* Align text if needed */
+    text-align: right;
+    padding-right: 5px;
+}
+
+/* Adjust padding on the first cell of PD row if needed */
+ .results-table.dasha-table .pratyantardasha-row td:first-child {
+     padding-left: 0; /* Reset padding if using margin on indicator */
+ }

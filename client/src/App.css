@@ -1,0 +1,172 @@
+/* src/App.css */
+
+.App {
+  /* Optional: Add padding if nav becomes fixed */
+  /* padding-top: 70px; */
+}
+
+/* --- Navigation Styles --- */
+.main-nav {
+  background-color: #f0f0f0; /* Light grey background */
+  padding: 10px 0;
+  margin-bottom: 20px; /* Space below the nav */
+  border-bottom: 1px solid #ccc; /* Subtle border */
+  position: relative; /* Needed for absolute positioning of mobile menu */
+  /* Consider making it sticky or fixed if desired */
+  /* position: sticky; */
+  /* top: 0; */
+  /* z-index: 1000; */
+}
+
+/* Container inside nav for better flex control */
+.nav-container {
+  display: flex;
+  justify-content: space-between; /* Space out logo/links/button */
+  align-items: center;
+  max-width: 1200px; /* Example max width */
+  margin: 0 auto; /* Center container */
+  padding: 0 20px; /* Padding on the sides */
+}
+
+/* --- Hamburger Button --- */
+.hamburger-button {
+  display: none; /* Hidden on desktop */
+  background: none;
+  border: none;
+  font-size: 28px; /* Adjust size */
+  cursor: pointer;
+  color: #333;
+  padding: 5px;
+  line-height: 1; /* Prevent extra spacing */
+  z-index: 1001; /* Ensure button is above the menu if it overlaps */
+}
+
+/* --- Navigation Links --- */
+.nav-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center; /* Vertically align items */
+  gap: 25px; /* Space between links on desktop */
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333; /* Dark grey text */
+  font-weight: bold;
+  padding: 8px 15px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  display: block; /* Ensure padding works correctly */
+  white-space: nowrap; /* Prevent links from wrapping text */
+}
+
+.nav-links a:hover,
+.nav-links a:focus { /* Add focus style for accessibility */
+  background-color: #ddd; /* Slightly darker grey on hover */
+  color: #000;
+}
+
+/* Active link style using NavLink's default 'active' class */
+.nav-links a.active {
+  background-color: #ccc;
+  color: #000;
+}
+
+
+/* --- Responsive Styles for Navigation --- */
+@media (max-width: 768px) { /* Adjust breakpoint as needed */
+  .nav-links {
+    display: none; /* Hide links by default on mobile */
+    flex-direction: column; /* Stack links vertically */
+    position: absolute; /* Position it relative to .main-nav */
+    top: 100%; /* Position below the nav bar */
+    left: 0;
+    width: 100%;
+    background-color: #f8f8f8; /* Slightly different background for dropdown */
+    padding: 10px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    gap: 5px; /* Adjust gap for vertical layout */
+    z-index: 999; /* Ensure it's above content below */
+    border-top: 1px solid #ccc; /* Add separator from nav bar */
+  }
+
+  /* Show the menu when active class is added by JS */
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links li {
+     width: 100%; /* Make list items take full width */
+     text-align: center; /* Center text */
+  }
+
+   .nav-links a {
+     padding: 12px 15px; /* Adjust padding for vertical items */
+     border-bottom: 1px solid #eee; /* Separator */
+     border-radius: 0; /* Remove radius for stacked items */
+     width: 100%; /* Ensure link takes full width */
+     box-sizing: border-box; /* Include padding in width */
+   }
+   .nav-links li:last-child a {
+     border-bottom: none; /* Remove border from last item */
+   }
+   .nav-links a:hover,
+   .nav-links a:focus,
+   .nav-links a.active {
+      background-color: #e0e0e0; /* Consistent hover/active for mobile */
+   }
+
+  .hamburger-button {
+    display: block; /* Show hamburger button on mobile */
+  }
+
+  /* Optional: Hide logo or adjust layout further if needed */
+  /* .logo { display: none; } */
+}
+
+/* --- Main Content Area --- */
+.main-content {
+  max-width: 1600px; /* Match max-width from other pages */
+  margin: 0 auto; /* Center content */
+  padding: 0 20px; /* Add horizontal padding */
+}
+
+
+/* --- Default Create React App Styles (Keep or Remove as needed) --- */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* --- End Default Styles --- */

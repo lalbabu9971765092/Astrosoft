@@ -1,0 +1,409 @@
+/* src/styles/KpSignificatorsPage.css */
+
+/* --- General Page and Container Styles --- */
+.kp-significators-page {
+  /* Optional: Add padding if not handled by parent layout */
+  /* padding: 15px; */
+}
+
+/* Container for the entire content block (title, top info, layout) */
+.result-container {
+  margin-bottom: 25px;
+  padding: 20px; /* Increased padding */
+  border: 1px solid #e0e0e0;
+  border-radius: 8px; /* Slightly more rounded */
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Slightly stronger shadow */
+}
+
+.result-title {
+  text-align: center;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 25px; /* More space below title */
+  font-size: 1.5em; /* Adjusted size */
+  border-bottom: 1px solid #dee2e6; /* Use a slightly darker border */
+  padding-bottom: 12px;
+}
+
+.result-section {
+  margin-bottom: 20px;
+}
+.result-section:last-child {
+    margin-bottom: 0;
+}
+
+.result-sub-title {
+  color: #495057; /* Darker grey */
+  margin-bottom: 12px; /* Consistent spacing */
+  font-size: 1.15em; /* Consistent sub-title size */
+  font-weight: 600; /* Slightly bolder */
+  border-bottom: 1px solid #e9ecef; /* Lighter border */
+  padding-bottom: 6px;
+}
+
+/* --- Top Info Layout (Input Summary + Event Selector) --- */
+.top-info-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 25px; /* Increased gap */
+    margin-bottom: 25px; /* More space below */
+    flex-wrap: wrap;
+}
+
+/* Input Summary Section */
+.top-info-container .input-summary {
+    flex: 1 1 auto;
+    min-width: 300px; /* Increased min-width */
+    margin-bottom: 0;
+    border: 1px solid #e9ecef; /* Add a light border */
+    padding: 12px 15px; /* Add padding */
+    border-radius: 5px;
+    background-color: #f8f9fa; /* Light background */
+}
+.input-summary p {
+  margin: 5px 0; /* Adjusted margin */
+  font-size: 0.9em;
+  color: #343a40; /* Darker text */
+  line-height: 1.4;
+}
+.input-summary strong {
+    color: #0056b3; /* Use a theme color if available */
+}
+
+/* Life Event Selector Section */
+.top-info-container .life-event-selector {
+    flex: 0 0 240px; /* Fixed width, adjust as needed */
+    margin-bottom: 0;
+    padding: 12px 15px; /* Match summary padding */
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+.life-event-selector label { /* Style the label if added */
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #495057;
+}
+.life-event-selector select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ced4da; /* Standard border */
+    border-radius: 4px;
+    font-size: 0.95em; /* Slightly larger font */
+    background-color: #fff;
+}
+
+/* --- Main Layout (Grid + Dasha) --- */
+.kp-layout-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px; /* Increased gap */
+  margin-top: 20px;
+}
+
+/* --- Significator Grid Column --- */
+.kp-significators-grid-column {
+  flex: 2; /* Give grid more space (e.g., 2:1 ratio with Dasha) */
+}
+
+.significators-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Always 3 equal columns by default */
+  gap: 15px; /* Increased gap */
+  margin-top: 15px; /* Space below sub-title */
+}
+
+.significator-grid-item {
+  border: 1px solid #dee2e6; /* Slightly darker border */
+  padding: 12px 15px; /* Adjusted padding */
+  border-radius: 5px;
+  background-color: #fff; /* Default background */
+  text-align: left;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); /* Softer shadow */
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+}
+
+/* --- Styling for Overall Planet Favorability --- */
+.significator-grid-item.item-favorable {
+    background-color: #e6ffed; /* Light green background */
+    border-color: #a3d9b1; /* Slightly darker green border */
+}
+.significator-grid-item.item-favorable .significator-planet-name {
+    color: #0f5132; /* Darker green text for the name */
+}
+
+.significator-grid-item.item-unfavorable {
+    background-color: #fff0f0; /* Light red background */
+    border-color: #f5c6cb; /* Slightly darker red border */
+}
+.significator-grid-item.item-unfavorable .significator-planet-name {
+    color: #842029; /* Darker red text for the name */
+}
+
+.significator-grid-item.item-neutral {
+    background-color: #f8f9fa; /* Slightly off-white */
+    border-color: #dee2e6;
+}
+.significator-grid-item.item-neutral .significator-planet-name {
+    color: #495057;
+}
+
+/* Style for N/A or when no event is selected (relies on default) */
+.significator-grid-item.item-n\/a {
+     /* Uses the default .significator-grid-item styles */
+}
+/* --- End Favorability Styling --- */
+
+
+.significator-planet-name {
+  font-weight: bold;
+  margin-bottom: 10px; /* More space below name */
+  font-size: 1.1em; /* Slightly larger */
+  text-align: center;
+  color: #343a40; /* Default name color */
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 8px; /* More padding */
+}
+
+.significator-detail {
+  margin-bottom: 8px; /* Increased margin */
+  line-height: 1.5; /* Improved readability */
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px; /* Increased gap */
+}
+.significator-detail:last-child {
+    margin-bottom: 0;
+}
+
+.significator-label {
+  font-weight: 600;
+  margin-right: 8px; /* More space */
+  color: #495057;
+  white-space: nowrap;
+}
+
+.significator-value {
+  color: #212529; /* Standard text color */
+  text-align: right;
+  word-break: break-word;
+}
+
+/* Styles for Colored House Numbers */
+.significator-value span {
+    padding: 2px 4px; /* Adjusted padding */
+    border-radius: 3px;
+    font-weight: bold;
+    margin-left: 2px; /* Add slight space between numbers */
+    display: inline-block; /* Ensure background applies correctly */
+}
+.significator-value span:first-child {
+    margin-left: 0;
+}
+
+.significator-value .favorable-house {
+    background-color: #d1e7dd; /* Bootstrap light green */
+    color: #0f5132; /* Bootstrap dark green */
+}
+.significator-value .unfavorable-house {
+    background-color: #f8d7da; /* Bootstrap light red */
+    color: #842029; /* Bootstrap dark red */
+}
+.significator-value .neutral-house {
+    background-color: #e2e3e5; /* Bootstrap light grey */
+    color: #41464b; /* Bootstrap dark grey */
+    font-weight: normal;
+}
+
+/* --- Styles for Score/Completeness Display --- */
+.kp-planet-score-info {
+    font-size: 0.8em;
+    margin-top: 8px;
+    padding-top: 5px;
+    border-top: 1px dashed #eee;
+    text-align: center;
+    color: #666;
+}
+.kp-favorability {
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+.kp-favorability.favorable { color: #1a6e1a; background-color: #e0ffe0; }
+.kp-favorability.unfavorable { color: #a02020; background-color: #ffe0e0; }
+.kp-favorability.neutral, .kp-favorability.n\/a { color: #555; background-color: #eee; }
+.kp-score { margin-right: 5px; }
+.kp-completeness { display: block; font-size: 0.9em; margin-top: 2px; }
+/* --- End Score/Completeness Styles --- */
+
+
+/* --- Dasha Column --- */
+.kp-dasha-column {
+  flex: 1; /* Takes less space than grid */
+   min-width: 340px; /* Adjusted minimum width */
+}
+
+/* Reference DashaTable styles defined in DashaTable.css */
+.kp-dasha-column .dasha-table-wrapper {
+  /* Styles from DashaTable.css apply */
+}
+
+
+/* --- Loading / Error Styles --- */
+.loader {
+    border: 4px solid #e9ecef; /* Lighter grey */
+    border-top: 4px solid #0d6efd; /* Bootstrap blue */
+    border-radius: 50%;
+    width: 35px; /* Slightly larger */
+    height: 35px;
+    animation: spin 1s linear infinite;
+    margin: 25px auto; /* More margin */
+}
+.small-loader {
+    width: 18px;
+    height: 18px;
+    border-width: 3px;
+    margin: 0 8px; /* More margin */
+    display: inline-block;
+    vertical-align: middle;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.error-text {
+    color: #dc3545; /* Bootstrap danger color */
+    font-size: 0.95em; /* Slightly larger */
+    margin-top: 15px; /* More margin */
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    text-align: center;
+}
+.small-error {
+    font-size: 0.9em;
+    padding: 5px 8px;
+    background-color: transparent;
+    border: none;
+    text-align: left;
+    margin-top: 5px;
+}
+
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) { /* Adjust breakpoint if needed */
+    .kp-layout-container {
+        gap: 25px; /* Reduce gap when wrapping might occur */
+    }
+     .kp-significators-grid-column {
+        flex-basis: 100%; /* Allow grid to take full width before dasha */
+        min-width: unset;
+        order: 1; /* Ensure grid comes first */
+     }
+     .kp-dasha-column {
+        flex-basis: 100%; /* Dasha takes full width after grid */
+        min-width: unset;
+        order: 2;
+     }
+     .significators-grid {
+        grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns */
+     }
+}
+
+@media (max-width: 768px) { /* Stack columns earlier or adjust grid further */
+  .kp-layout-container {
+    flex-direction: column; /* Force stacking */
+    gap: 30px;
+  }
+  /* Grid and Dasha columns are already 100% width due to above rule */
+
+  .significators-grid {
+     grid-template-columns: repeat(2, 1fr); /* Keep 2 columns */
+  }
+  .top-info-container {
+      flex-direction: column; /* Stack summary and selector */
+      align-items: stretch; /* Make items take full width */
+      gap: 15px; /* Reduce gap */
+  }
+  .top-info-container .life-event-selector {
+      flex-basis: auto; /* Reset basis */
+      max-width: none; /* Remove max-width */
+      width: 100%; /* Take full width */
+  }
+  .result-title {
+      font-size: 1.4em; /* Smaller title on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+    .significators-grid {
+        grid-template-columns: repeat(1, 1fr); /* Switch to 1 column */
+        gap: 10px;
+    }
+     .significator-grid-item {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+     }
+     .significator-planet-name {
+        font-size: 1em;
+     }
+     /* Dasha table styles are in DashaTable.css, but you could override here if needed */
+     /* .dasha-table th, .dasha-table td { padding: 5px 6px; } */
+}
+
+.horizontal-block {
+  background-color: #f0f0f0;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+.charts-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.chart-wrapper {
+  text-align: center;
+}
+
+.chart-wrapper h3 {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.house-selection-container {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.house-selection-container label {
+  margin-right: 10px;
+  font-weight: bold;
+  color: #555;
+}
+
+.house-selection-container select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+  cursor: pointer;
+}
