@@ -16,13 +16,14 @@ import {
     calculateMidpoint, calculateSunMoonTimes, calculateBadhakDetails, calculateLongevityFactors, calculateHouseBasedLongevity,
     calculatePlanetaryPositions, calculateVimshottariBalance, calculateVimshottariDashas,
     calculateNavamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
-    calculateMoolDosha, calculatePanchang, calculatePlanetStates, calculateAspects,
+    calculateMoolDosha, calculatePlanetStates, calculateAspects,
     NATURAL_FRIENDSHIP, FRIENDSHIP_PLANETS_ORDER, calculateTemporalFriendshipForPlanet,
     getResultingFriendship, calculateShadbala, calculateBhinnaAshtakavarga,
     calculateSarvaAshtakavarga, ASHTAKAVARGA_PLANETS, calculateSolarReturnJulianDay,
     calculateMuntha, calculateYearLord, calculateMuddaDasha, RASHIS,
     getNumberBasedAscendantDegree, getSubLordDetails, getSubSubLordDetails, NAKSHATRA_SPAN, calculateKpSignificators, getHouseOfPlanet
 } from '../utils/index.js'; // Adjust path if your index is elsewhere or import directly
+import { calculatePanchang } from '../utils/panchangUtils.js';
 import { calculateHousesAndAscendant } from '../utils/coreUtils.js';
 import { calculateChoghadiya, calculateHora, calculateLagnasForDay, calculateMuhurta } from '../utils/muhurtaUtils.js';
 import { rotateHouses } from '../utils/rotationUtils.js';

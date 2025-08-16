@@ -13,8 +13,7 @@ import logger from '../utils/logger.js'; // Assuming logger uses ES Module expor
 import {
     getJulianDateUT,
     calculatePlanetaryPositions,
-    getRashiDetails,
-    RASHIS // Assuming RASHIS array is exported from utils
+    getRashiDetails
 } from '../utils/index.js'; // Adjust path if necessary and ensure utils/index.js exports these
 
 
@@ -39,7 +38,7 @@ const TITHI_FESTIVAL_RULES = [
     { name: "Shravana Putrada Ekadashi", month: "Srabana", tithi: 11, paksha: "Shukla" },
     { name: "Raksha Bandhan / Shravana Purnima", month: "Srabana", tithi: 15, paksha: "Shukla" },
     { name: "Kajari Teej", month: "Bhadraba", tithi: 3, paksha: "Krishna" },
-    { name: "Krishna Janmashtami", month: "Bhadraba", tithi: 8, paksha: "Krishna" },
+    { name: "Krishna Janmashtami", month: "Srabana", tithi: 8, paksha: "Krishna", gregorianMonth: 8 },
     { name: "Hartalika Teej", month: "Bhadraba", tithi: 3, paksha: "Shukla" },
     { name: "Ganesh Chaturthi", month: "Bhadraba", tithi: 4, paksha: "Shukla" },
     { name: "Radha Ashtami", month: "Bhadraba", tithi: 8, paksha: "Shukla" },
@@ -186,6 +185,7 @@ router.get("/find-tithi-date",
             logger.info(`Finding tithi date for year=${year}, tithi=${tithi}, paksha=${paksha}, month=${hindiMonth || 'any'}`);
 
             const allDatesForTithi = await findDatesForTithi(year, tithi, lat, lon);
+            const obj = new MhahPanchang(); // Instantiate once for efficiency
 
             // Filter by Paksha and optionally by Hindi Month
             const filteredDates = allDatesForTithi.filter(d => {
@@ -194,7 +194,6 @@ router.get("/find-tithi-date",
 
                 if (hindiMonth) {
                     try {
-                        const obj = new MhahPanchang(); // Instantiate locally for month check
                         const calendarInfo = obj.calendar(new Date(d.date + 'T12:00:00Z'), lat, lon);
                         const currentHindiMonth = calendarInfo?.Masa?.name_en_IN;
                         // Check if the calculated month string *ends with* the provided hindiMonth query param
@@ -331,8 +330,7 @@ router.get("/tithi-festivals/:year",
 
                             const tithiMatch = adjustedTithiNumber === rule.tithi;
                             const pakshaMatch = calculatedPaksha?.toLowerCase() === rule.paksha?.toLowerCase();
-                            // Month match checks if rule.month exists AND if the calculated month ends with it
-                            const monthMatch = !rule.month || (typeof currentHindiMonth === 'string' && currentHindiMonth.toLowerCase().endsWith(rule.month.toLowerCase()));
+                            const monthMatch = (!rule.month || (typeof currentHindiMonth === 'string' && currentHindiMonth.toLowerCase() === rule.month.toLowerCase())) && (!rule.gregorianMonth || currentDate.getUTCMonth() + 1 === rule.gregorianMonth);
 
                             if (tithiMatch && pakshaMatch && monthMatch) {
                                 foundFestivals.push({
@@ -419,22 +417,12 @@ router.get("/sankranti/:year",
 
                 try {
                     // Calculate Sun's position using Swisseph via utils
-                  // *** FIX: Format date string explicitly for getJulianDateUT ***
-                  const yearUTC = currentDate.getUTCFullYear();
-                  const monthUTC = (currentDate.getUTCMonth() + 1).toString().padStart(2, '0');
-                  const dayUTC = currentDate.getUTCDate().toString().padStart(2, '0');
-                  const hoursUTC = currentDate.getUTCHours().toString().padStart(2, '0');
-                  const minutesUTC = currentDate.getUTCMinutes().toString().padStart(2, '0');
-                  const secondsUTC = currentDate.getUTCSeconds().toString().padStart(2, '0');
-                  const localLikeDateString = `${yearUTC}-${monthUTC}-${dayUTC}T${hoursUTC}:${minutesUTC}:${secondsUTC}`;
-
-                  // Pass the formatted string and coordinates
-                  const { julianDayUT } = getJulianDateUT(localLikeDateString, lat, lon); // Pass lat too if needed by util
+                  const { julianDayUT } = getJulianDateUT(currentDate.toISOString(), lat, lon); // Pass lat too if needed by util
 
                   // *** ADD NULL CHECK ***
                   if (julianDayUT === null) {
-                      logger.error(`[Sankranti] Failed to get Julian Day for ${localLikeDateString}. Skipping day.`);
-                      throw new Error(`Julian Day calculation failed for ${localLikeDateString}`); // Throw to skip rest of try block
+                      logger.error(`[Sankranti] Failed to get Julian Day for ${currentDate.toISOString()}. Skipping day.`);
+                      throw new Error(`Julian Day calculation failed for ${currentDate.toISOString()}`); // Throw to skip rest of try block
                   }
                     const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
                     const sunLongitude = planetaryPositions?.sidereal?.Sun?.longitude;
@@ -500,6 +488,7 @@ router.get("/sankranti/:year",
         }
     }
 );
+
 
 // Use ES Module export if consistent, otherwise use module.exports
 export default router;

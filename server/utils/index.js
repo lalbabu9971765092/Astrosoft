@@ -7,7 +7,7 @@ export * from './constants.js';
 export { normalizeAngle, convertToDMS, convertDMSToDegrees, getJulianDateUT, calculateAyanamsa, calculateMidpoint, calculateHousesAndAscendant } from './coreUtils.js';
 export * from './planetaryUtils.js';
 export * from './dashaUtils.js';
-export * from './panchangUtils.js';
+export { calculateSunMoonTimes } from './panchangUtils.js';
 export * from './doshaUtils.js';
 export * from './strengthUtils.js';
 export * from './varshphalUtils.js';
