@@ -182,8 +182,7 @@ router.get("/find-tithi-date",
             const lat = req.query.lat ?? defaultLat;
             const lon = req.query.lon ?? defaultLon;
 
-            logger.info(`Finding tithi date for year=${year}, tithi=${tithi}, paksha=${paksha}, month=${hindiMonth || 'any'}`);
-
+          
             const allDatesForTithi = await findDatesForTithi(year, tithi, lat, lon);
             const obj = new MhahPanchang(); // Instantiate once for efficiency
 
@@ -244,8 +243,6 @@ router.get("/find-tithis/:year/:tithiNumber",
             const lat = req.query.lat ?? defaultLat;
             const lon = req.query.lon ?? defaultLon;
 
-            logger.info(`Finding all occurrences for tithi=${tithiNumber}, year=${year}`);
-
             const matchingDates = await findDatesForTithi(year, tithiNumber, lat, lon);
 
             // Determine label based on tithi number
@@ -290,7 +287,7 @@ router.get("/tithi-festivals/:year",
             const lat = req.query.lat ?? defaultLat;
             const lon = req.query.lon ?? defaultLon;
 
-            logger.info(`Calculating tithi festivals for year=${year}`);
+          
 
             const foundFestivals = [];
             const festivalDatesFound = new Set(); // Prevents duplicate entries for the same festival on the same date
@@ -386,7 +383,7 @@ router.get("/sankranti/:year",
             const lat = req.query.lat ?? defaultLat; // Needed for getJulianDateUT offset calculation
             const lon = req.query.lon ?? defaultLon;
 
-            logger.info(`Calculating Sankranti dates for year=${year}`);
+          
 
             const sankrantiList = [];
             // Start slightly before the year and end slightly after to catch transitions near year boundaries

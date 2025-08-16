@@ -365,8 +365,9 @@ const AstrologyForm = () => {
         const gocharKaranaKey = gocharPanchang?.Karna?.name_en_IN; // Get English key
         const gocharLunarMonthKey = gocharPanchang?.Masa?.name_en_IN; // Get English key
         const gocharRituKey = gocharPanchang?.Ritu?.name_en_UK; // Get English key (from API response)
-        const gocharSamvatsarKey = gocharData.samvatsar;
-        const gocharVikramSamvat = gocharData.vikram_samvat;
+        const gocharSamvatsarKey = gocharData.panchang?.samvatsar;
+        const gocharVikramSamvat = gocharData.panchang?.vikram_samvat;
+         const gocharSakaYear = gocharData.panchang?.SakaYear;
         // Use the adjustedGocharDateTimeString (local ISO string) for Var calculation
         const { varName: gocharVarKey, dayLord: gocharDayLord } = calculateVar(adjustedGocharDateTimeString, t);
 
@@ -419,6 +420,7 @@ const AstrologyForm = () => {
                     <div className={`section-content ${openSections.transitPanchanga ? '' : 'collapsed'}`}>
                         <p className="result-text">{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${gocharSamvatsarKey}`, { defaultValue: gocharSamvatsarKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">{t('astrologyForm.vikramSamvatLabel')} {gocharVikramSamvat ?? t('utils.notAvailable', 'N/A')}</p>
+                        <p className="result-text">{t('astrologyForm.sakaYearLabel')} {gocharSakaYear ?? t('utils.notAvailable', 'N/A')}</p>
                         <p className="result-text">{t('astrologyForm.lunarMonthLabel')} {t(`hindiMonths.${gocharLunarMonthKey}`, { defaultValue: gocharLunarMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">{t('astrologyForm.rituLabel')} {t(`ritus.${gocharRituKey}`, { defaultValue: gocharRituKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">
@@ -485,9 +487,10 @@ const AstrologyForm = () => {
         const birthKaranaKey = birthPanchang?.Karna?.name_en_IN; // Get English key
         const birthLunarMonthKey = birthPanchang?.Masa?.name_en_IN; // Get English key
         const birthRituKey = birthPanchang?.Ritu?.name_en_UK; // Get English key (from API response)
-        const birthSamvatsarKey = displayResult.samvatsar;
-        const birthVikramSamvat = displayResult.vikram_samvat;
+        const birthSamvatsarKey = displayResult.panchang?.samvatsar;
+        const birthVikramSamvat = displayResult.panchang?.vikram_samvat;
         // Use the displayInputParams.date (local ISO string) for Var calculation
+        const birthSakaYear = displayResult.panchang?.SakaYear;
         const displayDate = displayInputParams?.date || '';
         const { varName: birthVarKey, dayLord: birthDayLord } = calculateVar(displayDate, t);
 
@@ -644,6 +647,7 @@ const AstrologyForm = () => {
                     <div className={`section-content ${openSections.panchanga ? '' : 'collapsed'}`}>
                         <p className="result-text">{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${birthSamvatsarKey}`, { defaultValue: birthSamvatsarKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">{t('astrologyForm.vikramSamvatLabel')} {birthVikramSamvat ?? t('utils.notAvailable', 'N/A')}</p>
+                         <p className="result-text">{t('astrologyForm.sakaYearLabel')} {birthSakaYear ?? t('utils.notAvailable', 'N/A')}</p>
                         <p className="result-text">{t('astrologyForm.lunarMonthLabel')} {t(`hindiMonths.${birthLunarMonthKey}`, { defaultValue: birthLunarMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">{t('astrologyForm.rituLabel')} {t(`ritus.${birthRituKey}`, { defaultValue: birthRituKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">

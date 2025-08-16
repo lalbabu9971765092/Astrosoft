@@ -300,7 +300,8 @@
     "scoreBLabel": "Score B (Life-)",
     "marakaPlanetsLabel": "Maraka Planets (2nd & 7th Lords):",
     "eighthLordLabel": "8th Lord:",
-    "badhakeshLabel": "Badhakesh (Obstructor):"
+    "badhakeshLabel": "Badhakesh (Obstructor):",
+    "sakaYearLabel": "Saka Year:"
   },
     
   "utils": {
@@ -1210,4 +1211,6 @@
   "Main Charts": "Main Charts",
   "Transit Ascendent": "Transit Ascendent",
   "Transit Ascendent Detail": "Transit Ascendent Detail"
+  
 }
+

@@ -10,22 +10,30 @@ import { SAMVATSAR_NAMES } from './constants.js';
 // This function finds the *first day* where Chaitra Shukla Pratipada is present.
 async function findChaitraShuklaPratipada(year, latitude, longitude) {
     const obj = new MhahPanchang();
-    // Start searching from early March
-    let checkDate = new Date(Date.UTC(year, 1, 20)); // Start mid-Feb to be safe
-    const endDate = new Date(Date.UTC(year, 3, 30)); // Search until end of April
+    // Start searching from mid-February to be safe
+    let checkDate = new Date(Date.UTC(year, 1, 20, 0, 0, 0));
+    const endDate = new Date(Date.UTC(year, 3, 30, 0, 0, 0)); // Search until end of April
 
     while (checkDate <= endDate) {
         try {
-            // Need both calendar and tithi info for the check
-            const calendarInfo = obj.calendar(checkDate, latitude, longitude);
-            const tithiInfo = obj.calculate(checkDate, latitude, longitude)?.Tithi;
+            // FIX: Calculate panchang elements at sunrise for accuracy, as this defines the Tithi for the day.
+            const sunTimes = SunCalc.getTimes(checkDate, latitude, longitude);
+            const sunriseTime = sunTimes.sunrise;
+
+            // If sunrise doesn't happen (e.g., polar regions), fall back to noon UTC as a rough estimate.
+            const calculationTime = (sunriseTime instanceof Date && !isNaN(sunriseTime)) ? sunriseTime : new Date(new Date(checkDate).setUTCHours(12, 0, 0, 0));
+
+            // Use the precise sunrise time for calculation
+            const calendarInfo = obj.calendar(calculationTime, latitude, longitude);
+            const tithiInfo = obj.calculate(calculationTime, latitude, longitude)?.Tithi;
 
             // Check for Chaitra month, Shukla paksha, and Tithi index 0 (Pratipada)
             if (calendarInfo?.Masa?.name_en_IN === 'Chaitra' &&
                 calendarInfo?.Paksha?.name_en_IN === 'Shukla' &&
                 tithiInfo?.ino === 0) {
-                logger.debug(`Found Chaitra Shukla Pratipada for ${year} around ${checkDate.toISOString().split('T')[0]}`);
-                return checkDate; // Return the date object
+                logger.debug(`Found Chaitra Shukla Pratipada for ${year} on ${checkDate.toISOString().split('T')[0]} (using sunrise time)`);
+                // Return the start of the day, as the whole day is considered the New Year's day.
+                return checkDate;
             }
         } catch (e) {
             logger.warn(`Error checking date ${checkDate.toISOString().split('T')[0]} for Chaitra Shukla Pratipada: ${e.message}`);
@@ -33,6 +41,7 @@ async function findChaitraShuklaPratipada(year, latitude, longitude) {
         }
         checkDate.setUTCDate(checkDate.getUTCDate() + 1); // Move to the next day
     }
+
     logger.error(`Could not find Chaitra Shukla Pratipada for year ${year}. Check mhah-panchang data/logic.`);
     return null; // Indicate failure
 }
@@ -130,9 +139,9 @@ export async function calculatePanchang(dateString, latitude, longitude) {
         return {
             ...panchangDetails,
             ...calendarInfo,
-            VikramSamvat: vikramSamvat,
+            vikram_samvat: vikramSamvat,
             SakaYear: sakaYear,
-            Samvatsar: samvatsarName,
+            samvatsar: samvatsarName,
         };
     } catch (error) {
         logger.error(`Error calculating Panchang for ${dateString}, Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });

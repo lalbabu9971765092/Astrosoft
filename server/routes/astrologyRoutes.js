@@ -125,7 +125,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const latNum = latitude; // Already parsed to float by validator
         const lonNum = longitude; // Already parsed to float by validator
 
-        logger.info(`Starting calculation for date=${date}, lat=${latNum}, lon=${lonNum}`);
+       
 
         // --- Core Calculation Steps ---
         // *** CORRECTED CALL: Pass latNum and lonNum in the correct order ***
@@ -138,8 +138,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         }
 
         // Log results from getJulianDateUT (optional but helpful)
-        logger.debug(`[Route /calculate] JD UT: ${julianDayUT}, UTC: ${utcDate?.toISOString()}, Offset: ${timezoneOffsetHours}`);
-
+        
         // Proceed with calculations that depend on julianDayUT
         const ayanamsa = calculateAyanamsa(julianDayUT);
         if (isNaN(ayanamsa)) {
@@ -180,7 +179,6 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
  // *** CONSISTENCY FIX: Ensure Panchang Nakshatra name matches Moon's calculated Nakshatra ***
  const moonNakshatraNameFromPosition = siderealPositions['Moon']?.nakshatra;
  if (detailedPanchang?.Nakshatra && moonNakshatraNameFromPosition && detailedPanchang.Nakshatra.name_en_IN !== moonNakshatraNameFromPosition) {
-     logger.debug(`Aligning Panchang Nakshatra name (${detailedPanchang.Nakshatra.name_en_IN}) with Moon's position Nakshatra (${moonNakshatraNameFromPosition})`);
      detailedPanchang.Nakshatra.name_en_IN = moonNakshatraNameFromPosition;
  }
         const housesData = [];
@@ -305,9 +303,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             d9_planets: d9_planets,
             d9_ascendant_dms: d9AscendantDms,
             panchang: detailedPanchang, // Includes Masa, Samvat etc. from calculatePanchang
-            vikram_samvat: detailedPanchang?.calculatedVikramSamvat || "N/A",
-            samvatsar: detailedPanchang?.calculatedSamvatsar || "N/A",
-            doshas: {
+                       doshas: {
                 mangal: mangalDoshaResult,
                 kaalsarpa: kaalsarpaDoshaResult,
                 mool: moolDoshaResult
@@ -322,7 +318,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             },
             ashtakavarga: ashtakavargaResult,
         };
-        logger.info(`Calculation successful for date=${date}, lat=${latNum}, lon=${lonNum}`);
+        
         res.json(responsePayload);
 
     } catch (error) {
@@ -343,8 +339,7 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
         const latNum = latitude; // Already parsed to float by validator
         const lonNum = longitude; // Already parsed to float by validator
 
-        logger.info(`Starting rotated calculation for date=${date}, lat=${latNum}, lon=${lonNum}, house_to_rotate=${house_to_rotate}`);
-
+       
         // --- Core Calculation Steps ---
         const { julianDayUT, utcDate, timezoneOffsetHours } = getJulianDateUT(date, latNum, lonNum);
 
@@ -522,7 +517,7 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
             },
             ashtakavarga: ashtakavargaResult,
         };
-        logger.info(`Rotated calculation successful for date=${date}, lat=${latNum}, lon=${lonNum}`);
+      
         res.json(responsePayload);
 
     } catch (error) {
@@ -544,7 +539,7 @@ router.post('/charts', saveChartValidation, async (req, res) => {
         const { name, gender, date, latitude, longitude, placeName } = req.body;
         const chartDataToSave = { name, gender: gender || '', date, latitude, longitude, placeName: placeName || '' };
         const savedChart = await Chart.create(chartDataToSave);
-        logger.info(`Saved chart to DB: ${savedChart.name} (ID: ${savedChart._id})`);
+      
         res.status(201).json(savedChart);
     } catch (error) {
         if (error.name === 'ValidationError') {
@@ -572,7 +567,6 @@ router.get('/charts', paginationValidation, async (req, res) => {
             .limit(limit)
             .lean();
         const totalCharts = await Chart.countDocuments();
-        logger.info(`Fetched ${savedCharts.length} of ${totalCharts} saved charts from DB (Page ${page}, Limit ${limit}).`);
         const chartsForFrontend = savedCharts.map(chart => ({ ...chart, id: chart._id.toString() }));
         res.json({ charts: chartsForFrontend, currentPage: page, totalPages: Math.ceil(totalCharts / limit), totalCharts });
     } catch (error) {
@@ -589,13 +583,13 @@ router.delete('/charts/:id', deleteChartValidation, async (req, res) => {
 
     try {
         const chartId = req.params.id;
-        logger.info(`Attempting to delete chart with ID: ${chartId}`);
+       
         const deletedChart = await Chart.findByIdAndDelete(chartId);
         if (!deletedChart) {
             logger.warn(`Chart not found for deletion with ID: ${chartId}`);
             return res.status(404).json({ error: 'Chart not found.' });
         }
-        logger.info(`Successfully deleted chart: ${deletedChart.name} (ID: ${chartId})`);
+       
         res.status(200).json({ message: `Chart '${deletedChart.name}' deleted successfully.` });
     } catch (error) {
         handleRouteError(res, error, `DELETE /charts/${req.params.id}`, { id: req.params.id });
@@ -614,8 +608,7 @@ router.post('/calculate-prashna-number', prashnaValidation, async (req, res) => 
         const latNum = latitude; // Already parsed
         const lonNum = longitude; // Already parsed
 
-        logger.info(`Starting Prashna calculation for number=${number}, date=${date}, lat=${latNum}, lon=${lonNum}`);
-
+       
         // --- Core Calculation ---
         const siderealAscendantDeg = getNumberBasedAscendantDegree(number); // Throws on invalid number
 
@@ -700,8 +693,7 @@ router.post('/calculate-prashna-number', prashnaValidation, async (req, res) => 
             siderealCuspStartDegrees: siderealCuspStartDegrees, // Add this line
         };
 
-        logger.info(`Prashna calculation successful for number=${number}`);
-        res.json(responsePayload);
+         res.json(responsePayload);
 
     } catch (error) {
         handleRouteError(res, error, '/calculate-prashna-number', req.body);
@@ -718,8 +710,6 @@ router.post('/calculate-prashna-number/rotated', rotatedPrashnaValidation, async
         const { number, latitude, longitude, placeName, date, house_to_rotate } = req.body;
         const latNum = latitude; // Already parsed
         const lonNum = longitude; // Already parsed
-
-        logger.info(`Starting Rotated Prashna calculation for number=${number}, date=${date}, lat=${latNum}, lon=${lonNum}, house_to_rotate=${house_to_rotate}`);
 
         // --- Core Calculation ---
         const siderealAscendantDeg = getNumberBasedAscendantDegree(number); // Throws on invalid number
@@ -807,8 +797,7 @@ router.post('/calculate-prashna-number/rotated', rotatedPrashnaValidation, async
             siderealCuspStartDegrees: rotatedSiderealCuspStartDegrees, // Add this line
         };
 
-        logger.info(`Rotated Prashna calculation successful for number=${number}`);
-        res.json(responsePayload);
+       res.json(responsePayload);
 
     } catch (error) {
         handleRouteError(res, error, '/calculate-prashna-number/rotated', req.body);
@@ -827,8 +816,7 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         const latNum = natalLatitude; // Already parsed
         const lonNum = natalLongitude; // Already parsed
 
-        logger.info(`Starting Varshphal calculation for natalDate=${natalDate}, year=${varshphalYear}, lat=${latNum}, lon=${lonNum}`);
-
+       
         // --- Step 1: Calculate Natal Details Needed ---
         const { julianDayUT: natalJD_UT, utcDate: natalUTCDate, timezoneOffsetHours: natalTzOffset } = getJulianDateUT(natalDate, latNum, lonNum); // Pass lat/lon
         if (natalJD_UT === null) { throw new Error('Failed to calculate Natal Julian Day UT.'); }
@@ -964,8 +952,7 @@ router.post('/calculate-varshphal/rotated', rotatedVarshphalValidation, async (r
         const latNum = natalLatitude;
         const lonNum = natalLongitude;
 
-        logger.info(`Starting Rotated Varshphal calculation for natalDate=${natalDate}, year=${varshphalYear}, lat=${latNum}, lon=${lonNum}, house_to_rotate=${house_to_rotate}`);
-
+       
         // --- Step 1: Calculate Natal Details Needed ---
         const { julianDayUT: natalJD_UT, utcDate: natalUTCDate, timezoneOffsetHours: natalTzOffset } = getJulianDateUT(natalDate, latNum, lonNum);
         if (natalJD_UT === null) { throw new Error('Failed to calculate Natal Julian Day UT.'); }
@@ -1092,8 +1079,7 @@ router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
         const latNum = latitude;
         const lonNum = longitude;
 
-        logger.info(`Starting Muhurta calculation for date=${date}, lat=${latNum}, lon=${lonNum}`);
-
+       
         const muhurtaResult = await calculateMuhurta(date, latNum, lonNum);
 
         const responsePayload = {
@@ -1104,8 +1090,7 @@ router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
             muhurta: muhurtaResult.muhurta,
         };
 
-        logger.info(`Muhurta calculation successful for date=${date}, lat=${latNum}, lon=${lonNum}`);
-        res.json(responsePayload);
+       res.json(responsePayload);
 
     } catch (error) {
         handleRouteError(res, error, '/calculate-muhurta', req.body);
@@ -1124,8 +1109,7 @@ router.post('/kp-significators', baseChartValidation, async (req, res) => {
         const latNum = latitude;
         const lonNum = longitude;
 
-        logger.info(`Starting KP Significators calculation for date=${date}, lat=${latNum}, lon=${lonNum}`);
-
+       
         const { julianDayUT, utcDate } = getJulianDateUT(date, latNum, lonNum);
         if (julianDayUT === null) {
             throw new Error('Failed to calculate Julian Day UT for KP Significators.');
@@ -1153,7 +1137,6 @@ router.post('/kp-significators', baseChartValidation, async (req, res) => {
             kpSignificatorsData: kpSignificatorsData,
         };
 
-        logger.info(`KP Significators calculation successful for date=${date}, lat=${latNum}, lon=${lonNum}`);
         res.json(responsePayload);
 
     } catch (error) {
