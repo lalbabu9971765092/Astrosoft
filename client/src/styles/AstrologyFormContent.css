@@ -11,12 +11,19 @@
 .results-column {
     flex: 1 1 300px; /* Flex-grow, flex-shrink, flex-basis */
     min-width: 300px; /* Minimum width before wrapping */
-    max-width: 700px; /* Maximum width for a column */
     background-color: #ffffff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     padding: 20px;
     box-sizing: border-box;
+}
+
+.results-column.left-column {
+    flex: 1;
+}
+
+.results-column.right-column {
+    flex: 2;
 }
 
 .column-title {

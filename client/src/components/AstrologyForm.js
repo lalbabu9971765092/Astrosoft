@@ -697,8 +697,10 @@ const AstrologyForm = () => {
         );
     };
 
-    // --- renderMiddleColumn (Keep as is, but pass 't' to createChartHousesFromAscendant) ---
-    const renderMiddleColumn = () => {
+    
+
+    // --- renderRightColumn (Calls renderGocharDetails) ---
+    const renderRightColumn = () => {
         const canRenderBirthCharts = displayResult && displayResult.houses && displayResult.planetaryPositions?.sidereal;
         const hasD9Data = displayResult?.d9_planets && displayResult?.d9_ascendant_dms; // Pass 't' when creating D9 houses
        
@@ -713,74 +715,78 @@ const AstrologyForm = () => {
         
         const canRenderBhavaChart = canRenderBirthCharts && bhavaPlanetPlacements;
 
-   
-        return (
-            <div className="results-column middle-column">
-                <h2 className="column-title">{rectifiedResult ? t('astrologyForm.middleColumnTitleRectified') : t('astrologyForm.middleColumnTitleBirth')}</h2>
-                {isLoadingRectification && <div className="loader">{t('astrologyForm.loadingRectifiedData')}</div>}
-                {rectificationError && <p className="error-text small-error">{t('astrologyForm.rectificationErrorPrefix')}: {rectificationError}</p>}
-
-                {/* --- Charts Grid (2x2) --- */}
-                <div className="result-section">
-                    <div className="section-header" onClick={() => toggleSection('charts')}>
-                        <h3 className="result-sub-title">{t('Main Charts')}</h3>
-                        <button className="toggle-button">{openSections.charts ? '−' : '+'}</button>
-                    </div>
-                    <div className={`section-content ${openSections.charts ? '' : 'collapsed'}`}>
-                        {canRenderAnyChart ? (
-                            <div className="charts-container-vertical">
-                                {/* Top Row */}
-                                <div className="chart-cell">
-                                    {canRenderBirthCharts ? (
-                                        <DiamondChart
-                                            title={t('astrologyForm.chartD1Title')}
-                                            houses={displayResult.houses}
-                                            planets={displayResult.planetaryPositions.sidereal}
-                                            chartType="lagna" size={400}
-                                        />
-                                    ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD1')}</div>}
-                                </div>
-                                <div className="chart-cell">
-                                    {canRenderBhavaChart ? (
-                                        <DiamondChart
-                                            title={t('astrologyForm.chartBhavaTitle')}
-                                            houses={displayResult.houses}
-                                            planetHousePlacements={bhavaPlanetPlacements}
-                                            chartType="bhava" size={400} // Pass the calculated placements
-                                        />
-                                    ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderBhava')}</div>}
-                                </div>
-                                {/* Bottom Row */}
-                                <div className="chart-cell">
-                                    {hasD9Data && d9Houses ? (
-                                        <DiamondChart
-                                            title={t('astrologyForm.chartD9Title')}
-                                            houses={d9Houses}
-                                            planets={displayResult.d9_planets}
-                                            chartType="d9" size={400}
-                                        />
-                                    ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD9')}</div>}
-                                </div>
-                                <div className="chart-cell">
-                                     {isLoadingGochar ? (
-                                        <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderLoadingGochar')}</div>
-                                     ) : hasGocharData && gocharHouses ? (
-                                        <DiamondChart
-                                            title={t('astrologyForm.chartGocharTitle')}
-                                            houses={gocharHouses}
-                                            planets={gocharData.planetaryPositions.sidereal}
-                                            chartType="gochar" size={400}
-                                        />
-                                    ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderGochar')}</div>}
-                                </div>
+         return (
+            <div className="results-column right-column">
+                <div className="right-column-top">
+                    <div className="right-column-top-left">
+                        <h2 className="column-title">{t('Main Charts')}</h2>
+                        {/* --- Charts Grid (2x2) --- */}
+                        <div className="result-section">
+                            <div className="section-header" onClick={() => toggleSection('charts')}>
+                                <h3 className="result-sub-title">{t('Main Charts')}</h3>
+                                <button className="toggle-button">{openSections.charts ? '−' : '+'}</button>
                             </div>
-                        ) : (
-                            !isLoadingRectification && <p className="info-text">{t('astrologyForm.chartDataUnavailable')}</p>
-                        )}
+                            <div className={`section-content ${openSections.charts ? '' : 'collapsed'}`}>
+                                {canRenderAnyChart ? (
+                                    <div className="charts-container-vertical">
+                                        {/* Top Row */}
+                                        <div className="chart-cell">
+                                            {canRenderBirthCharts ? (
+                                                <DiamondChart
+                                                    title={t('astrologyForm.chartD1Title')}
+                                                    houses={displayResult.houses}
+                                                    planets={displayResult.planetaryPositions.sidereal}
+                                                    chartType="lagna" size={400}
+                                                />
+                                            ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD1')}</div>}
+                                        </div>
+                                        <div className="chart-cell">
+                                            {canRenderBhavaChart ? (
+                                                <DiamondChart
+                                                    title={t('astrologyForm.chartBhavaTitle')}
+                                                    houses={displayResult.houses}
+                                                    planetHousePlacements={bhavaPlanetPlacements}
+                                                    chartType="bhava" size={400} // Pass the calculated placements
+                                                />
+                                            ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderBhava')}</div>}
+                                        </div>
+                                        {/* Bottom Row */}
+                                        <div className="chart-cell">
+                                            {hasD9Data && d9Houses ? (
+                                                <DiamondChart
+                                                    title={t('astrologyForm.chartD9Title')}
+                                                    houses={d9Houses}
+                                                    planets={displayResult.d9_planets}
+                                                    chartType="d9" size={400}
+                                                />
+                                            ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD9')}</div>}
+                                        </div>
+                                        <div className="chart-cell">
+                                             {isLoadingGochar ? (
+                                                <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderLoadingGochar')}</div>
+                                             ) : hasGocharData && gocharHouses ? (
+                                                <DiamondChart
+                                                    title={t('astrologyForm.chartGocharTitle')}
+                                                    houses={gocharHouses}
+                                                    planets={gocharData.planetaryPositions.sidereal}
+                                                    chartType="gochar" size={400}
+                                                />
+                                            ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderGochar')}</div>}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    !isLoadingRectification && <p className="info-text">{t('astrologyForm.chartDataUnavailable')}</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="right-column-top-right">
+                        <h2 className="column-title">{t('astrologyForm.rightColumnTitle')}</h2>
+                        {/* renderGocharDetails handles its own loading/error/data states */}
+                        {renderGocharDetails()}
                     </div>
                 </div>
 
-                {/* --- Tables (Remain below the charts) --- */}
                 <div className="result-section">
                     <div className="section-header" onClick={() => toggleSection('houseCusps')}>
                         <h3 className="result-sub-title">{t('astrologyForm.houseCuspsTitle')}</h3>
@@ -877,17 +883,6 @@ const AstrologyForm = () => {
         );
     };
 
-    // --- renderRightColumn (Calls renderGocharDetails) ---
-    const renderRightColumn = () => {
-         return (
-            <div className="results-column right-column">
-                <h2 className="column-title">{t('astrologyForm.rightColumnTitle')}</h2>
-                {/* renderGocharDetails handles its own loading/error/data states */}
-                {renderGocharDetails()}
-            </div>
-        );
-    };
-
     // --- Component Return ---
     return (
         <div className="astrology-form-content">
@@ -897,7 +892,6 @@ const AstrologyForm = () => {
             {displayResult || gocharData ? (
                 <>
                     {renderLeftColumn()}
-                    {renderMiddleColumn()}
                     {renderRightColumn()}
                 </>
             ) : (
