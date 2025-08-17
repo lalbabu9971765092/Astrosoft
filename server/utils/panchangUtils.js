@@ -31,8 +31,7 @@ async function findChaitraShuklaPratipada(year, latitude, longitude) {
             if (calendarInfo?.Masa?.name_en_IN === 'Chaitra' &&
                 calendarInfo?.Paksha?.name_en_IN === 'Shukla' &&
                 tithiInfo?.ino === 0) {
-                logger.debug(`Found Chaitra Shukla Pratipada for ${year} on ${checkDate.toISOString().split('T')[0]} (using sunrise time)`);
-                // Return the start of the day, as the whole day is considered the New Year's day.
+               
                 return checkDate;
             }
         } catch (e) {

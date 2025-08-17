@@ -81,15 +81,18 @@ router.post('/', kpValidation, async (req, res) => {
 
         const { tropicalCusps, tropicalAscendant } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
 
-        if (tropicalCusps === null) {
+        // Ensure tropicalCusps is an array before mapping, even if null from calculateHousesAndAscendant
+        const validTropicalCusps = tropicalCusps || [];
+
+        if (validTropicalCusps.length === 0) {
             throw new Error("Failed to calculate house cusps, cannot proceed with KP significator calculation.");
         }
 
-        const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
+        const siderealCuspStartDegrees = validTropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         const siderealPositions = planetaryPositions.sidereal;
         
-        const aspects = calculateAspects(siderealPositions);
+        const aspects = calculateAspects(siderealPositions, siderealCuspStartDegrees);
 
         const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, aspects);
 
@@ -126,18 +129,21 @@ router.post('/rotated', rotatedKpValidation, async (req, res) => {
 
         const { tropicalCusps, tropicalAscendant } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
 
-        if (tropicalCusps === null) {
+        // Ensure tropicalCusps is an array before mapping, even if null from calculateHousesAndAscendant
+        const validTropicalCusps = tropicalCusps || [];
+
+        if (validTropicalCusps.length === 0) {
             throw new Error("Failed to calculate house cusps, cannot proceed with KP significator calculation.");
         }
 
-        const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
+        const siderealCuspStartDegrees = validTropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
         
         const rotatedSiderealCuspStartDegrees = rotateHouses(siderealCuspStartDegrees, house_to_rotate);
 
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         const siderealPositions = planetaryPositions.sidereal;
         
-        const aspects = calculateAspects(siderealPositions);
+        const aspects = calculateAspects(siderealPositions, rotatedSiderealCuspStartDegrees);
 
         const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, rotatedSiderealCuspStartDegrees, aspects);
 

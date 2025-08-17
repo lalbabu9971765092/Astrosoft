@@ -235,7 +235,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const mangalDoshaResult = calculateMangalDosha(siderealPositions, siderealCuspStartDegrees, siderealAscendantDeg);
         const kaalsarpaDoshaResult = calculateKaalsarpaDosha(siderealPositions);
         const moolDoshaResult = await calculateMoolDosha(date, latNum, lonNum, siderealPositions, sunriseMoment, nextSunriseMoment);
-        const aspectData = calculateAspects(siderealPositions);
+        const { directAspects, reverseAspects } = calculateAspects(siderealPositions, siderealCuspStartDegrees);
         const planetStateData = calculatePlanetStates(siderealPositions);
 
         const temporalFriendshipData = {}; const resultingFriendshipData = {};
@@ -252,7 +252,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         }
 
         // Pass necessary data to Shadbala
-        const shadbalaData = calculateShadbala(siderealPositions, housesData, aspectData, sunMoonTimes, utcDate);
+        const shadbalaData = calculateShadbala(siderealPositions, housesData, directAspects, sunMoonTimes, utcDate);
 
         const bhinnaAshtakavargaData = {};
         ASHTAKAVARGA_PLANETS.forEach(planetName => { bhinnaAshtakavargaData[planetName] = calculateBhinnaAshtakavarga(planetName, siderealPositions, siderealAscendantDeg); });
@@ -310,7 +310,8 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             },
             planetDetails: {
                 states: planetStateData,
-                aspects: aspectData,
+                aspects: directAspects,
+                reverseAspects: reverseAspects, // Add this line
                 naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder },
                 temporalFriendship: temporalFriendshipData,
                 resultingFriendship: resultingFriendshipData,
@@ -318,7 +319,6 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             },
             ashtakavarga: ashtakavargaResult,
         };
-        
         res.json(responsePayload);
 
     } catch (error) {
@@ -435,7 +435,7 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
         const mangalDoshaResult = calculateMangalDosha(siderealPositions, rotatedSiderealCuspStartDegrees, siderealAscendantDeg);
         const kaalsarpaDoshaResult = calculateKaalsarpaDosha(siderealPositions);
         const moolDoshaResult = await calculateMoolDosha(date, latNum, lonNum, siderealPositions, sunriseMoment, nextSunriseMoment);
-        const aspectData = calculateAspects(siderealPositions);
+        const { directAspects, reverseAspects } = calculateAspects(siderealPositions, rotatedSiderealCuspStartDegrees);
         const planetStateData = calculatePlanetStates(siderealPositions);
 
         const temporalFriendshipData = {}; const resultingFriendshipData = {};
@@ -451,7 +451,7 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
             }
         }
 
-        const shadbalaData = calculateShadbala(siderealPositions, housesData, aspectData, sunMoonTimes, utcDate);
+        const shadbalaData = calculateShadbala(siderealPositions, housesData, directAspects, sunMoonTimes, utcDate);
 
         const bhinnaAshtakavargaData = {};
         ASHTAKAVARGA_PLANETS.forEach(planetName => { bhinnaAshtakavargaData[planetName] = calculateBhinnaAshtakavarga(planetName, siderealPositions, siderealAscendantDeg); });
@@ -509,7 +509,8 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
             },
             planetDetails: {
                 states: planetStateData,
-                aspects: aspectData,
+                aspects: directAspects,
+                reverseAspects: reverseAspects, // Add this line
                 naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder },
                 temporalFriendship: temporalFriendshipData,
                 resultingFriendship: resultingFriendshipData,
@@ -1128,7 +1129,7 @@ router.post('/kp-significators', baseChartValidation, async (req, res) => {
         const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         const siderealPositions = planetaryPositions.sidereal;
-        const aspects = calculateAspects(siderealPositions);
+        const aspects = calculateAspects(siderealPositions, siderealCuspStartDegrees);
 
         const kpSignificatorsData = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, aspects);
 

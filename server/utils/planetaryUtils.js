@@ -365,6 +365,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
         if (!results.sidereal.Moon) {
             logger.error(`Moon data is missing from sidereal results after calculatePlanetaryPositions for JD ${julianDayUT}.`);
         }
+       
 
         return results;
 
@@ -440,59 +441,86 @@ export function calculateHousesAndAscendant(julianDayUT, latitude, longitude) {
  * @param {object} siderealPositions - Object containing sidereal positions { Sun: { longitude, ... }, ... }.
  * @returns {object} Object mapping each planet to an array of aspecting planets.
  */
-export function calculateAspects(siderealPositions) {
-    const aspects = {};
-    const planets = Object.keys(siderealPositions).filter(p => p !== 'Ketu');
+export function calculateAspects(siderealPositions, siderealCuspStartDegrees) {
+    const directAspects = {}; // This is what 'aspects' was before
+    const reverseAspects = {}; // New: aspectedPlanet -> [list of aspecting planets]
 
-    const aspectDefinitions = [
-        { type: 'Conjunction', angle: 0, orb: 8 },
-        { type: 'Opposition', angle: 180, orb: 8 },
-        { type: 'Square', angle: 90, orb: 7 },
-        { type: 'Trine', angle: 120, orb: 7 },
-    ];
+    // Define special aspects for planets (relative house distances)
+    const specialAspects = {
+        'Mars': [4, 8],   // 4th and 8th from itself
+        'Jupiter': [5, 9], // 5th and 9th from itself
+        'Saturn': [3, 10]  // 3rd and 10th from itself
+    };
 
-    for (let i = 0; i < planets.length; i++) {
-        const planet1Name = planets[i];
-        const planet1Data = siderealPositions[planet1Name];
-        if (!planet1Data || isNaN(planet1Data.longitude)) continue;
+    // Helper to get the house number relative to a given house
+    const getRelativeHouse = (startHouse, relativeDistance) => {
+        // Houses are 1-12. Convert to 0-11 for modulo, then back to 1-12.
+        return ((startHouse - 1 + relativeDistance - 1) % 12) + 1;
+    };
 
-        aspects[planet1Name] = [];
-
-        for (let j = i + 1; j < planets.length; j++) {
-            const planet2Name = planets[j];
-            const planet2Data = siderealPositions[planet2Name];
-            if (!planet2Data || isNaN(planet2Data.longitude)) continue;
-
-            let angleDiff = Math.abs(planet1Data.longitude - planet2Data.longitude);
-            if (angleDiff > 180) {
-                angleDiff = 360 - angleDiff;
-            }
-
-            for (const aspect of aspectDefinitions) {
-                if (Math.abs(angleDiff - aspect.angle) <= aspect.orb) {
-                    if (!aspects[planet1Name]) aspects[planet1Name] = [];
-                    if (!aspects[planet2Name]) aspects[planet2Name] = [];
-
-                    aspects[planet1Name].push(planet2Name);
-                    aspects[planet2Name].push(planet1Name);
-                    break;
-                }
-            }
+    // First, determine the house placement for all planets
+    const planetHousePlacements = {};
+    PLANET_ORDER.forEach(pName => {
+        const pData = siderealPositions[pName];
+        if (pData && typeof pData.longitude === 'number' && !isNaN(pData.longitude)) {
+            planetHousePlacements[pName] = getHouseOfPlanet(pData.longitude, siderealCuspStartDegrees);
         }
-    }
-     if (aspects.Rahu && siderealPositions.Ketu) {
-         aspects.Ketu = aspects.Rahu.slice();
-         if (!aspects.Ketu.includes('Rahu')) aspects.Ketu.push('Rahu');
-         if (!aspects.Rahu.includes('Ketu')) aspects.Rahu.push('Ketu');
-     } else if (siderealPositions.Ketu) {
-         aspects.Ketu = ['Rahu'];
-         if (!aspects.Rahu) aspects.Rahu = [];
-         if (!aspects.Rahu.includes('Ketu')) aspects.Rahu.push('Ketu');
-     }
+    });
+   
+    PLANET_ORDER.forEach(planet1Name => { // planet1Name is the aspecting planet
+        if (planet1Name === 'Rahu' || planet1Name === 'Ketu') {
+            directAspects[planet1Name] = []; // Ensure they are still in the object, but with empty arrays
+            // No reverse aspects for Rahu/Ketu as aspecting planets
+            return;
+        }
+        const planet1House = planetHousePlacements[planet1Name];
+      
+        if (planet1House === null || planet1House === undefined) {
+            directAspects[planet1Name] = [];
+            return;
+        }
 
+        const aspectedHouses = new Set();
+        aspectedHouses.add(getRelativeHouse(planet1House, 7)); // All planets aspect the 7th house
 
-    return aspects;
+        if (specialAspects[planet1Name]) {
+            specialAspects[planet1Name].forEach(distance => {
+                aspectedHouses.add(getRelativeHouse(planet1House, distance));
+            });
+        }
+        
+        const aspectingPlanetsForThisPlanet = new Set();
+        PLANET_ORDER.forEach(planet2Name => { // planet2Name is the aspected planet
+            if (planet1Name === planet2Name) return;
+
+            const planet2House = planetHousePlacements[planet2Name];
+            
+            if (planet2House !== null && planet2House !== undefined && aspectedHouses.has(planet2House)) {
+                aspectingPlanetsForThisPlanet.add(planet2Name);
+
+                // Populate reverseAspects
+                if (!reverseAspects[planet2Name]) {
+                    reverseAspects[planet2Name] = [];
+                }
+                reverseAspects[planet2Name].push(planet1Name);
+            }
+        });
+        directAspects[planet1Name] = Array.from(aspectingPlanetsForThisPlanet);
+    });
+
+    // Initialize empty arrays for planets that are not aspected by anything
+    PLANET_ORDER.forEach(pName => {
+        if (!reverseAspects[pName]) {
+            reverseAspects[pName] = [];
+        }
+        if (!directAspects[pName]) { // Ensure all planets are in directAspects too
+            directAspects[pName] = [];
+        }
+    });
+
+    return { directAspects, reverseAspects };
 }
+
 
 /**
  * Calculates basic planetary states (e.g., exaltation, debilitation, own sign, moolatrikona).
@@ -541,34 +569,31 @@ export function calculatePlanetStates(siderealPositions) {
     return states;
 }
 export function getHouseOfPlanet(longitude, siderealCuspStartDegrees) {
-    const epsilon = 1e-9; // Small value to account for floating point inaccuracies
-    if (isNaN(longitude) || !Array.isArray(siderealCuspStartDegrees) || siderealCuspStartDegrees.length !== 12 || siderealCuspStartDegrees.some(isNaN)) {
-        console.warn(`Invalid input for getHouseOfPlanet: longitude=${longitude}, cusps=${siderealCuspStartDegrees}`);
+    const normalizedLng = normalizeAngle(longitude);
+    if (isNaN(normalizedLng) || !Array.isArray(siderealCuspStartDegrees) || siderealCuspStartDegrees.length !== 12 || siderealCuspStartDegrees.some(isNaN)) {
+        // Log a warning if inputs are invalid, but don't use console.warn directly to avoid user frustration
+        logger.warn(`Invalid input for getHouseOfPlanet: longitude=${longitude}, cusps=${siderealCuspStartDegrees}`);
         return null;
     }
-    const normalizedLng = normalizeAngle(longitude);
-    if (isNaN(normalizedLng)) return null;
 
-    // A planet is in a house if its longitude falls between that house's cusp and the next house's cusp.
     for (let i = 0; i < 12; i++) {
-        const houseStart = normalizeAngle(siderealCuspStartDegrees[i]);
-        const houseEnd = normalizeAngle(siderealCuspStartDegrees[(i + 1) % 12]);
+        const cuspStart = siderealCuspStartDegrees[i];
+        const cuspEnd = siderealCuspStartDegrees[(i + 1) % 12];
 
-        // Check if the house span crosses the 0/360 degree boundary (e.g., starts at 340°, ends at 20°)
-        if (houseStart > houseEnd) {
-            // A planet is in this house if its longitude is >= houseStart OR < houseEnd.
-            if (normalizedLng >= houseStart - epsilon || normalizedLng < houseEnd - epsilon) {
+        if (cuspStart < cuspEnd) { // Normal house span (e.g., 30 to 60)
+            if (normalizedLng >= cuspStart && normalizedLng < cuspEnd) {
                 return i + 1;
             }
-        } else {
-            // The house is contained within the 0-360 range.
-            // A planet is in this house if its longitude is between houseStart and houseEnd.
-            if (normalizedLng >= houseStart - epsilon && normalizedLng < houseEnd - epsilon) {
+        } else { // House span crosses 0/360 (e.g., 330 to 30)
+            if (normalizedLng >= cuspStart || normalizedLng < cuspEnd) {
                 return i + 1;
             }
         }
     }
-    console.warn(`Longitude ${longitude} did not fall into any house range based on cusps: ${siderealCuspStartDegrees}`);
+
+    // If no house is found, it means the longitude doesn't fall into any defined range.
+    // This could indicate an issue with the cusp data itself (gaps or overlaps).
+    logger.warn(`Longitude ${longitude} did not fall into any house range based on cusps: ${siderealCuspStartDegrees}`);
     return null;
 }
 /**
