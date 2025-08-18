@@ -270,27 +270,41 @@ const PrashnaNumberPage = () => {
     }, [prashnaNumber, currentCoords, currentPlaceName, t]); // Add t dependency
 
     useEffect(() => {
-        if (selectedHouse === 1) {
-            setRotatedPrashnaResult(null);
-            return;
-        }
         const fetchRotatedData = async () => {
             setIsLoadingChart(true);
             setChartError(null);
             try {
-                const payload = {
-                    ...inputDetails,
-                    house_to_rotate: selectedHouse
-                };
-                const rotatedResponse = await api.post('/calculate-prashna-number/rotated', payload);
-                const { kpSignificators, planetHousePlacements, siderealCuspStartDegrees, ...restOfData } = rotatedResponse.data;
-                setRotatedPrashnaResult({ ...restOfData, planetHousePlacements, siderealCuspStartDegrees });
-                setKpData(kpSignificators);
+                let response;
+                let payload;
+
+                if (selectedHouse === 1) {
+                    // If House 1 is selected, fetch the original (non-rotated) data
+                    payload = { ...inputDetails };
+                    response = await api.post('/calculate-prashna-number', payload);
+                    setPrashnaResult(response.data); // Update the main result
+                    setRotatedPrashnaResult(null); // Clear rotated result
+                } else {
+                    // Otherwise, fetch the rotated data
+                    payload = {
+                        ...inputDetails,
+                        house_to_rotate: selectedHouse
+                    };
+                    response = await api.post('/calculate-prashna-number/rotated', payload);
+                    setRotatedPrashnaResult(response.data); // Update rotated result
+                    setPrashnaResult(null); // Clear main result
+                }
+
+                // Extract KP significators and other data from the response
+                const { kpSignificators, planetHousePlacements, siderealCuspStartDegrees, ...restOfData } = response.data;
+                setKpData(kpSignificators); // Always update KP data from the response
+
             } catch (error) {
-                console.error("Rotated Prashna Chart calculation error:", error);
+                console.error("Prashna Chart calculation error:", error);
                 const errMsg = error.response?.data?.error || error.message || t('prashnaNumberPage.errorChartFetch');
                 setChartError(errMsg);
+                setPrashnaResult(null);
                 setRotatedPrashnaResult(null);
+                setKpData(null); // Clear KP data on error
             } finally {
                 setIsLoadingChart(false);
             }

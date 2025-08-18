@@ -400,6 +400,36 @@ export const DEFAULT_DASHA_BALANCE = {
     balanceYears: NaN,
     balanceYMD: { years: 0, months: 0, days: 0 }
 };
+export const NAKSHATRA_PADA_ALPHABETS = {
+    "Ashwini": ["Chu", "Che", "Cho", "La"],
+    "Bharani": ["Li", "Lu", "Le", "Lo"],
+    "Krittika": ["A", "Ee", "U", "E"], // 1st pada in Aries, rest in Taurus
+    "Rohini": ["O", "Va", "Vi", "Vu"],
+    "Mrigashira": ["Ve", "Vo", "Ka", "Ki"],
+    "Ardra": ["Ku", "Gha", "Nga", "Chha"],
+    "Punarvasu": ["Ke", "Ko", "Ha", "Hi"],
+    "Pushya": ["Hu", "He", "Ho", "Da"],
+    "Ashlesha": ["Di", "Du", "De", "Do"],
+    "Magha": ["Ma", "Mi", "Mu", "Me"],
+    "Purva Phalguni": ["Mo", "Ta", "Ti", "Tu"],
+    "Uttara Phalguni": ["Te", "To", "Pa", "Pi"], // 1st pada in Leo, rest in Virgo
+    "Hasta": ["Pu", "Sha", "Na", "Tha"],
+    "Chitra": ["Pe", "Po", "Ra", "Ri"],
+    "Swati": ["Ru", "Re", "Ro", "Ta"],
+    "Vishakha": ["Ti", "Tu", "Te", "To"], // Last pada in Scorpio
+    "Anuradha": ["Na", "Ni", "Nu", "Ne"],
+    "Jyeshtha": ["No", "Ya", "Yi", "Yu"],
+    "Mula": ["Ye", "Yo", "Bha", "Bhi"],
+    "Purva Ashadha": ["Bhu", "Dha", "Pha", "Dha"],
+    "Uttara Ashadha": ["Bhe", "Bho", "Ja", "Ji"], // 1st pada in Sagittarius, rest in Capricorn
+    "Shravana": ["Khi", "Khu", "Khe", "Kho"],
+    "Dhanishtha": ["Ga", "Gi", "Gu", "Ge"],
+    "Shatabhisha": ["Go", "Sa", "Si", "Su"],
+    "Purva Bhadrapada": ["Se", "So", "Da", "Di"],
+    "Uttara Bhadrapada": ["Du", "Tha", "Jha", "Na"],
+    "Revati": ["De", "Do", "Cha", "Chi"]
+};
+
 export const SAMVATSAR_NAMES = [
     'Prabhava', 'Vibhava', 'Shukla', 'Pramoda', 'Prajapati', 'Angira', 'Shrimukha', 'Bhava', 'Yuva', 'Dhatri',
     'Ishwara', 'Bahudhanya', 'Pramathi', 'Vikrama', 'Vishu', 'Chitrabhanu', 'Subhanu', 'Tarana', 'Parthiva', 'Vyaya',

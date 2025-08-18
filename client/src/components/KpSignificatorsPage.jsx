@@ -189,10 +189,6 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
 
     // --- useEffect to fetch rotated data ---
     useEffect(() => {
-        if (selectedHouse === 1) {
-            return; // Don't re-fetch if house 1 is selected, as it's the default
-        }
-
         const fetchRotatedData = async () => {
             const shouldUseAdjusted = adjustedBirthDateTimeString &&
                                       calculationInputParams?.date &&
@@ -214,30 +210,48 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
             setIsLoadingKp(true);
             setKpError(null);
 
-            const paramsForFetch = {
-                date: formattedDateForApi,
-                latitude: latToUse,
-                longitude: lonToUse,
-                house_to_rotate: selectedHouse
-            };
+            let response;
+            if (selectedHouse === 1) {
+                // If House 1 is selected, fetch the original (non-rotated) data
+                const paramsForFetch = { date: formattedDateForApi, latitude: latToUse, longitude: lonToUse, placeName: calculationInputParams?.placeName };
+                response = await api.post('/calculate', paramsForFetch);
+            } else {
+                // Otherwise, fetch the rotated data
+                const paramsForFetch = {
+                    date: formattedDateForApi,
+                    latitude: latToUse,
+                    longitude: lonToUse,
+                    house_to_rotate: selectedHouse
+                };
+                response = await api.post('/kp-significators/rotated', paramsForFetch);
+            }
 
             try {
-                const kpResponse = await api.post('/kp-significators/rotated', paramsForFetch);
-                if (kpResponse.error) {
-                    const kpErrMsg = kpResponse.error.response?.data?.error || kpResponse.error.message || t('kpSignificatorsPage.kpFetchFailed', 'KP Fetch Failed');
-                    console.error("KP Fetch Error:", kpResponse.error);
+                if (response.error) {
+                    const kpErrMsg = response.error.response?.data?.error || response.error.message || t('kpSignificatorsPage.kpFetchFailed', 'KP Fetch Failed');
+                    console.error("KP Fetch Error:", response.error);
                     setKpError(kpErrMsg);
                     setKpData(null);
+                    setD1Houses(null);
+                    setBhavaChalitPlacements(null);
                 } else {
-                    setKpData(Array.isArray(kpResponse.data?.kpSignificatorsData) ? kpResponse.data.kpSignificatorsData : null);
-                    setD1Houses(kpResponse.data?.houses);
-                    setBhavaChalitPlacements(kpResponse.data?.planetHousePlacements);
+                    // For /calculate endpoint, kpSignificatorsData is nested under planetaryPositions.sidereal
+                    // For /kp-significators/rotated, it's directly under data
+                    const kpSignificatorsData = selectedHouse === 1 
+                        ? response.data?.planetaryPositions?.sidereal // Assuming /calculate returns this structure
+                        : response.data?.kpSignificatorsData;
+
+                    setKpData(Array.isArray(kpSignificatorsData) ? kpSignificatorsData : null);
+                    setD1Houses(response.data?.houses);
+                    setBhavaChalitPlacements(response.data?.planetHousePlacements);
                 }
             } catch (err) {
                 const errorMsg = t('kpSignificatorsPage.unexpectedFetchError');
                 console.error("Overall Fetch Error:", err);
                 setKpError(errorMsg);
                 setKpData(null);
+                setD1Houses(null);
+                setBhavaChalitPlacements(null);
             } finally {
                 setIsLoadingKp(false);
             }

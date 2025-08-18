@@ -2,17 +2,28 @@
 // utils/planetaryUtils.js
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
-import {
-    NAKSHATRAS, NAKSHATRA_SPAN, RASHIS, RASHI_LORDS, RASHI_SPAN,
-    PLANET_ORDER, SUBLORD_DATA, VIMS_DASHA_SEQUENCE, VIMS_DASHA_YEARS
+import { NAKSHATRAS, NAKSHATRA_SPAN, RASHIS, RASHI_LORDS, RASHI_SPAN,
+    PLANET_ORDER, SUBLORD_DATA, VIMS_DASHA_SEQUENCE, VIMS_DASHA_YEARS, NAKSHATRA_PADA_ALPHABETS
 } from './constants.js';
 import { normalizeAngle, convertToDMS, calculateAyanamsa, getJulianDateUT } from './coreUtils.js';
 import moment from 'moment-timezone';
 import { calculateKpSignificators } from './kpUtils.js';
 
 /**
- * Gets the Nakshatra details (name, lord) for a given sidereal longitude.
- * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * Gets the alphabet associated with a specific Nakshatra Pada.
+ * @param {string} nakshatraName - The name of the Nakshatra.
+ * @param {number} padaNumber - The pada number (1-4).
+ * @returns {string} The corresponding alphabet, or "N/A" if not found.
+ */
+export function getNakshatraPadaAlphabet(nakshatraName, padaNumber) {
+    if (!nakshatraName || !NAKSHATRA_PADA_ALPHABETS[nakshatraName] || padaNumber < 1 || padaNumber > 4) {
+        return "N/A";
+    }
+    return NAKSHATRA_PADA_ALPHABETS[nakshatraName][padaNumber - 1];
+}
+
+/**
+ * Gets the Nakshatra details (name, lord) for a given sidereal longitude. @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
  * @returns {{name: string, lord: string, index: number} | {name: string, lord: string, index: number}} Nakshatra details or error object.
  */
 export function getNakshatraDetails(siderealLongitude) {
@@ -274,6 +285,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
                 const nakDetails = getNakshatraDetails(siderealLongitude);
                 const rashiDetails = getRashiDetails(siderealLongitude);
                 const pada = calculateNakshatraPada(siderealLongitude);
+                const padaAlphabet = getNakshatraPadaAlphabet(nakDetails.name, pada); // Get the alphabet
                 const subLordDetails = getSubLordDetails(siderealLongitude);
                 const positionWithinNakshatra = siderealLongitude - (nakDetails.index * NAKSHATRA_SPAN);
                 const subSubLordDetails = getSubSubLordDetails(positionWithinNakshatra, subLordDetails);
@@ -291,6 +303,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
                     nakshatra: nakDetails.name,
                     nakLord: nakDetails.lord,
                     pada: pada,
+                    padaAlphabet: padaAlphabet, // Add the alphabet here
                     subLord: subLordDetails.lord,
                     subSubLord: subSubLordDetails.lord,
                 };

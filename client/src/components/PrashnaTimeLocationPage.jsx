@@ -298,44 +298,64 @@ const PrashnaTimeLocationPage = () => {
     }, [prashnaDateTime, prashnaCoords, prashnaPlaceName, t]); // Add t dependency
 
     useEffect(() => {
-        if (selectedHouse === 1) {
-            setRotatedPrashnaResult(null);
-            return;
-        }
         const fetchRotatedData = async () => {
             setIsLoadingChart(true);
             setIsLoadingKp(true);
             setChartError(null);
             setKpError(null);
             try {
-                const payload = {
-                    date: inputDetails.date,
-                    latitude: inputDetails.latitude,
-                    longitude: inputDetails.longitude,
-                    placeName: inputDetails.placeName,
-                    house_to_rotate: selectedHouse
-                };
-                const [rotatedChartResponse, rotatedKpResponse] = await Promise.all([
-                    api.post('/calculate/rotated', payload).catch(err => ({ error: err })),
-                    api.post('/kp-significators/rotated', payload).catch(err => ({ error: err }))
-                ]);
+                let chartResponsePromise;
+                let kpResponsePromise;
+                let payload;
 
-                if (rotatedChartResponse.error) {
-                    console.error("Rotated Prashna Chart calculation error:", rotatedChartResponse.error);
-                    const errMsg = rotatedChartResponse.error.response?.data?.error || rotatedChartResponse.error.message || t('prashnaTimeLocPage.errorChartFetch');
-                    setChartError(errMsg);
-                    setRotatedPrashnaResult(null);
+                if (selectedHouse === 1) {
+                    // If House 1 is selected, fetch the original (non-rotated) data
+                    payload = { ...inputDetails };
+                    chartResponsePromise = api.post('/calculate', payload);
+                    kpResponsePromise = api.post('/kp-significators', payload);
                 } else {
-                    setRotatedPrashnaResult(rotatedChartResponse.data);
+                    // Otherwise, fetch the rotated data
+                    payload = {
+                        date: inputDetails.date,
+                        latitude: inputDetails.latitude,
+                        longitude: inputDetails.longitude,
+                        placeName: inputDetails.placeName,
+                        house_to_rotate: selectedHouse
+                    };
+                    chartResponsePromise = api.post('/calculate/rotated', payload);
+                    kpResponsePromise = api.post('/kp-significators/rotated', payload);
                 }
 
-                if (rotatedKpResponse.error) {
-                    console.error("Rotated Prashna KP calculation error:", rotatedKpResponse.error);
-                    const errMsg = rotatedKpResponse.error.response?.data?.error || rotatedKpResponse.error.message || t('prashnaTimeLocPage.errorKpFetch');
+                const [chartResponse, kpResponse] = await Promise.all([
+                    chartResponsePromise.catch(err => ({ error: err })),
+                    kpResponsePromise.catch(err => ({ error: err }))
+                ]);
+
+                // Process Chart Response
+                if (chartResponse.error) {
+                    console.error("Rotated Prashna Chart calculation error:", chartResponse.error);
+                    const errMsg = chartResponse.error.response?.data?.error || chartResponse.error.message || t('prashnaTimeLocPage.errorChartFetch');
+                    setChartError(errMsg);
+                    setPrashnaResult(null);
+                    setRotatedPrashnaResult(null);
+                } else {
+                    if (selectedHouse === 1) {
+                        setPrashnaResult(chartResponse.data);
+                        setRotatedPrashnaResult(null);
+                    } else {
+                        setRotatedPrashnaResult(chartResponse.data);
+                        setPrashnaResult(null);
+                    }
+                }
+
+                // Process KP Response
+                if (kpResponse.error) {
+                    console.error("Rotated Prashna KP calculation error:", kpResponse.error);
+                    const errMsg = kpResponse.error.response?.data?.error || kpResponse.error.message || t('prashnaTimeLocPage.errorKpFetch');
                     setKpError(errMsg);
                     setKpData(null);
                 } else {
-                    setKpData(Array.isArray(rotatedKpResponse.data?.kpSignificatorsData) ? rotatedKpResponse.data.kpSignificatorsData : null);
+                    setKpData(Array.isArray(kpResponse.data?.kpSignificatorsData) ? kpResponse.data.kpSignificatorsData : null);
                 }
 
             } catch (error) {
@@ -343,6 +363,7 @@ const PrashnaTimeLocationPage = () => {
                 const errMsg = t('prashnaTimeLocPage.errorUnexpected');
                 setChartError(errMsg);
                 setKpError(errMsg);
+                setPrashnaResult(null);
                 setRotatedPrashnaResult(null);
                 setKpData(null);
             } finally {

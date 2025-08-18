@@ -164,25 +164,32 @@ const VarshphalPage = () => {
   }, [calculationInputParams, varshphalYear, birthYear, t]); // Add t dependency
 
   useEffect(() => {
-    if (selectedHouse === 1) {
-        setRotatedVarshphalResult(null);
-        return;
-    }
-
     const fetchRotatedData = async () => {
         setIsLoading(true);
         setCalculationError(null);
         try {
-            const payload = {
-                ...inputDetailsUsed,
-                house_to_rotate: selectedHouse
-            };
-            const rotatedResponse = await api.post('/calculate-varshphal/rotated', payload);
-            setRotatedVarshphalResult(rotatedResponse.data);
+            let response;
+            if (selectedHouse === 1) {
+                // If House 1 is selected, fetch the original (non-rotated) data
+                const payload = { ...inputDetailsUsed }; // Use the original input details
+                response = await api.post("/calculate-varshphal", payload);
+                setVarshphalResult(response.data); // Update the main result
+                setRotatedVarshphalResult(null); // Clear rotated result
+            } else {
+                // Otherwise, fetch the rotated data
+                const payload = {
+                    ...inputDetailsUsed,
+                    house_to_rotate: selectedHouse
+                };
+                response = await api.post('/calculate-varshphal/rotated', payload);
+                setRotatedVarshphalResult(response.data); // Update rotated result
+                setVarshphalResult(null); // Clear main result
+            }
         } catch (error) {
-            console.error("Rotated Varshphal Chart calculation error:", error);
+            console.error("Varshphal Chart calculation error:", error);
             const errMsg = error.response?.data?.error || error.message || t('varshphalPage.errorChartFetch');
             setCalculationError(errMsg);
+            setVarshphalResult(null);
             setRotatedVarshphalResult(null);
         } finally {
             setIsLoading(false);

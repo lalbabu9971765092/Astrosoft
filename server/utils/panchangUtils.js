@@ -118,7 +118,7 @@ function getSamvatsarNameFromSaka(sakaYear) {
  * @param {number} longitude - Observer's longitude.
  * @returns {Promise<object | null>} Promise resolving to Panchang details object or null on error.
  */
-export async function calculatePanchang(dateString, latitude, longitude) {
+export async function calculatePanchang(dateString, latitude, longitude, siderealCuspStartDegrees) {
     try {
         const utcDate = new Date(dateString);
         if (isNaN(utcDate.getTime())) {
@@ -126,8 +126,72 @@ export async function calculatePanchang(dateString, latitude, longitude) {
         }
 
         const obj = new MhahPanchang();
-        const panchangDetails = obj.calculate(utcDate, latitude, longitude);
-        const calendarInfo = obj.calendar(utcDate, latitude, longitude);
+        let panchangDetails = obj.calculate(utcDate, latitude, longitude);
+        let calendarInfo = obj.calendar(utcDate, latitude, longitude);
+
+        // --- Enhance Tithi with precise start and end times ---
+        if (panchangDetails?.Tithi) {
+            if (!panchangDetails.Tithi.start) {
+                const prevTithiResult = obj.prevTithi(utcDate, latitude, longitude);
+                if (prevTithiResult && prevTithiResult.end) {
+                    panchangDetails.Tithi.start = prevTithiResult.end;
+                }
+            }
+            if (!panchangDetails.Tithi.end) {
+                const nextTithiResult = obj.nextTithi(utcDate, latitude, longitude);
+                if (nextTithiResult && nextTithiResult.start) {
+                    panchangDetails.Tithi.end = nextTithiResult.start;
+                }
+            }
+        }
+
+        // --- Enhance Nakshatra with precise start and end times ---
+        if (panchangDetails?.Nakshatra) {
+            if (!panchangDetails.Nakshatra.start) {
+                const prevNakshatraResult = obj.prevNakshatra(utcDate, latitude, longitude);
+                if (prevNakshatraResult && prevNakshatraResult.end) {
+                    panchangDetails.Nakshatra.start = prevNakshatraResult.end;
+                }
+            }
+            if (!panchangDetails.Nakshatra.end) {
+                const nextNakshatraResult = obj.nextNakshatra(utcDate, latitude, longitude);
+                if (nextNakshatraResult && nextNakshatraResult.start) {
+                    panchangDetails.Nakshatra.end = nextNakshatraResult.start;
+                }
+            }
+        }
+
+        // --- Enhance Yoga with precise start and end times ---
+        if (panchangDetails?.Yoga) {
+            if (!panchangDetails.Yoga.start) {
+                const prevYogaResult = obj.prevYoga(utcDate, latitude, longitude);
+                if (prevYogaResult && prevYogaResult.end) {
+                    panchangDetails.Yoga.start = prevYogaResult.end;
+                }
+            }
+            if (!panchangDetails.Yoga.end) {
+                const nextYogaResult = obj.nextYoga(utcDate, latitude, longitude);
+                if (nextYogaResult && nextYogaResult.start) {
+                    panchangDetails.Yoga.end = nextYogaResult.start;
+                }
+            }
+        }
+
+        // --- Enhance Karna with precise start and end times ---
+        if (panchangDetails?.Karna) {
+            if (!panchangDetails.Karna.start) {
+                const prevKarnaResult = obj.prevKarna(utcDate, latitude, longitude);
+                if (prevKarnaResult && prevKarnaResult.end) {
+                    panchangDetails.Karna.start = prevKarnaResult.end;
+                }
+            }
+            if (!panchangDetails.Karna.end) {
+                const nextKarnaResult = obj.nextKarna(utcDate, latitude, longitude);
+                if (nextKarnaResult && nextKarnaResult.start) {
+                    panchangDetails.Karna.end = nextKarnaResult.start;
+                }
+            }
+        }
 
         // Calculate Vikram Samvat and Saka Year
         const vsNewYearDate = await findChaitraShuklaPratipada(utcDate.getUTCFullYear(), latitude, longitude);
@@ -135,13 +199,56 @@ export async function calculatePanchang(dateString, latitude, longitude) {
         const sakaYear = calculateSakaYear(utcDate, vsNewYearDate);
         const samvatsarName = getSamvatsarNameFromSaka(sakaYear);
 
-        return {
+        // Explicitly extract and format Tithi to ensure start/end are present and are ISO strings
+        const tithiData = panchangDetails?.Tithi ? {
+            name: panchangDetails.Tithi.name,
+            name_en_IN: panchangDetails.Tithi.name_en_IN,
+            ino: panchangDetails.Tithi.ino,
+            start: panchangDetails.Tithi.start instanceof Date ? panchangDetails.Tithi.start.toISOString() : panchangDetails.Tithi.start,
+            end: panchangDetails.Tithi.end instanceof Date ? panchangDetails.Tithi.end.toISOString() : panchangDetails.Tithi.end,
+        } : null;
+
+        // Explicitly extract and format Nakshatra
+        const nakshatraData = panchangDetails?.Nakshatra ? {
+            name: panchangDetails.Nakshatra.name,
+            name_en_IN: panchangDetails.Nakshatra.name_en_IN,
+            ino: panchangDetails.Nakshatra.ino,
+            start: panchangDetails.Nakshatra.start instanceof Date ? panchangDetails.Nakshatra.start.toISOString() : panchangDetails.Nakshatra.start,
+            end: panchangDetails.Nakshatra.end instanceof Date ? panchangDetails.Nakshatra.end.toISOString() : panchangDetails.Nakshatra.end,
+            lord: panchangDetails.Nakshatra.lord, // Keep existing properties
+        } : null;
+
+        // Explicitly extract and format Yoga
+        const yogaData = panchangDetails?.Yoga ? {
+            name: panchangDetails.Yoga.name,
+            name_en_IN: panchangDetails.Yoga.name_en_IN,
+            ino: panchangDetails.Yoga.ino,
+            start: panchangDetails.Yoga.start instanceof Date ? panchangDetails.Yoga.start.toISOString() : panchangDetails.Yoga.start,
+            end: panchangDetails.Yoga.end instanceof Date ? panchangDetails.Yoga.end.toISOString() : panchangDetails.Yoga.end,
+        } : null;
+
+        // Explicitly extract and format Karna
+        const karnaData = panchangDetails?.Karna ? {
+            name: panchangDetails.Karna.name,
+            name_en_IN: panchangDetails.Karna.name_en_IN,
+            ino: panchangDetails.Karna.ino,
+            start: panchangDetails.Karna.start instanceof Date ? panchangDetails.Karna.start.toISOString() : panchangDetails.Karna.start,
+            end: panchangDetails.Karna.end instanceof Date ? panchangDetails.Karna.end.toISOString() : panchangDetails.Karna.end,
+        } : null;
+
+        const finalPanchang = {
             ...panchangDetails,
             ...calendarInfo,
+            Tithi: tithiData, // Override with our explicitly formatted Tithi
+            Nakshatra: nakshatraData, // Override with explicitly formatted Nakshatra
+            Yoga: yogaData, // Override with explicitly formatted Yoga
+            Karna: karnaData, // Override with explicitly formatted Karna
             vikram_samvat: vikramSamvat,
             SakaYear: sakaYear,
             samvatsar: samvatsarName,
         };
+        // Create a deep copy to prevent external modifications by the library
+        return JSON.parse(JSON.stringify(finalPanchang));
     } catch (error) {
         logger.error(`Error calculating Panchang for ${dateString}, Lat=${latitude}, Lon=${longitude}: ${error.message}`, { stack: error.stack });
         return null;
