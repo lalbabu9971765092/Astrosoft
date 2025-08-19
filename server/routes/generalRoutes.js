@@ -194,7 +194,8 @@ router.get("/find-tithi-date",
                 if (hindiMonth) {
                     try {
                         const calendarInfo = obj.calendar(new Date(d.date + 'T12:00:00Z'), lat, lon);
-                        const currentHindiMonth = calendarInfo?.Masa?.name_en_IN;
+                        // Assuming MhahPanchang provides a 'MoonMasa' or similar property for lunar month
+                        const currentHindiMonth = calendarInfo?.MoonMasa?.name_en_IN || calendarInfo?.Masa?.name_en_IN; // Fallback to Masa if MoonMasa not found
                         // Check if the calculated month string *ends with* the provided hindiMonth query param
                         return typeof currentHindiMonth === 'string' && currentHindiMonth.toLowerCase().endsWith(hindiMonth.toLowerCase());
                     } catch (monthError) {

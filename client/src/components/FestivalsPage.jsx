@@ -5,6 +5,7 @@ import api from './api'; // Assuming api.js is set up for base URL etc.
 import '../styles/FestivalsPage.css';
 
 // Use keys for mapping, translation will happen via i18next
+// These keys now represent Lunar (Chandra) Masa names as used by MhahPanchang's MoonMasa property
 const HINDI_MONTH_KEYS = [
     "Chaitra", "Baisakha", "Jyestha", "Asadha",
     "Srabana", "Bhadraba", "Aswina", "Karttika",
@@ -38,7 +39,7 @@ const FestivalsPage = () => {
 
     // States for Tithi Finder
     const [tithiSearchYear, setTithiSearchYear] = useState(String(currentYear));
-    const [targetHindiMonth, setTargetHindiMonth] = useState(''); // Store the key ('Chaitra', etc.) or '' for all
+    const [targetHindiMonth, setTargetHindiMonth] = useState(''); // Store the key ('Chaitra', etc.) or '' for all, now refers to Lunar Month
     const [targetTithi, setTargetTithi] = useState('1'); // Tithi number as string
     const [targetPaksha, setTargetPaksha] = useState('Shukla'); // Store the key ('Shukla' or 'Krishna')
     const [tithiDates, setTithiDates] = useState([]);
@@ -245,6 +246,12 @@ const FestivalsPage = () => {
         }
         // Note: Manual Tithi Finder results are NOT cleared here, only when a new search is initiated.
     }, [yearForFetching, fetchSankranti, fetchCalculatedTithiFestivals, findRecurringTithis, clearSankrantiResults, clearTithiFestivalResults, clearRecurringTithiResults]); // Dependencies
+
+    // --- Effect to trigger initial Tithi Finder search on component mount ---
+    useEffect(() => {
+        findTithiDates();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Empty dependency array ensures this runs only once on mount
 
     // --- Input Handlers ---
     const handleYearChange = (event) => { setSelectedYear(event.target.value); };
@@ -603,11 +610,7 @@ const FestivalsPage = () => {
                         {/* Show prompt or 'No Results' message */}
                         {!isLoadingTithiDates && !tithiDateError && tithiDates.length === 0 && (
                             <p className="info-text">
-                                {/* Show 'No Results' if a search was attempted, otherwise show prompt */}
-                                {(tithiSearchYear && targetTithi && targetPaksha && !isLoadingTithiDates) ? // Check if search was attempted
-                                    t('festivalsPage.tithiFinderNoResults')
-                                    : t('festivalsPage.tithiFinderPrompt')
-                                }
+                                {t('festivalsPage.tithiFinderNoResults')}
                             </p>
                         )}
                     </div>
