@@ -64,6 +64,11 @@ const KpSignificatorsPage = () => {
     const [currentApiParams, setCurrentApiParams] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState('');
     const [selectedHouse, setSelectedHouse] = useState(1); // Default to House 1
+    const [openSections, setOpenSections] = useState({ diamondChart: true });
+
+    const toggleSection = (section) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
 
     const handleHouseChange = (event) => {
         setSelectedHouse(parseInt(event.target.value, 10));
@@ -488,7 +493,11 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                   </select>
                 </div>
 
-                <div className="horizontal-block">
+                <div className="section-header" onClick={() => toggleSection('diamondChart')}>
+                    <h3 className="result-sub-title">{t('kpSignificatorsPage.diamondChartTitle')}</h3>
+                    <button className="toggle-button">{openSections.diamondChart ? '−' : '+'}</button>
+                </div>
+                {openSections.diamondChart && <div className="horizontal-block">
                   <div className="charts-container">
                     {d1Houses && d1Planets && (
                       <div className="chart-wrapper">
@@ -506,7 +515,7 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                       <p>Chart data not available. Please ensure valid input parameters.</p>
                     )}
                   </div>
-                </div>
+                </div>}
 
                 {/* Event Selector */}
                  <div className="result-section life-event-selector small-selector">

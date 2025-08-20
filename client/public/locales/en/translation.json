@@ -257,7 +257,7 @@
     "chartPlaceholderGochar": "Gochar Data Unavailable",
     "chartPlaceholderLoadingGochar": "Loading Gochar...",
     "chartDataUnavailable": "Chart data unavailable.",
-    "houseCuspsTitle": "House Cusps (Sidereal, Placidus)",
+    "houseCuspsTitle": " Birth House Cusps (Sidereal, Placidus)",
     "houseTableHHeader": "H",
     "houseTableCuspStartHeader": "Cusp Start",
     "houseTableMeanCuspHeader": "Mean Cusp",
@@ -267,7 +267,7 @@
     "houseTableRashiMeanHeader": "Rashi (Mean)",
     "houseTableRashiLordHeader": "Rashi Lord",
     "houseDataUnavailable": "House cusp data unavailable.",
-    "planetaryPositionsTitle": "Planetary Positions (Sidereal)",
+    "planetaryPositionsTitle": "Birth Planetary Positions (Sidereal)",
     "planetTableHeaderPlanet": "Planet",
     "planetTableHeaderPosition": "Position",
     "planetTableHeaderNakPada": "Nak (Pada)",
@@ -301,7 +301,11 @@
     "marakaPlanetsLabel": "Maraka Planets (2nd & 7th Lords):",
     "eighthLordLabel": "8th Lord:",
     "badhakeshLabel": "Badhakesh (Obstructor):",
-    "sakaYearLabel": "Saka Year:"
+    "sakaYearLabel": "Saka Year:",
+    "transitHouseCuspsTitle": "Transit House Cusps (Sidereal, Placidus)",
+    "transitPlanetaryPositionsTitle": "Transit Planetary Positions (Sidereal)",
+    "transitHouseDataUnavailable": "Transit house cusp data unavailable.",
+    "transitPlanetDataUnavailable": "Transit planet or house data unavailable for table."
   },
     
   "utils": {
@@ -557,7 +561,8 @@
     "significatorsSubTitle": "Planet Significators",
     "dashaSubTitle": "Vimshottari Dasha Periods",
     "kpDataUnavailable": "KP Significator data unavailable.",
-    "dashaDataUnavailable": "Dasha period data unavailable."
+    "dashaDataUnavailable": "Dasha period data unavailable.",
+    "diamondChartTitle": "Diamond Charts"
   },
   "lifeEvents": {
     "education": "Education (Higher)",

@@ -204,7 +204,7 @@
     "coordsLabel": "निर्देशांक:",
     "placeLabel": "स्थान:",
     "basicInfoTitle": "मूल जानकारी",
-    "ascendantLabel": "लग्न (सिड):",
+    "ascendantLabel": "लग्न (निरयन):",
     "dayLordLabel": "दिन का स्वामी:",
     "lordDetailsTitle": "स्वामी विवरण",
     "ascendantLordLabel": "लग्न स्वामी:",
@@ -256,7 +256,7 @@
     "chartPlaceholderGochar": "गोचर डेटा अनुपलब्ध",
     "chartPlaceholderLoadingGochar": "गोचर लोड हो रहा है...",
     "chartDataUnavailable": "चार्ट डेटा अनुपलब्ध।",
-    "houseCuspsTitle": "भाव संधि (सिडereal, Placidus)",
+    "houseCuspsTitle": "जन्म भाव संधि (निरयन, Placidus)",
     "houseTableHHeader": "भा",
     "houseTableCuspStartHeader": "संधि प्रारंभ",
     "houseTableMeanCuspHeader": "मध्य संधि",
@@ -266,7 +266,7 @@
     "houseTableRashiMeanHeader": "राशि (मध्य)",
     "houseTableRashiLordHeader": "राशि स्वामी",
     "houseDataUnavailable": "भाव संधि डेटा अनुपलब्ध।",
-    "planetaryPositionsTitle": "ग्रह स्थिति (सिडereal)",
+    "planetaryPositionsTitle": "जन्म ग्रह स्थिति (निरयन)",
     "planetTableHeaderPlanet": "ग्रह",
     "planetTableHeaderPosition": "स्थिति",
     "planetTableHeaderNakPada": "नक्षत्र (पद)",
@@ -290,7 +290,11 @@
     "invalidPanchangTime": "अमान्य",
     "errorPanchangTime": "त्रुटि",
     "validLocationNeeded": "गोचर विवरण देखने के लिए मान्य स्थान दर्ज करें।",
-    "sakaYearLabel": "साका वर्ष :"
+    "sakaYearLabel": "साका वर्ष :",
+     "transitHouseCuspsTitle": "गोचर भाव संधि (निरयन, प्लेसिडस)",
+    "transitPlanetaryPositionsTitle": "गोचर ग्रह स्थिति (निरयन)",
+    "transitHouseDataUnavailable": "गोचर भाव संधि डेटा अनुपलब्ध है।",
+    "transitPlanetDataUnavailable": "तालिका के लिए गोचर ग्रह या भाव डेटा अनुपलब्ध है।"
   },
   "utils": {
     "notAvailable": "उपलब्ध नहीं",
@@ -545,7 +549,8 @@
     "significatorsSubTitle": "ग्रह सिग्निफिकेटर्स",
     "dashaSubTitle": "विंशोत्तरी दशा अवधि",
     "kpDataUnavailable": "केपी सिग्निफिकेटर डेटा अनुपलब्ध है।",
-    "dashaDataUnavailable": "दशा अवधि डेटा अनुपलब्ध है।"
+    "dashaDataUnavailable": "दशा अवधि डेटा अनुपलब्ध है।",
+    "diamondChartTitle": "डायमंड चार्ट"
   },
   "lifeEvents": {
     "education": "शिक्षा (उच्च)",

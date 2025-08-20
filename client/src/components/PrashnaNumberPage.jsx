@@ -125,12 +125,15 @@ const PrashnaNumberPage = () => {
     const { t } = useTranslation(); // Call the hook
 
     // --- State ---
+    const [inputDetails, setInputDetails] = useState(null);
     const [prashnaNumber, setPrashnaNumber] = useState(''); // Input 1-249
     const [currentCoords, setCurrentCoords] = useState(''); // For calculation
     const [currentPlaceName, setCurrentPlaceName] = useState('');
     const [isLoadingLocation, setIsLoadingLocation] = useState(false);
     const [locationError, setLocationError] = useState(null);
     const [isGeocoding, setIsGeocoding] = useState(false);
+
+    const [selectedEvent, setSelectedEvent] = useState(''); // State for selected event
 
     // State for Calculation Results
     const [isLoadingChart, setIsLoadingChart] = useState(false);
@@ -149,8 +152,13 @@ const PrashnaNumberPage = () => {
     };
 
     // State for UI
-    const [selectedEvent, setSelectedEvent] = useState('');
-    const [inputDetails, setInputDetails] = useState(null); // Store params used
+    const [openSections, setOpenSections] = useState({
+        inputBlock: true,
+    });
+
+    const toggleSection = (section) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
 
     // --- Handlers ---
     const getCurrentLocation = useCallback(() => {
@@ -500,7 +508,11 @@ const PrashnaNumberPage = () => {
             <h1>{t('prashnaNumberPage.pageTitle', 'Prashna Number Analysis')}</h1>
 
             {/* --- Controls --- */}
-            <div className="prashna-controls">
+            <div className="section-header" onClick={() => toggleSection('inputBlock')}>
+                <h2 className="result-sub-title">{t('prashnaNumberPage.inputBlockTitle', 'Input Details')}</h2>
+                <button className="toggle-button">{openSections.inputBlock ? '−' : '+'}</button>
+            </div>
+            {openSections.inputBlock && <div className="prashna-controls">
                 {inputDetails && (
                     <div className="result-section input-summary small-summary">
                         {t('prashnaNumberPage.inputSummary', {
@@ -590,7 +602,7 @@ const PrashnaNumberPage = () => {
                     </button>
                 </div>
             </div>
-
+}
             {/* --- Results --- */}
             <div className="prashna-results">
                 {renderResults()}

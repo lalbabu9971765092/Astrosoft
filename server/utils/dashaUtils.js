@@ -119,77 +119,122 @@ export function calculateVimshottariDashas(birthDateUTC, dashaBalance, totalYear
     // --- Calculate Antar Dashas (and Pratyantar Dashas) within the balance period ---
     if (maxLevel >= 2) {
         const firstMahaDashaYears = VIMS_DASHA_YEARS[firstLord];
-        let balanceBhuktiStartDateMillis = currentStartDateMillis;
-        let balanceBhuktiLordIndex = VIMS_DASHA_SEQUENCE.indexOf(firstLord);
+        const firstMahaDashaMillis = firstMahaDashaYears * MILLIS_PER_YEAR;
+        const traversedMillisInMD = firstMahaDashaMillis - balanceDurationMillis;
 
+        let cumulativeBhuktiMillis = 0;
+        let startingBhuktiLordIndex = -1;
+        let millisIntoStartingBhukti = 0;
+
+        // Find which Bhukti is active at the time of birth
+        const lordStartIndex = VIMS_DASHA_SEQUENCE.indexOf(firstLord);
         for (let i = 0; i < VIMS_DASHA_SEQUENCE.length; i++) {
-            const bhuktiLord = VIMS_DASHA_SEQUENCE[balanceBhuktiLordIndex];
+            const bhuktiLordIndex = (lordStartIndex + i) % VIMS_DASHA_SEQUENCE.length;
+            const bhuktiLord = VIMS_DASHA_SEQUENCE[bhuktiLordIndex];
             const bhuktiTotalYears = VIMS_DASHA_YEARS[bhuktiLord];
-            if (!bhuktiTotalYears) continue;
+            const bhuktiDurationMillis = (firstMahaDashaYears * bhuktiTotalYears / VIMS_TOTAL_YEARS) * MILLIS_PER_YEAR;
 
-            // Calculate the *full* duration this Bhukti would have in the first MD
-            const fullBhuktiDurationYears = (firstMahaDashaYears * bhuktiTotalYears) / VIMS_TOTAL_YEARS;
-            const fullBhuktiDurationMillis = fullBhuktiDurationYears * MILLIS_PER_YEAR;
+            if (traversedMillisInMD < cumulativeBhuktiMillis + bhuktiDurationMillis) {
+                startingBhuktiLordIndex = bhuktiLordIndex;
+                millisIntoStartingBhukti = traversedMillisInMD - cumulativeBhuktiMillis;
+                break;
+            }
+            cumulativeBhuktiMillis += bhuktiDurationMillis;
+        }
 
-            // Calculate the *remaining* portion of this Bhukti within the balance period
-            const remainingBhuktiDurationMillis = fullBhuktiDurationMillis * dashaBalance.balanceYears / firstMahaDashaYears;
-            const bhuktiEndDateMillis = balanceBhuktiStartDateMillis + remainingBhuktiDurationMillis;
+        let bhuktiStartDateMillis = currentStartDateMillis;
 
-            // Ensure the Bhukti end does not exceed the Maha Dasha end
-            const actualBhuktiEndDateMillis = Math.min(bhuktiEndDateMillis, firstEndDateMillis);
-            const actualBhuktiDurationMillis = actualBhuktiEndDateMillis - balanceBhuktiStartDateMillis;
+        // Calculate sub-periods for the remaining duration of the first MD
+        for (let i = 0; i < VIMS_DASHA_SEQUENCE.length; i++) {
+            if (bhuktiStartDateMillis >= firstEndDateMillis) break;
 
-            if (actualBhuktiDurationMillis <= 0) break; // Stop if no time left in MD
+            const bhuktiLordIndex = (startingBhuktiLordIndex + i) % VIMS_DASHA_SEQUENCE.length;
+            const bhuktiLord = VIMS_DASHA_SEQUENCE[bhuktiLordIndex];
+            const bhuktiTotalYears = VIMS_DASHA_YEARS[bhuktiLord];
+            const fullBhuktiDurationMillis = (firstMahaDashaYears * bhuktiTotalYears / VIMS_TOTAL_YEARS) * MILLIS_PER_YEAR;
+
+            let actualBhuktiDurationMillis;
+            if (i === 0) { // First (partial) Bhukti
+                actualBhuktiDurationMillis = fullBhuktiDurationMillis - millisIntoStartingBhukti;
+            } else { // Subsequent full Bhuktis
+                actualBhuktiDurationMillis = fullBhuktiDurationMillis;
+            }
+
+            const bhuktiEndDateMillis = Math.min(bhuktiStartDateMillis + actualBhuktiDurationMillis, firstEndDateMillis);
+            const finalBhuktiDuration = bhuktiEndDateMillis - bhuktiStartDateMillis;
+
+             if (finalBhuktiDuration <= 0) continue;
 
             allPeriods.push({
                 level: 2,
                 mahaLord: firstLord,
                 lord: bhuktiLord,
-                start: new Date(balanceBhuktiStartDateMillis).toISOString(),
-                end: new Date(actualBhuktiEndDateMillis).toISOString()
+                start: new Date(bhuktiStartDateMillis).toISOString(),
+                end: new Date(bhuktiEndDateMillis).toISOString()
             });
 
-            // --- Calculate Pratyantar Dashas within this balance Bhukti ---
-            if (maxLevel >= 3 && actualBhuktiDurationMillis > 0) {
-                let balancePratyantarStartDateMillis = balanceBhuktiStartDateMillis;
-                let balancePratyantarLordIndex = balanceBhuktiLordIndex; // PD starts from AD lord
+            // --- Calculate Pratyantar Dashas (PD) within this Bhukti ---
+            if (maxLevel >= 3 && finalBhuktiDuration > 0) {
+                const fullBhuktiDurationYears = (firstMahaDashaYears * bhuktiTotalYears) / VIMS_TOTAL_YEARS;
+                let pdStartDateMillis = bhuktiStartDateMillis;
+                let pdLordStartIndex = -1;
+                let millisIntoStartingPD = 0;
+
+                if (i === 0) { // Partial first Bhukti needs special PD handling
+                    let cumulativePDMillisInBhukti = 0;
+                    for (let j = 0; j < VIMS_DASHA_SEQUENCE.length; j++) {
+                        const pdLordIndex = (bhuktiLordIndex + j) % VIMS_DASHA_SEQUENCE.length;
+                        const pdLord = VIMS_DASHA_SEQUENCE[pdLordIndex];
+                        const pdTotalYears = VIMS_DASHA_YEARS[pdLord];
+                        const fullPDDurationMillis = (fullBhuktiDurationYears * pdTotalYears / VIMS_TOTAL_YEARS) * MILLIS_PER_YEAR;
+
+                        if (millisIntoStartingBhukti < cumulativePDMillisInBhukti + fullPDDurationMillis) {
+                            pdLordStartIndex = pdLordIndex;
+                            millisIntoStartingPD = millisIntoStartingBhukti - cumulativePDMillisInBhukti;
+                            break;
+                        }
+                        cumulativePDMillisInBhukti += fullPDDurationMillis;
+                    }
+                } else { // Full Bhukti starts with its own lord
+                    pdLordStartIndex = bhuktiLordIndex;
+                    millisIntoStartingPD = 0;
+                }
+
 
                 for (let j = 0; j < VIMS_DASHA_SEQUENCE.length; j++) {
-                    const pratyantarLord = VIMS_DASHA_SEQUENCE[balancePratyantarLordIndex];
+                    if (pdStartDateMillis >= bhuktiEndDateMillis) break;
+
+                    const pdLordIndex = (pdLordStartIndex + j) % VIMS_DASHA_SEQUENCE.length;
+                    const pratyantarLord = VIMS_DASHA_SEQUENCE[pdLordIndex];
                     const pratyantarTotalYears = VIMS_DASHA_YEARS[pratyantarLord];
-                    if (!pratyantarTotalYears) continue;
+                    const fullPDDurationMillis = (fullBhuktiDurationYears * pratyantarTotalYears / VIMS_TOTAL_YEARS) * MILLIS_PER_YEAR;
 
-                    // Calculate the *full* duration this PD would have in the *full* Bhukti
-                    const fullPratyantarDurationYears = (fullBhuktiDurationYears * pratyantarTotalYears) / VIMS_TOTAL_YEARS;
-                    const fullPratyantarDurationMillis = fullPratyantarDurationYears * MILLIS_PER_YEAR;
+                    let actualPDDurationMillis;
+                    if (j === 0) { // First (potentially partial) PD
+                        actualPDDurationMillis = fullPDDurationMillis - millisIntoStartingPD;
+                    } else { // Subsequent full PDs
+                        actualPDDurationMillis = fullPDDurationMillis;
+                    }
 
-                    // Calculate the *remaining* portion of this PD within the *remaining* Bhukti
-                    const remainingPratyantarDurationMillis = fullPratyantarDurationMillis * (actualBhuktiDurationMillis / fullBhuktiDurationMillis);
-                    const pratyantarEndDateMillis = balancePratyantarStartDateMillis + remainingPratyantarDurationMillis;
+                    const pdEndDateMillis = Math.min(pdStartDateMillis + actualPDDurationMillis, bhuktiEndDateMillis);
+                    const finalPDDuration = pdEndDateMillis - pdStartDateMillis;
 
-                    // Ensure the PD end does not exceed the Bhukti end
-                    const actualPratyantarEndDateMillis = Math.min(pratyantarEndDateMillis, actualBhuktiEndDateMillis);
-                    const actualPratyantarDurationMillis = actualPratyantarEndDateMillis - balancePratyantarStartDateMillis;
-
-                    if (actualPratyantarDurationMillis <= 0) break; // Stop if no time left in AD
+                    if (finalPDDuration <= 0) continue;
 
                     allPeriods.push({
                         level: 3,
                         mahaLord: firstLord,
                         antarLord: bhuktiLord,
                         lord: pratyantarLord,
-                        start: new Date(balancePratyantarStartDateMillis).toISOString(),
-                        end: new Date(actualPratyantarEndDateMillis).toISOString()
+                        start: new Date(pdStartDateMillis).toISOString(),
+                        end: new Date(pdEndDateMillis).toISOString()
                     });
-
-                    balancePratyantarStartDateMillis = actualPratyantarEndDateMillis;
-                    balancePratyantarLordIndex = (balancePratyantarLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
+                    pdStartDateMillis = pdEndDateMillis;
                 }
             }
-            // --- End Pratyantar Calculation for Balance Bhukti ---
+            // --- End Pratyantar Calculation ---
 
-            balanceBhuktiStartDateMillis = actualBhuktiEndDateMillis;
-            balanceBhuktiLordIndex = (balanceBhuktiLordIndex + 1) % VIMS_DASHA_SEQUENCE.length;
+            bhuktiStartDateMillis = bhuktiEndDateMillis;
         }
     }
     // --- End Calculation for Balance Period ---

@@ -4,6 +4,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; // Import the hook
 import api from './api';
 import ZodiacCircleChart from './ZodiacCircleChart';
+import DetailedPlanetTable from './DetailedPlanetTable';
 import { validateAndFormatDateTime, PLANET_ORDER, PLANET_SYMBOLS } from './AstrologyUtils';
 import '../styles/GocharPage.css'; // Ensure this CSS file exists and is linked
 
@@ -88,6 +89,14 @@ const GocharPage = () => {
     const [transitData, setTransitData] = useState(null);
     const [isLoadingTransit, setIsLoadingTransit] = useState(false);
     const [transitError, setTransitError] = useState(null);
+    const [openSections, setOpenSections] = useState({
+        threeColumnLayout: true,
+        detailedPlanetTable: true,
+    });
+
+    const toggleSection = (section) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
 
     // --- Effect to Fetch Rectified NATAL Data ---
     useEffect(() => {
@@ -208,7 +217,6 @@ const GocharPage = () => {
 
     // Extract planet data for tables (Unchanged)
     const natalPlanetsForTable = displayNatalResult?.planetaryPositions?.sidereal;
-    const transitPlanetsForTable = transitData?.planetaryPositions?.sidereal;
 
     return (
         <div className="gochar-page result-container">
@@ -220,87 +228,96 @@ const GocharPage = () => {
             {isLoadingRectification && !mainResult && <div className="loader main-loader">{t('gocharPage.loadingInitialNatal')}</div>}
             {rectificationError && !mainResult && <p className="error-text main-error">{t('gocharPage.errorInitialNatal', { error: rectificationError })}</p>}
 
-            {/* *** Three-Column Layout Container *** */}
-            <div className="gochar-layout-container">
+            <div className="section-header" onClick={() => toggleSection('threeColumnLayout')}>
+                <h3 className="result-sub-title">{t('gocharPage.chartTitle')}</h3>
+                <button className="toggle-button">{openSections.threeColumnLayout ? '−' : '+'}</button>
+            </div>
+            {openSections.threeColumnLayout &&
+                <div className="gochar-layout-container">
 
-                {/* Column 1: Natal Info */}
-                <div className="gochar-column gochar-column-natal">
-                    {displayNatalInputParams ? (
-                        <div className="result-section input-summary">
-                            {/* Translate title */}
-                            <h3 className="result-sub-title">{t('gocharPage.natalChartForTitle')}</h3>
-                            {/* Translate labels */}
-                            <p><strong>{t('gocharPage.dateLabel')}</strong> {formatDateTime(displayNatalInputParams.date, t)}</p>
-                            <p><strong>{t('gocharPage.coordsLabel')}</strong> {displayNatalInputParams.latitude?.toFixed(4)}, {displayNatalInputParams.longitude?.toFixed(4)}</p>
-                            {displayNatalInputParams.placeName && <p><strong>{t('gocharPage.placeLabel')}</strong> {displayNatalInputParams.placeName}</p>}
-                            {/* Natal Planet Table - Pass translated key */}
-                            <PlanetDegreeTable titleKey="Natal" planets={natalPlanetsForTable} />
-                            {/* Natal Loading/Error (Specific to rectification update) */}
-                            {/* Translate loading/error */}
-                            {isLoadingRectification && mainResult && <div className="loader tiny-loader" aria-label={t('gocharPage.updatingNatalData')}></div>}
-                            {!isLoadingRectification && rectificationError && mainResult && <p className="error-text tiny-error" role="alert">{t('gocharPage.natalUpdateErrorPrefix')}: {rectificationError}</p>}
-                        </div>
-                    ) : (
-                        // Translate info text
-                        !isLoadingRectification && <p className="info-text">{t('gocharPage.natalDataNeeded')}</p>
-                    )}
-                </div>
-
-                {/* Column 2: Chart Area */}
-                <div className="gochar-column gochar-column-chart">
-                    {/* Combined Chart Display */}
-                    <div className="gochar-chart-area">
-                        {canDisplayChart && !displayError ? (
-                            <ZodiacCircleChart
-                                // Translate chart title
-                                title={t('gocharPage.chartTitle')}
-                                natalPlanets={displayNatalResult.planetaryPositions.sidereal}
-                                transitPlanets={transitData.planetaryPositions.sidereal}
-                                houses={displayNatalResult.houses}
-                                size={700} // Slightly smaller than before to fit better
-                            />
-                        ) : (
-                            <div className="chart-placeholder-area" style={{ height: '500px' }}>
-                                {/* Translate placeholder messages */}
-                                {!isLoading && displayError && <p className="error-text">{t('gocharPage.errorDisplayChart')}</p>}
-                                {!isLoading && !displayError && !displayNatalResult && <p className="info-text">{t('gocharPage.errorLoadNatalFirst')}</p>}
-                                {!isLoading && !displayError && displayNatalResult && !transitData && <p className="info-text">{t('gocharPage.errorLoadingTransitForChart')}</p>}
-                                {isLoading && <p className="info-text">{t('gocharPage.errorLoadingChartData')}</p>}
+                    {/* Column 1: Natal Info */}
+                    <div className="gochar-column gochar-column-natal">
+                        {displayNatalInputParams ? (
+                            <div className="result-section input-summary">
+                                {/* Translate title */}
+                                <h3 className="result-sub-title">{t('gocharPage.natalChartForTitle')}</h3>
+                                {/* Translate labels */}
+                                <p><strong>{t('gocharPage.dateLabel')}</strong> {formatDateTime(displayNatalInputParams.date, t)}</p>
+                                <p><strong>{t('gocharPage.coordsLabel')}</strong> {displayNatalInputParams.latitude?.toFixed(4)}, {displayNatalInputParams.longitude?.toFixed(4)}</p>
+                                {displayNatalInputParams.placeName && <p><strong>{t('gocharPage.placeLabel')}</strong> {displayNatalInputParams.placeName}</p>}
+                                {/* Natal Planet Table - Pass translated key */}
+                                <PlanetDegreeTable titleKey="Natal" planets={natalPlanetsForTable} />
+                                {/* Natal Loading/Error (Specific to rectification update) */}
+                                {/* Translate loading/error */}
+                                {isLoadingRectification && mainResult && <div className="loader tiny-loader" aria-label={t('gocharPage.updatingNatalData')}></div>}
+                                {!isLoadingRectification && rectificationError && mainResult && <p className="error-text tiny-error" role="alert">{t('gocharPage.natalUpdateErrorPrefix')}: {rectificationError}</p>}
                             </div>
+                        ) : (
+                            // Translate info text
+                            !isLoadingRectification && <p className="info-text">{t('gocharPage.natalDataNeeded')}</p>
                         )}
                     </div>
-                </div>
 
-                {/* Column 3: Transit Info */}
-                <div className="gochar-column gochar-column-transit">
-                    <div className="result-section input-summary">
-                         {/* Translate title */}
-                         <h3 className="result-sub-title">{t('gocharPage.transitsForTitle')}</h3>
-                         {transitLocation.lat !== null && transitLocation.lon !== null ? (
-                             // Translate label
-                             <p><strong>{t('gocharPage.coordsLabel')}</strong> {transitLocation.lat.toFixed(4)}, {transitLocation.lon.toFixed(4)}</p>
-                         ) : (
-                             // Translate info text
-                             !isLoadingTransit && <p><strong>{t('gocharPage.coordsLabel')}</strong> {t('gocharPage.locationNotSet')}</p>
-                         )}
-                         {adjustedGocharDateTimeString ? (
-                            // Translate label
-                            <p><strong>{t('gocharPage.timeLabel')}</strong> {formatDateTime(adjustedGocharDateTimeString, t)}</p>
-                         ) : (
-                            // Translate info text
-                            !isLoadingTransit && <p><strong>{t('gocharPage.timeLabel')}</strong> {t('gocharPage.transitTimeNotSet')}</p>
-                         )}
-                         {/* Transit Planet Table - Pass translated key */}
-                         <PlanetDegreeTable titleKey="Transit" planets={transitPlanetsForTable} />
-                         {/* Transit Loading/Error */}
-                         {/* Translate loading/error */}
-                         {isLoadingTransit && <div className="loader tiny-loader" aria-label={t('gocharPage.loadingTransitData')}></div>}
-                         {!isLoadingTransit && transitError && <p className="error-text tiny-error" role="alert">{t('gocharPage.transitErrorPrefix')}: {transitError}</p>}
+                    {/* Column 2: Chart Area */}
+                    <div className="gochar-column gochar-column-chart">
+                        <div className="gochar-chart-area">
+                            {canDisplayChart && !displayError ? (
+                                <ZodiacCircleChart
+                                    // Translate chart title
+                                    title={t('gocharPage.chartTitle')}
+                                    natalPlanets={displayNatalResult.planetaryPositions.sidereal}
+                                    transitPlanets={transitData.planetaryPositions.sidereal}
+                                    houses={displayNatalResult.houses}
+                                    size={700} // Slightly smaller than before to fit better
+                                />
+                            ) : (
+                                <div className="chart-placeholder-area" style={{ height: '500px' }}>
+                                    {/* Translate placeholder messages */}
+                                    {!isLoading && displayError && <p className="error-text">{t('gocharPage.errorDisplayChart')}</p>}
+                                    {!isLoading && !displayError && !displayNatalResult && <p className="info-text">{t('gocharPage.errorLoadNatalFirst')}</p>}
+                                    {!isLoading && !displayError && displayNatalResult && !transitData && <p className="info-text">{t('gocharPage.errorLoadingTransitForChart')}</p>}
+                                    {isLoading && <p className="info-text">{t('gocharPage.errorLoadingChartData')}</p>}
+                                </div>
+                            )}
+                        </div>
                     </div>
+
+                    {/* Column 3: Transit Info */}
+                    <div className="gochar-column gochar-column-transit">
+                        <div className="result-section input-summary">
+                            {/* Translate title */}
+                            <h3 className="result-sub-title">{t('gocharPage.transitsForTitle')}</h3>
+                            {transitLocation.lat !== null && transitLocation.lon !== null ? (
+                                // Translate label
+                                <p><strong>{t('gocharPage.coordsLabel')}</strong> {transitLocation.lat.toFixed(4)}, {transitLocation.lon.toFixed(4)}</p>
+                            ) : (
+                                // Translate info text
+                                !isLoadingTransit && <p><strong>{t('gocharPage.coordsLabel')}</strong> {t('gocharPage.locationNotSet')}</p>
+                            )}
+                            {adjustedGocharDateTimeString ? (
+                                // Translate label
+                                <p><strong>{t('gocharPage.timeLabel')}</strong> {formatDateTime(adjustedGocharDateTimeString, t)}</p>
+                            ) : (
+                                // Translate info text
+                                !isLoadingTransit && <p><strong>{t('gocharPage.timeLabel')}</strong> {t('gocharPage.transitTimeNotSet')}</p>
+                            )}
+                            {/* Transit Planet Table - Pass translated key */}
+                            <PlanetDegreeTable titleKey="Transit" planets={transitData?.planetaryPositions?.sidereal} />
+                            {/* Transit Loading/Error */}
+                            {/* Translate loading/error */}
+                            {isLoadingTransit && <div className="loader tiny-loader" aria-label={t('gocharPage.loadingTransitData')}></div>}
+                            {!isLoadingTransit && transitError && <p className="error-text tiny-error" role="alert">{t('gocharPage.transitErrorPrefix')}: {transitError}</p>}
+                        </div>
+                    </div>
+
+                </div>}
+            <div className="full-width-table">
+                <div className="section-header" onClick={() => toggleSection('detailedPlanetTable')}>
+                    <h3 className="result-sub-title">{t('astrologyForm.transitPlanetaryPositionsTitle')}</h3>
+                    <button className="toggle-button">{openSections.detailedPlanetTable ? '−' : '+'}</button>
                 </div>
-
-            </div> {/* *** End gochar-layout-container *** */}
-
+                {openSections.detailedPlanetTable && transitData && transitData.planetaryPositions && transitData.houses && transitData.planetDetails && <DetailedPlanetTable planets={transitData.planetaryPositions.sidereal} houses={transitData.houses} planetDetails={transitData.planetDetails} />}
+            </div>
         </div>
     );
 };

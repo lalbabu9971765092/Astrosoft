@@ -59,6 +59,23 @@ const VarshphalPage = () => {
   const [rotatedVarshphalResult, setRotatedVarshphalResult] = useState(null);
   const [inputDetailsUsed, setInputDetailsUsed] = useState(null);
 
+  // State for UI
+  const [openSections, setOpenSections] = useState({
+    inputBlock: true,
+    inputSummary: true,
+    varshphalChart: true,
+    planetaryPositions: true,
+    houseCusps: true,
+    bhavaChalitChart: true,
+    keyDetails: true,
+    kpSignificators: true,
+    muddaDasha: true,
+  });
+
+  const toggleSection = (section) => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
   // --- Extract Birth Year (Memoized) ---
   const birthYear = useMemo(() => {
     if (!calculationInputParams?.date) return null;
@@ -290,7 +307,11 @@ const VarshphalPage = () => {
     return (
       <>
         {/* Display Input Summary */}
-        <div className="result-section input-summary">
+        <div className="section-header" onClick={() => toggleSection('inputSummary')}>
+          <h3 className="result-sub-title">{t('varshphalPage.inputSummaryTitle', 'Input Summary')}</h3>
+          <button className="toggle-button">{openSections.inputSummary ? '−' : '+'}</button>
+        </div>
+        {openSections.inputSummary && <div className="result-section input-summary">
           {/* Translate summary using interpolation */}
           {t('varshphalPage.inputSummary', {
             date: displayNatalDate,
@@ -300,29 +321,39 @@ const VarshphalPage = () => {
             lon: displayLon,
             year: displayYear
           })}
-        </div>
+        </div>}
         
         <div className="two-column-layout">
           {/* --- Column 1: Main Chart and Tables --- */}
           <div className="results-column">
             {/* Varshphal Chart */}
-            <h3 className="result-sub-title">{t('varshphalPage.chartTitle', { year: displayYear })}</h3>
-            {canRenderChart ? (
-              <div className="varshphal-chart-wrapper">
-                <DiamondChart
-                  title={t('varshphalPage.chartTitleFull', { year: displayYear })}
-                  houses={varshphalChart.houses}
-                  planets={varshphalChart.planetaryPositions.sidereal}
-                  size={350}
-                />
-              </div>
-            ) : (
-              <p>{t('varshphalPage.chartUnavailable')}</p>
+            <div className="section-header" onClick={() => toggleSection('varshphalChart')}>
+              <h3 className="result-sub-title">{t('varshphalPage.chartTitle', { year: displayYear })}</h3>
+              <button className="toggle-button">{openSections.varshphalChart ? '−' : '+'}</button>
+            </div>
+            {openSections.varshphalChart && (
+              <>
+                {canRenderChart ? (
+                  <div className="varshphal-chart-wrapper">
+                    <DiamondChart
+                      title={t('varshphalPage.chartTitleFull', { year: displayYear })}
+                      houses={varshphalChart.houses}
+                      planets={varshphalChart.planetaryPositions.sidereal}
+                      size={350}
+                    />
+                  </div>
+                ) : (
+                  <p>{t('varshphalPage.chartUnavailable')}</p>
+                )}
+              </>
             )}
 
             {/* Sidereal Planetary Positions */}
-            <div className="result-section planetary-positions">
-              <h4>{t('varshphalPage.siderealPlanetaryPositionsTitle')}</h4>
+            <div className="section-header" onClick={() => toggleSection('planetaryPositions')}>
+              <h4 className="result-sub-title">{t('varshphalPage.siderealPlanetaryPositionsTitle')}</h4>
+              <button className="toggle-button">{openSections.planetaryPositions ? '−' : '+'}</button>
+            </div>
+            {openSections.planetaryPositions && <div className="result-section planetary-positions">
               {varshphalChart?.planetaryPositions?.sidereal && (
                 <table>
                   <thead>
@@ -347,11 +378,14 @@ const VarshphalPage = () => {
                   </tbody>
                 </table>
               )}
-            </div>
+            </div>}
 
             {/* House Cusps */}
-            <div className="result-section house-cusps">
-              <h4>{t('varshphalPage.houseCuspsTitle')}</h4>
+            <div className="section-header" onClick={() => toggleSection('houseCusps')}>
+              <h4 className="result-sub-title">{t('varshphalPage.houseCuspsTitle')}</h4>
+              <button className="toggle-button">{openSections.houseCusps ? '−' : '+'}</button>
+            </div>
+            {openSections.houseCusps && <div className="result-section house-cusps">
               {varshphalChart?.houses && (
                 <table>
                   <thead>
@@ -380,29 +414,39 @@ const VarshphalPage = () => {
                   </tbody>
                 </table>
               )}
-            </div>
+            </div>}
           </div>
 
           {/* --- Column 2: Secondary Chart and Details --- */}
           <div className="results-column">
             {/* Nirayana Bhava Chalit Chart */}
-            <h3 className="result-sub-title">{t('varshphalPage.bhavaChalitChartTitle', { year: displayYear })}</h3>
-            {canRenderBhavaChalit ? (
-              <div className="varshphal-chart-wrapper">
-                <DiamondChart
-                  title={t('varshphalPage.bhavaChalitChartTitleFull', { year: displayYear })}
-                  houses={varshphalChart.houses}
-                  planetHousePlacements={varshphalChart.planetHousePlacements}
-                  size={350}
-                />
-              </div>
-            ) : (
-              <p>{t('varshphalPage.bhavaChalitChartUnavailable')}</p>
+            <div className="section-header" onClick={() => toggleSection('bhavaChalitChart')}>
+              <h3 className="result-sub-title">{t('varshphalPage.bhavaChalitChartTitle', { year: displayYear })}</h3>
+              <button className="toggle-button">{openSections.bhavaChalitChart ? '−' : '+'}</button>
+            </div>
+            {openSections.bhavaChalitChart && (
+              <>
+                {canRenderBhavaChalit ? (
+                  <div className="varshphal-chart-wrapper">
+                    <DiamondChart
+                      title={t('varshphalPage.bhavaChalitChartTitleFull', { year: displayYear })}
+                      houses={varshphalChart.houses}
+                      planetHousePlacements={varshphalChart.planetHousePlacements}
+                      size={350}
+                    />
+                  </div>
+                ) : (
+                  <p>{t('varshphalPage.bhavaChalitChartUnavailable')}</p>
+                )}
+              </>
             )}
 
             {/* Muntha, Year Lord etc. */}
-            <div className="result-section varshphal-details">
-              <h4>{t('varshphalPage.keyDetailsTitle')}</h4>
+            <div className="section-header" onClick={() => toggleSection('keyDetails')}>
+              <h4 className="result-sub-title">{t('varshphalPage.keyDetailsTitle')}</h4>
+              <button className="toggle-button">{openSections.keyDetails ? '−' : '+'}</button>
+            </div>
+            {openSections.keyDetails && <div className="result-section varshphal-details">
               {muntha && (
                 <p>
                   <strong>{t('varshphalPage.munthaLabel')}</strong>{' '}
@@ -418,27 +462,33 @@ const VarshphalPage = () => {
                   {t(`planets.${yearLord}`, yearLord)}
                 </p>
               )}
-            </div>
+            </div>}
 
             {/* KP Significators */}
-            <div className="result-section kp-significators">
+            <div className="section-header" onClick={() => toggleSection('kpSignificators')}>
               <h3 className="result-sub-title">{t('varshphalPage.kpSignificatorsTitle')}</h3>
+              <button className="toggle-button">{openSections.kpSignificators ? '−' : '+'}</button>
+            </div>
+            {openSections.kpSignificators && <div className="result-section kp-significators">
               {chartResult?.kpSignificators ? (
                 <KpSignificatorGrid significatorDetailsMap={significatorDetailsMap} selectedEvent="" />
               ) : (
                 <p>{t('varshphalPage.kpSignificatorsUnavailable')}</p>
               )}
-            </div>
+            </div>}
 
             {/* Mudda Dasha */}
-            <div className="result-section mudda-dasha">
+            <div className="section-header" onClick={() => toggleSection('muddaDasha')}>
               <h3 className="result-sub-title">{t('varshphalPage.muddaDashaTitle')}</h3>
+              <button className="toggle-button">{openSections.muddaDasha ? '−' : '+'}</button>
+            </div>
+            {openSections.muddaDasha && <div className="result-section mudda-dasha">
               {hasDashaData ? (
                 <DashaTable dashaPeriods={muddaDasha} />
               ) : (
                 <p>{t('varshphalPage.muddaDashaUnavailable')}</p>
               )}
-            </div>
+            </div>}
           </div>
         </div>
       </>
@@ -451,7 +501,11 @@ const VarshphalPage = () => {
       <h1>{t('varshphalPage.pageTitle')}</h1>
 
       {/* --- Input Controls (Only Year) --- */}
-      <div className="varshphal-controls">
+      <div className="section-header" onClick={() => toggleSection('inputBlock')}>
+        <h2 className="result-sub-title">{t('varshphalPage.inputBlockTitle', 'Input Details')}</h2>
+        <button className="toggle-button">{openSections.inputBlock ? '−' : '+'}</button>
+      </div>
+      {openSections.inputBlock && <div className="varshphal-controls">
         {/* Translate description */}
         <p>{t('varshphalPage.description')}</p>
 
@@ -485,7 +539,7 @@ const VarshphalPage = () => {
             </select>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* --- Results --- */}
       <div className="varshphal-results">{renderResults()}</div>

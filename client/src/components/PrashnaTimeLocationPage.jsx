@@ -148,6 +148,15 @@ const PrashnaTimeLocationPage = () => {
     const [selectedEvent, setSelectedEvent] = useState('');
     const [inputDetails, setInputDetails] = useState(null); // Store params used for calculation
 
+    // State for UI
+    const [openSections, setOpenSections] = useState({
+        inputBlock: true,
+    });
+
+    const toggleSection = (section) => {
+        setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+    };
+
     // --- Handlers ---
     // ... (getCurrentTimeAndLocation, handleFindCoordinates remain the same) ...
     const getCurrentTimeAndLocation = useCallback(() => {
@@ -565,7 +574,11 @@ const PrashnaTimeLocationPage = () => {
             <h1>{t('prashnaTimeLocPage.pageTitle')}</h1>
 
             {/* --- Controls --- */}
-            <div className="prashna-controls">
+            <div className="section-header" onClick={() => toggleSection('inputBlock')}>
+                <h2 className="result-sub-title">{t('prashnaTimeLocPage.inputBlockTitle', 'Input Details')}</h2>
+                <button className="toggle-button">{openSections.inputBlock ? '−' : '+'}</button>
+            </div>
+            {openSections.inputBlock && <div className="prashna-controls">
                 {/* Input Summary */}
                 {inputDetails && (
                     <div className="result-section input-summary small-summary">
@@ -682,7 +695,7 @@ const PrashnaTimeLocationPage = () => {
                         {isLoadingChart || isLoadingKp ? t('prashnaTimeLocPage.calculatingButton') : t('prashnaTimeLocPage.calculateButton')}
                     </button>
                 </div>
-            </div>
+            </div>}
 
             {/* --- Results --- */}
             <div className="prashna-results">
