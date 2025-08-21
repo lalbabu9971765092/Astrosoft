@@ -454,7 +454,7 @@ export function calculateHousesAndAscendant(julianDayUT, latitude, longitude) {
  * @param {object} siderealPositions - Object containing sidereal positions { Sun: { longitude, ... }, ... }.
  * @returns {object} Object mapping each planet to an array of aspecting planets.
  */
-export function calculateAspects(siderealPositions, siderealCuspStartDegrees) {
+export function calculateAspects(siderealPositions) { // Removed siderealCuspStartDegrees
     const directAspects = {};
     const reverseAspects = {};
     const conjunctions = {};
@@ -465,15 +465,16 @@ export function calculateAspects(siderealPositions, siderealCuspStartDegrees) {
         'Saturn': [3, 10]
     };
 
-    const getRelativeHouse = (startHouse, relativeDistance) => {
-        return ((startHouse - 1 + relativeDistance - 1) % 12) + 1;
+    // Helper to get relative Rashi (sign)
+    const getRelativeRashi = (startRashiIndex, relativeDistance) => {
+        return (startRashiIndex + relativeDistance - 1) % 12; // Rashi index is 0-11
     };
 
-    const planetHousePlacements = {};
+    const planetRashiPlacements = {};
     PLANET_ORDER.forEach(pName => {
         const pData = siderealPositions[pName];
         if (pData && typeof pData.longitude === 'number' && !isNaN(pData.longitude)) {
-            planetHousePlacements[pName] = getHouseOfPlanet(pData.longitude, siderealCuspStartDegrees);
+            planetRashiPlacements[pName] = getRashiDetails(pData.longitude).index; // Use Rashi index
         }
         // Initialize all planets in the objects
         directAspects[pName] = [];
@@ -481,23 +482,23 @@ export function calculateAspects(siderealPositions, siderealCuspStartDegrees) {
         conjunctions[pName] = [];
     });
 
-    // Group planets by house
-    const housePlanetGroups = {};
-    for (const [planet, house] of Object.entries(planetHousePlacements)) {
-        if (house !== null) {
-            if (!housePlanetGroups[house]) {
-                housePlanetGroups[house] = [];
+    // Group planets by Rashi
+    const rashiPlanetGroups = {};
+    for (const [planet, rashiIndex] of Object.entries(planetRashiPlacements)) {
+        if (rashiIndex !== null) {
+            if (!rashiPlanetGroups[rashiIndex]) {
+                rashiPlanetGroups[rashiIndex] = [];
             }
-            housePlanetGroups[house].push(planet);
+            rashiPlanetGroups[rashiIndex].push(planet);
         }
     }
 
-    // Determine conjunctions
-    for (const house in housePlanetGroups) {
-        const planetsInHouse = housePlanetGroups[house];
-        if (planetsInHouse.length > 1) {
-            planetsInHouse.forEach(p1 => {
-                planetsInHouse.forEach(p2 => {
+    // Determine conjunctions (planets in the same Rashi)
+    for (const rashiIndex in rashiPlanetGroups) {
+        const planetsInRashi = rashiPlanetGroups[rashiIndex];
+        if (planetsInRashi.length > 1) {
+            planetsInRashi.forEach(p1 => {
+                planetsInRashi.forEach(p2 => {
                     if (p1 !== p2) {
                         conjunctions[p1].push(p2);
                     }
@@ -506,29 +507,29 @@ export function calculateAspects(siderealPositions, siderealCuspStartDegrees) {
         }
     }
 
-    // Determine aspects
+    // Determine aspects (Rashi-to-Rashi distances)
     PLANET_ORDER.forEach(planet1Name => {
         if (planet1Name === 'Rahu' || planet1Name === 'Ketu') {
             return;
         }
-        const planet1House = planetHousePlacements[planet1Name];
-        if (planet1House === null || planet1House === undefined) {
+        const planet1Rashi = planetRashiPlacements[planet1Name];
+        if (planet1Rashi === null || planet1Rashi === undefined) {
             return;
         }
 
-        const aspectedHouses = new Set();
-        aspectedHouses.add(getRelativeHouse(planet1House, 7));
+        const aspectedRashis = new Set();
+        aspectedRashis.add(getRelativeRashi(planet1Rashi, 7)); // 7th Rashi aspect
 
         if (specialAspects[planet1Name]) {
             specialAspects[planet1Name].forEach(distance => {
-                aspectedHouses.add(getRelativeHouse(planet1House, distance));
+                aspectedRashis.add(getRelativeRashi(planet1Rashi, distance));
             });
         }
 
         PLANET_ORDER.forEach(planet2Name => {
             if (planet1Name === planet2Name) return;
-            const planet2House = planetHousePlacements[planet2Name];
-            if (planet2House !== null && planet2House !== undefined && aspectedHouses.has(planet2House)) {
+            const planet2Rashi = planetRashiPlacements[planet2Name];
+            if (planet2Rashi !== null && planet2Rashi !== undefined && aspectedRashis.has(planet2Rashi)) {
                 directAspects[planet1Name].push(planet2Name);
                 reverseAspects[planet2Name].push(planet1Name);
             }

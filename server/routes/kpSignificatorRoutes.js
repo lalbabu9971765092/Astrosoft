@@ -99,7 +99,7 @@ router.post('/', kpValidation, async (req, res) => {
         const siderealPositions = planetaryPositions.sidereal;
         
         // Calculate aspects using Whole Sign cusps
-        const aspects = calculateAspects(siderealPositions, wholeSignCusps);
+        const aspects = calculateAspects(siderealPositions);
 
         // Calculate KP significators using Placidus cusps but with aspects from Whole Sign chart
         const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, aspects);
@@ -151,7 +151,7 @@ router.post('/rotated', rotatedKpValidation, async (req, res) => {
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         const siderealPositions = planetaryPositions.sidereal;
         
-        const aspects = calculateAspects(siderealPositions, rotatedSiderealCuspStartDegrees);
+        const aspects = calculateAspects(siderealPositions);
 
         const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, rotatedSiderealCuspStartDegrees, aspects);
 
