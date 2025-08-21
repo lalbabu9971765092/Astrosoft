@@ -108,29 +108,17 @@ function getEntitySignifications(entityName, allPlanetData, siderealCuspStartDeg
  * @param {object} aspects - Object mapping each planet to an array of aspecting planets.
  * @returns {object[]} An array of objects, where each object represents a planet and its significations.
  */
-export function calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, { directAspects, reverseAspects }) {
+export function calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, { directAspects, reverseAspects, conjunctions }) {
     if (!siderealPositions) {
         logger.error("siderealPositions is undefined in calculateKpSignificators. Cannot proceed.");
         return [];
     }
 
-    // Ensure aspects is an object, default to empty if not provided or invalid
-    // const validatedAspects = aspects && typeof aspects === 'object' ? aspects : {}; // No longer needed
-
-    // Ensure all planets in PLANET_ORDER are present in siderealPositions with default values if missing
     const validatedSiderealPositions = { ...siderealPositions };
     PLANET_ORDER.forEach(pName => {
         if (!validatedSiderealPositions[pName]) {
             logger.warn(`Missing ${pName} in siderealPositions. Initializing with default values.`);
             validatedSiderealPositions[pName] = { longitude: NaN, nakLord: "N/A", subLord: "N/A" };
-        }
-    });
-
-    const planetHousePlacements = {};
-    PLANET_ORDER.forEach(pName => {
-        const pData = validatedSiderealPositions[pName];
-        if (pData && typeof pData.longitude === 'number' && !isNaN(pData.longitude)) {
-            planetHousePlacements[pName] = getHouseOfPlanet(pData.longitude, siderealCuspStartDegrees);
         }
     });
 
@@ -141,11 +129,11 @@ export function calculateKpSignificators(siderealPositions, siderealCuspStartDeg
             ownedHouses: [],
             signLordOwnedHouses: [],
             aspectingOwnedHouses: [],
-            allHouses: [], // New: Aggregated houses for the planet itself
+            allHouses: [],
             nakshatraLordName: null,
-            nakLordAllHouses: [], // New: Aggregated houses for the nakshatra lord
+            nakLordAllHouses: [],
             subLordName: null,
-            subLordAllHouses: [], // New: Aggregated houses for the sub lord
+            subLordAllHouses: [],
         };
 
         const planetInfo = validatedSiderealPositions[planetName];
@@ -156,55 +144,29 @@ export function calculateKpSignificators(siderealPositions, siderealCuspStartDeg
             return planetSignificatorData;
         }
 
-        // Find planets conjunct with (in the same house as) Rahu/Ketu
-        let conjunctPlanets = [];
-        if (planetName === 'Rahu' || planetName === 'Ketu') {
-            const nodeHouse = planetHousePlacements[planetName];
-            if (nodeHouse !== null) {
-                PLANET_ORDER.forEach(otherPlanetName => {
-                    if (otherPlanetName !== planetName && otherPlanetName !== 'Rahu' && otherPlanetName !== 'Ketu' && planetHousePlacements[otherPlanetName] === nodeHouse) {
-                        conjunctPlanets.push(otherPlanetName);
-                    }
-                });
-            }
-        }
+        const planetAspects = reverseAspects[planetName] || [];
+        const planetConjunctions = conjunctions[planetName] || [];
+        const associatedPlanets = [...new Set([...planetAspects, ...planetConjunctions])];
 
-        const planetAspects = reverseAspects[planetName] || []; // Changed to reverseAspects
-        const associatedPlanets = [...new Set([...planetAspects, ...conjunctPlanets])];
-
-        // Calculate significations for the planet itself
         const planetData = getEntitySignifications(planetName, validatedSiderealPositions, siderealCuspStartDegrees, associatedPlanets);
         planetSignificatorData.occupiedHouses = planetData.occupiedHouses;
         planetSignificatorData.ownedHouses = planetData.ownedHouses;
         planetSignificatorData.signLordOwnedHouses = planetData.signLordOwnedHouses;
         planetSignificatorData.aspectingOwnedHouses = planetData.aspectingOwnedHouses;
-        // Aggregate all houses for the planet itself
         planetSignificatorData.allHouses = [...new Set([
-            ...planetSignificatorData.occupiedHouses,
-            ...planetSignificatorData.ownedHouses,
-            ...planetSignificatorData.signLordOwnedHouses,
-            ...planetSignificatorData.aspectingOwnedHouses
+            ...planetData.occupiedHouses,
+            ...planetData.ownedHouses,
+            ...planetData.signLordOwnedHouses,
+            ...planetData.aspectingOwnedHouses
         ])].sort((a, b) => a - b);
 
-        // Calculate significations for the Nakshatra Lord
         const nakLordName = planetInfo.nakLord;
         planetSignificatorData.nakshatraLordName = nakLordName;
-        if (nakLordName && nakLordName !== "N/A" && nakLordName !== "Error" && nakLordName !== "Unknown Nakshatra" && !nakLordName.includes("Data Missing")) {
-            const nlAspects = reverseAspects[nakLordName] || []; // Changed to reverseAspects
-            let nlConjunctPlanets = [];
-            if (nakLordName === 'Rahu' || nakLordName === 'Ketu') {
-                const nlHouse = planetHousePlacements[nakLordName];
-                if (nlHouse !== null) {
-                    PLANET_ORDER.forEach(otherPlanetName => {
-                        if (otherPlanetName !== nakLordName && otherPlanetName !== 'Rahu' && otherPlanetName !== 'Ketu' && planetHousePlacements[otherPlanetName] === nlHouse) {
-                            nlConjunctPlanets.push(otherPlanetName);
-                        }
-                    });
-                }
-            }
-            const nlAssociatedPlanets = [...new Set([...nlAspects, ...nlConjunctPlanets])];
+        if (nakLordName && nakLordName !== "N/A" && nakLordName !== "Error" && !nakLordName.includes("Data Missing")) {
+            const nlAspects = reverseAspects[nakLordName] || [];
+            const nlConjunctions = conjunctions[nakLordName] || [];
+            const nlAssociatedPlanets = [...new Set([...nlAspects, ...nlConjunctions])];
             const nakLordData = getEntitySignifications(nakLordName, validatedSiderealPositions, siderealCuspStartDegrees, nlAssociatedPlanets);
-            // Aggregate all houses for the nakshatra lord
             planetSignificatorData.nakLordAllHouses = [...new Set([
                 ...nakLordData.occupiedHouses,
                 ...nakLordData.ownedHouses,
@@ -213,25 +175,13 @@ export function calculateKpSignificators(siderealPositions, siderealCuspStartDeg
             ])].sort((a, b) => a - b);
         }
 
-        // Calculate significations for the Sub Lord
         const subLordName = planetInfo.subLord;
         planetSignificatorData.subLordName = subLordName;
-        if (subLordName && subLordName !== "N/A" && subLordName !== "Error" && subLordName !== "Unknown Nakshatra" && !subLordName.includes("Data Missing")) {
-            const slAspects = reverseAspects[subLordName] || []; // Changed to reverseAspects
-            let slConjunctPlanets = [];
-            if (subLordName === 'Rahu' || subLordName === 'Ketu') {
-                const slHouse = planetHousePlacements[subLordName];
-                if (slHouse !== null) {
-                    PLANET_ORDER.forEach(otherPlanetName => {
-                        if (otherPlanetName !== subLordName && otherPlanetName !== 'Rahu' && otherPlanetName !== 'Ketu' && planetHousePlacements[otherPlanetName] === slHouse) {
-                            slConjunctPlanets.push(otherPlanetName);
-                        }
-                    });
-                }
-            }
-            const slAssociatedPlanets = [...new Set([...slAspects, ...slConjunctPlanets])];
+        if (subLordName && subLordName !== "N/A" && subLordName !== "Error" && !subLordName.includes("Data Missing")) {
+            const slAspects = reverseAspects[subLordName] || [];
+            const slConjunctions = conjunctions[subLordName] || [];
+            const slAssociatedPlanets = [...new Set([...slAspects, ...slConjunctions])];
             const subLordData = getEntitySignifications(subLordName, validatedSiderealPositions, siderealCuspStartDegrees, slAssociatedPlanets);
-            // Aggregate all houses for the sub lord
             planetSignificatorData.subLordAllHouses = [...new Set([
                 ...subLordData.occupiedHouses,
                 ...subLordData.ownedHouses,

@@ -7,6 +7,7 @@ import {
     getJulianDateUT,
     calculateAyanamsa,
     calculateHousesAndAscendant,
+    calculateWholeSignHouses,
     calculatePlanetaryPositions,
     calculateAspects,
     getHouseOfPlanet,
@@ -89,11 +90,18 @@ router.post('/', kpValidation, async (req, res) => {
         }
 
         const siderealCuspStartDegrees = validTropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
+        
+        // Calculate Whole Sign cusps for aspects
+        const siderealAscendant = normalizeAngle(tropicalAscendant - ayanamsa);
+        const wholeSignCusps = calculateWholeSignHouses(siderealAscendant);
+
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         const siderealPositions = planetaryPositions.sidereal;
         
-        const aspects = calculateAspects(siderealPositions, siderealCuspStartDegrees);
+        // Calculate aspects using Whole Sign cusps
+        const aspects = calculateAspects(siderealPositions, wholeSignCusps);
 
+        // Calculate KP significators using Placidus cusps but with aspects from Whole Sign chart
         const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, aspects);
 
         const responsePayload = {

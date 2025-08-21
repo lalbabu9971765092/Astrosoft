@@ -381,7 +381,7 @@ export function calculateBhinnaAshtakavarga(targetPlanetName, siderealPositions,
         const auspiciousHouses = rules[contributorName]; // Get the houses this contributor makes auspicious
 
         if (!auspiciousHouses || auspiciousHouses.length === 0) {
-            // logger.debug(`BAV for ${targetPlanetName}: No contribution rules defined for ${contributorName}.`);
+            
             continue;
         }
 
@@ -443,7 +443,7 @@ export function calculateSarvaAshtakavarga(bhinnaAshtakavargaData) {
          // This warning should now only trigger if the BAV totals themselves were wrong or summing failed
          logger.warn(`Calculated total SAV score is ${totalSavScore}, expected ${expectedTotalSav}. Check BAV rules/calculations.`);
     } else {
-         logger.info(`Calculated total SAV score is ${totalSavScore}, matching expected value.`);
+         
     }
 
 

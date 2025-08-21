@@ -28,7 +28,7 @@ export async function calculateSolarReturnJulianDay(natalJD_UT, natalSunTropical
     const maxIterations = 10; // Limit iterations to prevent infinite loops
     const tolerance = 1e-7; // Tolerance in degrees (approx 0.3 arcseconds)
 
-    logger.debug(`Starting Solar Return calculation for target ${targetLon.toFixed(6)}°, year ${targetYear}. Initial JD guess: ${jdGuess.toFixed(6)}`);
+    
 
     try {
         for (let i = 0; i < maxIterations; i++) {
@@ -46,7 +46,7 @@ export async function calculateSolarReturnJulianDay(natalJD_UT, natalSunTropical
             if (diff > 180) diff -= 360;
             if (diff <= -180) diff += 360;
 
-            logger.debug(`SR Iteration ${i + 1}: JD=${jdGuess.toFixed(6)}, SunLon=${currentLon.toFixed(6)}°, Diff=${diff.toFixed(7)}°, Speed=${currentSpeed.toFixed(6)}°/day`);
+            
 
             // Check if we are within tolerance
             if (Math.abs(diff) <= tolerance) {

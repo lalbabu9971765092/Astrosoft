@@ -30,6 +30,6 @@ export function rotateHouses(siderealCuspStartDegrees, houseToRotate) {
         ...siderealCuspStartDegrees.slice(0, indexToStart)
     ];
 
-    logger.info(`Rotated houses starting from house ${houseToRotate}.`);
+    
     return rotatedCusps;
 }

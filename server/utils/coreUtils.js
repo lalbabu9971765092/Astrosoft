@@ -12,7 +12,7 @@ import moment from 'moment-timezone'; // Import moment-timezone
  */
 export function normalizeAngle(angle) {
     if (typeof angle !== 'number' || isNaN(angle)) {
-        // logger.warn(`normalizeAngle received invalid input: ${angle}`); // Optional: Log warning
+        
         return NaN;
     }
     let normalized = angle % 360;
@@ -218,6 +218,30 @@ export function calculateMidpoint(angle1, angle2) {
 
     const midpoint = normAngle1 + diff / 2;
     return normalizeAngle(midpoint);
+}
+
+
+/**
+ * Calculates house cusps using the Whole Sign system.
+ * @param {number} siderealAscendant - The sidereal longitude of the Ascendant.
+ * @returns {number[]} An array of 12 sidereal cusp start degrees.
+ */
+export function calculateWholeSignHouses(siderealAscendant) {
+    if (typeof siderealAscendant !== 'number' || isNaN(siderealAscendant)) {
+        logger.warn(`calculateWholeSignHouses received invalid sidereal ascendant: ${siderealAscendant}`);
+        return Array(12).fill(NaN);
+    }
+
+    // Determine the starting degree of the Ascendant's sign
+    const ascendantSignStart = Math.floor(siderealAscendant / 30) * 30;
+
+    const cusps = [];
+    for (let i = 0; i < 12; i++) {
+        const cusp = normalizeAngle(ascendantSignStart + (i * 30));
+        cusps.push(cusp);
+    }
+
+    return cusps;
 }
 
 export function calculateHousesAndAscendant(julianDayUT, latitude, longitude) {

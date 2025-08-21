@@ -455,83 +455,87 @@ export function calculateHousesAndAscendant(julianDayUT, latitude, longitude) {
  * @returns {object} Object mapping each planet to an array of aspecting planets.
  */
 export function calculateAspects(siderealPositions, siderealCuspStartDegrees) {
-    const directAspects = {}; // This is what 'aspects' was before
-    const reverseAspects = {}; // New: aspectedPlanet -> [list of aspecting planets]
+    const directAspects = {};
+    const reverseAspects = {};
+    const conjunctions = {};
 
-    // Define special aspects for planets (relative house distances)
     const specialAspects = {
-        'Mars': [4, 8],   // 4th and 8th from itself
-        'Jupiter': [5, 9], // 5th and 9th from itself
-        'Saturn': [3, 10]  // 3rd and 10th from itself
+        'Mars': [4, 8],
+        'Jupiter': [5, 9],
+        'Saturn': [3, 10]
     };
 
-    // Helper to get the house number relative to a given house
     const getRelativeHouse = (startHouse, relativeDistance) => {
-        // Houses are 1-12. Convert to 0-11 for modulo, then back to 1-12.
         return ((startHouse - 1 + relativeDistance - 1) % 12) + 1;
     };
 
-    // First, determine the house placement for all planets
     const planetHousePlacements = {};
     PLANET_ORDER.forEach(pName => {
         const pData = siderealPositions[pName];
         if (pData && typeof pData.longitude === 'number' && !isNaN(pData.longitude)) {
             planetHousePlacements[pName] = getHouseOfPlanet(pData.longitude, siderealCuspStartDegrees);
         }
+        // Initialize all planets in the objects
+        directAspects[pName] = [];
+        reverseAspects[pName] = [];
+        conjunctions[pName] = [];
     });
-   
-    PLANET_ORDER.forEach(planet1Name => { // planet1Name is the aspecting planet
+
+    // Group planets by house
+    const housePlanetGroups = {};
+    for (const [planet, house] of Object.entries(planetHousePlacements)) {
+        if (house !== null) {
+            if (!housePlanetGroups[house]) {
+                housePlanetGroups[house] = [];
+            }
+            housePlanetGroups[house].push(planet);
+        }
+    }
+
+    // Determine conjunctions
+    for (const house in housePlanetGroups) {
+        const planetsInHouse = housePlanetGroups[house];
+        if (planetsInHouse.length > 1) {
+            planetsInHouse.forEach(p1 => {
+                planetsInHouse.forEach(p2 => {
+                    if (p1 !== p2) {
+                        conjunctions[p1].push(p2);
+                    }
+                });
+            });
+        }
+    }
+
+    // Determine aspects
+    PLANET_ORDER.forEach(planet1Name => {
         if (planet1Name === 'Rahu' || planet1Name === 'Ketu') {
-            directAspects[planet1Name] = []; // Ensure they are still in the object, but with empty arrays
-            // No reverse aspects for Rahu/Ketu as aspecting planets
             return;
         }
         const planet1House = planetHousePlacements[planet1Name];
-      
         if (planet1House === null || planet1House === undefined) {
-            directAspects[planet1Name] = [];
             return;
         }
 
         const aspectedHouses = new Set();
-        aspectedHouses.add(getRelativeHouse(planet1House, 7)); // All planets aspect the 7th house
+        aspectedHouses.add(getRelativeHouse(planet1House, 7));
 
         if (specialAspects[planet1Name]) {
             specialAspects[planet1Name].forEach(distance => {
                 aspectedHouses.add(getRelativeHouse(planet1House, distance));
             });
         }
-        
-        const aspectingPlanetsForThisPlanet = new Set();
-        PLANET_ORDER.forEach(planet2Name => { // planet2Name is the aspected planet
+
+        PLANET_ORDER.forEach(planet2Name => {
             if (planet1Name === planet2Name) return;
-
             const planet2House = planetHousePlacements[planet2Name];
-            
             if (planet2House !== null && planet2House !== undefined && aspectedHouses.has(planet2House)) {
-                aspectingPlanetsForThisPlanet.add(planet2Name);
-
-                // Populate reverseAspects
-                if (!reverseAspects[planet2Name]) {
-                    reverseAspects[planet2Name] = [];
-                }
+                directAspects[planet1Name].push(planet2Name);
                 reverseAspects[planet2Name].push(planet1Name);
             }
         });
-        directAspects[planet1Name] = Array.from(aspectingPlanetsForThisPlanet);
     });
 
-    // Initialize empty arrays for planets that are not aspected by anything
-    PLANET_ORDER.forEach(pName => {
-        if (!reverseAspects[pName]) {
-            reverseAspects[pName] = [];
-        }
-        if (!directAspects[pName]) { // Ensure all planets are in directAspects too
-            directAspects[pName] = [];
-        }
-    });
-
-    return { directAspects, reverseAspects };
+    return { directAspects, reverseAspects, conjunctions };
 }
 
 
