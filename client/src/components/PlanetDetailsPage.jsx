@@ -7,11 +7,7 @@ import {
     PLANET_ORDER, // Import the full order
     convertToDMS,
     convertDMSToDegrees,
-    calculateRashi,
-    calculateHouse,
     validateAndFormatDateTime,
-    calculateNakshatraPada,
-    calculateNakshatraDegree
 } from './AstrologyUtils';
 import DetailedPlanetTable from './DetailedPlanetTable';
 import api from './api';

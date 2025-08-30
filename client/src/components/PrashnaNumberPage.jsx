@@ -29,13 +29,7 @@ const formatDisplayDateTime = (isoString, t) => {
   }
 };
 
-const getHouseNumbersFromString = (houseString) => {
-    if (!houseString || typeof houseString !== 'string') return [];
-    return houseString.split(',')
-                      .map(numStr => parseInt(numStr.trim(), 10))
-                      .filter(num => !isNaN(num)) // Ensure only valid numbers
-                      .sort((a, b) => a - b); // Sort numerically
-};
+
 
 const calculatePlanetFavourability = (allHouses, eventKey, t) => {
     // Use default 'N/A' values if no event is selected or event config is missing
@@ -252,12 +246,6 @@ const PrashnaNumberPage = () => {
             longitude: coordsValidation.longitude,
             placeName: currentPlaceName,
             date: dateTimeValidation.formattedDate
-        };
-        const payloadKp = {
-            date: dateTimeValidation.formattedDate,
-            latitude: coordsValidation.latitude,
-            longitude: coordsValidation.longitude,
-            placeName: currentPlaceName
         };
         setInputDetails(payloadChart);
 

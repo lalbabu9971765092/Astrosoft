@@ -187,7 +187,7 @@ const DiamondChart = ({
 
             return details;
 
-        }, [houses, planets, scores, planetHousePlacements, prashnaCusps, t]);
+        }, [houses, planets, scores, planetHousePlacements, prashnaCusps, t, chartType]);
 
 
     
