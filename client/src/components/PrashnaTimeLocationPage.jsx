@@ -530,12 +530,14 @@ const PrashnaTimeLocationPage = () => {
                                 houses={houses}
                                 planets={planetaryPositions.sidereal}
                                 size={350} // Adjust size as needed
+                                chartType="lagna"
                             />
                             <DiamondChart
                                 title="Nirayan Bhava Chalit Chart"
                                 houses={houses}
                                 planetHousePlacements={chartResult.planetHousePlacements}
                                 size={350}
+                                chartType="bhava"
                             />
                         </div>
                     ) : (!isLoadingChart && !chartError && <p>{t('prashnaTimeLocPage.chartUnavailable')}</p>)}

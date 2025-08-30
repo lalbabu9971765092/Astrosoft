@@ -340,6 +340,7 @@ const VarshphalPage = () => {
                       houses={varshphalChart.houses}
                       planets={varshphalChart.planetaryPositions.sidereal}
                       size={350}
+                      chartType="lagna"
                     />
                   </div>
                 ) : (
@@ -433,6 +434,7 @@ const VarshphalPage = () => {
                       houses={varshphalChart.houses}
                       planetHousePlacements={varshphalChart.planetHousePlacements}
                       size={350}
+                      chartType="bhava"
                     />
                   </div>
                 ) : (

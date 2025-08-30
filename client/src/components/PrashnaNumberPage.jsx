@@ -448,6 +448,7 @@ const PrashnaNumberPage = () => {
                                      planets={planetaryPositions.sidereal}
                                      prashnaCusps={chartResult.siderealCuspStartDegrees}
                                      size={400}
+                                     chartType="lagna"
                                  />
                              </div>
                          ) : (!isLoadingChart && !chartError && <p>{t('prashnaNumberPage.chartUnavailable', 'Chart data unavailable.')}</p>)}
@@ -463,6 +464,7 @@ const PrashnaNumberPage = () => {
                                      planetHousePlacements={chartResult.planetHousePlacements}
                                      prashnaCusps={chartResult.siderealCuspStartDegrees}
                                      size={400}
+                                     chartType="bhava"
                                  />
                              </div>
                          </div>
