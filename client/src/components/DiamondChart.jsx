@@ -38,7 +38,8 @@ const DiamondChart = ({
     planets = null,
     scores = null,
     planetHousePlacements = null,
-    prashnaCusps // New prop
+    prashnaCusps, // New prop
+    chartType // Added prop
 }) => {
     const { t } = useTranslation(); // Get the t function
     const chartSize = size;
@@ -104,28 +105,50 @@ const DiamondChart = ({
                 return details;
             }
 
-            const ascendantDms = effectiveCusps[0].start_dms;
-            const ascendantDeg = convertDMSToDegrees(ascendantDms);
-            if (isNaN(ascendantDeg)) {
-                console.warn("DiamondChart: Could not determine Ascendant degree.");
-                return details;
-            }
-            const ascendantRashiName = calculateRashi(ascendantDeg, t);
-            const ascendantRashiIndex = RASHIS.indexOf(ascendantRashiName);
+            // Determine Rashi for each house based on chartType
+            if (chartType === 'bhava') { // Apply Bhava Chalit logic
+                for (let i = 0; i < 12; i++) {
+                    const houseCuspDms = effectiveCusps[i].start_dms;
+                    const houseCuspDeg = convertDMSToDegrees(houseCuspDms);
+                    if (isNaN(houseCuspDeg)) {
+                        console.warn(`DiamondChart: Could not determine Rashi for House ${i + 1} from cusp DMS:`, houseCuspDms);
+                        continue; // Skip this house if degree is invalid
+                    }
+                    const rashiNameForCusp = calculateRashi(houseCuspDeg, t);
+                    const rashiIndexForCusp = RASHIS.indexOf(rashiNameForCusp);
 
-            if (ascendantRashiIndex === -1) {
-                console.warn("DiamondChart: Could not determine Ascendant Rashi index.");
-                return details;
-            }
+                    const houseIndex = i; // House index (0-11)
+                    details[houseIndex].rashiIndex = rashiIndexForCusp;
+                    details[houseIndex].rashiName = RASHIS[rashiIndexForCusp];
 
-            for (let i = 0; i < 12; i++) {
-                const currentRashiIndex = (ascendantRashiIndex + i) % 12;
-                const houseIndex = i;
-                details[houseIndex].rashiIndex = currentRashiIndex;
-                details[houseIndex].rashiName = RASHIS[currentRashiIndex];
+                    if (scores && Array.isArray(scores) && scores.length === 12 && scores[rashiIndexForCusp] !== undefined) {
+                        details[houseIndex].score = scores[rashiIndexForCusp];
+                    }
+                }
+            } else { // Apply standard Lagna/D1 logic (based on Ascendant and incrementing)
+                const ascendantDms = effectiveCusps[0].start_dms;
+                const ascendantDeg = convertDMSToDegrees(ascendantDms);
+                if (isNaN(ascendantDeg)) {
+                    console.warn("DiamondChart: Could not determine Ascendant degree.");
+                    return details;
+                }
+                const ascendantRashiName = calculateRashi(ascendantDeg, t);
+                const ascendantRashiIndex = RASHIS.indexOf(ascendantRashiName);
 
-                if (scores && Array.isArray(scores) && scores.length === 12 && scores[currentRashiIndex] !== undefined) {
-                    details[houseIndex].score = scores[currentRashiIndex];
+                if (ascendantRashiIndex === -1) {
+                    console.warn("DiamondChart: Could not determine Ascendant Rashi index.");
+                    return details;
+                }
+
+                for (let i = 0; i < 12; i++) {
+                    const currentRashiIndex = (ascendantRashiIndex + i) % 12;
+                    const houseIndex = i;
+                    details[houseIndex].rashiIndex = currentRashiIndex;
+                    details[houseIndex].rashiName = RASHIS[currentRashiIndex];
+
+                    if (scores && Array.isArray(scores) && scores.length === 12 && scores[currentRashiIndex] !== undefined) {
+                        details[houseIndex].score = scores[currentRashiIndex];
+                    }
                 }
             }
 
@@ -280,7 +303,8 @@ DiamondChart.propTypes = {
         dms: PropTypes.string,
     })),
     sscores: PropTypes.arrayOf(PropTypes.number),
-    planetHousePlacements: PropTypes.objectOf(PropTypes.number)
+    planetHousePlacements: PropTypes.objectOf(PropTypes.number),
+    chartType: PropTypes.string // Added chartType
 };
 // --- Update DefaultProps ---
 
