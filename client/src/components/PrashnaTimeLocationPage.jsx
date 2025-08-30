@@ -9,8 +9,7 @@ import KpSignificatorGrid, { EVENT_HOUSES } from './KpSignificatorGrid';
 import DashaTable from './DashaTable'; // Import DashaTable
 import {
     validateAndFormatDateTime,
-    parseAndValidateCoords,
-    getHouseNumbersFromString // Make sure this is imported or defined
+    parseAndValidateCoords
 } from './AstrologyUtils';
 import '../styles/PrashnaPage.css'; // Create or reuse styles
 
