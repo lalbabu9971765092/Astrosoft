@@ -11,7 +11,11 @@ import {
     formatToLocalISOString, // Not needed directly here, but used by TimeAdjustmentTool
     calculateNakshatraPada,
     calculateNakshatraDegree,
-    calculateRashi, // Returns the English key (e.g., "Aries")
+    calculateRashi as getRashiFromDegree, // Returns the English key (e.g., "Aries")
+    calculateNakshatra as getNakshatraFromDegree, // Added
+    getNakshatraLord, // Added
+    getRashiLord, // Added
+    getNaamAkshar, // Added
     calculateVar,   // Returns the English key (e.g., "Sunday")
     calculateHouse,
     PLANET_ORDER,
@@ -68,7 +72,7 @@ const createChartHousesFromAscendant = (ascendantDms, t) => { // Added t
     const ascendantDeg = convertDMSToDegrees(ascendantDms);
     if (isNaN(ascendantDeg)) return null;
 
-    const ascendantRashiName = calculateRashi(ascendantDeg, t); // Pass t
+    const ascendantRashiName = getRashiFromDegree(ascendantDeg, t); // Pass t
     const ascendantRashiIndex = RASHIS.indexOf(ascendantRashiName);
     if (ascendantRashiIndex === -1) return null;
 
@@ -376,7 +380,7 @@ const AstrologyForm = () => {
         if (!gocharAsc || !gocharMoon || !gocharPanchang) return <p className="info-text">{t('astrologyForm.transitIncompleteData')}</p>;
 
         const moonDeg = convertDMSToDegrees(gocharMoon?.dms);
-        const moonRashiKey = calculateRashi(moonDeg, t); // Returns English key (e.g., "Sagittarius")
+        const moonRashiKey = getRashiFromDegree(moonDeg, t); // Returns English key (e.g., "Sagittarius")
         const moonNakshatraKey = gocharNakshatra?.name_en_IN ?? gocharMoon?.nakshatra; // Get English key
         const moonPada = calculateNakshatraPada(moonDeg, t);
 
@@ -497,7 +501,7 @@ const AstrologyForm = () => {
         const { varName: birthVarKey, dayLord: birthDayLord } = calculateVar(displayDate, t);
 
         const moonDeg = convertDMSToDegrees(moonSiderealData?.dms);
-        const moonRashiKey = calculateRashi(moonDeg, t); // Returns English key (e.g., "Sagittarius")
+        const moonRashiKey = getRashiFromDegree(moonDeg, t); // Returns English key (e.g., "Sagittarius")
         const moonNakshatraKey = birthNakshatra?.name_en_IN ?? moonSiderealData?.nakshatra; // Get English key
         const moonPada = calculateNakshatraPada(moonDeg, t);
         const moonNakDegree = calculateNakshatraDegree(moonDeg);
@@ -801,22 +805,33 @@ const AstrologyForm = () => {
                                     <thead>
                                         <tr>
                                             <th>{t('astrologyForm.houseTableHHeader')}</th><th>{t('astrologyForm.houseTableCuspStartHeader')}</th>
-                                            <th>{t('astrologyForm.houseTableMeanCuspHeader')}</th><th>{t('astrologyForm.houseTableNakMeanHeader')}</th>
+                                            <th>{t('astrologyForm.houseTableMeanCuspHeader')}</th><th>{t('astrologyForm.houseTableNakHeader')}</th>
                                             <th>{t('astrologyForm.houseTablePadaHeader')}</th><th>{t('astrologyForm.houseTableNakLordHeader')}</th>
-                                            <th>{t('astrologyForm.houseTableRashiMeanHeader')}</th><th>{t('astrologyForm.houseTableRashiLordHeader')}</th>
+                                            <th>{t('astrologyForm.houseTableRashiHeader')}</th><th>{t('astrologyForm.houseTableRashiLordHeader')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {displayResult.houses.map((house) => (
-                                            <tr key={house.house_number}>
-                                                <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
-                                                <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
-                                                <td>{t(`nakshatras.${house.mean_nakshatra}`, { defaultValue: house.mean_nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                <td>{t(`planets.${house.mean_nakshatra_lord}`, { defaultValue: house.mean_nakshatra_lord ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                <td>{t(`rashis.${house.mean_rashi}`, { defaultValue: house.mean_rashi ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                <td>{t(`planets.${house.mean_rashi_lord}`, { defaultValue: house.mean_rashi_lord ?? t('utils.notAvailable', 'N/A') })}</td>
-                                            </tr>
-                                        ))}
+                                        {displayResult.houses.map((house) => {
+                                            const cuspDegree = convertDMSToDegrees(house.start_dms);
+                                            const nakshatra = getNakshatraFromDegree(cuspDegree, t);
+                                            const pada = calculateNakshatraPada(cuspDegree, t);
+                                            const nakshatraLord = getNakshatraLord(nakshatra, t);
+                                            const rashi = getRashiFromDegree(cuspDegree, t);
+                                            const rashiLord = getRashiLord(rashi, t);
+                                            const naamAkshar = getNaamAkshar(nakshatra, pada, t); // Calculate Naam Akshar
+                                            console.log(`Birth House Cusp ${house.house_number}: start_dms=${house.start_dms}, cuspDegree=${cuspDegree}, Rashi=${rashi}, Nakshatra=${nakshatra}, Pada=${pada}, NaamAkshar=${naamAkshar}, NakLord=${nakshatraLord}, RashiLord=${rashiLord}`);
+                                            return (
+                                                <tr key={house.house_number}>
+                                                    <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                    <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                    <td>{t(`nakshatras.${nakshatra}`, { defaultValue: nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${naamAkshar})`}</td> {/* Display Pada and Naam Akshar */}
+                                                    <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                </tr>
+                                            );
+                                        })}
                                     </tbody>
                                 </table>
                             </div>
@@ -851,7 +866,7 @@ const AstrologyForm = () => {
                                             }
                                             const pada = planetData.pada ?? calculateNakshatraPada(siderealDeg, t);
                                             const degreeWithinNakshatra = convertToDMS(calculateNakshatraDegree(siderealDeg), t);
-                                           const rashiKey = planetData.rashi ?? calculateRashi(siderealDeg, t);
+                                           const rashiKey = planetData.rashi ?? getRashiFromDegree(siderealDeg, t);
                                             // *** FIX: Use placidusCuspDegrees to calculate the house, matching the Bhava Chalit chart ***
                                             const house = calculateHouse(siderealDeg, placidusCuspDegrees, t);
                                            
@@ -896,23 +911,33 @@ const AstrologyForm = () => {
                                         <thead>
                                             <tr>
                                                 <th>{t('astrologyForm.houseTableHHeader')}</th><th>{t('astrologyForm.houseTableCuspStartHeader')}</th>
-                                                <th>{t('astrologyForm.houseTableMeanCuspHeader')}</th><th>{t('astrologyForm.houseTableNakMeanHeader')}</th>
+                                                <th>{t('astrologyForm.houseTableMeanCuspHeader')}</th><th>{t('astrologyForm.houseTableNakHeader')}</th>
                                                 <th>{t('astrologyForm.houseTablePadaHeader')}</th><th>{t('astrologyForm.houseTableNakLordHeader')}</th>
-                                                <th>{t('astrologyForm.houseTableRashiMeanHeader')}</th><th>{t('astrologyForm.houseTableRashiLordHeader')}</th>
+                                                <th>{t('astrologyForm.houseTableRashiHeader')}</th><th>{t('astrologyForm.houseTableRashiLordHeader')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {gocharData.houses.map((house) => (
-                                                <tr key={house.house_number}>
-                                                    <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
-                                                    <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
-                                                    <td>{t(`nakshatras.${house.mean_nakshatra}`, { defaultValue: house.mean_nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                    <td>{house.mean_nakshatra_charan ?? t('utils.notAvailable', 'N/A')}</td>
-                                                    <td>{t(`planets.${house.mean_nakshatra_lord}`, { defaultValue: house.mean_nakshatra_lord ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                    <td>{t(`rashis.${house.mean_rashi}`, { defaultValue: house.mean_rashi ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                    <td>{t(`planets.${house.mean_rashi_lord}`, { defaultValue: house.mean_rashi_lord ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                </tr>
-                                            ))}
+                                            {gocharData.houses.map((house) => {
+                                                const cuspDegree = convertDMSToDegrees(house.start_dms);
+                                                const nakshatra = getNakshatraFromDegree(cuspDegree, t);
+                                                const pada = calculateNakshatraPada(cuspDegree, t);
+                                                const nakshatraLord = getNakshatraLord(nakshatra, t);
+                                                const rashi = getRashiFromDegree(cuspDegree, t);
+                                                const rashiLord = getRashiLord(rashi, t);
+                                                const naamAkshar = getNaamAkshar(nakshatra, pada, t); // Calculate Naam Akshar
+                                                console.log(`Transit House Cusp ${house.house_number}: start_dms=${house.start_dms}, cuspDegree=${cuspDegree}, Rashi=${rashi}, Nakshatra=${nakshatra}, Pada=${pada}, NaamAkshar=${naamAkshar}, NakLord=${nakshatraLord}, RashiLord=${rashiLord}`);
+                                                return (
+                                                    <tr key={house.house_number}>
+                                                        <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                        <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                        <td>{t(`nakshatras.${nakshatra}`, { defaultValue: nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                        <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${naamAkshar})`}</td> {/* Display Pada and Naam Akshar */}
+                                                        <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                        <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                        <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>
@@ -951,7 +976,7 @@ const AstrologyForm = () => {
                                                 }
                                                 const pada = planetData.pada ?? calculateNakshatraPada(siderealDeg, t);
                                                 const degreeWithinNakshatra = convertToDMS(calculateNakshatraDegree(siderealDeg), t);
-                                                const rashiKey = planetData.rashi ?? calculateRashi(siderealDeg, t);
+                                                const rashiKey = planetData.rashi ?? getRashiFromDegree(siderealDeg, t);
                                                 const house = calculateHouse(siderealDeg, gocharData.houses.map(h => convertDMSToDegrees(h.start_dms)), t);
                                                 const nakshatraKey = planetData.nakshatra;
                                                 const nakLordKey = planetData.nakLord;

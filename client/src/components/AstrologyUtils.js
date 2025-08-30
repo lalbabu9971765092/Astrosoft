@@ -387,6 +387,109 @@ export const calculateKaran = (sunLongitude, moonLongitude, t) => {
   );
 };
 
+export const NAKSHATRA_LORDS = {
+  "Ashwini": "Ketu", "Magha": "Ketu", "Mula": "Ketu",
+  "Bharani": "Venus", "Purva Phalguni": "Venus", "Purva Ashadha": "Venus",
+  "Krittika": "Sun", "Uttara Phalguni": "Sun", "Uttara Ashadha": "Sun",
+  "Rohini": "Moon", "Hasta": "Moon", "Shravana": "Moon",
+  "Mrigashira": "Mars", "Chitra": "Mars", "Dhanishta": "Mars",
+  "Ardra": "Rahu", "Swati": "Rahu", "Shatabhisha": "Rahu",
+  "Punarvasu": "Jupiter", "Vishakha": "Jupiter", "Purva Bhadrapada": "Jupiter",
+  "Pushya": "Saturn", "Anuradha": "Saturn", "Uttara Bhadrapada": "Saturn",
+  "Ashlesha": "Mercury", "Jyeshtha": "Mercury", "Revati": "Mercury",
+};
+
+export const RASHI_LORDS = {
+  "Mesha": "Mars", "Vrishabha": "Venus", "Mithuna": "Mercury",
+  "Karka": "Moon", "Simha": "Sun", "Kanya": "Mercury",
+  "Tula": "Venus", "Vrishchika": "Mars", "Dhanu": "Jupiter",
+  "Makara": "Saturn", "Kumbha": "Saturn", "Meena": "Jupiter",
+};
+
+export const NAAM_AKSHAR_MAPPING = {
+  "Ashwini": ["Chu", "Che", "Cho", "La"],
+  "Bharani": ["Li", "Lu", "Le", "Lo"],
+  "Krittika": ["A", "E", "U", "O"],
+  "Rohini": ["O", "Va", "Vi", "Vu"],
+  "Mrigashira": ["Ve", "Vo", "Ka", "Ki"],
+  "Ardra": ["Ku", "Gha", "Nga", "Chha"],
+  "Punarvasu": ["Ke", "Ko", "Ha", "Hi"],
+  "Pushya": ["Hu", "He", "Ho", "Da"],
+  "Ashlesha": ["Di", "Du", "De", "Do"],
+  "Magha": ["Ma", "Mi", "Mu", "Me"],
+  "Purva Phalguni": ["Mo", "Ta", "Ti", "Tu"],
+  "Uttara Phalguni": ["Te", "To", "Pa", "Pi"],
+  "Hasta": ["Pu", "Sha", "Na", "Tha"],
+  "Chitra": ["Pe", "Po", "Ra", "Ri"],
+  "Swati": ["Ru", "Re", "Ro", "Ta"],
+  "Vishakha": ["Ti", "Tu", "Te", "To"],
+  "Anuradha": ["Na", "Ni", "Nu", "Ne"],
+  "Jyeshtha": ["No", "Ya", "Yi", "Yu"],
+  "Mula": ["Ye", "Yo", "Bha", "Bhi"],
+  "Purva Ashadha": ["Bhu", "Dha", "Pha", "Dha"],
+  "Uttara Ashadha": ["Bhe", "Bho", "Ja", "Ji"],
+  "Shravana": ["Ju", "Je", "Jo", "Gha"],
+  "Dhanishta": ["Ga", "Gi", "Gu", "Ge"],
+  "Shatabhisha": ["Go", "Sa", "Si", "Su"],
+  "Purva Bhadrapada": ["Se", "So", "Da", "Di"],
+  "Uttara Bhadrapada": ["Du", "Tha", "Jha", "Na"],
+  "Revati": ["De", "Do", "Cha", "Chi"],
+};
+
+/**
+ * Gets the Naam Akshar (name letter) for a given Nakshatra and Pada.
+ * @param {string} nakshatraName - The name of the Nakshatra (e.g., "Krittika").
+ * @param {number} padaNumber - The pada number (1-4).
+ * @param {function} t - The translation function from i18next.
+ * @returns {string} The Naam Akshar or translated "N/A".
+ */
+export const getNaamAkshar = (nakshatraName, padaNumber, t) => {
+  if (!nakshatraName || isNaN(padaNumber) || padaNumber < 1 || padaNumber > 4) {
+    return t ? t("utils.notAvailable", "N/A") : "N/A";
+  }
+  const akshars = NAAM_AKSHAR_MAPPING[nakshatraName];
+  if (akshars && akshars.length === 4) {
+    return akshars[padaNumber - 1]; // padaNumber is 1-indexed, array is 0-indexed
+  }
+  return t ? t("utils.notAvailable", "N/A") : "N/A";
+};
+
+/**
+ * Calculates the Nakshatra name.
+ * @param {number} longitude - Longitude in degrees.
+ * @param {function} t - The translation function from i18next.
+ * @returns {string} Nakshatra name or translated "Unknown".
+ */
+export const calculateNakshatra = (longitude, t) => {
+  if (isNaN(longitude)) {
+    return t ? t("utils.unknown", "Unknown") : "Unknown";
+  }
+  const nakshatraIndex = Math.floor(normalizeAngle(longitude) / NAKSHATRA_SPAN);
+  return (
+    NAKSHATRAS[nakshatraIndex % 27] || (t ? t("utils.unknown", "Unknown") : "Unknown")
+  );
+};
+
+/**
+ * Gets the lord of a given Nakshatra.
+ * @param {string} nakshatraName - The name of the Nakshatra (e.g., "Krittika").
+ * @param {function} t - The translation function from i18next.
+ * @returns {string} Planet name of the lord or translated "Unknown".
+ */
+export const getNakshatraLord = (nakshatraName, t) => {
+  return NAKSHATRA_LORDS[nakshatraName] || (t ? t("utils.unknown", "Unknown") : "Unknown");
+};
+
+/**
+ * Gets the lord of a given Rashi.
+ * @param {string} rashiName - The name of the Rashi (e.g., "Mesha").
+ * @param {function} t - The translation function from i18next.
+ * @returns {string} Planet name of the lord or translated "Unknown".
+ */
+export const getRashiLord = (rashiName, t) => {
+  return RASHI_LORDS[rashiName] || (t ? t("utils.unknown", "Unknown") : "Unknown");
+};
+
 /**
  * Calculates the Var (Weekday) name from a local ISO-like string.
  * @param {string} localIsoString - Date string in 'YYYY-MM-DDTHH:MM:SS' format (local time).
