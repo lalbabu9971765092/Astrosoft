@@ -196,7 +196,7 @@ const SharedInputLayout = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [date, coords, placeName, t]);
+    }, [date, coords, placeName, t, calculationInputParams]);
 
     // Effect to trigger initial calculation
     useEffect(() => {
