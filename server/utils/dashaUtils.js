@@ -391,13 +391,21 @@ export function calculateMuddaDasha(solarReturnJD_UT, latitude, longitude) {
         // Formula: (Nakshatra Index at SR + Age at SR - 1) % 9 (using 9 lords: 7 planets + Rahu + Ketu?)
         // Let's use the Vimshottari lord sequence index for simplicity, mapping to Mudda sequence
         const vimsLord = srNakDetails.lord;
-        const vimsStartIndex = VIMS_DASHA_SEQUENCE.indexOf(vimsLord);
+        let vimsStartIndex = VIMS_DASHA_SEQUENCE.indexOf(vimsLord);
         if (vimsStartIndex === -1) {
              throw new Error(`Cannot determine starting Mudda lord: Invalid Vims lord "${vimsLord}"`);
         }
-        // Map Vims index to Mudda index (Note: Mudda sequence might differ, this is an approximation)
-        // This mapping needs verification based on specific Mudda rules. Assuming direct mapping for now.
-        let muddaStartIndex = vimsStartIndex % MUDDA_DASHA_SEQUENCE.length; // Simple modulo mapping
+
+        // Determine the starting Mudda lord based on the Vims lord
+        // If Vims lord is Ketu, Mudda Dasha starts with Venus (next in sequence)
+        let muddaLord = vimsLord;
+        if (muddaLord === "Ketu") {
+            // Find Venus in VIMS_DASHA_SEQUENCE and use that as the starting point
+            const ketuIndex = VIMS_DASHA_SEQUENCE.indexOf("Ketu");
+            const venusIndex = (ketuIndex + 1) % VIMS_DASHA_SEQUENCE.length; // Venus is next after Ketu
+            muddaLord = VIMS_DASHA_SEQUENCE[venusIndex]; // This will be "Venus"
+        }
+        let muddaStartIndex = MUDDA_DASHA_SEQUENCE.indexOf(muddaLord);
 
         // Alternative: Find the weekday lord of SR start? Rules vary.
         // const srUTCDate = new Date((solarReturnJD_UT - 2440587.5) * 86400000);

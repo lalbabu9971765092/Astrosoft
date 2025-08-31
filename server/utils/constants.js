@@ -85,10 +85,10 @@ export const NATURAL_FRIENDSHIP = {
 // Weekday Lords (0 = Sunday, 6 = Saturday)
 export const WEEKDAY_LORDS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 
-// Mudda Dasha sequence and years
-export const MUDDA_DASHA_SEQUENCE = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu"]; // Ketu is not included in standard Mudda
-export const MUDDA_DASHA_YEARS = { Sun: 6, Moon: 10, Mars: 7, Mercury: 17, Jupiter: 16, Venus: 20, Saturn: 19, Rahu: 18 };
-// Sum of MUDDA_DASHA_YEARS. Ensure calculations in dashaUtils use this value if appropriate for proportions.
+// Mudda Dasha sequence and years (Vimshottari sequence excluding Ketu, maintaining relative order)
+export const MUDDA_DASHA_SEQUENCE = ["Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"];
+export const MUDDA_DASHA_YEARS = { Venus: 20, Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16, Saturn: 19, Mercury: 17 };
+// Sum of MUDDA_DASHA_YEARS (20+6+10+7+18+16+19+17 = 113)
 export const MUDDA_TOTAL_YEARS = 113;
 
 // KP Sublord details (Calculated spans in decimal degrees)
