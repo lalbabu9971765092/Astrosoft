@@ -898,10 +898,15 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
             const meanCharan = calculateNakshatraPada(meanDeg);
             const startNakDetails = getNakshatraDetails(startDeg);
             const startSubLordDetails = getSubLordDetails(startDeg);
+
+            const startRashiDetails = getRashiDetails(startDeg); // Get Rashi details for startDeg
+
             srHousesData.push({
                 house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
                 mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
                 mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
+                start_rashi: startRashiDetails.name, // Add start_rashi
+                start_rashi_lord: startRashiDetails.lord, // Add start_rashi_lord
                 start_nakshatra: startNakDetails.name, start_nakshatra_lord: startNakDetails.lord,
                 start_sub_lord: startSubLordDetails.lord,
             });
@@ -1032,10 +1037,15 @@ router.post('/calculate-varshphal/rotated', rotatedVarshphalValidation, async (r
             const meanCharan = calculateNakshatraPada(meanDeg);
             const startNakDetails = getNakshatraDetails(startDeg);
             const startSubLordDetails = getSubLordDetails(startDeg);
+
+            const startRashiDetails = getRashiDetails(startDeg); // Get Rashi details for startDeg
+
             srHousesData.push({
                 house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
                 mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
                 mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
+                start_rashi: startRashiDetails.name, // Add start_rashi
+                start_rashi_lord: startRashiDetails.lord, // Add start_rashi_lord
                 start_nakshatra: startNakDetails.name, start_nakshatra_lord: startNakDetails.lord,
                 start_sub_lord: startSubLordDetails.lord,
             });

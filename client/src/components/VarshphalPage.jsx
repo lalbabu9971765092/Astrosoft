@@ -407,7 +407,7 @@ const VarshphalPage = () => {
                         <td>{house.start_dms || 'N/A'}</td>
                         <td>{house.mean_dms || 'N/A'}</td>
                         <td>{house.end_dms || 'N/A'}</td>
-                        <td>{t(`rashis.${house.mean_rashi}`, house.mean_rashi) || 'N/A'}</td>
+                        <td>{t(`rashis.${house.start_rashi}`, house.start_rashi) || 'N/A'}</td>
                         <td>{t(`nakshatras.${house.start_nakshatra}`, house.start_nakshatra) || 'N/A'} ({t(`planets.${house.start_nakshatra_lord}`, house.start_nakshatra_lord) || 'N/A'})</td>
                         <td>{t(`planets.${house.start_sub_lord}`, house.start_sub_lord) || 'N/A'}</td>
                       </tr>
