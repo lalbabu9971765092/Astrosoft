@@ -182,7 +182,11 @@ const SharedInputLayout = () => {
                 setKpResult({ ...kpResponse.data, inputParameters: currentInputParams });
             }
 
-            setCalculationInputParams(currentInputParams);
+            // IMPORTANT: Only update calculationInputParams if it's actually different
+            // This prevents unnecessary re-renders and potential infinite loops
+            if (JSON.stringify(currentInputParams) !== JSON.stringify(calculationInputParams)) {
+                setCalculationInputParams(currentInputParams);
+            }
             if (errors.length > 0) setError(errors.join(' | '));
 
         } catch (err) {
@@ -210,7 +214,13 @@ const SharedInputLayout = () => {
     // Time Adjustment Handlers
     const handleBirthTimeChange = useCallback((newDateTimeString) => {
         setAdjustedBirthDateTimeString(newDateTimeString);
-    }, []);
+        // Update the main 'date' state so that handleCalculateAll uses the rectified time
+        // newDateTimeString is an ISO string (e.g., "2025-08-31T10:30:00.000Z")
+        // We need YYYY-MM-DDTHH:MM for the input field
+        setDate(newDateTimeString.slice(0, 16));
+        // Explicitly trigger calculation with the new rectified date
+        handleCalculateAll(null, newDateTimeString); // Pass null for event, and newDateTimeString as gocharDate
+    }, [handleCalculateAll]); // Add handleCalculateAll to dependencies
     const handleGocharTimeChange = useCallback((newDateTimeString) => {
         setAdjustedGocharDateTimeString(newDateTimeString);
     }, []);

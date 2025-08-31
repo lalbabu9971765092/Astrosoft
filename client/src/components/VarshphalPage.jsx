@@ -259,7 +259,7 @@ const VarshphalPage = () => {
     varshphalYear,
     isInitialLoading,
     initialError,
-    handleCalculateVarshphal,
+    // handleCalculateVarshphal, // Temporarily removed for debugging
     birthYear,
     t // Add t dependency
   ]);
