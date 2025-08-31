@@ -291,7 +291,7 @@ const PrashnaNumberPage = () => {
                 }
 
                 // Extract KP significators and other data from the response
-                const { kpSignificators, planetHousePlacements, siderealCuspStartDegrees } = response.data;
+                const { kpSignificators } = response.data;
                 setKpData(kpSignificators); // Always update KP data from the response
 
             } catch (error) {
