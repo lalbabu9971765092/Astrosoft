@@ -214,13 +214,23 @@ const SharedInputLayout = () => {
     // Time Adjustment Handlers
     const handleBirthTimeChange = useCallback((newDateTimeString) => {
         setAdjustedBirthDateTimeString(newDateTimeString);
-        // Update the main 'date' state so that handleCalculateAll uses the rectified time
-        // newDateTimeString is an ISO string (e.g., "2025-08-31T10:30:00.000Z")
-        // We need YYYY-MM-DDTHH:MM for the input field
-        setDate(newDateTimeString.slice(0, 16));
-        // Explicitly trigger calculation with the new rectified date
-        handleCalculateAll(null, newDateTimeString); // Pass null for event, and newDateTimeString as gocharDate
-    }, [handleCalculateAll]); // Add handleCalculateAll to dependencies
+
+        // Convert the ISO string (which is likely in UTC) to a local time for the input
+        const dateObj = new Date(newDateTimeString);
+        if (!isNaN(dateObj.getTime())) {
+            // Create a new Date object representing the local time
+            const localDate = new Date(dateObj.getTime() - dateObj.getTimezoneOffset() * 60000);
+            // Format it for the datetime-local input (YYYY-MM-DDTHH:MM)
+            const formattedForInput = localDate.toISOString().slice(0, 16);
+            setDate(formattedForInput);
+        } else {
+            // Fallback for safety, though less likely to happen
+            setDate(newDateTimeString.slice(0, 16));
+        }
+
+        // Explicitly trigger calculation with the new rectified date (original ISO string is fine here)
+        handleCalculateAll(null, newDateTimeString);
+    }, [handleCalculateAll]);
     const handleGocharTimeChange = useCallback((newDateTimeString) => {
         setAdjustedGocharDateTimeString(newDateTimeString);
     }, []);
