@@ -371,8 +371,8 @@ const VarshphalPage = () => {
                       <tr key={planetName}>
                         <td>{t(`planets.${planetName}`, planetName)}</td>
                         <td>{data.dms || 'N/A'}</td>
-                        <td>{t(`rashis.${data.rashi}`, data.rashi) || 'N/A'}</td>
-                        <td>{t(`nakshatras.${data.nakshatra}`, data.nakshatra) || 'N/A'}</td>
+                        <td>{t(`rashis.${data.rashi}`, data.rashi) || 'N/A'} ({t(`planets.${data.rashiLord}`, data.rashiLord) || 'N/A'})</td>
+                        <td>{t(`nakshatras.${data.nakshatra}`, data.nakshatra) || 'N/A'} ({t(`planets.${data.nakLord}`, data.nakLord) || 'N/A'})</td>
                         <td>{t(`planets.${data.subLord}`, data.subLord) || 'N/A'}</td>
                       </tr>
                     ))}
@@ -407,7 +407,7 @@ const VarshphalPage = () => {
                         <td>{house.start_dms || 'N/A'}</td>
                         <td>{house.mean_dms || 'N/A'}</td>
                         <td>{house.end_dms || 'N/A'}</td>
-                        <td>{t(`rashis.${house.start_rashi}`, house.start_rashi) || 'N/A'}</td>
+                        <td>{t(`rashis.${house.start_rashi}`, house.start_rashi) || 'N/A'} ({t(`planets.${house.start_rashi_lord}`, house.start_rashi_lord) || 'N/A'})</td>
                         <td>{t(`nakshatras.${house.start_nakshatra}`, house.start_nakshatra) || 'N/A'} ({t(`planets.${house.start_nakshatra_lord}`, house.start_nakshatra_lord) || 'N/A'})</td>
                         <td>{t(`planets.${house.start_sub_lord}`, house.start_sub_lord) || 'N/A'}</td>
                       </tr>
