@@ -1,5 +1,4 @@
-// src/AstrologyForm.js
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+    import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/AstrologyForm.css';
@@ -8,15 +7,15 @@ import DiamondChart from './DiamondChart';
 import {
     convertDMSToDegrees,
     convertToDMS,
-    formatToLocalISOString, // Not needed directly here, but used by TimeAdjustmentTool
+    formatToLocalISOString,
     calculateNakshatraPada,
     calculateNakshatraDegree,
-    calculateRashi as getRashiFromDegree, // Returns the English key (e.g., "Aries")
-    calculateNakshatra as getNakshatraFromDegree, // Added
-    getNakshatraLord, // Added
-    getRashiLord, // Added
-    getNaamAkshar, // Added
-    calculateVar,   // Returns the English key (e.g., "Sunday")
+    calculateRashi as getRashiFromDegree,
+    calculateNakshatra as getNakshatraFromDegree,
+    getNakshatraLord,
+    getRashiLord,
+    getNaamAkshar,
+    calculateVar,
     calculateHouse,
     PLANET_ORDER,
     PLANET_SYMBOLS,
@@ -25,70 +24,46 @@ import {
 import api from './api';
 
 // --- Helper Function to Format Time (Panchang) ---
-const formatPanchangTime = (dateTimeString, t, i18n) => { // Added i18n parameter
-    // Handle special strings from suncalc first
+const formatPanchangTime = (dateTimeString, t, i18n) => {
     if (dateTimeString === "Always Up" || dateTimeString === "Always Down") {
-        return t(`sunMoonTimes.${dateTimeString.replace(' ', '')}`, dateTimeString); // e.g., t('sunMoonTimes.AlwaysUp', 'Always Up')
+        return t(`sunMoonTimes.${dateTimeString.replace(' ', '')}`, dateTimeString);
     }
     if (!dateTimeString || typeof dateTimeString !== 'string') return t('utils.notAvailable', 'N/A');
-
     try {
-        // Create Date object from ISO string (represents a specific moment in time)
         const date = new Date(dateTimeString);
         if (isNaN(date.getTime())) return t('utils.invalidTime', 'Invalid Time');
-
-        // *** Use toLocaleTimeString with a specific timezone (e.g., IST) ***
-        // Adjust 'Asia/Kolkata' if a different timezone is needed or make it dynamic
         const options = {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true,
-            timeZone: 'Asia/Kolkata' // Or another relevant timezone
+            timeZone: 'Asia/Kolkata'
         };
-
-        // *** ADDED CHECK: Ensure i18n and i18n.language are valid before use ***
-        // Determine the locale to use, falling back to browser default if i18n is unavailable
         const locale = (i18n && i18n.language) ? i18n.language : undefined;
-
-        // Log a warning if the fallback locale is used
-        if (!locale && i18n) { // Check if i18n was passed but language was missing
-             console.warn("formatPanchangTime: i18n object provided but language property missing. Using browser default locale.");
-        } else if (!i18n) { // Check if i18n object itself was missing
-             console.warn("formatPanchangTime: i18n object not provided. Using browser default locale.");
-        }
-
-        // Use the determined locale (or undefined for default) with the specified options
         return date.toLocaleTimeString(locale, options);
-
     } catch (e) {
         console.error("Error formatting panchang time:", e);
         return t('utils.error', 'Error');
     }
 };
 
-// --- Helper Function to create basic house structure for charts ---
-const createChartHousesFromAscendant = (ascendantDms, t) => { // Added t
+const createChartHousesFromAscendant = (ascendantDms, t) => {
     if (!ascendantDms || typeof ascendantDms !== 'string') return null;
     const ascendantDeg = convertDMSToDegrees(ascendantDms);
     if (isNaN(ascendantDeg)) return null;
-
-    const ascendantRashiName = getRashiFromDegree(ascendantDeg, t); // Pass t
+    const ascendantRashiName = getRashiFromDegree(ascendantDeg, t);
     const ascendantRashiIndex = RASHIS.indexOf(ascendantRashiName);
     if (ascendantRashiIndex === -1) return null;
-
     const housesArray = [];
     for (let i = 0; i < 12; i++) {
         const currentRashiIndex = (ascendantRashiIndex + i) % 12;
         const rashiStartDeg = currentRashiIndex * 30;
         housesArray.push({
-            start_dms: convertToDMS(rashiStartDeg, t) // Pass t
+            start_dms: convertToDMS(rashiStartDeg, t)
         });
     }
     return housesArray;
 };
 
-
-// --- AstrologyForm Component ---
 const AstrologyForm = () => {
     const { t, i18n } = useTranslation();
     const {
@@ -131,62 +106,49 @@ const AstrologyForm = () => {
 
     // --- Effects ---
     useEffect(() => {
-        // --- Rectification fetch logic ---
-         if (!adjustedBirthDateTimeString || !calculationInputParams?.latitude || !calculationInputParams?.longitude || !calculationInputParams?.date) {
+        if (!adjustedBirthDateTimeString || !calculationInputParams?.latitude || !calculationInputParams?.longitude || !calculationInputParams?.date) {
             if (rectifiedResult) setRectifiedResult(null);
             if (rectificationError) setRectificationError(null);
             return;
         }
         try {
-            // Compare the local ISO strings directly
             const originalDateStr = calculationInputParams.date;
             const adjustedDateStr = adjustedBirthDateTimeString;
-
-            // Basic check if they are identical strings
-             if (originalDateStr === adjustedDateStr) {
-                 if (rectifiedResult) {
-                     setRectifiedResult(null);
-                     setRectificationError(null);
-                 }
-                 return; // No change, don't fetch
-             }
-             // More robust check: parse and compare time values if formats might differ slightly (e.g., missing seconds)
-             // This assumes both strings represent the *same* local time if they are meant to be identical
-             const originalDate = new Date(originalDateStr);
-             const adjustedDate = new Date(adjustedDateStr);
-             if (!isNaN(originalDate) && !isNaN(adjustedDate) && originalDate.getTime() === adjustedDate.getTime()) {
-                 if (rectifiedResult) {
-                     setRectifiedResult(null);
-                     setRectificationError(null);
-                 }
-                 return; // No change, don't fetch
-             }
-
+            if (originalDateStr === adjustedDateStr) {
+                if (rectifiedResult) {
+                    setRectifiedResult(null);
+                    setRectificationError(null);
+                }
+                return;
+            }
+            const originalDate = new Date(originalDateStr);
+            const adjustedDate = new Date(adjustedDateStr);
+            if (!isNaN(originalDate) && !isNaN(adjustedDate) && originalDate.getTime() === adjustedDate.getTime()) {
+                if (rectifiedResult) {
+                    setRectifiedResult(null);
+                    setRectificationError(null);
+                }
+                return;
+            }
         } catch (e) {
-             console.error("Date comparison error during rectification check:", e);
-             // Proceed with fetch if comparison fails, as they might be different
+            console.error("Date comparison error during rectification check:", e);
         }
-
-       
         setIsLoadingRectification(true);
         setRectificationError(null);
-
         const fetchRectifiedData = async () => {
             try {
-                // *** Convert UTC ISO string back to local YYYY-MM-DDTHH:MM:SS for API ***
                 const dateForApi = formatToLocalISOString(new Date(adjustedBirthDateTimeString));
                 if (!dateForApi) {
                     throw new Error(t('astrologyForm.rectificationInvalidDateConversion'));
                 }
                 const payload = {
-                    date: dateForApi, // Send the correct local time string
+                    date: dateForApi,
                     latitude: calculationInputParams.latitude,
                     longitude: calculationInputParams.longitude,
-                    placeName: calculationInputParams.placeName // Include placeName if backend uses it
+                    placeName: calculationInputParams.placeName
                 };
                 const response = await api.post('/calculate', payload);
                 setRectifiedResult(response.data);
-                
             } catch (err) {
                 console.error("Rectification: Fetch error:", err.response?.data || err.message || err);
                 const backendError = err.response?.data?.error || err.response?.data?.message;
@@ -196,35 +158,26 @@ const AstrologyForm = () => {
                 setIsLoadingRectification(false);
             }
         };
-        // Debounce fetch slightly
         const timerId = setTimeout(fetchRectifiedData, 300);
         return () => clearTimeout(timerId);
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [adjustedBirthDateTimeString, calculationInputParams, t]); // Keep dependencies
+    }, [adjustedBirthDateTimeString, calculationInputParams, t]);
 
     useEffect(() => {
-        // --- Gochar fetch logic ---
         if (locationForGocharTool?.lat !== null && locationForGocharTool?.lon !== null && adjustedGocharDateTimeString) {
-           
             setIsLoadingGochar(true);
             setGocharError(null);
-
             const fetchGochar = async () => {
                 try {
-                    // *** Convert UTC ISO string back to local YYYY-MM-DDTHH:MM:SS for API ***
                     const dateForApi = formatToLocalISOString(new Date(adjustedGocharDateTimeString));
-                     if (!dateForApi) {
+                    if (!dateForApi) {
                         throw new Error(t('astrologyForm.gocharInvalidDateConversion'));
                     }
                     const response = await api.post('/calculate', {
                         date: dateForApi,
                         latitude: locationForGocharTool.lat,
                         longitude: locationForGocharTool.lon
-                        // placeName is likely not needed for Gochar, but add if required by backend
                     });
                     setGocharData(response.data);
-                    
                 } catch (err) {
                     console.error("Gochar fetch error:", err.response?.data || err.message || err);
                     setGocharError(err.response?.data?.error || err.message || t('astrologyForm.gocharFetchFailed'));
@@ -233,51 +186,37 @@ const AstrologyForm = () => {
                     setIsLoadingGochar(false);
                 }
             };
-            // Debounce fetch slightly
             const timerId = setTimeout(fetchGochar, 300);
             return () => clearTimeout(timerId);
-
         } else {
-            // Clear Gochar data if inputs are missing
             if (gocharData) setGocharData(null);
             if (isLoadingGochar) setIsLoadingGochar(false);
             if (gocharError) setGocharError(null);
-            
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [adjustedGocharDateTimeString, locationForGocharTool, t]); // Keep dependencies
+    }, [adjustedGocharDateTimeString, locationForGocharTool, t]);
 
-    // --- Determine which result set to display ---
     const displayResult = rectifiedResult || mainResult;
     const displayInputParams = useMemo(() => {
-        // Use adjusted time string if rectifiedResult exists
         return rectifiedResult ? {
             ...(calculationInputParams || {}),
-            date: adjustedBirthDateTimeString // This is the local ISO string YYYY-MM-DDTHH:MM:SS
+            date: adjustedBirthDateTimeString
         } : calculationInputParams;
     }, [rectifiedResult, calculationInputParams, adjustedBirthDateTimeString]);
 
- // *** NEW: Memoized calculation for Bhava planet placements ***
     const bhavaPlanetPlacements = useMemo(() => {
         if (!displayResult?.planetaryPositions?.sidereal || !displayResult?.houses || displayResult.houses.length !== 12) {
             return null;
         }
-
         const placements = {};
-        // Use the actual start of the house cusps for calculation
         const cuspStartDegrees = displayResult.houses.map(h => convertDMSToDegrees(h.start_dms));
-
         if (cuspStartDegrees.some(isNaN)) {
-            console.warn("Bhava Placements: Could not convert all cusp start DMS to degrees.");
             return null;
         }
-
         PLANET_ORDER.forEach(planetName => {
             const planetData = displayResult.planetaryPositions.sidereal[planetName];
             if (planetData && planetData.dms && planetData.dms !== "Error") {
                 const planetDeg = convertDMSToDegrees(planetData.dms);
                 if (!isNaN(planetDeg)) {
-                    // calculateHouse returns the house number (1-12)
                     const houseNumber = calculateHouse(planetDeg, cuspStartDegrees, t);
                     if (typeof houseNumber === 'number') {
                         placements[planetName] = houseNumber;
@@ -286,52 +225,33 @@ const AstrologyForm = () => {
             }
         });
         return placements;
-    }, [displayResult, t]); // Dependency on displayResult and t
+    }, [displayResult, t]);
 
- 
-   
-// *** NEW: Memoized Placidus Cusp Degrees for Bhava Table Consistency ***
     const placidusCuspDegrees = useMemo(() => {
         if (!displayResult?.houses || !Array.isArray(displayResult.houses) || displayResult.houses.length !== 12) return [];
         const degrees = displayResult.houses.map(h => convertDMSToDegrees(h?.start_dms));
         if (degrees.some(isNaN)) {
-            console.warn("Could not convert all Placidus cusp start_dms to degrees for displayResult.");
             return [];
         }
         return degrees;
     }, [displayResult]);
 
-    // --- FINAL VERSION: Helper to format date/time string for display USING BROWSER'S TIMEZONE (like TimeAdjustmentTool) ---
     const formatDisplayDateTime = useCallback((localIsoString) => {
         if (!localIsoString || typeof localIsoString !== 'string') return t('utils.notAvailable', 'N/A');
-
         try {
-            // Create a Date object. JavaScript's Date constructor often interprets
-            // YYYY-MM-DDTHH:MM:SS strings as local time in the browser's current timezone.
-            // We rely on this interpretation to match the TimeAdjustmentTool.
             const dateObj = new Date(localIsoString);
-
             if (isNaN(dateObj.getTime())) {
-                // Handle potential missing seconds if initial parsing fails
                 if (localIsoString.length === 16 && !localIsoString.includes(':', 14)) {
                     const dateObjWithSeconds = new Date(`${localIsoString}:00`);
                     if (isNaN(dateObjWithSeconds.getTime())) {
-                        console.warn("formatDisplayDateTime: Invalid date string format even after adding seconds:", localIsoString);
                         return t('utils.invalidDate', 'Invalid Date');
                     }
-                    // Use toLocaleString() WITHOUT specific options to mimic the tool's display
                     return dateObjWithSeconds.toLocaleString(i18n.language);
                 }
-                console.warn("formatDisplayDateTime: Invalid date string format:", localIsoString);
                 return t('utils.invalidDate', 'Invalid Date');
             }
-
-            // Use toLocaleString() WITHOUT specific options to mimic the tool's display
             return dateObj.toLocaleString(i18n.language);
-
         } catch (e) {
-            console.error("Error formatting display date/time:", e, "Input:", localIsoString);
-            // Fallback remains the same
             const match = localIsoString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
             if (match) {
                 const [, year, month, day, hours, minutes, seconds = '00'] = match;
@@ -342,9 +262,7 @@ const AstrologyForm = () => {
             }
             return t('utils.invalidDate', 'Invalid Date');
         }
-    }, [t, i18n.language]); // Add i18n.language as dependency
-
-
+    }, [t, i18n.language]);
     // --- Render Helper for Gochar Details (Column 3) - REVISED TRANSLATIONS ---
     const renderGocharDetails = () => {
         if (isLoadingGochar) return <div className="loader small-loader" aria-label={t('astrologyForm.loadingTransit')}></div>;
@@ -1021,24 +939,23 @@ const AstrologyForm = () => {
         );
     };
 
+    
     // --- Component Return ---
     return (
         <div className="astrology-form-content">
             {isInitialLoading && !mainResult && <div className="loading-overlay">{t('astrologyForm.loadingInitial')}</div>}
             {initialError && !mainResult && <div className="error-overlay">{t('astrologyForm.errorInitial', { error: initialError })}</div>}
-            {/* Render columns if we have either birth/rectified data OR gochar data */}
-            {displayResult || gocharData ? (
+            {(displayResult || gocharData) ? (
                 <>
                     {renderLeftColumn()}
                     {renderRightColumn()}
                 </>
             ) : (
-                 // Show placeholder only if not loading and no initial error
-                 !isInitialLoading && !initialError && (
+                !isInitialLoading && !initialError && (
                     <div className="placeholder-message">
                         {t('astrologyForm.placeholderMessage')}
                     </div>
-                 )
+                )
             )}
         </div>
     );

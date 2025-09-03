@@ -193,7 +193,7 @@
     "unavailableMessage": "{{planetName}} के लिए भिन्नाष्टकवर्ग डेटा अनुपलब्ध है।",
     "title": "{{planetName}} - भिन्नाष्टकवर्ग (कुल: {{totalScore}})"
   },
-  "astrologyForm": {
+   "astrologyForm": {
     "loadingInitial": "प्रारंभिक जन्म विवरण लोड हो रहा है...",
     "errorInitial": "जन्म विवरण लोड करने में त्रुटि: {{error}}",
     "placeholderMessage": "परिणाम देखने के लिए ऊपर दिए गए बार में जन्म विवरण दर्ज करें और \"गणना करें\" पर क्लिक करें।",
@@ -204,6 +204,9 @@
     "coordsLabel": "निर्देशांक:",
     "placeLabel": "स्थान:",
     "basicInfoTitle": "मूल जानकारी",
+    "mainChartsTitle": "मुख्य चार्ट",
+    "birthAscendantLabel": "जन्म लग्न",
+    "birthAscendantDetailLabel": "जन्म लग्न विवरण",
     "ascendantLabel": "लग्न (निरयन):",
     "dayLordLabel": "दिन का स्वामी:",
     "lordDetailsTitle": "स्वामी विवरण",
@@ -290,8 +293,18 @@
     "invalidPanchangTime": "अमान्य",
     "errorPanchangTime": "त्रुटि",
     "validLocationNeeded": "गोचर विवरण देखने के लिए मान्य स्थान दर्ज करें।",
+    "badhakTitle": "बाधक:",
+    "badhakHouseLabel": "भाव",
+    "longevityFactorsTitle": "आयु कारक",
+    "longevityScoreLabel": "गणना की गई आयु:",
+    "yearsLabel": "वर्ष",
+    "scoreALabel": "स्कोर A (जीवन+)",
+    "scoreBLabel": "स्कोर B (जीवन-)",
+    "marakaPlanetsLabel": "मारक ग्रह (2nd & 7th Lords):",
+    "eighthLordLabel": "8वां स्वामी:",
+    "badhakeshLabel": "बाधकेश (अवरोधक):",
     "sakaYearLabel": "साका वर्ष :",
-     "transitHouseCuspsTitle": "गोचर भाव संधि (निरयन, प्लेसिडस)",
+    "transitHouseCuspsTitle": "गोचर भाव संधि (निरयन, प्लेसिडस)",
     "transitPlanetaryPositionsTitle": "गोचर ग्रह स्थिति (निरयन)",
     "transitHouseDataUnavailable": "गोचर भाव संधि डेटा अनुपलब्ध है।",
     "transitPlanetDataUnavailable": "तालिका के लिए गोचर ग्रह या भाव डेटा अनुपलब्ध है।"
@@ -999,8 +1012,21 @@
     "Capricorn": "मकर",
     "Aquarius": "कुंभ",
     "Pisces": "मीन",
+    "Mesha": "मेष",
+    "Vrishabha": "वृषभ",
+    "Mithuna": "मिथुन",
+    "Karka": "कर्क",
+    "Simha": "सिंह",
+    "Kanya": "कन्या",
+    "Tula": "तुला",
+    "Vrishchika": "वृश्चिक",
+    "Dhanu": "धनु",
+    "Makara": "मकर",
+    "Kumbha": "कुंभ",
+    "Meena": "मीन",
     "Unknown": "अज्ञात"
-  },
+},
+  
 
   "yogas": {
     "Vishkumbha": "विष्कुम्भ",
@@ -1165,11 +1191,21 @@
    
   },
   "Day Lord": "दिन के स्वामी",
-  "Ascendent Lord": "लग्न स्वामी",
-  "Ascendant Nakshatra Lord": "लग्न नक्षत्र स्वामी",
-  "Ascendant Nakshatra SubLord": "लग्न नक्षत्र उप स्वामी",
-  "Moon Rashi Lord": "चंद्र राशि स्वामी",
-  "Moon Nakshatra Lord": "चंद्र नक्षत्र स्वामी",
-  "Moon Nakshatra SubLord": "चंद्र नक्षत्र उप स्वामी"
-  
+  "Main Chart": "मुख्य चार्ट",
+"Main Charts": "मुख्य चार्ट्स",
+"Birth Ascendant": "जन्म लग्न",
+"Birth Ascendant Detail": "जन्म लग्न विवरण",
+"Ascendent Lord": "लग्न स्वामी",
+"Ascendant Nakshatra Lord": "लग्न नक्षत्र स्वामी",
+"Ascendant Nakshatra SubLord": "लग्न नक्षत्र उपस्वामी",
+"Moon Rashi Lord": "चंद्र राशि स्वामी",
+"Moon Nakshatra Lord": "चंद्र नक्षत्र स्वामी",
+"Moon Nakshatra SubLord": "चंद्र नक्षत्र उपस्वामी",
+"Transit Time Lordship": "गोचर समय स्वामी",
+"Transit Details": "गोचर विवरण",
+"Birth Time Lordship": "जन्म समय स्वामी",
+"Birth Details": "जन्म विवरण",
+"Ascendant Lord": "लग्न स्वामी",
+"Transit Ascendent": "गोचर लग्न",
+"Transit Ascendent Detail": "गोचर लग्न विवरण"
 }

@@ -205,6 +205,9 @@
     "coordsLabel": "Coords:",
     "placeLabel": "Place:",
     "basicInfoTitle": "Basic Info",
+    "mainChartsTitle": "Main Charts",
+    "birthAscendantLabel": "Birth Ascendant",
+    "birthAscendantDetailLabel": "Birth Ascendant Detail",
     "ascendantLabel": "Ascendant (Sid):",
     "dayLordLabel": "Day Lord:",
     "lordDetailsTitle": "Lord Details",
@@ -257,7 +260,7 @@
     "chartPlaceholderGochar": "Gochar Data Unavailable",
     "chartPlaceholderLoadingGochar": "Loading Gochar...",
     "chartDataUnavailable": "Chart data unavailable.",
-    "houseCuspsTitle": " Birth House Cusps (Sidereal, Placidus)",
+    "houseCuspsTitle": "Birth House Cusps (Sidereal, Placidus)",
     "houseTableHHeader": "H",
     "houseTableCuspStartHeader": "Cusp Start",
     "houseTableMeanCuspHeader": "Mean Cusp",
@@ -1210,7 +1213,8 @@
     "Pluto": "Pl",
     "Ascendant": "Asc"
   },
-  "Main Chart": "Main Chart",
+    "Main Chart": "Main Chart",
+  "Main Charts": "Main Charts",
   "Birth Ascendant": "Birth Ascendant",
   "Birth Ascendant Detail": "Birth Ascendant Detail",
   "Ascendent Lord": "Ascendent Lord",
@@ -1224,9 +1228,6 @@
   "Birth Time Lordship": "Birth Time Lordship",
   "Birth Details": "Birth Details",
   "Ascendant Lord": "Ascendant Lord",
-  "Main Charts": "Main Charts",
   "Transit Ascendent": "Transit Ascendent",
   "Transit Ascendent Detail": "Transit Ascendent Detail"
-  
 }
-
