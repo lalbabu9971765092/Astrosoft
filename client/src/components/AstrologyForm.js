@@ -738,45 +738,57 @@ const AstrologyForm = () => {
                                         {/* Top Row */}
                                         <div className="chart-cell">
                                             {canRenderBirthCharts ? (
-                                                <DiamondChart
-                                                    title={t('astrologyForm.chartD1Title')}
-                                                    houses={displayResult.houses}
-                                                    planets={displayResult.planetaryPositions.sidereal}
-                                                    chartType="lagna" size={400}
-                                                />
+                                                <>
+                                                    <h3 className='chart-title'>{t('astrologyForm.chartD1Title')}</h3>
+                                                    <DiamondChart
+                                                        title={t('astrologyForm.chartD1Title')}
+                                                        houses={displayResult.houses}
+                                                        planets={displayResult.planetaryPositions.sidereal}
+                                                        chartType="lagna" size={400}
+                                                    />
+                                                </>
                                             ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD1')}</div>}
                                         </div>
                                         <div className="chart-cell">
                                             {canRenderBhavaChart ? (
-                                                <DiamondChart
-                                                    title={t('astrologyForm.chartBhavaTitle')}
-                                                    houses={displayResult.houses}
-                                                    planetHousePlacements={bhavaPlanetPlacements}
-                                                    chartType="bhava" size={400} // Pass the calculated placements
-                                                />
+                                                <>
+                                                    <h3 className='chart-title'>{t('astrologyForm.chartBhavaTitle')}</h3>
+                                                    <DiamondChart
+                                                        title={t('astrologyForm.chartBhavaTitle')}
+                                                        houses={displayResult.houses}
+                                                        planetHousePlacements={bhavaPlanetPlacements}
+                                                        chartType="bhava" size={400} // Pass the calculated placements
+                                                    />
+                                                </>
                                             ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderBhava')}</div>}
                                         </div>
                                         {/* Bottom Row */}
                                         <div className="chart-cell">
                                             {hasD9Data && d9Houses ? (
-                                                <DiamondChart
-                                                    title={t('astrologyForm.chartD9Title')}
-                                                    houses={d9Houses}
-                                                    planets={displayResult.d9_planets}
-                                                    chartType="d9" size={400}
-                                                />
+                                                <>
+                                                    <h3 className='chart-title'>{t('astrologyForm.chartD9Title')}</h3>
+                                                    <DiamondChart
+                                                        title={t('astrologyForm.chartD9Title')}
+                                                        houses={d9Houses}
+                                                        planets={displayResult.d9_planets}
+                                                        chartType="d9" size={400}
+                                                    />
+                                                </>
                                             ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderD9')}</div>}
                                         </div>
                                         <div className="chart-cell">
                                              {isLoadingGochar ? (
                                                 <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderLoadingGochar')}</div>
                                              ) : hasGocharData && gocharHouses ? (
-                                                <DiamondChart
-                                                    title={t('astrologyForm.chartGocharTitle')}
-                                                    houses={gocharHouses}
-                                                    planets={gocharData.planetaryPositions.sidereal}
-                                                    chartType="gochar" size={400}
-                                                />
+                                                <>
+                                                    <h3 className='chart-title'>{t('astrologyForm.chartGocharTitle')}</h3>
+                                                    <DiamondChart
+                                                        title={t('astrologyForm.chartGocharTitle')}
+                                                        houses={gocharHouses}
+                                                        planets={gocharData.planetaryPositions.sidereal}
+                                                        chartType="gochar" size={400}
+                                                    />
+                                                </>
                                             ) : <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderGochar')}</div>}
                                         </div>
                                     </div>
