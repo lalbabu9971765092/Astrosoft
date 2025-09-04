@@ -755,7 +755,7 @@ const AstrologyForm = () => {
                                                     <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                     <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                     <td>{t(`nakshatras.${nakshatra}`, { defaultValue: nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                    <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${naamAkshar})`}</td> {/* Display Pada and Naam Akshar */}
+                                                    <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${t(`naamAksharas.${naamAkshar}`)})`}</td> {/* Display Pada and Naam Akshar */}
                                                     <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
@@ -861,7 +861,7 @@ const AstrologyForm = () => {
                                                         <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                         <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                         <td>{t(`nakshatras.${nakshatra}`, { defaultValue: nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                        <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${naamAkshar})`}</td> {/* Display Pada and Naam Akshar */}
+                                                        <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${t(`naamAksharas.${naamAkshar}`)})`}</td> {/* Display Pada and Naam Akshar */}
                                                         <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
