@@ -327,6 +327,7 @@
     "dashaBalanceTitle": "Dasha Balance",
     "dashaLordLabel": "Lord:",
     "dashaBalanceLabel": "Balance:",
+    "currentDashaTitle": "Current Dasha",
     "doshaTitle": "Astrological Doshas",
     "mangalDoshaLabel": "Mangal Dosha:",
     "kaalsarpaDoshaLabel": "Kaalsarpa Dosha:",
@@ -667,7 +668,8 @@
     "dashaSubTitle": "Vimshottari Dasha Periods",
     "kpDataUnavailable": "KP Significator data unavailable.",
     "dashaDataUnavailable": "Dasha period data unavailable.",
-    "diamondChartTitle": "Diamond Charts"
+    "diamondChartTitle": "Diamond Charts",
+    "currentDashaTitle": "Current Dasha"
   },
   "lifeEvents": {
     "education": "Education (Higher)",
