@@ -65,6 +65,8 @@ const KpSignificatorsPage = () => {
     const [selectedEvent, setSelectedEvent] = useState('');
     const [selectedHouse, setSelectedHouse] = useState(1); // Default to House 1
     const [openSections, setOpenSections] = useState({ diamondChart: true });
+    const [currentDasha, setCurrentDasha] = useState(null);
+    
 
     const toggleSection = (section) => {
         setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -264,6 +266,62 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
 
         fetchRotatedData();
     }, [selectedHouse, calculationInputParams, adjustedBirthDateTimeString, t]);
+
+    useEffect(() => {
+        if (chartData) {
+            const now = new Date();
+            const findCurrentPeriod = (periods, level) => {
+                return periods.find(p => {
+                    const start = new Date(p.start);
+                    const end = new Date(p.end);
+                    return p.level === level && now >= start && now <= end;
+                });
+            };
+
+            const mahaDasha = findCurrentPeriod(chartData, 1);
+            if (mahaDasha) {
+                const antardashas = chartData.filter(p => p.level === 2 && p.mahaLord === mahaDasha.lord);
+                const antarDasha = findCurrentPeriod(antardashas, 2);
+                if (antarDasha) {
+                    const pratyantardashas = chartData.filter(p => p.level === 3 && p.mahaLord === mahaDasha.lord && p.antarLord === antarDasha.lord);
+                    const pratyantarDasha = findCurrentPeriod(pratyantardashas, 3);
+                    setCurrentDasha({ mahaDasha, antarDasha, pratyantarDasha });
+                } else {
+                    setCurrentDasha({ mahaDasha, antarDasha: null, pratyantarDasha: null });
+                }
+            } else {
+                setCurrentDasha(null);
+            }
+        }
+    }, [chartData]);
+
+    useEffect(() => {
+        if (chartData) {
+            const now = new Date();
+            const findCurrentPeriod = (periods, level) => {
+                return periods.find(p => {
+                    const start = new Date(p.start);
+                    const end = new Date(p.end);
+                    return p.level === level && now >= start && now <= end;
+                });
+            };
+
+            const mahaDasha = findCurrentPeriod(chartData, 1);
+            if (mahaDasha) {
+                const antardashas = chartData.filter(p => p.level === 2 && p.mahaLord === mahaDasha.lord);
+                const antarDasha = findCurrentPeriod(antardashas, 2);
+                if (antarDasha) {
+                    const pratyantardashas = chartData.filter(p => p.level === 3 && p.mahaLord === mahaDasha.lord && p.antarLord === antarDasha.lord);
+                    const pratyantarDasha = findCurrentPeriod(pratyantardashas, 3);
+                    setCurrentDasha({ mahaDasha, antarDasha, pratyantarDasha });
+                } else {
+                    setCurrentDasha({ mahaDasha, antarDasha: null, pratyantarDasha: null });
+                }
+            } else {
+                setCurrentDasha(null);
+            }
+        }
+    }, [chartData]);
 
 
     // --- Calculate Significator Details Map (MODIFIED TO INCLUDE SCORING & LOGGING) ---
@@ -524,6 +582,18 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                          {translatedLifeEvents.map(event => (<option key={event.value} value={event.value}>{event.label}</option>))}
                     </select>
                 </div>
+
+                {currentDasha && (
+                    <div className="result-section current-dasha-display small-summary">
+                        <strong>Current Dasha:</strong> 
+                        {currentDasha.mahaDasha && ` ${currentDasha.mahaDasha.lord} (${formatDateTime(currentDasha.mahaDasha.start, t)} - ${formatDateTime(currentDasha.mahaDasha.end, t)})`}
+                        {currentDasha.antarDasha && ` / ${currentDasha.antarDasha.lord} (${formatDateTime(currentDasha.antarDasha.start, t)} - ${formatDateTime(currentDasha.antarDasha.end, t)})`}
+                        {currentDasha.pratyantarDasha && ` / ${currentDasha.pratyantarDasha.lord} (${formatDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDateTime(currentDasha.pratyantarDasha.end, t)})`}
+                    </div>
+                )}
+
+               
+
               {/* *** NEW: Display Favorable/Unfavorable Houses & Significator Planet *** */}
               {selectedEvent && (favorableHouses.length > 0 || unfavorableHouses.length > 0) && (
                     <div className="result-section event-houses-display small-summary">

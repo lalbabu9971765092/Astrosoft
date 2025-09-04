@@ -412,7 +412,11 @@
     "transitHouseCuspsTitle": "गोचर भाव संधि (निरयन, प्लेसिडस)",
     "transitPlanetaryPositionsTitle": "गोचर ग्रह स्थिति (निरयन)",
     "transitHouseDataUnavailable": "गोचर भाव संधि डेटा अनुपलब्ध है।",
-    "transitPlanetDataUnavailable": "तालिका के लिए गोचर ग्रह या भाव डेटा अनुपलब्ध है।"
+    "transitPlanetDataUnavailable": "तालिका के लिए गोचर ग्रह या भाव डेटा अनुपलब्ध है।",
+    "currentDashaTitle": "वर्तमान दशा",
+    "mahaDashaLabel": "महादशा:",
+    "antarDashaLabel": "अंतर्दशा:",
+    "pratyantarDashaLabel": "प्रत्यंतर दशा:"
   },
   "utils": {
     "notAvailable": "उपलब्ध नहीं",
@@ -668,7 +672,14 @@
     "dashaSubTitle": "विंशोत्तरी दशा अवधि",
     "kpDataUnavailable": "केपी सिग्निफिकेटर डेटा अनुपलब्ध है।",
     "dashaDataUnavailable": "दशा अवधि डेटा अनुपलब्ध है।",
-    "diamondChartTitle": "डायमंड चार्ट"
+    "diamondChartTitle": "डायमंड चार्ट",
+    "currentDashaTitle": "वर्तमान दशा",
+    "mahaDashaLabel": "महादशा:",
+    "antarDashaLabel": "अंतर्दशा:",
+    "pratyantarDashaLabel": "प्रत्यंतर दशा:",
+    "favorableHousesLabel": "अनुकूल:",
+    "unfavorableHousesLabel": "प्रतिकूल:",
+    "significatorPlanetLabel": "कारक:"
   },
   "lifeEvents": {
     "education": "शिक्षा (उच्च)",
