@@ -585,10 +585,10 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
 
                 {currentDasha && (
                     <div className="result-section current-dasha-display small-summary">
-                        <strong>Current Dasha:</strong> 
-                        {currentDasha.mahaDasha && ` ${currentDasha.mahaDasha.lord} (${formatDateTime(currentDasha.mahaDasha.start, t)} - ${formatDateTime(currentDasha.mahaDasha.end, t)})`}
-                        {currentDasha.antarDasha && ` / ${currentDasha.antarDasha.lord} (${formatDateTime(currentDasha.antarDasha.start, t)} - ${formatDateTime(currentDasha.antarDasha.end, t)})`}
-                        {currentDasha.pratyantarDasha && ` / ${currentDasha.pratyantarDasha.lord} (${formatDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDateTime(currentDasha.pratyantarDasha.end, t)})`}
+                        <strong>{t('kpSignificatorsPage.currentDashaTitle')}</strong> 
+                        {currentDasha.mahaDasha && ` ${t(`planets.${currentDasha.mahaDasha.lord}`)} (${formatDateTime(currentDasha.mahaDasha.start, t)} - ${formatDateTime(currentDasha.mahaDasha.end, t)})`}
+                        {currentDasha.antarDasha && ` / ${t(`planets.${currentDasha.antarDasha.lord}`)} (${formatDateTime(currentDasha.antarDasha.start, t)} - ${formatDateTime(currentDasha.antarDasha.end, t)})`}
+                        {currentDasha.pratyantarDasha && ` / ${t(`planets.${currentDasha.pratyantarDasha.lord}`)} (${formatDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDateTime(currentDasha.pratyantarDasha.end, t)})`}
                     </div>
                 )}
 
