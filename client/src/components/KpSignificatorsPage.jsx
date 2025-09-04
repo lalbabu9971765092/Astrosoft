@@ -295,34 +295,6 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
         }
     }, [chartData]);
 
-    useEffect(() => {
-        if (chartData) {
-            const now = new Date();
-            const findCurrentPeriod = (periods, level) => {
-                return periods.find(p => {
-                    const start = new Date(p.start);
-                    const end = new Date(p.end);
-                    return p.level === level && now >= start && now <= end;
-                });
-            };
-
-            const mahaDasha = findCurrentPeriod(chartData, 1);
-            if (mahaDasha) {
-                const antardashas = chartData.filter(p => p.level === 2 && p.mahaLord === mahaDasha.lord);
-                const antarDasha = findCurrentPeriod(antardashas, 2);
-                if (antarDasha) {
-                    const pratyantardashas = chartData.filter(p => p.level === 3 && p.mahaLord === mahaDasha.lord && p.antarLord === antarDasha.lord);
-                    const pratyantarDasha = findCurrentPeriod(pratyantardashas, 3);
-                    setCurrentDasha({ mahaDasha, antarDasha, pratyantarDasha });
-                } else {
-                    setCurrentDasha({ mahaDasha, antarDasha: null, pratyantarDasha: null });
-                }
-            } else {
-                setCurrentDasha(null);
-            }
-        }
-    }, [chartData]);
-
 
     // --- Calculate Significator Details Map (MODIFIED TO INCLUDE SCORING & LOGGING) ---
     const significatorDetailsMap = useMemo(() => {
@@ -584,11 +556,28 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                 </div>
 
                 {currentDasha && (
-                    <div className="result-section current-dasha-display small-summary">
-                        <strong>{t('kpSignificatorsPage.currentDashaTitle')}</strong> 
-                        {currentDasha.mahaDasha && ` ${t(`planets.${currentDasha.mahaDasha.lord}`)} (${formatDateTime(currentDasha.mahaDasha.start, t)} - ${formatDateTime(currentDasha.mahaDasha.end, t)})`}
-                        {currentDasha.antarDasha && ` / ${t(`planets.${currentDasha.antarDasha.lord}`)} (${formatDateTime(currentDasha.antarDasha.start, t)} - ${formatDateTime(currentDasha.antarDasha.end, t)})`}
-                        {currentDasha.pratyantarDasha && ` / ${t(`planets.${currentDasha.pratyantarDasha.lord}`)} (${formatDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDateTime(currentDasha.pratyantarDasha.end, t)})`}
+                    <div className="result-section current-dasha-display">
+                        <h4 className="result-sub-title">{t('kpSignificatorsPage.currentDashaTitle')}</h4>
+                        <div className="dasha-level">
+                            {currentDasha.mahaDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.mahaDashaLabel', 'Mahadasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.mahaDasha.lord}`)} (${formatDateTime(currentDasha.mahaDasha.start, t)} - ${formatDateTime(currentDasha.mahaDasha.end, t)})`}
+                                </p>
+                            )}
+                            {currentDasha.antarDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.antarDashaLabel', 'Antardasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.antarDasha.lord}`)} (${formatDateTime(currentDasha.antarDasha.start, t)} - ${formatDateTime(currentDasha.antarDasha.end, t)})`}
+                                </p>
+                            )}
+                            {currentDasha.pratyantarDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.pratyantarDashaLabel', 'Pratyantar dasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.pratyantarDasha.lord}`)} (${formatDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDateTime(currentDasha.pratyantarDasha.end, t)})`}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 )}
 
