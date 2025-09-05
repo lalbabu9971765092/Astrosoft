@@ -679,7 +679,9 @@
     "pratyantarDashaLabel": "प्रत्यंतर दशा:",
     "favorableHousesLabel": "अनुकूल:",
     "unfavorableHousesLabel": "प्रतिकूल:",
-    "significatorPlanetLabel": "कारक:"
+    "significatorPlanetLabel": "कारक:",
+    "lagnaChartTitle": "लग्न चार्ट",
+    "bhavaChalitChartTitle": "निरयण भाव चलित चार्ट"
   },
   "lifeEvents": {
     "education": "शिक्षा (उच्च)",
@@ -832,7 +834,6 @@
     "selectEventOption": "-- घटना चुनें --",
     "resultsLoading": "गणना हो रही है...",
     "resultsInitialPrompt": "विवरण दर्ज करें और परिणाम देखने के लिए चार्ट की गणना करें।",
-    "chartTitle": "प्रश्न कुंडली और विवरण",
     "chartLoading": "चार्ट लोड हो रहा है...",
     "chartErrorPrefix": "चार्ट त्रुटि",
     "chartTitleFull": "प्रश्न लग्न (D1)",
@@ -855,7 +856,10 @@
     "gettingLocationButton": "प्राप्त हो रहा है...",
     "useCurrentTimeLocationButton": "वर्तमान समय और स्थान का प्रयोग करें",
     "calculatingButton": "गणना हो रही है...",
-    "calculateButton": "प्रश्न गणना करें"
+    "calculateButton": "प्रश्न गणना करें",
+    "chartTitle": "प्रश्न चार्ट (लग्न)",
+     "lagnaChartTitle": "लग्न चार्ट",
+    "bhavaChalitChartTitle": "निरयण भाव चलित चार्ट"
   },
   "remediesPage": {
     "pageTitle": "ग्रहों के उपाय",

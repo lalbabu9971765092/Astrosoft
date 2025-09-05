@@ -146,6 +146,7 @@ const PrashnaTimeLocationPage = () => {
     // State for UI
     const [selectedEvent, setSelectedEvent] = useState('');
     const [inputDetails, setInputDetails] = useState(null); // Store params used for calculation
+    const [currentDasha, setCurrentDasha] = useState(null);
 
     // State for UI
     const [openSections, setOpenSections] = useState({
@@ -224,6 +225,33 @@ const PrashnaTimeLocationPage = () => {
     useEffect(() => {
         getCurrentTimeAndLocation();
     }, [getCurrentTimeAndLocation]); // Run once on mount
+
+    // --- Effect to find current Dasha ---
+    useEffect(() => {
+        const chartResult = rotatedPrashnaResult || prashnaResult;
+        const dashaPeriods = chartResult?.dashaPeriods;
+
+        if (dashaPeriods && Array.isArray(dashaPeriods) && dashaPeriods.length > 0) {
+            const now = new Date(); // For Prashna, we check against the current time
+            const findCurrentPeriod = (periods, level) => {
+                return periods.find(p => {
+                    const start = new Date(p.start);
+                    const end = new Date(p.end);
+                    return p.level === level && now >= start && now <= end;
+                });
+            };
+
+            const mahaDasha = findCurrentPeriod(dashaPeriods, 1);
+            if (mahaDasha) {
+                const antardashas = dashaPeriods.filter(p => p.level === 2 && p.mahaLord === mahaDasha.lord);
+                const antarDasha = findCurrentPeriod(antardashas, 2);
+                const pratyantardashas = antarDasha ? dashaPeriods.filter(p => p.level === 3 && p.mahaLord === mahaDasha.lord && p.antarLord === antarDasha.lord) : [];
+                const pratyantarDasha = antarDasha ? findCurrentPeriod(pratyantardashas, 3) : null;
+                setCurrentDasha({ mahaDasha, antarDasha, pratyantarDasha });
+            } else { setCurrentDasha(null); }
+        } else { setCurrentDasha(null); }
+    }, [prashnaResult, rotatedPrashnaResult]); // Re-run when chart results change
+
 
     // --- Calculate Prashna Chart & KP Significators ---
     // ... (handleCalculatePrashna remains the same) ...
@@ -524,21 +552,27 @@ const PrashnaTimeLocationPage = () => {
                     {/* Render chart only if data exists and no chart-specific error */}
                     {canRenderChart && !chartError ? (
                         <div className="prashna-chart-wrapper">
-                            <DiamondChart
-                                // Translate title
-                                title={t('prashnaTimeLocPage.chartTitleFull')}
-                                houses={houses}
-                                planets={planetaryPositions.sidereal}
-                                size={350} // Adjust size as needed
-                                chartType="lagna"
-                            />
-                            <DiamondChart
-                                title="Nirayan Bhava Chalit Chart"
-                                houses={houses}
-                                planetHousePlacements={chartResult.planetHousePlacements}
-                                size={350}
-                                chartType="bhava"
-                            />
+                            <div className="chart-container">
+                                <h3>{t('prashnaTimeLocPage.lagnaChartTitle', 'Lagna Chart')}</h3>
+                                <DiamondChart
+                                    // Translate title
+                                    title={t('prashnaTimeLocPage.chartTitleFull')}
+                                    houses={houses}
+                                    planets={planetaryPositions.sidereal}
+                                    size={350} // Adjust size as needed
+                                    chartType="lagna"
+                                />
+                            </div>
+                            <div className="chart-container">
+                                <h3>{t('prashnaTimeLocPage.bhavaChalitChartTitle', 'Nirayan Bhava Chalit Chart')}</h3>
+                                <DiamondChart
+                                    title="Nirayan Bhava Chalit Chart"
+                                    houses={houses}
+                                    planetHousePlacements={chartResult.planetHousePlacements}
+                                    size={350}
+                                    chartType="bhava"
+                                />
+                            </div>
                         </div>
                     ) : (!isLoadingChart && !chartError && <p>{t('prashnaTimeLocPage.chartUnavailable')}</p>)}
                     {/* Dasha Table */}
@@ -568,7 +602,7 @@ const PrashnaTimeLocationPage = () => {
     };
 
     // --- Component Return ---
-    // ... (return statement remains the same) ...
+   
     return (
         <div className="prashna-page">
             {/* Translate page title */}
@@ -612,19 +646,6 @@ const PrashnaTimeLocationPage = () => {
                   </select>
                 </div>
                 {/* Question Input (Optional - Removed state, so commented out) */}
-                {/* <div className="form-row">
-                    <div className="input-group full-width">
-                        <label htmlFor="prashna-question">Question:</label>
-                        <textarea
-                            id="prashna-question"
-                            // value={question} // Removed
-                            // onChange={(e) => setQuestion(e.target.value)} // Removed
-                            rows="2"
-                            placeholder="Enter the question asked (optional)"
-                            disabled={isOverallLoading}
-                        />
-                    </div>
-                </div> */}
                 {/* DateTime Input */}
                  <div className="form-row">
                     <div className="input-group">
@@ -699,6 +720,32 @@ const PrashnaTimeLocationPage = () => {
             </div>}
 
             {/* --- Results --- */}
+            {/* Current Dasha Display */}
+            {currentDasha && (
+                <div className="result-section current-dasha-display small-summary">
+                    <h4 className="result-sub-title">{t('kpSignificatorsPage.currentDashaTitle', 'Current Dasha')}</h4>
+                    <div className="dasha-level">
+                        {currentDasha.mahaDasha && (
+                            <p>
+                                <strong>{t('astrologyForm.mahaDashaLabel', 'Mahadasha:')}</strong>
+                                {` ${t(`planets.${currentDasha.mahaDasha.lord}`)} (${formatDisplayDateTime(currentDasha.mahaDasha.start, t)} - ${formatDisplayDateTime(currentDasha.mahaDasha.end, t)})`}
+                            </p>
+                        )}
+                        {currentDasha.antarDasha && (
+                            <p>
+                                <strong>{t('astrologyForm.antarDashaLabel', 'Antardasha:')}</strong>
+                                {` ${t(`planets.${currentDasha.antarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.antarDasha.start, t)} - ${formatDisplayDateTime(currentDasha.antarDasha.end, t)})`}
+                            </p>
+                        )}
+                        {currentDasha.pratyantarDasha && (
+                            <p>
+                                <strong>{t('astrologyForm.pratyantarDashaLabel', 'Pratyantar dasha:')}</strong>
+                                {` ${t(`planets.${currentDasha.pratyantarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDisplayDateTime(currentDasha.pratyantarDasha.end, t)})`}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            )}
             <div className="prashna-results">
                 {renderResults()}
             </div>

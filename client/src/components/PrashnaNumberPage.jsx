@@ -140,6 +140,7 @@ const PrashnaNumberPage = () => {
     const [kpData, setKpData] = useState(null); // From /kp-significators (using current time)
 
     const [selectedHouse, setSelectedHouse] = useState(1); // Default to House 1
+    const [currentDasha, setCurrentDasha] = useState(null);
 
     const handleHouseChange = (event) => {
         setSelectedHouse(parseInt(event.target.value, 10));
@@ -310,6 +311,32 @@ const PrashnaNumberPage = () => {
             fetchRotatedData();
         }
     }, [selectedHouse, inputDetails, t]);
+
+    // --- Effect to find current Dasha ---
+    useEffect(() => {
+        const chartResult = rotatedPrashnaResult || prashnaResult;
+        const dashaPeriods = chartResult?.dashaPeriods;
+
+        if (dashaPeriods && Array.isArray(dashaPeriods) && dashaPeriods.length > 0) {
+            const now = new Date(); // For Prashna, we check against the current time
+            const findCurrentPeriod = (periods, level) => {
+                return periods.find(p => {
+                    const start = new Date(p.start);
+                    const end = new Date(p.end);
+                    return p.level === level && now >= start && now <= end;
+                });
+            };
+
+            const mahaDasha = findCurrentPeriod(dashaPeriods, 1);
+            if (mahaDasha) {
+                const antardashas = dashaPeriods.filter(p => p.level === 2 && p.mahaLord === mahaDasha.lord);
+                const antarDasha = findCurrentPeriod(antardashas, 2);
+                const pratyantardashas = antarDasha ? dashaPeriods.filter(p => p.level === 3 && p.mahaLord === mahaDasha.lord && p.antarLord === antarDasha.lord) : [];
+                const pratyantarDasha = antarDasha ? findCurrentPeriod(pratyantardashas, 3) : null;
+                setCurrentDasha({ mahaDasha, antarDasha, pratyantarDasha });
+            } else { setCurrentDasha(null); }
+        } else { setCurrentDasha(null); }
+    }, [prashnaResult, rotatedPrashnaResult]); // Re-run when chart results change
 
     // --- Significator Map Calculation (Memoized) ---
     const significatorDetailsMap = useMemo(() => {
@@ -595,6 +622,32 @@ const PrashnaNumberPage = () => {
 }
             {/* --- Results --- */}
             <div className="prashna-results">
+                {/* Current Dasha Display */}
+                {currentDasha && (
+                    <div className="result-section current-dasha-display small-summary">
+                        <h4 className="result-sub-title">{t('kpSignificatorsPage.currentDashaTitle', 'Current Dasha')}</h4>
+                        <div className="dasha-level">
+                            {currentDasha.mahaDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.mahaDashaLabel', 'Mahadasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.mahaDasha.lord}`)} (${formatDisplayDateTime(currentDasha.mahaDasha.start, t)} - ${formatDisplayDateTime(currentDasha.mahaDasha.end, t)})`}
+                                </p>
+                            )}
+                            {currentDasha.antarDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.antarDashaLabel', 'Antardasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.antarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.antarDasha.start, t)} - ${formatDisplayDateTime(currentDasha.antarDasha.end, t)})`}
+                                </p>
+                            )}
+                            {currentDasha.pratyantarDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.pratyantarDashaLabel', 'Pratyantar dasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.pratyantarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDisplayDateTime(currentDasha.pratyantarDasha.end, t)})`}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
                 {renderResults()}
             </div>
         </div>

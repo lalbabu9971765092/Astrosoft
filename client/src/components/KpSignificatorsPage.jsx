@@ -531,13 +531,13 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                   <div className="charts-container">
                     {d1Houses && d1Planets && (
                       <div className="chart-wrapper">
-                        <h3>Lagna Chart</h3>
+                        <h3>{t('kpSignificatorsPage.lagnaChartTitle', 'Lagna Chart')}</h3>
                         <DiamondChart title="Lagna Chart" houses={d1Houses} planets={d1Planets} size={300} chartType="lagna" />
                       </div>
                     )}
                     {d1Houses && d1Planets && bhavaChalitPlacements && (
                       <div className="chart-wrapper">
-                        <h3>Nirayan Bhava Chalit Chart</h3>
+                        <h3>{t('kpSignificatorsPage.bhavaChalitChartTitle', 'Nirayan Bhava Chalit Chart')}</h3>
                         <DiamondChart title="Nirayan Bhava Chalit Chart" houses={d1Houses} planetHousePlacements={bhavaChalitPlacements} size={300} chartType="bhava" />
                       </div>
                     )}
