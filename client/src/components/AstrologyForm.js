@@ -162,7 +162,7 @@ const AstrologyForm = () => {
         };
         const timerId = setTimeout(fetchRectifiedData, 300);
         return () => clearTimeout(timerId);
-    }, [adjustedBirthDateTimeString, calculationInputParams, t]);
+    }, [adjustedBirthDateTimeString, calculationInputParams, t, rectifiedResult, rectificationError]);
 
     useEffect(() => {
         if (locationForGocharTool?.lat !== null && locationForGocharTool?.lon !== null && adjustedGocharDateTimeString) {
@@ -311,7 +311,7 @@ const AstrologyForm = () => {
         const gocharMoon = gocharPlanets?.Moon;
         const gocharSunMoonTimes = gocharData.sunMoonTimes;
         const gocharPanchang = gocharData.panchang;
-        const gocharDoshas = gocharData.doshas;
+        
 
         // Extract keys/values safely
         const gocharTithi = gocharPanchang?.Tithi;
@@ -402,57 +402,6 @@ const AstrologyForm = () => {
                         <p className="result-text">{t('astrologyForm.varLabel')} {t(`weekdays.${gocharVarKey}`, { defaultValue: gocharVarKey ?? t('utils.notAvailable', 'N/A') })}</p>
                     </div>
                  </div>
-                {/* Dasha Balance */}
-                {displayResult.dashaBalance && (
-                    <div className="result-section">
-                        <div className="section-header" onClick={() => toggleSection('dashaBalance')}>
-                            <h3 className="result-sub-title">{t('astrologyForm.dashaBalanceTitle')}</h3>
-                            <button className="toggle-button">{openSections.dashaBalance ? '−' : '+'}</button>
-                        </div>
-                        <div className={`section-content ${openSections.dashaBalance ? '' : 'collapsed'}`}>
-                            <p className="result-text">{t('astrologyForm.dashaLordLabel')} {t(`planets.${displayResult.dashaBalance.lord}`, { defaultValue: displayResult.dashaBalance.lord })}</p>
-                            <p className="result-text">{t('astrologyForm.dashaBalanceLabel')} {displayResult.dashaBalance.balance_str}</p>
-                        </div>
-                    </div>
-                )}
-                {/* Current Dasha */}
-                {currentDasha && (
-                    <div className="result-section current-dasha-display">
-                        <h4 className="result-sub-title">{t('astrologyForm.currentDashaTitle')}</h4>
-                        <div className="dasha-level">
-                            {currentDasha.mahaDasha && (
-                                <p>
-                                    <strong>{t('astrologyForm.mahaDashaLabel', 'Mahadasha:')}</strong>
-                                    {` ${t(`planets.${currentDasha.mahaDasha.lord}`)} (${formatDisplayDateTime(currentDasha.mahaDasha.start)} - ${formatDisplayDateTime(currentDasha.mahaDasha.end)})`}
-                                </p>
-                            )}
-                            {currentDasha.antarDasha && (
-                                <p>
-                                    <strong>{t('astrologyForm.antarDashaLabel', 'Antardasha:')}</strong>
-                                    {` ${t(`planets.${currentDasha.antarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.antarDasha.start)} - ${formatDisplayDateTime(currentDasha.antarDasha.end)})`}
-                                </p>
-                            )}
-                            {currentDasha.pratyantarDasha && (
-                                <p>
-                                    <strong>{t('astrologyForm.pratyantarDashaLabel', 'Pratyantar dasha:')}</strong>
-                                    {` ${t(`planets.${currentDasha.pratyantarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.pratyantarDasha.start)} - ${formatDisplayDateTime(currentDasha.pratyantarDasha.end)})`}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                )}
-                {/* Doshas */}
-                <div className="result-section dosha-details">
-                    <div className="section-header" onClick={() => toggleSection('doshas')}>
-                        <h3 className="result-sub-title">{t('astrologyForm.doshaTitle')}</h3>
-                        <button className="toggle-button">{openSections.doshas ? '−' : '+'}</button>
-                    </div>
-                    <div className={`section-content ${openSections.doshas ? '' : 'collapsed'}`}>
-                        <p className="result-text">{t('astrologyForm.mangalDoshaLabel')} {formatDosha('mangal', gocharDoshas)}</p>
-                        <p className="result-text">{t('astrologyForm.kaalsarpaDoshaLabel')} {formatDosha('kaalsarpa', gocharDoshas)}</p>
-                        <p className="result-text">{t('astrologyForm.moolDoshaLabel')} {formatDosha('mool', gocharDoshas)}</p>
-                    </div>
-                </div>
                  <div className="result-section lordships-section">
                     <div className="section-header" onClick={() => toggleSection('transitLordships')}>
                         <h3 className="result-sub-title">{t('Transit Time Lordship')}</h3>
