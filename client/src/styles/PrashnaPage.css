@@ -186,65 +186,52 @@
   padding-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 30px; /* Space between the two main rows */
+  gap: 30px; /* Space between the chart row and the content row */
 }
 
 /* --- Row for Charts --- */
 .charts-row {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* Center charts if there's extra space */
+  justify-content: space-around; /* Distribute space more evenly */
   gap: 20px; /* Space between charts */
+  padding: 20px;
+  background-color: #fdfdfd;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
 }
 
-.charts-row .chart-container {
-  flex: 1 1 450px; /* Allow charts to grow/shrink, with a base of 450px */
-  max-width: 50%; /* Ensure they don't take more than half the row */
+.prashna-results-area .chart-container {
+  flex: 1 1 350px; /* Base size to match the new chart size */
+  max-width: 400px; /* Max width for each chart container */
   display: flex;
   flex-direction: column;
   align-items: center; /* Center content within each chart container */
+}
+
+.chart-container .result-sub-title {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #343a40;
+    text-align: center;
 }
 
 /* --- Row for KP Significators and Dasha --- */
 .kp-dasha-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px; /* Space between KP and Dasha */
+  gap: 20px; /* Space between KP and Dasha columns */
 }
 
 .kp-dasha-row .kp-significators-column {
-  flex: 3; /* KP Significators take 3 parts */
-  min-width: 400px; /* Minimum width for KP grid */
+  flex: 2 1 60%; /* Take up more space */
+  min-width: 400px;
 }
 
 .kp-dasha-row .dasha-column {
-  flex: 1; /* Dasha takes 1 part */
-  min-width: 300px; /* Minimum width for Dasha table */
-}
-
-/* Remove old two-column-layout styles */
-.two-column-layout {
-  display: block; /* Reset to block to effectively remove grid */
-}
-
-.results-column {
-  /* Reset any specific flex/grid properties if they interfere */
-  display: block;
-  width: auto;
-  min-width: unset;
-  padding: 0;
-}
-
-
-.results-column h3.result-sub-title {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #444;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 5px;
-  /* Ensure margin doesn't create unwanted space if columns are adjacent */
-  /* margin-left: 15px; */ /* Example: Add margin only if needed */
-  /* margin-right: 15px; */
+  flex: 1 1 30%; /* Take up less space */
+  min-width: 300px;
 }
 
 /* --- Chart and Table Wrappers --- */
@@ -304,52 +291,6 @@
   font-size: 0.8em; /* Keep hints/errors smaller */
 }
 
-/* --- Responsive Adjustments --- */
-
-/* Medium Screens (<= 992px): Switch to Flexbox, roughly equal columns */
-@media (max-width: 992px) {
-  .two-column-layout {
-    /* Switch layout method */
-    display: flex;
-    flex-wrap: wrap;
-    gap: 25px; /* Reintroduce gap for flex layout */
-    /* Remove grid-template-columns */
-    grid-template-columns: none;
-  }
-
-  /* Apply flex properties to make columns wrap and be roughly equal */
-   .two-column-layout .results-column:nth-child(1),
-   .two-column-layout .results-column:nth-child(2) {
-      flex-grow: 1;
-      flex-shrink: 1;
-      /* This makes columns roughly equal width on this screen size */
-      flex-basis: 45%;
-      /* Adjust min-width for this breakpoint if needed */
-      min-width: 300px;
-      max-width: none; /* Remove max-width from first column */
-   }
-}
-
-/* Small Screens (<= 768px): Stack columns vertically */
-@media (max-width: 768px) {
-  .two-column-layout {
-    /* Ensure flex is still active from previous media query or set it */
-    display: flex;
-    flex-direction: column; /* Stack the columns */
-    gap: 30px; /* Keep or adjust gap for stacked layout */
-  }
-
-   /* Ensure columns take full width when stacked */
-   .two-column-layout .results-column:nth-child(1),
-   .two-column-layout .results-column:nth-child(2) {
-      flex-grow: 1;
-      flex-shrink: 1;
-      flex-basis: 100%; /* Full width */
-      min-width: unset; /* Remove min-width when stacked */
-      max-width: none; /* Remove max-width */
-   }
-}
-
 /* Reuse KP Significator Grid Styles (ensure KpSignificatorsPage.css is imported or copy styles here) */
 /* Example: */
 /* .significators-grid { ... } */
@@ -369,4 +310,15 @@
   margin-bottom: 10px;
   color: #555;
   font-size: 1.1em;
+}
+
+/* Responsive adjustments for the new layout */
+@media (max-width: 800px) {
+  .charts-row .chart-container {
+    max-width: 100%; /* Allow charts to take full width when stacking */
+  }
+
+  .kp-dasha-row {
+    flex-direction: column; /* Stack KP and Dasha columns */
+  }
 }

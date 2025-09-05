@@ -474,7 +474,7 @@ const PrashnaNumberPage = () => {
                                      houses={houses}
                                      planets={planetaryPositions.sidereal}
                                      prashnaCusps={chartResult.siderealCuspStartDegrees}
-                                     size={400}
+                                     size={350}
                                      chartType="lagna"
                                  />
                              </div>
@@ -490,7 +490,7 @@ const PrashnaNumberPage = () => {
                                      houses={houses}
                                      planetHousePlacements={chartResult.planetHousePlacements}
                                      prashnaCusps={chartResult.siderealCuspStartDegrees}
-                                     size={400}
+                                     size={350}
                                      chartType="bhava"
                                  />
                              </div>

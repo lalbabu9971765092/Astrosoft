@@ -541,61 +541,60 @@ const PrashnaTimeLocationPage = () => {
         if (!chartResult && !hasValidKpDataForGrid && !overallError) return <p className="info-text">{t('prashnaTimeLocPage.resultsInitialPrompt')}</p>;
 
         return (
-            <div className="prashna-results-area two-column-layout"> {/* Use CSS for layout */}
-                {/* Column 1: Chart and Tables */}
-                <div className="results-column">
-                    {/* Translate title */}
-                    <h3 className="result-sub-title">{t('prashnaTimeLocPage.chartTitle')}</h3>
-                    {/* Translate loading/error messages */}
-                    {isLoadingChart && <div className="loader small-loader">{t('prashnaTimeLocPage.chartLoading')}</div>}
-                    {chartError && !isLoadingChart && <p className="error-text small-error">{t('prashnaTimeLocPage.chartErrorPrefix')}: {chartError}</p>}
-                    {/* Render chart only if data exists and no chart-specific error */}
+            <div className="prashna-results-area">
+                {/* Row 1: Charts (full-width, side-by-side) */}
+                <div className="charts-row">
                     {canRenderChart && !chartError ? (
-                        <div className="prashna-chart-wrapper">
+                        <>
                             <div className="chart-container">
-                                <h3>{t('prashnaTimeLocPage.lagnaChartTitle', 'Lagna Chart')}</h3>
+                                <h3 className="result-sub-title">{t('prashnaTimeLocPage.lagnaChartTitle', 'Lagna Chart')}</h3>
                                 <DiamondChart
-                                    // Translate title
                                     title={t('prashnaTimeLocPage.chartTitleFull')}
                                     houses={houses}
                                     planets={planetaryPositions.sidereal}
-                                    size={350} // Adjust size as needed
+                                    size={350}
                                     chartType="lagna"
                                 />
                             </div>
-                            <div className="chart-container">
-                                <h3>{t('prashnaTimeLocPage.bhavaChalitChartTitle', 'Nirayan Bhava Chalit Chart')}</h3>
-                                <DiamondChart
-                                    title="Nirayan Bhava Chalit Chart"
-                                    houses={houses}
-                                    planetHousePlacements={chartResult.planetHousePlacements}
-                                    size={350}
-                                    chartType="bhava"
-                                />
-                            </div>
+                            {chartResult.planetHousePlacements && (
+                                <div className="chart-container">
+                                    <h3 className="result-sub-title">{t('prashnaTimeLocPage.bhavaChalitChartTitle', 'Nirayan Bhava Chalit Chart')}</h3>
+                                    <DiamondChart
+                                        title="Nirayan Bhava Chalit Chart"
+                                        houses={houses}
+                                        planetHousePlacements={chartResult.planetHousePlacements}
+                                        size={350}
+                                        chartType="bhava"
+                                    />
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="chart-container">
+                            <h3 className="result-sub-title">{t('prashnaTimeLocPage.chartTitle')}</h3>
+                            {isLoadingChart && <div className="loader small-loader">{t('prashnaTimeLocPage.chartLoading')}</div>}
+                            {chartError && !isLoadingChart && <p className="error-text small-error">{t('prashnaTimeLocPage.chartErrorPrefix')}: {chartError}</p>}
+                            {!isLoadingChart && !chartError && <p>{t('prashnaTimeLocPage.chartUnavailable')}</p>}
                         </div>
-                    ) : (!isLoadingChart && !chartError && <p>{t('prashnaTimeLocPage.chartUnavailable')}</p>)}
-                    {/* Dasha Table */}
-                     {hasDashaData && !chartError ? (
-                        <DashaTable dashaPeriods={chartResult.dashaPeriods} />
-                     ) : (!isLoadingChart && !chartError && <p>{t('prashnaTimeLocPage.dashaUnavailable')}</p>)}
-                    {/* Add Planetary/House Tables here if needed */}
+                    )}
                 </div>
 
-                {/* Column 2: KP Significators */}
-                <div className="results-column">
-                    {/* Translate title */}
-                    <h3 className="result-sub-title">{t('prashnaTimeLocPage.kpTitle')}</h3>
-                    {/* Translate loading/error messages */}
-                    {isLoadingKp && <div className="loader small-loader">{t('prashnaTimeLocPage.kpLoading')}</div>}
-                    {kpError && !isLoadingKp && <p className="error-text small-error">{t('prashnaTimeLocPage.kpErrorPrefix')}: {kpError}</p>}
-                    {/* Render grid only if data exists and no KP-specific error */}
-                    {hasValidKpDataForGrid && !kpError ? (
-                        <KpSignificatorGrid
-                            significatorDetailsMap={significatorDetailsMap} // Pass the map including favourability
-                            selectedEvent={selectedEvent}
-                        />
-                    ) : (!isLoadingKp && !kpError && <p>{t('prashnaTimeLocPage.kpUnavailable')}</p>)}
+                {/* Row 2: KP Significators and Dasha */}
+                <div className="kp-dasha-row">
+                    <div className="kp-significators-column">
+                        <h3 className="result-sub-title">{t('prashnaTimeLocPage.kpTitle')}</h3>
+                        {isLoadingKp && <div className="loader small-loader">{t('prashnaTimeLocPage.kpLoading')}</div>}
+                        {kpError && !isLoadingKp && <p className="error-text small-error">{t('prashnaTimeLocPage.kpErrorPrefix')}: {kpError}</p>}
+                        {hasValidKpDataForGrid && !kpError ? (
+                            <KpSignificatorGrid significatorDetailsMap={significatorDetailsMap} selectedEvent={selectedEvent} />
+                        ) : (!isLoadingKp && !kpError && <p>{t('prashnaTimeLocPage.kpUnavailable')}</p>)}
+                    </div>
+                    <div className="dasha-column">
+                        <h3 className="result-sub-title">{t('prashnaTimeLocPage.dashaTitle', 'Vimshottari Dasha Periods')}</h3>
+                        {hasDashaData && !chartError ? (
+                            <DashaTable dashaPeriods={chartResult.dashaPeriods} />
+                        ) : (!isLoadingChart && !chartError && <p>{t('prashnaTimeLocPage.dashaUnavailable')}</p>)}
+                    </div>
                 </div>
             </div>
         );
@@ -628,7 +627,7 @@ const PrashnaTimeLocationPage = () => {
                 )}
                 {/* Event Selector */}
                  <div className="result-section life-event-selector small-selector">
-                    {/* Translate label */}
+                    {/* Translate title */}
                     <label htmlFor="life-event-select">{t('prashnaTimeLocPage.analyzeEventLabel')} </label>
                     <select id="life-event-select" value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)} disabled={isOverallLoading}>
                          {/* Use translated options */}
@@ -720,33 +719,33 @@ const PrashnaTimeLocationPage = () => {
             </div>}
 
             {/* --- Results --- */}
-            {/* Current Dasha Display */}
-            {currentDasha && (
-                <div className="result-section current-dasha-display small-summary">
-                    <h4 className="result-sub-title">{t('kpSignificatorsPage.currentDashaTitle', 'Current Dasha')}</h4>
-                    <div className="dasha-level">
-                        {currentDasha.mahaDasha && (
-                            <p>
-                                <strong>{t('astrologyForm.mahaDashaLabel', 'Mahadasha:')}</strong>
-                                {` ${t(`planets.${currentDasha.mahaDasha.lord}`)} (${formatDisplayDateTime(currentDasha.mahaDasha.start, t)} - ${formatDisplayDateTime(currentDasha.mahaDasha.end, t)})`}
-                            </p>
-                        )}
-                        {currentDasha.antarDasha && (
-                            <p>
-                                <strong>{t('astrologyForm.antarDashaLabel', 'Antardasha:')}</strong>
-                                {` ${t(`planets.${currentDasha.antarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.antarDasha.start, t)} - ${formatDisplayDateTime(currentDasha.antarDasha.end, t)})`}
-                            </p>
-                        )}
-                        {currentDasha.pratyantarDasha && (
-                            <p>
-                                <strong>{t('astrologyForm.pratyantarDashaLabel', 'Pratyantar dasha:')}</strong>
-                                {` ${t(`planets.${currentDasha.pratyantarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDisplayDateTime(currentDasha.pratyantarDasha.end, t)})`}
-                            </p>
-                        )}
-                    </div>
-                </div>
-            )}
             <div className="prashna-results">
+                {/* Current Dasha Display */}
+                {currentDasha && (
+                    <div className="result-section current-dasha-display small-summary">
+                        <h4 className="result-sub-title">{t('kpSignificatorsPage.currentDashaTitle', 'Current Dasha')}</h4>
+                        <div className="dasha-level">
+                            {currentDasha.mahaDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.mahaDashaLabel', 'Mahadasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.mahaDasha.lord}`)} (${formatDisplayDateTime(currentDasha.mahaDasha.start, t)} - ${formatDisplayDateTime(currentDasha.mahaDasha.end, t)})`}
+                                </p>
+                            )}
+                            {currentDasha.antarDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.antarDashaLabel', 'Antardasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.antarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.antarDasha.start, t)} - ${formatDisplayDateTime(currentDasha.antarDasha.end, t)})`}
+                                </p>
+                            )}
+                            {currentDasha.pratyantarDasha && (
+                                <p>
+                                    <strong>{t('astrologyForm.pratyantarDashaLabel', 'Pratyantar dasha:')}</strong>
+                                    {` ${t(`planets.${currentDasha.pratyantarDasha.lord}`)} (${formatDisplayDateTime(currentDasha.pratyantarDasha.start, t)} - ${formatDisplayDateTime(currentDasha.pratyantarDasha.end, t)})`}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                )}
                 {renderResults()}
             </div>
         </div>
