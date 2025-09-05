@@ -25,10 +25,6 @@ i18n
       loadPath: '/locales/{{lng}}/{{ns}}.json',
     },
 
-    // ---> Suggested Addition <---
-    // Ensures resources are reloaded on language change
-    reloadOnLanguageChange: true,
-
     react: {
       useSuspense: true,
     },

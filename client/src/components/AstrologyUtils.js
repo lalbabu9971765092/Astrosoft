@@ -30,7 +30,7 @@ export const NAKSHATRAS = [
   "Purva Ashadha",
   "Uttara Ashadha",
   "Shravana",
-  "Dhanishta",
+  "Dhanishtha",
   "Shatabhisha",
   "Purva Bhadrapada",
   "Uttara Bhadrapada",

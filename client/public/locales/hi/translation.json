@@ -425,7 +425,8 @@
     "validationErrorCoordsMissing": "निर्देशांक आवश्यक हैं।",
     "validationErrorCoordsInvalidFormat": "अमान्य निर्देशांक प्रारूप। 'अक्षांश,देशांतर' का उपयोग करें।",
     "validationErrorCoordsInvalidLat": "अमान्य अक्षांश। -90 और 90 के बीच होना चाहिए।",
-    "validationErrorCoordsInvalidLon": "अमान्य देशांतर। -180 और 180 के बीच होना चाहिए।"
+    "validationErrorCoordsInvalidLon": "अमान्य देशांतर। -180 और 180 के बीच होना चाहिए。",
+    "unknown": "अज्ञात"
   },
   "validation": {
     "dateTimeRequired": "कृपया दिनांक और समय दर्ज करें।",
@@ -749,13 +750,14 @@
     "good_health": "अच्छा स्वास्थ्य",
     "incurable_disease": "असाध्य रोग",
     "curable_disease": "साध्य रोग",
-    "surgery": "सर्जरी",
+    "Surgery": "सर्जरी",
     "no_childbirth": "संतान नहीं",
     "abortion": "गर्भपात",
     "custody_of_child_to_mother": "बच्चे की कस्टडी माँ को",
     "custody_of_child_to_father": "बच्चे की कस्टडी पिता को",
     "custody_of_child_to_third_person": "बच्चे की कस्टडी तीसरे व्यक्ति को",
-    "adoption": "गोद लेना"
+    "adoption": "गोद लेना",
+    "Accident": "दुर्घटना"
   },
   "planetDetailsPage": {
     "pageTitle": "विस्तृत ग्रह जानकारी",
@@ -857,7 +859,8 @@
     "gettingLocationButton": "प्राप्त हो रहा है...",
     "useCurrentLocationButton": "वर्तमान स्थान का प्रयोग करें",
     "calculatingButton": "गणना हो रही है...",
-    "calculateButton": "प्रश्न गणना करें"
+    "calculateButton": "प्रश्न गणना करें",
+    "inputBlockTitle": "इनपुट विवरण"
   },
   "prashnaTimeLocPage": {
     "pageTitle": "प्रश्न कुंडली (समय/स्थान विधि)",
@@ -925,7 +928,8 @@
     "Venus": "शुक्र",
     "Saturn": "शनि",
     "Rahu": "राहु",
-    "Ketu": "केतु"
+    "Ketu": "केतु",
+    "Unknown": "अज्ञात"
   },
   "signs": {
     "Aries": "मेष",
@@ -1152,6 +1156,7 @@
     "Ekadashi": "एकादशी",
     "Dwadashi": "द्वादशी",
     "Trayodashi": "त्रयोदशी",
+    "Trayodasi": "त्रयोदशी",
     "Chaturdashi": "चतुर्दशी",
     "Purnima": "पूर्णिमा",
     "Amavasya": "अमावस्या",

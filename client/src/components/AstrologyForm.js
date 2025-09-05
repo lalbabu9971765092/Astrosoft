@@ -779,14 +779,17 @@ const AstrologyForm = () => {
                                             const rashi = getRashiFromDegree(cuspDegree, t);
                                             const rashiLord = getRashiLord(rashi, t);
                                             const naamAkshar = getNaamAkshar(nakshatra, pada, t); // Calculate Naam Akshar
-                                            console.log(`Birth House Cusp ${house.house_number}: start_dms=${house.start_dms}, cuspDegree=${cuspDegree}, Rashi=${rashi}, Nakshatra=${nakshatra}, Pada=${pada}, NaamAkshar=${naamAkshar}, NakLord=${nakshatraLord}, RashiLord=${rashiLord}`);
-                                            return (
+                                             // Check if naamAkshar is the translated 'N/A' string before trying to translate it again
+                                            const displayNaamAkshar = naamAkshar === t('utils.notAvailable', 'N/A')
+                                                ? naamAkshar
+                                                : t(`naamAksharas.${naamAkshar}`, { defaultValue: naamAkshar });
+                                           return (
                                                 <tr key={house.house_number}>
                                                     <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                     <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                     <td>{t(`nakshatras.${nakshatra}`, { defaultValue: nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                    <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${t(`naamAksharas.${naamAkshar}`)})`}</td> {/* Display Pada and Naam Akshar */}
-                                                    <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${displayNaamAkshar})`}</td> {/* Display Pada and Naam Akshar */}
+                                                   <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                 </tr>
@@ -885,13 +888,16 @@ const AstrologyForm = () => {
                                                 const rashi = getRashiFromDegree(cuspDegree, t);
                                                 const rashiLord = getRashiLord(rashi, t);
                                                 const naamAkshar = getNaamAkshar(nakshatra, pada, t); // Calculate Naam Akshar
-                                                console.log(`Transit House Cusp ${house.house_number}: start_dms=${house.start_dms}, cuspDegree=${cuspDegree}, Rashi=${rashi}, Nakshatra=${nakshatra}, Pada=${pada}, NaamAkshar=${naamAkshar}, NakLord=${nakshatraLord}, RashiLord=${rashiLord}`);
-                                                return (
+                                               // Check if naamAkshar is the translated 'N/A' string before trying to translate it again
+                                                const displayNaamAkshar = naamAkshar === t('utils.notAvailable', 'N/A')
+                                                    ? naamAkshar
+                                                    : t(`naamAksharas.${naamAkshar}`, { defaultValue: naamAkshar });
+                                               return (
                                                     <tr key={house.house_number}>
                                                         <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                         <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                         <td>{t(`nakshatras.${nakshatra}`, { defaultValue: nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                        <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${t(`naamAksharas.${naamAkshar}`)})`}</td> {/* Display Pada and Naam Akshar */}
+                                                       <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${displayNaamAkshar})`}</td> {/* Display Pada and Naam Akshar */}
                                                         <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
