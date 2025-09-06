@@ -45,10 +45,10 @@ export const EVENT_HOUSES = { // Or pass this mapping as a prop
     'coming_back_home': { favorable: [4, 11, 12], unfavorable: [], significatorPlanet: '' },
 
     'job': { favorable: [2, 6, 10, 11], unfavorable: [], significatorPlanet: 'Saturn' },
-    'Business': { favorable: [2, 7, 10, 11], unfavorable: [], significatorPlanet: 'Mercury' },
-    'Loss in Job/Business': { favorable: [5, 8, 12], unfavorable: [], significatorPlanet: '' },
-    'Change of Job/Business': { favorable: [5, 9], unfavorable: [], significatorPlanet: 'Saturn' },
-    'Addition in business/job': { favorable: [5, 9], unfavorable: [], significatorPlanet: 'Mercury' },
+    'business': { favorable: [2, 7, 10, 11], unfavorable: [], significatorPlanet: 'Mercury' },
+    'loss_in_job_business': { favorable: [5, 8, 12], unfavorable: [], significatorPlanet: '' },
+    'change_of_job_business': { favorable: [5, 9], unfavorable: [], significatorPlanet: 'Saturn' },
+    'addition_in_business_job': { favorable: [5, 9], unfavorable: [], significatorPlanet: 'Mercury' },
 
 
     'education': { favorable: [4, 5, 9, 11], unfavorable: [8, 12], significatorPlanet: 'Mercury' },
@@ -63,11 +63,11 @@ export const EVENT_HOUSES = { // Or pass this mapping as a prop
     'good_health': { favorable: [1, 5, 9, 11], unfavorable: [], significatorPlanet: 'Jupiter' },
     'incurable_disease': { favorable: [1, 6, 8, 12], unfavorable: [], significatorPlanet: 'Saturn' },
     'curable_disease': { favorable: [1, 6, 12], unfavorable: [], significatorPlanet: '' },
-    'Surgery': { favorable: [1, 6, 8], unfavorable: [], significatorPlanet: 'Mars' },
-    'Accident': { favorable: [1, 4, 8, 12], unfavorable: [], significatorPlanet: 'Rahu' },
+    'surgery': { favorable: [1, 6, 8], unfavorable: [], significatorPlanet: 'Mars' },
+    'accident': { favorable: [1, 4, 8, 12], unfavorable: [], significatorPlanet: 'Rahu' },
     'heart_attack': { favorable: [4, 6, 8, 12], unfavorable: [5, 9, 11], significatorPlanet: 'Sun' },
     'depression': { favorable: [1, 2, 6, 8], unfavorable: [], significatorPlanet: 'Moon' },
-    'agression': { favorable: [7, 8, 12], unfavorable: [], significatorPlanet: 'Mars' },
+    'aggression': { favorable: [7, 8, 12], unfavorable: [], significatorPlanet: 'Mars' },
     'loving_caring': { favorable: [2, 5, 9, 11], unfavorable: [], significatorPlanet: 'Moon' },
     'hospitalization': { favorable: [1, 6, 8, 12], unfavorable: [], significatorPlanet: 'Saturn' },
     'cold_nature': { favorable: [1, 4, 6, 10], unfavorable: [], significatorPlanet: 'Saturn' },
@@ -90,7 +90,7 @@ export const EVENT_HOUSES = { // Or pass this mapping as a prop
     
     'finance': { favorable: [2, 6, 10, 7, 11], unfavorable: [6, 8, 12], significatorPlanet: 'Jupiter' },
     'fame': { favorable: [3, 6, 10, 11], unfavorable: [], significatorPlanet: 'Sun' },
-    'bad-fame': { favorable: [5, 8, 12], unfavorable: [], significatorPlanet: 'Saturn' },   
+    'bad_fame': { favorable: [5, 8, 12], unfavorable: [], significatorPlanet: 'Saturn' },   
 };
 
 // --- Helper Components ---
@@ -140,9 +140,9 @@ const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent, significato
                 const displayData = {
                     name: planetName,
                     allHouses: sigData?.allHouses || [],
-                    nakshatraLordName: sigData?.nakshatraLordName || t('utils.notAvailable', 'N/A'),
+                    nakshatraLordName: sigData?.nakshatraLordName || 'N/A', // Use a static string 'N/A'
                     nakLordAllHouses: sigData?.nakLordAllHouses || [],
-                    subLordName: sigData?.subLordName || t('utils.notAvailable', 'N/A'),
+                    subLordName: sigData?.subLordName || 'N/A', // Use a static string 'N/A'
                     subLordAllHouses: sigData?.subLordAllHouses || [],
                     // Provide default fallbacks for potentially missing properties
                     score: sigData?.score ?? 0, // Use nullish coalescing for score (0 is valid)
@@ -155,12 +155,12 @@ const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent, significato
 
                 const translatedPlanetName = t(`planets.${displayData.name}`, { defaultValue: displayData.name });
                 // Ensure lord names are not 'N/A' before translating, or handle 'N/A' translation
-                const translatedNakLordName = String(displayData.nakshatraLordName) === 'N/A'
+                const translatedNakLordName = displayData.nakshatraLordName === 'N/A'
                     ? t('utils.notAvailable', 'N/A')
-                    : t(`planets.${String(displayData.nakshatraLordName)}`, { defaultValue: String(displayData.nakshatraLordName) });
-                const translatedSubLordName = String(displayData.subLordName) === 'N/A'
+                    : t(`planets.${displayData.nakshatraLordName}`, { defaultValue: displayData.nakshatraLordName });
+                const translatedSubLordName = displayData.subLordName === 'N/A'
                     ? t('utils.notAvailable', 'N/A')
-                    : t(`planets.${String(displayData.subLordName)}`, { defaultValue: String(displayData.subLordName) });
+                    : t(`planets.${displayData.subLordName}`, { defaultValue: displayData.subLordName });
 
                 let itemClassName = "significator-grid-item";
                 if (planetName === significatorPlanet) {

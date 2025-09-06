@@ -794,8 +794,7 @@ const AstrologyForm = () => {
                                                     <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                 </tr>
                                             );
-                                        })}
-                                    </tbody>
+                                        })}</tbody>
                                 </table>
                             </div>
                         ) : (<p className="result-text">{t('astrologyForm.houseDataUnavailable')}</p>)}
@@ -818,8 +817,7 @@ const AstrologyForm = () => {
                                             <th>{t('astrologyForm.planetTableHeaderNakDeg')}</th><th>{t('astrologyForm.planetTableHeaderRashi')}</th>
                                             <th>{t('astrologyForm.planetTableHeaderRashiLord')}</th><th>{t('astrologyForm.planetTableHeaderBhava')}</th>
                                         </tr>
-                                    </thead>
-                                    <tbody>
+                                    </thead><tbody>
                                         {PLANET_ORDER.map((body) => {
                                             const planetData = displayResult.planetaryPositions.sidereal[body];
                                             if (!planetData) return null;
@@ -852,8 +850,7 @@ const AstrologyForm = () => {
                                                     <td>{house}</td>
                                                 </tr>
                                             );
-                                        })}
-                                    </tbody>
+                                        })}</tbody>
                                 </table>
                             </div>
                         ) : (<p className="result-text">{t('astrologyForm.planetDataUnavailable')}</p>)}
@@ -903,8 +900,7 @@ const AstrologyForm = () => {
                                                         <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     </tr>
                                                 );
-                                            })}
-                                        </tbody>
+                                            })}</tbody>
                                     </table>
                                 </div>
                             ) : (<p className="result-text">{t('astrologyForm.transitHouseDataUnavailable')}</p>)}
@@ -931,8 +927,7 @@ const AstrologyForm = () => {
                                                 <th>{t('astrologyForm.planetTableHeaderNakDeg')}</th><th>{t('astrologyForm.planetTableHeaderRashi')}</th>
                                                 <th>{t('astrologyForm.planetTableHeaderRashiLord')}</th><th>{t('astrologyForm.planetTableHeaderBhava')}</th>
                                             </tr>
-                                        </thead>
-                                        <tbody>
+                                        </thead><tbody>
                                             {PLANET_ORDER.map((body) => {
                                                 const planetData = gocharData.planetaryPositions.sidereal[body];
                                                 if (!planetData) return null;
@@ -963,8 +958,7 @@ const AstrologyForm = () => {
                                                         <td>{house}</td>
                                                     </tr>
                                                 );
-                                            })}
-                                        </tbody>
+                                            })}</tbody>
                                     </table>
                                 </div>
                             ) : (<p className="result-text">{t('astrologyForm.transitPlanetDataUnavailable')}</p>)}
