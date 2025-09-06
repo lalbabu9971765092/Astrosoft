@@ -198,11 +198,16 @@ const FestivalsPage = () => {
             setTithiDates(foundDates);
 
              if (foundDates.length === 0) {
+                const monthName = hindiMonthKey ? t(`hindiMonths.${hindiMonthKey}`) : undefined;
+                const errorKey = monthName
+                    ? 'festivalsPage.errorTithiFinderNoDatesWithMonth'
+                    : 'festivalsPage.errorTithiFinderNoDates';
+
                 // Translate error message with details
-                setTithiDateError(t('festivalsPage.errorTithiFinderNoDates', {
+                setTithiDateError(t(errorKey, {
                     tithi: tithiNum,
                     paksha: t(`festivalsPage.tithiFinderPaksha${targetPaksha}`), // Translate paksha name
-                    month: hindiMonthKey ? t(`hindiMonths.${hindiMonthKey}`) : undefined, // Translate month name if selected
+                    month: monthName, // Translate month name if selected
                     year: searchYearNum
                 }));
             }
@@ -272,7 +277,19 @@ const FestivalsPage = () => {
 
             // Use Intl.DateTimeFormat via toLocaleDateString for better locale support
             const options = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }; // Display date part in UTC
-            return date.toLocaleDateString(i18n.language, options); // Use current language locale
+            
+            const dayIndex = date.getUTCDay();
+            const englishDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const hindiDays = ["रविवार", "सोमवार", "मंगलवार", "बुधवार", "गुरुवार", "शुक्रवार", "शनिवार"];
+            
+            let dayName;
+            if (i18n.language === 'hi') {
+                dayName = hindiDays[dayIndex];
+            } else {
+                dayName = englishDays[dayIndex];
+            }
+
+            return `${date.toLocaleDateString(i18n.language, options)} (${dayName})`; // Use current language locale
         } catch (error) {
             console.error("Error formatting date:", dateString, error);
             return t('festivalsPage.invalidDate');
@@ -328,11 +345,14 @@ const FestivalsPage = () => {
             const hindiMonthName = targetHindiMonth ? t(`hindiMonths.${targetHindiMonth}`) : undefined; // Translate month name
             const pakshaName = t(`festivalsPage.tithiFinderPaksha${targetPaksha}`); // Translate paksha name
 
-            // Use ICU message format for conditional month part in the key definition
-            return t('festivalsPage.tithiFinderResultsTitle', {
+            const translationKey = hindiMonthName
+                ? 'festivalsPage.tithiFinderResultsTitleWithMonth'
+                : 'festivalsPage.tithiFinderResultsTitle';
+
+            return t(translationKey, {
                 tithi: targetTithi,
                 paksha: pakshaName,
-                month: hindiMonthName, // Pass potentially undefined month
+                month: hindiMonthName,
                 year: tithiSearchYear || '...'
             });
         }
