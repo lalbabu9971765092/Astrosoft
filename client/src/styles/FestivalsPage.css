@@ -75,6 +75,9 @@
     cursor: not-allowed;
 }
 
+.sankranti-button { background-color: #ff9800; } /* Orange */
+.sankranti-button:hover:not(:disabled) { background-color: #e68a00; }
+
 .tithi-festival-button { background-color: #007bff; } /* Blue */
 .tithi-festival-button:hover:not(:disabled) { background-color: #0056b3; }
 
