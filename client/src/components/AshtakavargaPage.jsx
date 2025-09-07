@@ -31,7 +31,7 @@ const AshtakavargaPage = () => {
         mainResult,
         calculationInputParams,
         adjustedBirthDateTimeString
-    } = useOutletContext();
+    } = useOutletContext() || {};
 
     const [rectifiedResultLocal, setRectifiedResultLocal] = useState(null);
     const [isLoadingRectification, setIsLoadingRectification] = useState(false);
@@ -204,11 +204,11 @@ const AshtakavargaPage = () => {
                                 {ashtakavargaPlanets.map(planetName => {
                                     // Get the object for the specific planet
                                     const planetBhinnaData = bhinnaData[planetName];
-                        
-                                    // *** FIX: Access the 'scores' array within the object ***
-                                    const bavScoresArray = planetBhinnaData?.scores;
-                        
-                                    // *** FIX: Use the 'total' directly from the object if available, or calculate ***
+
+                                    // Access the 'scores' array within the object
+                                    const bavScoresArray = planetBhinnaData?.scores ?? [];
+
+                                    // Use the 'total' directly from the object if available, or calculate
                                     const totalScore = planetBhinnaData?.total ?? (Array.isArray(bavScoresArray)
                                         ? bavScoresArray.reduce((sum, score) => sum + (Number(score) || 0), 0)
                                         : 0); // Fallback calculation if total is missing

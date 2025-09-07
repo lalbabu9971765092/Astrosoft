@@ -42,7 +42,7 @@ const VarshphalPage = () => {
     calculationInputParams,
     isLoading: isInitialLoading,
     error: initialError,
-  } = useOutletContext();
+  } = useOutletContext() || {};
 
   // --- State for Varshphal Year ---
   const [varshphalYear, setVarshphalYear] = useState(CURRENT_YEAR.toString());
@@ -467,7 +467,10 @@ const VarshphalPage = () => {
             </div>}
 
             {/* KP Significators */}
-            <div className="section-header" onClick={() => toggleSection('kpSignificators')}>
+            <div
+              className="section-header"
+              onClick={() => toggleSection("kpSignificators")}
+            >
               <h3 className="result-sub-title">{t('varshphalPage.kpSignificatorsTitle')}</h3>
               <button className="toggle-button">{openSections.kpSignificators ? '−' : '+'}</button>
             </div>
@@ -475,7 +478,11 @@ const VarshphalPage = () => {
               {chartResult?.kpSignificators ? (
                 <KpSignificatorGrid significatorDetailsMap={significatorDetailsMap} selectedEvent="" />
               ) : (
-                <p>{t('varshphalPage.kpSignificatorsUnavailable')}</p>
+                <p>
+                  {t(
+                    "varshphalPage.kpSignificatorsUnavailable"
+                  )}
+                </p>
               )}
             </div>}
 

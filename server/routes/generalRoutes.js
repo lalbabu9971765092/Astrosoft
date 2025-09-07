@@ -13,7 +13,8 @@ import logger from '../utils/logger.js'; // Assuming logger uses ES Module expor
 import {
     getJulianDateUT,
     calculatePlanetaryPositions,
-    getRashiDetails
+    getRashiDetails,
+    calculateEclipsesForYear // Import the eclipse calculation function
 } from '../utils/index.js'; // Adjust path if necessary and ensure utils/index.js exports these
 
 
@@ -143,7 +144,35 @@ async function findDatesForTithi(year, tithiNumbers, lat, lon) {
 // --- Default Coordinates ---
 const defaultLat = 28.829286;
 const defaultLon = 77.099827;
+// --- Eclipse Calculation Route ---
+router.get('/eclipses/:year',
+    [ // Validation middleware
+        param('year').isInt({ min: 1900, max: 2100 }).withMessage('Invalid year provided.').toInt(),
+        query('lat').optional().isFloat({ min: -90, max: 90 }).toFloat().withMessage('Invalid latitude provided.'),
+        query('lon').optional().isFloat({ min: -180, max: 180 }).toFloat().withMessage('Invalid longitude provided.')
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
 
+        try {
+            // Use validated and parsed values
+            const yearNum = req.params.year; // This will now be an integer due to .toInt()
+            const latitude = req.query.lat ?? defaultLat;
+            const longitude = req.query.lon ?? defaultLon;
+
+            // The actual calculation function
+            const eclipses = calculateEclipsesForYear(yearNum, latitude, longitude);
+            res.json(eclipses);
+
+        } catch (error) {
+            // Use the centralized error handler
+            handleRouteError(res, error, `/eclipses/${req.params.year}`, req.query);
+        }
+    }
+);
 // --- Route: Find specific Tithi Date ---
 router.get("/find-tithi-date",
     [ // Apply validation directly

@@ -75,16 +75,34 @@
     cursor: not-allowed;
 }
 
-/* Specific button colors (adjust as needed) */
-.sankranti-button { background-color: #ff9800; } /* Orange */
-.sankranti-button:hover:not(:disabled) { background-color: #e68a00; }
-
 .tithi-festival-button { background-color: #007bff; } /* Blue */
 .tithi-festival-button:hover:not(:disabled) { background-color: #0056b3; }
 
 .recurring-tithi-button { background-color: #6c757d; } /* Gray */
 .recurring-tithi-button:hover:not(:disabled) { background-color: #5a6268; }
 
+.eclipse-button { background-color: #9c27b0; } /* Purple */
+.eclipse-button:hover:not(:disabled) { background-color: #7b1fa2; }
+
+
+/* Style for the active button */
+.action-button.active {
+    background-color: #0056b3; /* A darker blue for active state */
+    border-color: #004085;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+    transform: translateY(1px); /* Slight press effect */
+}
+
+/* --- Location Display --- */
+.location-display {
+    margin-top: 15px;
+    padding: 8px 12px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #495057;
+    text-align: center;
+}
 
 /* --- Styles for Four Column Layout --- */
 .results-grid-container {
@@ -92,7 +110,7 @@
     flex-wrap: wrap; /* Allow columns to wrap */
     gap: 20px; /* Space between columns */
     margin-top: 20px;
-    align-items: stretch; /* Make columns equal height if wrapping */
+    align-items: flex-start; /* Let columns have their own height */
 }
 
 .results-column {
@@ -139,12 +157,11 @@
     border-collapse: collapse;
     font-size: 0.9em;
 }
-.results-column th,
 .results-column td {
     padding: 6px 8px;
     border: 1px solid #eee;
     text-align: left;
-    white-space: nowrap;
+    white-space: normal; /* Allow text to wrap */
 }
 .results-column th {
     background-color: #f8f9fa;

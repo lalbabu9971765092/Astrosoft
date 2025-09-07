@@ -49,7 +49,7 @@ const KpSignificatorsPage = () => {
         error: initialError,
         calculationInputParams,
         adjustedBirthDateTimeString
-    } = useOutletContext();
+    } = useOutletContext() || {};
 
     // --- Local state ---
     const [kpData, setKpData] = useState(null); // Holds KP significator array

@@ -78,7 +78,7 @@ const GocharPage = () => {
         adjustedBirthDateTimeString,
         adjustedGocharDateTimeString,
         locationForGocharTool,
-    } = useOutletContext();
+    } = useOutletContext() || {};
 
     // --- State for NATAL Rectification Data ---
     const [rectifiedNatalResult, setRectifiedNatalResult] = useState(null);

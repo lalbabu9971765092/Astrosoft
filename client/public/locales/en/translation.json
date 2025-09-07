@@ -464,11 +464,13 @@
     "ekadashiButton": "Ekadashi",
     "trayodashiButton": "Trayodashi",
     "chaturdashiButton": "Chaturdashi",
+    "eclipsesButton": "Eclipses",
     "refreshSankrantiTitle": "Refresh Sankranti Dates for {{year}}",
     "refreshTithiFestivalsTitle": "Refresh Tithi Festivals for {{year}}",
     "showEkadashiTitle": "Show Ekadashi Dates for {{year}}",
     "showTrayodashiTitle": "Show Trayodashi Dates for {{year}}",
     "showChaturdashiTitle": "Show Chaturdashi Dates for {{year}}",
+    "showEclipsesTitle": "Show Eclipse Dates for {{year}}",
     "sankrantiColumnTitle": "Sankranti ({{year}})",
     "sankrantiLoading": "Loading...",
     "sankrantiErrorPrefix": "Sankranti Error",
@@ -477,6 +479,17 @@
     "sankrantiHeaderDate": "Date",
     "sankrantiHeaderMoment": "Moment",
     "sankrantiApproxSuffix": "(Approx Entry Date)",
+    "eclipsesColumnTitle": "Eclipses ({{year}})",
+    "eclipsesLoading": "Loading Eclipses...",
+    "eclipsesNoData": "No Eclipses data loaded.",
+    "eclipseHeaderType": "Type",
+    "eclipseHeaderNature": "Nature",
+    "eclipseHeaderPeakTime": "Peak Time",
+    "eclipseHeaderStartTime": "Start Time",
+    "eclipseHeaderEndTime" : "End Time ",
+    "eclipseHeaderDate": "Date",
+    "eclipseHeaderTime": "Time",
+    "eclipseHeaderMagnitude": "Magnitude",
     "tithiFestivalsColumnTitle": "Tithi Festivals ({{year}})",
     "tithiFestivalsLoading": "Loading...",
     "tithiFestivalsErrorPrefix": "Tithi Festival Error",
@@ -520,6 +533,8 @@
     "errorNoSankrantiData": "No Sankranti data found for {{year}}.",
     "errorFetchSankranti": "Failed to fetch Sankranti data.",
     "errorNoTithiFestivalsData": "No tithi-based festivals found for {{year}} based on defined rules.",
+    "errorNoEclipseData": "No eclipse data found for {{year}}.",
+    "errorFetchEclipses": "Failed to fetch eclipse data.",
     "errorFetchTithiFestivals": "Failed to fetch calculated tithi festivals.",
     "errorNoRecurringTithiData": "No {{tithiLabel}} dates found for {{year}}.",
     "errorFetchRecurringTithi": "Failed to fetch recurring {{tithiLabel}} dates.",
@@ -529,6 +544,7 @@
     "errorTithiFinderNoDates": "No dates found for Tithi {{tithi}} ({{paksha}}) in {{year}}.",
     "errorTithiFinderNoDatesWithMonth": "No dates found for Tithi {{tithi}} ({{paksha}}) in {{month}} in {{year}}.",
     "errorTithiFinderFetch": "Failed to find tithi dates.",
+    "locationLabel": "Location:",
     "invalidTime": "Invalid Time",
     "notAvailable": "N/A",
     "timeSuffixIST": "IST",
@@ -586,6 +602,18 @@
       "shravana_putrada_ekadashi": "Shravana Putrada Ekadashi",
       "hartalika_teej": "Hartalika Teej"
     }
+    ,
+    "eclipseTypes": {
+      "Lunar": "Lunar",
+      "Solar": "Solar"
+    },
+    "eclipseNatures": {
+      "total": "Total",
+      "partial": "Partial",
+      "annular": "Annular",
+      "penumbral": "Penumbral"
+    }
+    
   },
   "hindiMonths": {
     "Chaitra": "Chaitra",

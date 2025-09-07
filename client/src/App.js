@@ -148,10 +148,10 @@ function AppWrapper() {
               <Route path="ashtakavarga" element={<AshtakavargaPage />} />
               <Route path="varshphal" element={<VarshphalPage />} />
               <Route path="muhurta" element={<MuhurtaPage />} />
+              <Route path="festivals" element={<FestivalsPage />} />
             </Route>
 
             {/* Routes that do NOT use SharedInputLayout (e.g., Festivals, Prashna) */}
-            <Route path="/festivals" element={<FestivalsPage />} />
             <Route path="/prashna-time" element={<PrashnaTimeLocationPage />} />
             <Route path="/prashna-number" element={<PrashnaNumberPage />} />
             <Route path="/remedies" element={<RemediesPage />} />

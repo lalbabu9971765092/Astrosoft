@@ -75,7 +75,7 @@ const AstrologyForm = () => {
         adjustedBirthDateTimeString,
         adjustedGocharDateTimeString,
         locationForGocharTool,
-    } = useOutletContext();
+    } = useOutletContext() || {};
 
     // --- State ---
     const [rectifiedResult, setRectifiedResult] = useState(null);
@@ -239,24 +239,9 @@ const AstrologyForm = () => {
         if (!displayResult?.planetaryPositions?.sidereal || !displayResult?.houses || displayResult.houses.length !== 12) {
             return null;
         }
-        const placements = {};
-        const cuspStartDegrees = displayResult.houses.map(h => convertDMSToDegrees(h.start_dms));
-        if (cuspStartDegrees.some(isNaN)) {
-            return null;
-        }
-        PLANET_ORDER.forEach(planetName => {
-            const planetData = displayResult.planetaryPositions.sidereal[planetName];
-            if (planetData && planetData.dms && planetData.dms !== "Error") {
-                const planetDeg = convertDMSToDegrees(planetData.dms);
-                if (!isNaN(planetDeg)) {
-                    const houseNumber = calculateHouse(planetDeg, cuspStartDegrees, t);
-                    if (typeof houseNumber === 'number') {
-                        placements[planetName] = houseNumber;
-                    }
-                }
-            }
-        });
-        return placements;
+        // Use the pre-calculated placements from the API if available.
+        // This is the correct data source for a Bhava Chalit chart.
+        return displayResult.planetHousePlacements || null;
     }, [displayResult, t]);
 
     const placidusCuspDegrees = useMemo(() => {

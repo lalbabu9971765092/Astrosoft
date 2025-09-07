@@ -467,6 +467,18 @@
     "sankrantiHeaderDate": "दिनांक",
     "sankrantiHeaderMoment": "क्षण",
     "sankrantiApproxSuffix": "(लगभग प्रवेश तिथि)",
+    "eclipsesColumnTitle": "ग्रहण ({{year}})",
+    "eclipsesLoading": "ग्रहण लोड हो रहा है...",
+    "eclipsesNoData": "कोई ग्रहण डेटा लोड नहीं हुआ।",
+    "eclipsesButton": "ग्रहण",
+    "eclipseHeaderType": "प्रकार",
+    "eclipseHeaderNature": "प्रकृति",
+    "eclipseHeaderPeakTime": "चरम समय",
+    "eclipseHeaderStartTime": "प्रारंभ समय",
+    "eclipseHeaderEndTime": "समाप्ति समय",
+    "eclipseHeaderDate": "दिनांक",
+    "eclipseHeaderTime": "समय",
+    "eclipseHeaderMagnitude": "परिमाण",
     "tithiFestivalsColumnTitle": "तिथि त्यौहार ({{year}})",
     "tithiFestivalsLoading": "लोड हो रहा है...",
     "tithiFestivalsErrorPrefix": "तिथि त्यौहार त्रुटि",
@@ -523,6 +535,16 @@
     "invalidTime": "अमान्य समय",
     "notAvailable": "अनुपलब्ध",
     "timeSuffixIST": "IST",
+    "eclipseTypes": {
+      "Lunar": "चंद्र",
+      "Solar": "सूर्य"
+    },
+    "eclipseNatures": {
+      "total": "पूर्ण",
+      "partial": "आंशिक",
+      "annular": "वलयाकार",
+      "penumbral": "उपच्छाया"
+    },
     "sankrantiNames": {
       "Aries": "मेष संक्रांति",
       "Taurus": "वृषभ संक्रांति",

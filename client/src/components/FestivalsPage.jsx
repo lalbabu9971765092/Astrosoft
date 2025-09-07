@@ -1,5 +1,6 @@
 // src/FestivalsPage.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; // Import the hook
 import api from './api'; // Assuming api.js is set up for base URL etc.
 import '../styles/FestivalsPage.css';
@@ -20,6 +21,9 @@ const FALLBACK_UNKNOWN_KEY = 'utils.unknown'; // e.g., "Unknown" in en, "अज�
 const FestivalsPage = () => {
     // Get t function and i18n instance
     const { t, i18n } = useTranslation();
+    // Get location context from the main layout
+    const { calculationInputParams } = useOutletContext() || {};
+
     const currentYear = useMemo(() => new Date().getFullYear(), []);
     const [selectedYear, setSelectedYear] = useState(String(currentYear));
     const [yearForFetching, setYearForFetching] = useState(currentYear);
@@ -33,7 +37,13 @@ const FestivalsPage = () => {
     const [isLoadingTithiFestivals, setIsLoadingTithiFestivals] = useState(false);
     const [tithiFestivalError, setTithiFestivalError] = useState(null);
 
+    const [eclipseData, setEclipseData] = useState([]);
+    const [isLoadingEclipses, setIsLoadingEclipses] = useState(false);
+    const [isEclipseButtonActive, setIsEclipseButtonActive] = useState(true);
+    const [eclipseError, setEclipseError] = useState(null);
+
     const [recurringTithiResults, setRecurringTithiResults] = useState(null); // { dates: [], tithiLabel: 'Translated Label' }
+    const [activeTithiButton, setActiveTithiButton] = useState(11); // Track which recurring tithi button is active
     const [isLoadingRecurringTithis, setIsLoadingRecurringTithis] = useState(false);
     const [recurringTithiError, setRecurringTithiError] = useState(null);
 
@@ -49,6 +59,7 @@ const FestivalsPage = () => {
     // --- Clear Results Helpers ---
     const clearSankrantiResults = useCallback(() => { setSankrantiData([]); setSankrantiError(null); }, []);
     const clearTithiFestivalResults = useCallback(() => { setCalculatedTithiFestivals([]); setTithiFestivalError(null); }, []);
+    const clearEclipseResults = useCallback(() => { setEclipseData([]); setEclipseError(null); }, []);
     const clearRecurringTithiResults = useCallback(() => { setRecurringTithiResults(null); setRecurringTithiError(null); }, []);
     const clearManualTithiResults = useCallback(() => { setTithiDates([]); setTithiDateError(null); }, []);
 
@@ -95,7 +106,7 @@ const FestivalsPage = () => {
         clearSankrantiResults();
         setIsLoadingSankranti(true);
         try {
-            const response = await api.get(`general/sankranti/${yearNum}`);
+            const response = await api.get(`/general/sankranti/${yearNum}`);
             const data = response.data || [];
             setSankrantiData(data);
             if (data.length === 0) {
@@ -120,10 +131,18 @@ const FestivalsPage = () => {
         }
         clearTithiFestivalResults();
         setIsLoadingTithiFestivals(true);
+
+        const lat = calculationInputParams?.latitude;
+        const lon = calculationInputParams?.longitude;
+        const params = {};
+        if (lat !== undefined && lon !== undefined) {
+            params.lat = lat;
+            params.lon = lon;
+        }
+
         try {
-            const response = await api.get(`general/tithi-festivals/${yearNum}`);
+            const response = await api.get(`/general/tithi-festivals/${yearNum}`, { params });
             const data = response.data || [];
-           
             setCalculatedTithiFestivals(data);
              if (data.length === 0) {
                 setTithiFestivalError(t('festivalsPage.errorNoTithiFestivalsData', { year: yearNum }));
@@ -135,10 +154,51 @@ const FestivalsPage = () => {
         } finally {
             setIsLoadingTithiFestivals(false);
         }
-    }, [clearTithiFestivalResults, t]); // Add t dependency
+    }, [clearTithiFestivalResults, t, calculationInputParams]); // Add t and calculationInputParams dependency
+
+    // --- Fetch Eclipse Data ---
+    const fetchEclipses = useCallback(async (year) => {
+        const yearNum = parseInt(year, 10);
+        if (!yearNum || isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
+            setEclipseError(t('festivalsPage.errorValidYear'));
+            setEclipseData([]);
+            return;
+        }
+        clearEclipseResults();
+        setIsLoadingEclipses(true);
+        try {
+            // Eclipses require location, so we need to get it from the context
+            // If not available, the backend will use default coordinates.
+            const lat = calculationInputParams?.latitude;
+            const lon = calculationInputParams?.longitude;
+
+            const params = {};
+            if (lat !== undefined && lon !== undefined) {
+                params.lat = lat;
+                params.lon = lon;
+            }
+
+            const response = await api.get(`/general/eclipses/${yearNum}`, {
+                params
+            });
+
+            const data = response.data || [];
+            setEclipseData(data);
+            if (data.length === 0) {
+                setEclipseError(t('festivalsPage.errorNoEclipseData', { year: yearNum }));
+            }
+        } catch (err) {
+            console.error("Error fetching eclipse data:", err);
+            const backendError = err.response?.data?.error || err.message;
+            setEclipseError(backendError || t('festivalsPage.errorFetchEclipses'));
+        } finally {
+            setIsLoadingEclipses(false);
+        }
+    }, [clearEclipseResults, t, calculationInputParams]); // Add calculationInputParams dependency
 
     // --- Function to fetch Recurring Tithis (Ekadashi, etc.) ---
     const findRecurringTithis = useCallback(async (year, tithiNumber) => {
+        setActiveTithiButton(tithiNumber); // Set the active button
         const yearNum = parseInt(year, 10);
         if (!yearNum || isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
             setRecurringTithiError(t('festivalsPage.errorValidYear'));
@@ -157,8 +217,16 @@ const FestivalsPage = () => {
 
         const translatedTithiLabel = t(tithiLabelKey); // Translate the label
 
+        const lat = calculationInputParams?.latitude;
+        const lon = calculationInputParams?.longitude;
+        const params = {};
+        if (lat !== undefined && lon !== undefined) {
+            params.lat = lat;
+            params.lon = lon;
+        }
+
         try {
-            const response = await api.get(`general/find-tithis/${yearNum}/${tithiNumber}`);
+            const response = await api.get(`/general/find-tithis/${yearNum}/${tithiNumber}`, { params });
             const data = response.data || {};
             // Store the translated label along with the fetched dates
             setRecurringTithiResults({ dates: data.dates || [], tithiLabel: translatedTithiLabel });
@@ -172,7 +240,7 @@ const FestivalsPage = () => {
         } finally {
             setIsLoadingRecurringTithis(false);
         }
-    }, [clearRecurringTithiResults, t]); // Add t dependency
+    }, [clearRecurringTithiResults, t, calculationInputParams]); // Add t and calculationInputParams dependency
 
     // --- Function to find specific Tithi dates (Manual Finder) ---
     const findTithiDates = useCallback(async () => {
@@ -187,9 +255,17 @@ const FestivalsPage = () => {
 
         clearManualTithiResults();
         setIsLoadingTithiDates(true);
+
+        const lat = calculationInputParams?.latitude;
+        const lon = calculationInputParams?.longitude;
+
         try {
             // Prepare parameters for the API call
             const params = { year: searchYearNum, tithi: tithiNum, paksha: targetPaksha };
+            if (lat !== undefined && lon !== undefined) {
+                params.lat = lat;
+                params.lon = lon;
+            }
             if (hindiMonthKey) { params.hindiMonth = hindiMonthKey; } // Send the key if a month is selected
 
             const response = await api.get(`/general/find-tithi-date`, { params });
@@ -219,7 +295,7 @@ const FestivalsPage = () => {
         } finally {
             setIsLoadingTithiDates(false);
         }
-    }, [tithiSearchYear, targetHindiMonth, targetTithi, targetPaksha, clearManualTithiResults, t]); // Add t dependency
+    }, [tithiSearchYear, targetHindiMonth, targetTithi, targetPaksha, clearManualTithiResults, t, calculationInputParams]); // Add t and calculationInputParams dependency
 
     // --- Debounce Effect for Main Year Input ---
     useEffect(() => {
@@ -239,18 +315,21 @@ const FestivalsPage = () => {
     // --- Effect to Fetch Data When yearForFetching Changes ---
     useEffect(() => {
         if (yearForFetching) {
-            // Clear previous results before fetching new ones
-            clearSankrantiResults();
-            clearTithiFestivalResults();
-            clearRecurringTithiResults(); // Clear recurring tithis as well
-            // Fetch data for the new year
+            // When the main year changes, fetch non-location-dependent data.
             fetchSankranti(yearForFetching);
             fetchCalculatedTithiFestivals(yearForFetching);
             // Optionally fetch a default recurring tithi (e.g., Ekadashi) for the new year
             findRecurringTithis(yearForFetching, 11); // Fetch Ekadashi by default
         }
-        // Note: Manual Tithi Finder results are NOT cleared here, only when a new search is initiated.
-    }, [yearForFetching, fetchSankranti, fetchCalculatedTithiFestivals, findRecurringTithis, clearSankrantiResults, clearTithiFestivalResults, clearRecurringTithiResults]); // Dependencies
+    }, [yearForFetching, fetchSankranti, fetchCalculatedTithiFestivals, findRecurringTithis]);
+
+    // --- Effect to Fetch Eclipses when year OR location changes ---
+    useEffect(() => {
+        if (yearForFetching) {
+            fetchEclipses(yearForFetching);
+        }
+        // This effect runs when the year changes, or when fetchEclipses changes (due to location change).
+    }, [yearForFetching, fetchEclipses]);
 
     // --- Effect to trigger initial Tithi Finder search on component mount ---
     useEffect(() => {
@@ -360,7 +439,7 @@ const FestivalsPage = () => {
     }, [targetTithi, targetPaksha, targetHindiMonth, tithiSearchYear, tithiDates, isLoadingTithiDates, t]); // Add dependencies
 
     // Combined loading state for disabling main year input
-    const isMainLoading = isLoadingSankranti || isLoadingTithiFestivals || isLoadingRecurringTithis;
+    const isMainLoading = isLoadingSankranti || isLoadingTithiFestivals || isLoadingEclipses || isLoadingRecurringTithis;
     // Determine which recurring tithi button is currently loading
     const loadingRecurringTithiLabel = isLoadingRecurringTithis ? recurringTithiResults?.tithiLabel : null;
 
@@ -405,12 +484,20 @@ const FestivalsPage = () => {
                     >
                         {isLoadingTithiFestivals ? t('festivalsPage.loadingButton') : t('festivalsPage.tithiFestivalsButton')}
                     </button>
+                    <button
+                        onClick={() => setIsEclipseButtonActive(!isEclipseButtonActive)}
+                        disabled={isLoadingEclipses || !yearForFetching}
+                        title={t('festivalsPage.showEclipsesTitle', { year: yearForFetching })}
+                        className={`action-button eclipse-button ${isEclipseButtonActive ? 'active' : ''}`}
+                    >
+                        {isLoadingEclipses ? t('festivalsPage.loadingButton') : t('festivalsPage.eclipsesButton')}
+                    </button>
                     {/* Buttons for recurring tithis */}
                     <button
                         onClick={() => findRecurringTithis(yearForFetching, 11)} // Ekadashi
                         disabled={isLoadingRecurringTithis || !yearForFetching}
                         title={t('festivalsPage.showEkadashiTitle', { year: yearForFetching })}
-                        className="action-button recurring-tithi-button"
+                        className={`action-button recurring-tithi-button ${activeTithiButton === 11 ? 'active' : ''}`}
                     >
                         {loadingRecurringTithiLabel === t('festivalsPage.ekadashiButton') ? t('festivalsPage.loadingButton') : t('festivalsPage.ekadashiButton')}
                     </button>
@@ -418,7 +505,7 @@ const FestivalsPage = () => {
                         onClick={() => findRecurringTithis(yearForFetching, 13)} // Trayodashi
                         disabled={isLoadingRecurringTithis || !yearForFetching}
                         title={t('festivalsPage.showTrayodashiTitle', { year: yearForFetching })}
-                        className="action-button recurring-tithi-button"
+                        className={`action-button recurring-tithi-button ${activeTithiButton === 13 ? 'active' : ''}`}
                     >
                         {loadingRecurringTithiLabel === t('festivalsPage.trayodashiButton') ? t('festivalsPage.loadingButton') : t('festivalsPage.trayodashiButton')}
                     </button>
@@ -426,17 +513,26 @@ const FestivalsPage = () => {
                         onClick={() => findRecurringTithis(yearForFetching, 14)} // Chaturdashi
                         disabled={isLoadingRecurringTithis || !yearForFetching}
                         title={t('festivalsPage.showChaturdashiTitle', { year: yearForFetching })}
-                        className="action-button recurring-tithi-button"
+                        className={`action-button recurring-tithi-button ${activeTithiButton === 14 ? 'active' : ''}`}
                     >
                         {loadingRecurringTithiLabel === t('festivalsPage.chaturdashiButton') ? t('festivalsPage.loadingButton') : t('festivalsPage.chaturdashiButton')}
                     </button>
                 </div>
+                {/* Location Display */}
+                {calculationInputParams && (
+                    <div className="location-display">
+                        {t('festivalsPage.locationLabel', 'Location:')}
+                        <strong>
+                            {` ${calculationInputParams.placeName || 'N/A'} (${calculationInputParams.latitude?.toFixed(4)}, ${calculationInputParams.longitude?.toFixed(4)})`}
+                        </strong>
+                    </div>
+                )}
             </div>
 
-            {/* --- Four Column Layout for Results --- */}
+            {/* --- Three Column Layout for Results --- */}
             <div className="results-grid-container">
 
-                {/* --- Column 1: Sankranti --- */}
+                {/* --- Column 1: Sankranti & Eclipses --- */}
                 <div className="results-column sankranti-column">
                     <h2 className="result-title">{t('festivalsPage.sankrantiColumnTitle', { year: yearForFetching || '...' })}</h2>
                     {isLoadingSankranti && <div className="loader">{t('festivalsPage.sankrantiLoading')}</div>}
@@ -451,12 +547,10 @@ const FestivalsPage = () => {
                                 </tr></thead>
                                 <tbody>
                                     {sankrantiData.map((sankranti, index) => (
-                                        // Use rashi as key if available and unique, otherwise fallback
                                         <tr key={sankranti.rashi || `sankranti-${index}-${sankranti.date}`}>
-                                            {/* Use festivalsPage.sankrantiNames path */}
                                             <td>
-                                                {t(`festivalsPage.sankrantiNames.${sankranti.rashi}`, { // Use rashi from API
-                                                    defaultValue: sankranti.name || t(FALLBACK_UNKNOWN_KEY) // Fallback chain
+                                                {t(`festivalsPage.sankrantiNames.${sankranti.rashi}`, {
+                                                    defaultValue: sankranti.name || t(FALLBACK_UNKNOWN_KEY)
                                                 })}
                                             </td>
                                             <td>{formatDateForDisplay(sankranti.date)}</td>
@@ -467,10 +561,51 @@ const FestivalsPage = () => {
                             </table>
                         </div>
                     )}
-                    {/* Show 'No Data' message only if not loading, no error, and data is empty */}
                     {!isLoadingSankranti && !sankrantiError && sankrantiData.length === 0 && (
                         <p className="info-text">{t('festivalsPage.sankrantiNoData')}</p>
                     )}
+
+                    {/* --- Eclipses Display --- */}
+                    <div className="eclipses-section" style={{ marginTop: '2rem' }}>
+                        <h2 className="result-title">{t('festivalsPage.eclipsesColumnTitle', { year: yearForFetching || '...' })}</h2>
+                        {isLoadingEclipses && <div className="loader">{t('festivalsPage.eclipsesLoading')}</div>}
+                        {eclipseError && <p className="error-text">{eclipseError}</p>}
+                        {!isLoadingEclipses && !eclipseError && eclipseData.length > 0 && (
+                            <div className="table-container">
+                                <table className="results-table">
+                                    <thead><tr>
+                                        <th>{t('festivalsPage.eclipseHeaderType')}</th>
+                                        <th>{t('festivalsPage.eclipseHeaderNature')}</th>
+                                        <th>{t('festivalsPage.eclipseHeaderDate')}</th>
+                                        <th>{t('festivalsPage.eclipseHeaderPeakTime')}</th>
+                                        <th>{t('festivalsPage.eclipseHeaderStartTime')}</th>
+                                        <th>{t('festivalsPage.eclipseHeaderEndTime')}</th>
+                                        <th>{t('festivalsPage.eclipseHeaderMagnitude')}</th>
+                                    </tr></thead>
+                                    <tbody>
+                                        {eclipseData.map((eclipse, index) => (
+                                            <tr key={`eclipse-${index}-${eclipse.date}`}>
+                                                <td>{t(`festivalsPage.eclipseTypes.${eclipse.type}`, {
+                                                    defaultValue: eclipse.type || t(FALLBACK_UNKNOWN_KEY)
+                                                })}</td>
+                                                <td>{t(`festivalsPage.eclipseNatures.${eclipse.nature}`, {
+                                                    defaultValue: eclipse.nature || t(FALLBACK_UNKNOWN_KEY)
+                                                })}</td>
+                                                <td>{formatDateForDisplay(eclipse.date)}</td>
+                                                <td>{formatDateTimeForDisplay(eclipse.peakTime)}</td>
+                                                <td>{formatDateTimeForDisplay(eclipse.startTime)}</td>
+                                                <td>{formatDateTimeForDisplay(eclipse.endTime)}</td>
+                                                <td>{eclipse.magnitude}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                        {!isLoadingEclipses && !eclipseError && eclipseData.length === 0 && (
+                            <p className="info-text">{t('festivalsPage.eclipsesNoData')}</p>
+                        )}
+                    </div>
                 </div>
 
                 {/* --- Column 2: Calculated Tithi-Based Festivals --- */}
@@ -490,15 +625,12 @@ const FestivalsPage = () => {
                                 </tr></thead>
                                 <tbody>
                                     {calculatedTithiFestivals.map((festival, index) => {
-                                        // *** Generate translation key using the helper function ***
                                         const translationKey = getFestivalTranslationKey(festival.name);
-                                        
                                         return (
-                                            <tr key={`${translationKey}-${index}-${festival.date}`}> {/* Use generated key in React key */}
+                                            <tr key={`${translationKey}-${index}-${festival.date}`}>
                                                 <td>
-                                                    {/* *** Use the generated key for translation *** */}
-                                                    {t(`festivalsPage.festivalNames.${translationKey}`, { // Use the generated key
-                                                        defaultValue: festival.name || t(FALLBACK_UNKNOWN_KEY) // Keep the fallback
+                                                    {t(`festivalsPage.festivalNames.${translationKey}`, {
+                                                        defaultValue: festival.name || t(FALLBACK_UNKNOWN_KEY)
                                                     })}
                                                 </td>
                                                 <td>{formatDateForDisplay(festival.date)}</td>
@@ -517,109 +649,40 @@ const FestivalsPage = () => {
                     )}
                 </div>
 
-                {/* --- Column 3: Recurring Tithi Results --- */}
-                <div className="results-column recurring-tithis-column">
-                     <h2 className="result-title">
-                        {/* Use the stored translated label */}
-                        {t('festivalsPage.recurringTithisColumnTitle', {
-                            tithiLabel: recurringTithiResults?.tithiLabel || t('festivalsPage.recurringTithisDefaultTitle'),
-                            year: yearForFetching || '...'
-                        })}
-                     </h2>
-                    {isLoadingRecurringTithis && <div className="loader">{t('festivalsPage.recurringTithisLoading')}</div>}
-                    {recurringTithiError && <p className="error-text">{recurringTithiError}</p>}
-                    {!isLoadingRecurringTithis && !recurringTithiError && recurringTithiResults?.dates?.length > 0 && (
-                        <>
-                            {/* Show Pradosh note only if Trayodashi results are displayed */}
-                            {recurringTithiResults.tithiLabel === t('festivalsPage.trayodashiButton') && (
-                                <p className="info-text note">{t('festivalsPage.pradoshNote')}</p>
-                            )}
-                            <div className="table-container">
-                                <table className="results-table">
-                                    <thead><tr>
-                                        <th>{t('festivalsPage.recurringTithisHeaderDate')}</th>
-                                        <th>{t('festivalsPage.recurringTithisHeaderPaksha')}</th>
-                                        <th>{t('festivalsPage.recurringTithisHeaderSunrise')}</th>
-                                        <th>{t('festivalsPage.recurringTithisHeaderStart')}</th>
-                                        <th>{t('festivalsPage.recurringTithisHeaderEnd')}</th>
-                                    </tr></thead>
-                                    <tbody>
-                                        {recurringTithiResults.dates.map((tithiDate, index) => (
-                                            <tr key={`recurring-${index}-${tithiDate.date}`}>
-                                                <td>{formatDateForDisplay(tithiDate.date)}</td>
-                                                {/* Translate Paksha value using its key */}
-                                                <td>{t(`festivalsPage.tithiFinderPaksha${tithiDate.paksha}`, { defaultValue: tithiDate.paksha })}</td>
-                                                <td>{formatDateTimeForDisplay(tithiDate.sunrise)}</td>
-                                                <td>{formatDateTimeForDisplay(tithiDate.startTime)}</td>
-                                                <td>{formatDateTimeForDisplay(tithiDate.endTime)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </>
-                    )}
-                    {/* Show 'No Data' only if not loading, no error, and results/dates are missing or empty */}
-                    {!isLoadingRecurringTithis && !recurringTithiError && (!recurringTithiResults?.dates || recurringTithiResults.dates.length === 0) && (
-                        <p className="info-text">{t('festivalsPage.recurringTithisNoData')}</p>
-                    )}
-                </div>
-
-                {/* --- Column 4: Tithi Date Finder (Manual Specific Search) --- */}
-                <div className="results-column tithi-finder-column">
-                    <h2 className="result-title">{t('festivalsPage.tithiFinderColumnTitle')}</h2>
-                    {/* Controls for the Tithi Finder */}
-                    <div className="tithi-finder-controls">
-                        <label htmlFor="tithi-year-input">{t('festivalsPage.yearLabel')} </label>
-                        <input type="number" id="tithi-year-input" value={tithiSearchYear} onChange={handleTithiYearChange} onKeyPress={handleTithiKeyPress} min="1900" max="2100" placeholder={t('festivalsPage.yearPlaceholder')} disabled={isLoadingTithiDates} className="year-input" />
-
-                        <label htmlFor="hindi-month-select">{t('festivalsPage.tithiFinderMonthLabel')} </label>
-                        <select id="hindi-month-select" value={targetHindiMonth} onChange={handleHindiMonthChange} onKeyPress={handleTithiKeyPress} disabled={isLoadingTithiDates}>
-                            <option value="">{t('festivalsPage.tithiFinderAllMonthsOption')}</option>
-                            {/* Map keys to translated month names */}
-                            {HINDI_MONTH_KEYS.map(monthKey => (
-                                <option key={monthKey} value={monthKey}>{t(`hindiMonths.${monthKey}`, { defaultValue: monthKey })}</option> // Provide key as fallback
-                            ))}
-                        </select>
-
-                        <label htmlFor="tithi-num-input">{t('festivalsPage.tithiFinderTithiLabel')} </label>
-                        <input type="number" id="tithi-num-input" value={targetTithi} onChange={handleTithiNumChange} onKeyPress={handleTithiKeyPress} min="1" max="15" placeholder={t('festivalsPage.tithiFinderTithiPlaceholder')} disabled={isLoadingTithiDates} />
-
-                        <label htmlFor="paksha-select">{t('festivalsPage.tithiFinderPakshaLabel')} </label>
-                        <select id="paksha-select" value={targetPaksha} onChange={handlePakshaChange} onKeyPress={handleTithiKeyPress} disabled={isLoadingTithiDates}>
-                            {/* Use keys for values, translate display text */}
-                            <option value="Shukla">{t('festivalsPage.tithiFinderPakshaShukla')}</option>
-                            <option value="Krishna">{t('festivalsPage.tithiFinderPakshaKrishna')}</option>
-                        </select>
-
-                        <button onClick={findTithiDates} disabled={isLoadingTithiDates}>
-                            {isLoadingTithiDates ? t('festivalsPage.tithiFinderSearchingButton') : t('festivalsPage.tithiFinderFindButton')}
-                        </button>
-                    </div>
-
-                    {/* Display Tithi Finder results or errors */}
-                    {tithiDateError && <p className="error-text">{tithiDateError}</p>}
-                    <div className="tithi-results-section">
-                        {isLoadingTithiDates && <div className="loader">{t('festivalsPage.tithiFinderSearchingButton')}</div>}
-                        {!isLoadingTithiDates && !tithiDateError && tithiDates.length > 0 && (
+                {/* --- Column 3: Recurring Tithis & Tithi Finder --- */}
+                <div className="results-column combined-column">
+                    {/* --- Recurring Tithis Display --- */}
+                    <div className="recurring-tithis-section">
+                        <h2 className="result-title">
+                            {t('festivalsPage.recurringTithisColumnTitle', {
+                                tithiLabel: recurringTithiResults?.tithiLabel || t('festivalsPage.recurringTithisDefaultTitle'),
+                                year: yearForFetching || '...'
+                            })}
+                        </h2>
+                        {isLoadingRecurringTithis && <div className="loader">{t('festivalsPage.recurringTithisLoading')}</div>}
+                        {recurringTithiError && <p className="error-text">{recurringTithiError}</p>}
+                        {!isLoadingRecurringTithis && !recurringTithiError && recurringTithiResults?.dates?.length > 0 && (
                             <>
-                                {/* Display the memoized, translated heading */}
-                                {tithiResultsHeading && <h4 className="result-sub-title">{tithiResultsHeading}:</h4>}
+                                {recurringTithiResults.tithiLabel === t('festivalsPage.trayodashiButton') && (
+                                    <p className="info-text note">{t('festivalsPage.pradoshNote')}</p>
+                                )}
                                 <div className="table-container">
                                     <table className="results-table">
                                         <thead><tr>
-                                            <th>{t('festivalsPage.tithiFinderResultsHeaderDate')}</th>
-                                            <th>{t('festivalsPage.tithiFinderResultsHeaderSunrise')}</th>
-                                            <th>{t('festivalsPage.tithiFinderResultsHeaderStart')}</th>
-                                            <th>{t('festivalsPage.tithiFinderResultsHeaderEnd')}</th>
+                                            <th>{t('festivalsPage.recurringTithisHeaderDate')}</th>
+                                            <th>{t('festivalsPage.recurringTithisHeaderPaksha')}</th>
+                                            <th>{t('festivalsPage.recurringTithisHeaderSunrise')}</th>
+                                            <th>{t('festivalsPage.recurringTithisHeaderStart')}</th>
+                                            <th>{t('festivalsPage.recurringTithisHeaderEnd')}</th>
                                         </tr></thead>
                                         <tbody>
-                                            {tithiDates.map((tithiInfo, index) => (
-                                                <tr key={`specific-tithi-row-${index}-${tithiInfo.date}`}>
-                                                    <td>{formatDateForDisplay(tithiInfo.date)}</td>
-                                                    <td>{formatDateTimeForDisplay(tithiInfo.sunrise)}</td>
-                                                    <td>{formatDateTimeForDisplay(tithiInfo.startTime)}</td>
-                                                    <td>{formatDateTimeForDisplay(tithiInfo.endTime)}</td>
+                                            {recurringTithiResults.dates.map((tithiDate, index) => (
+                                                <tr key={`recurring-${index}-${tithiDate.date}`}>
+                                                    <td>{formatDateForDisplay(tithiDate.date)}</td>
+                                                    <td>{t(`festivalsPage.tithiFinderPaksha${tithiDate.paksha}`, { defaultValue: tithiDate.paksha }) }</td>
+                                                    <td>{formatDateTimeForDisplay(tithiDate.sunrise)}</td>
+                                                    <td>{formatDateTimeForDisplay(tithiDate.startTime)}</td>
+                                                    <td>{formatDateTimeForDisplay(tithiDate.endTime)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -627,17 +690,76 @@ const FestivalsPage = () => {
                                 </div>
                             </>
                         )}
-                        {/* Show prompt or 'No Results' message */}
-                        {!isLoadingTithiDates && !tithiDateError && tithiDates.length === 0 && (
-                            <p className="info-text">
-                                {t('festivalsPage.tithiFinderNoResults')}
-                            </p>
+                        {!isLoadingRecurringTithis && !recurringTithiError && (!recurringTithiResults?.dates || recurringTithiResults.dates.length === 0) && (
+                            <p className="info-text">{t('festivalsPage.recurringTithisNoData')}</p>
                         )}
                     </div>
-                </div> {/* End Tithi Finder Column */}
 
-            </div> {/* End results-grid-container */}
-        </div> // End festivals-page
+                    {/* --- Tithi Date Finder (Manual Specific Search) --- */}
+                    <div className="tithi-finder-section" style={{ marginTop: '2rem' }}>
+                        <h2 className="result-title">{t('festivalsPage.tithiFinderColumnTitle')}</h2>
+                        <div className="tithi-finder-controls">
+                            <label htmlFor="tithi-year-input">{t('festivalsPage.yearLabel')} </label>
+                            <input type="number" id="tithi-year-input" value={tithiSearchYear} onChange={handleTithiYearChange} onKeyPress={handleTithiKeyPress} min="1900" max="2100" placeholder={t('festivalsPage.yearPlaceholder')} disabled={isLoadingTithiDates} className="year-input" />
+
+                            <label htmlFor="hindi-month-select">{t('festivalsPage.tithiFinderMonthLabel')} </label>
+                            <select id="hindi-month-select" value={targetHindiMonth} onChange={handleHindiMonthChange} onKeyPress={handleTithiKeyPress} disabled={isLoadingTithiDates}>
+                                <option value="">{t('festivalsPage.tithiFinderAllMonthsOption')}</option>
+                                {HINDI_MONTH_KEYS.map(monthKey => (
+                                    <option key={monthKey} value={monthKey}>{t(`hindiMonths.${monthKey}`, { defaultValue: monthKey })}</option>
+                                ))}
+                            </select>
+
+                            <label htmlFor="tithi-num-input">{t('festivalsPage.tithiFinderTithiLabel')} </label>
+                            <input type="number" id="tithi-num-input" value={targetTithi} onChange={handleTithiNumChange} onKeyPress={handleTithiKeyPress} min="1" max="15" placeholder={t('festivalsPage.tithiFinderTithiPlaceholder')} disabled={isLoadingTithiDates} />
+
+                            <label htmlFor="paksha-select">{t('festivalsPage.tithiFinderPakshaLabel')} </label>
+                            <select id="paksha-select" value={targetPaksha} onChange={handlePakshaChange} onKeyPress={handleTithiKeyPress} disabled={isLoadingTithiDates}>
+                                <option value="Shukla">{t('festivalsPage.tithiFinderPakshaShukla')}</option>
+                                <option value="Krishna">{t('festivalsPage.tithiFinderPakshaKrishna')}</option>
+                            </select>
+
+                            <button onClick={findTithiDates} disabled={isLoadingTithiDates}>
+                                {isLoadingTithiDates ? t('festivalsPage.tithiFinderSearchingButton') : t('festivalsPage.tithiFinderFindButton')}
+                            </button>
+                        </div>
+
+                        {tithiDateError && <p className="error-text">{tithiDateError}</p>}
+                        <div className="tithi-results-section">
+                            {isLoadingTithiDates && <div className="loader">{t('festivalsPage.tithiFinderSearchingButton')}</div>}
+                            {!isLoadingTithiDates && !tithiDateError && tithiDates.length > 0 && (
+                                <>
+                                    {tithiResultsHeading && <h4 className="result-sub-title">{tithiResultsHeading}:</h4>}
+                                    <div className="table-container">
+                                        <table className="results-table">
+                                            <thead><tr>
+                                                <th>{t('festivalsPage.tithiFinderResultsHeaderDate')}</th>
+                                                <th>{t('festivalsPage.tithiFinderResultsHeaderSunrise')}</th>
+                                                <th>{t('festivalsPage.tithiFinderResultsHeaderStart')}</th>
+                                                <th>{t('festivalsPage.tithiFinderResultsHeaderEnd')}</th>
+                                            </tr></thead>
+                                            <tbody>
+                                                {tithiDates.map((tithiInfo, index) => (
+                                                    <tr key={`specific-tithi-row-${index}-${tithiInfo.date}`}>
+                                                        <td>{formatDateForDisplay(tithiInfo.date)}</td>
+                                                        <td>{formatDateTimeForDisplay(tithiInfo.sunrise)}</td>
+                                                        <td>{formatDateTimeForDisplay(tithiInfo.startTime)}</td>
+                                                        <td>{formatDateTimeForDisplay(tithiInfo.endTime)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
+                            )}
+                            {!isLoadingTithiDates && !tithiDateError && tithiDates.length === 0 && (
+                                <p className="info-text">{t('festivalsPage.tithiFinderNoResults')}</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 };
 

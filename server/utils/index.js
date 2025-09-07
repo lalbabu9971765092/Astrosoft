@@ -13,6 +13,7 @@ export * from './strengthUtils.js';
 export * from './varshphalUtils.js';
 export * from './kpUtils.js';
 export * from './muhurtaUtils.js';
+export * from './eclipseUtils.js';
 
 // You might choose *not* to export everything if some functions are internal helpers.
 // Explicitly list exports if you prefer more control:

@@ -46,7 +46,7 @@ const PlanetDetailsPage = () => {
         error: initialError,
         calculationInputParams,
         adjustedBirthDateTimeString
-    } = useOutletContext();
+    } = useOutletContext() || {};
 
     // --- Local State for Rectified Data ---
     const [rectifiedResultLocal, setRectifiedResultLocal] = useState(null);

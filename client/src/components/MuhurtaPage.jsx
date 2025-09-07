@@ -17,7 +17,7 @@ const MuhurtaPage = () => {
         locationForGocharTool, // Use the transit location
         isLoading: parentIsLoading,
         error: parentError,
-    } = useOutletContext();
+    } = useOutletContext() || {};
 
     const [muhurtaData, setMuhurtaData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
