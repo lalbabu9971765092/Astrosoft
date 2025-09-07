@@ -242,7 +242,7 @@ const AstrologyForm = () => {
         // Use the pre-calculated placements from the API if available.
         // This is the correct data source for a Bhava Chalit chart.
         return displayResult.planetHousePlacements || null;
-    }, [displayResult, t]);
+    }, [displayResult]);
 
     const placidusCuspDegrees = useMemo(() => {
         if (!displayResult?.houses || !Array.isArray(displayResult.houses) || displayResult.houses.length !== 12) return [];
