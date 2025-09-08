@@ -31,6 +31,8 @@ i18n
 
     interpolation: {
       escapeValue: false, // React already safes from xss
+      prefix: '{{',
+      suffix: '}}'
     }
   });
 

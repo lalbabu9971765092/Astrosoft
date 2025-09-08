@@ -1349,14 +1349,15 @@
     "Rudhirodgari": "Rudhirodgari",
     "Raktakshi": "Raktakshi",
     "Krodhana": "Krodhana",
-    "Kshaya": "Kshaya",
-    "Unknown": "Unknown"
-  },
-  "doshaSources": {
-    "Ascendant": "Ascendant",
+   
+    "Mars in house 7 from Ascendant. Mars in house 7 (by Rashi count) from Moon.": "Mars in house 7 from Ascendant. Mars in house 7 (by Rashi count) from Moon.",
+    "Planets are found on both sides of the Rahu-Ketu axis": "Planets are found on both sides of the Rahu-Ketu axis",
+    "Moon is in Purva Bhadrapada, which is not a Gand Mool Nakshatra": "Moon is in Purva Bhadrapada, which is not a Gand Mool Nakshatra",
+  
+        
     "Moon": "Moon",
     "Venus": "Venus"
-  },
+   },
   "kaalsarpaTypes": {
     "Anant": "Anant",
     "Kulik": "Kulik",
@@ -1379,6 +1380,17 @@
     "Enemy": "Enemy",
     "Bitter Enemy": "Bitter Enemy",
     "Unknown": "Unknown"
+  },
+  "doshaReasons": {
+    "planetInHouseFrom": "{{0}} in house {{1}} from {{2}}",
+    "planetInHouseFromRashi": "{{0}} in house {{1}} (by Rashi count) from {{2}}",
+    "planetsBothSidesRahuKetu": "Planets are found on both sides of the Rahu-Ketu axis",
+    "moonNotInGandMool": "{{0}} is in {{1}}, which is not a Gand Mool Nakshatra",
+    "planetNotFoundInHousesFrom": "{{0}} not found in dosha-causing houses ({{1}}) from {{2}}",
+    "allPlanetsBetweenAxis": "All planets ({{0}}) are located between {{1}}",
+    "isExaltedIn": "{{0}} is exalted in {{1}}",
+    "inOwnSign": "{{0}} is in its own sign ({{1}})",
+    "moonInGandMool": "{{0}} is in {{1}}, which is a Gand Mool Nakshatra"
   },
   "planetStates": {
     "Exalted": "Exalted",

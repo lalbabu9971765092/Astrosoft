@@ -1128,6 +1128,14 @@
     "Bitter Enemy": "अधिशत्रु", 
     "Unknown": "अज्ञात" 
   },
+  "doshaReasons": {
+    "planetInHouseFrom": "{{0}} भाव {{1}} में {{2}} से",
+    "planetInHouseFromRashi": "{{0}} {{2}} से {{1}}वें घर में (राशि गणना के अनुसार) है",
+    "planetsBothSidesRahuKetu": "ग्रह राहु-केतु अक्ष के दोनों ओर पाए जाते हैं",
+    "moonNotInGandMool": "{{0}} {{1}} में है, जो एक गंड मूल नक्षत्र नहीं है",
+    "planetNotFoundInHousesFrom": "{{0}} दोष-कारक भावों ({{1}}) में {{2}} से नहीं मिला",
+    "moonInGandMool": "{{0}} {{1}} में है, जो एक गंड मूल नक्षत्र है"
+  },
   "planetStates": {
     "Exalted": "उच्च",
     "Debilitated": "नीच",

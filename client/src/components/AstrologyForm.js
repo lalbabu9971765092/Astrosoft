@@ -1,7 +1,7 @@
     import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { formatDosha } from '../utils/doshaFormatter';
+import { formatDosha } from './doshaFormatter';
 import '../styles/AstrologyForm.css';
 import '../styles/AstrologyFormContent.css';
 import DiamondChart from './DiamondChart';
@@ -475,7 +475,7 @@ const AstrologyForm = () => {
                         <p className="result-text">
                             {t('Birth Ascendant Detail')}
                             {displayResult.ascendant?.rashi &&
-                                ` (${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${displayResult.ascendant.nakshatra}`, { defaultValue: displayResult.ascendant.nakshatra })} ${t('astrologyForm.padaLabel')}${displayResult.ascendant.pada}${displayResult.ascendant.padaAlphabet ? ` (${displayResult.ascendant.padaAlphabet})` : ''}, ${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.ascendant.nakLord}`, { defaultValue: displayResult.ascendant.nakLord })})`}
+                                ` (${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${displayResult.ascendant.nakshatra}`, { defaultValue: displayResult.ascendant.nakshatra })} ${t('astrologyForm.padaLabel')}${displayResult.ascendant.pada}${displayResult.ascendant.padaAlphabet ? ` (${t(`naamAksharas.${displayResult.ascendant.padaAlphabet}`, { defaultValue: displayResult.ascendant.padaAlphabet })})` : ''}, ${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.ascendant.nakLord}`, { defaultValue: displayResult.ascendant.nakLord })})`}
                         </p>
                         {/* Badhak Details */}
                         {displayResult.badhakDetails && !displayResult.badhakDetails.error && (
@@ -506,9 +506,9 @@ const AstrologyForm = () => {
                         <button className="toggle-button">{openSections.doshas ? '−' : '+'}</button>
                     </div>
                     <div className={`section-content ${openSections.doshas ? '' : 'collapsed'}`}>
-                        <p className="result-text">{t('astrologyForm.mangalDoshaLabel')} {formatDosha('mangal', birthDoshas)}</p>
-                        <p className="result-text">{t('astrologyForm.kaalsarpaDoshaLabel')} {formatDosha('kaalsarpa', birthDoshas)}</p>
-                        <p className="result-text">{t('astrologyForm.moolDoshaLabel')} {formatDosha('mool', birthDoshas)}</p>
+                        <p className="result-text">{t('astrologyForm.mangalDoshaLabel')} {formatDosha('mangal', birthDoshas, t)}</p>
+                        <p className="result-text">{t('astrologyForm.kaalsarpaDoshaLabel')} {formatDosha('kaalsarpa', birthDoshas, t)}</p>
+                        <p className="result-text">{t('astrologyForm.moolDoshaLabel')} {formatDosha('mool', birthDoshas, t)}</p>
                     </div>
                 </div>
                 {/* Longevity Factors */}
@@ -558,7 +558,7 @@ const AstrologyForm = () => {
                         <p className="result-text">
                             {t('astrologyForm.nakMoLabel')} {t(`nakshatras.${moonNakshatraKey}`, { defaultValue: moonNakshatraKey ?? t('utils.notAvailable', 'N/A') })}
                             {moonSiderealData?.nakLord && ` (${t('astrologyForm.lordLabel')} ${t(`planets.${moonSiderealData.nakLord}`, { defaultValue: moonSiderealData.nakLord })})`}
-                            {moonPada !== 'N/A' ? ` (${t('astrologyForm.padaLabel')}${moonPada}${moonSiderealData.padaAlphabet ? ` (${moonSiderealData.padaAlphabet})` : ''})` : ""}
+                            {moonPada !== 'N/A' ? ` (${t('astrologyForm.padaLabel')}${moonPada}${moonSiderealData.padaAlphabet ? ` (${t(`naamAksharas.${moonSiderealData.padaAlphabet}`, { defaultValue: moonSiderealData.padaAlphabet })})` : ''})` : ""}
                             {birthNakshatra?.start && birthNakshatra?.end && ` (${formatPanchangTime(birthNakshatra.start, t, i18n)} - ${formatPanchangTime(birthNakshatra.end, t, i18n)})`}
                         </p>
                         <p className="result-text">
@@ -773,7 +773,7 @@ const AstrologyForm = () => {
                                                     <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                     <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                     <td>{t(`nakshatras.${nakshatra}`, { defaultValue: nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                    <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${displayNaamAkshar})`}</td> {/* Display Pada and Naam Akshar */}
+                                                    <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${displayNaamAkshar})`}</td>
                                                    <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
@@ -824,7 +824,7 @@ const AstrologyForm = () => {
 
                                             return (
                                                 <tr key={body}>
-                                                    <td>{PLANET_SYMBOLS[body] || body}</td><td>{planetData.dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                    <td>{t(`planetsShort.${body}`, { defaultValue: PLANET_SYMBOLS[body] || body })}</td><td>{planetData.dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                     <td>{`${t(`nakshatras.${nakshatraKey}`, { defaultValue: nakshatraKey ?? t('utils.notAvailable', 'N/A') })} (${t('astrologyForm.padaLabel')}${pada}${planetData.padaAlphabet ? ` (${planetData.padaAlphabet})` : ''})`}</td>
                                                     <td>{t(`planets.${nakLordKey}`, { defaultValue: nakLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`planets.${subLordKey}`, { defaultValue: subLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
@@ -879,7 +879,7 @@ const AstrologyForm = () => {
                                                         <td>{house.house_number ?? t('utils.notAvailable', 'N/A')}</td><td>{house.start_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                         <td>{house.mean_dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                         <td>{t(`nakshatras.${nakshatra}`, { defaultValue: nakshatra ?? t('utils.notAvailable', 'N/A') })}</td>
-                                                       <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${displayNaamAkshar})`}</td> {/* Display Pada and Naam Akshar */}
+                                                       <td>{`${pada ?? t('utils.notAvailable', 'N/A')} (${displayNaamAkshar})`}</td>
                                                         <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
@@ -932,7 +932,7 @@ const AstrologyForm = () => {
 
                                                 return (
                                                     <tr key={body}>
-                                                        <td>{PLANET_SYMBOLS[body] || body}</td><td>{planetData.dms ?? t('utils.notAvailable', 'N/A')}</td>
+                                                        <td>{t(`planetsShort.${body}`, { defaultValue: PLANET_SYMBOLS[body] || body })}</td><td>{planetData.dms ?? t('utils.notAvailable', 'N/A')}</td>
                                                         <td>{`${t(`nakshatras.${nakshatraKey}`, { defaultValue: nakshatraKey ?? t('utils.notAvailable', 'N/A') })} (${t('astrologyForm.padaLabel')}${pada}${planetData.padaAlphabet ? ` (${planetData.padaAlphabet})` : ''})`}</td>
                                                         <td>{t(`planets.${nakLordKey}`, { defaultValue: nakLordKey ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`planets.${subLordKey}`, { defaultValue: subLordKey ?? t('utils.notAvailable', 'N/A') })}</td>

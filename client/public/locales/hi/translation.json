@@ -1314,12 +1314,10 @@
     "Raktakshi": "रक्ताक्षी",
     "Krodhana": "क्रोधन",
     "Kshaya": "क्षय",
-    "Unknown": "अज्ञात"
-  },
-  "doshaSources": {
-    "Ascendant": "लग्न",
-    "Moon": "चंद्रमा",
-    "Venus": "शुक्र"
+    "Unknown": "अज्ञात",
+    "Mars in house 7 from Ascendant. Mars in house 7 (by Rashi count) from Moon.": "मंगल लग्न से 7वें घर में है। मंगल चंद्रमा से 7वें घर में (राशि गणना के अनुसार) है।",
+    "Planets are found on both sides of the Rahu-Ketu axis": "राहु-केतु अक्ष के दोनों ओर ग्रह पाए जाते हैं",
+    "Moon is in Purva Bhadrapada, which is not a Gand Mool Nakshatra": "चंद्रमा पूर्व भाद्रपद में है, जो एक गंड मूल नक्षत्र नहीं है"
   },
   "kaalsarpaTypes": {
     "Anant": "अनंत",
@@ -1343,6 +1341,22 @@
     "Enemy": "शत्रु",
     "Bitter Enemy": "अधिशत्रु", 
     "Unknown": "अज्ञात" 
+  },
+  "doshaSources": {
+    "Ascendant": "लग्न",
+    "Moon": "चंद्रमा",
+    "Venus": "शुक्र"
+  },
+  "doshaReasons": {
+    "planetInHouseFrom": "{{0}} भाव {{1}} में {{2}} से",
+    "planetInHouseFromRashi": "{{0}} {{2}} से {{1}}वें घर में (राशि गणना के अनुसार) है",
+    "planetsBothSidesRahuKetu": "ग्रह राहु-केतु अक्ष के दोनों ओर पाए जाते हैं",
+    "moonNotInGandMool": "{{0}} {{1}} में है, जो एक गंड मूल नक्षत्र नहीं है",
+    "allPlanetsBetweenAxis": "सभी ग्रह ({{0}}) {{1}} के बीच स्थित हैं",
+    "isExaltedIn": "{{0}} {{1}} में उच्च का है",
+    "inOwnSign": "{{0}} अपनी स्वराशि ({{1}}) में है",
+    "planetNotFoundInHousesFrom": "{{0}} दोष-कारक भावों ({{1}}) में {{2}} से नहीं मिला",
+    "moonInGandMool": "{{0}} {{1}} में है, जो एक गंड मूल नक्षत्र है"
   },
   "planetStates": {
     "Exalted": "उच्च",
