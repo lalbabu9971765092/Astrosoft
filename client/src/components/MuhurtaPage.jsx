@@ -37,7 +37,7 @@ const MuhurtaPage = () => {
     const handleCalculateMuhurta = useCallback(async () => {
         if (!adjustedGocharDateTimeString || !locationForGocharTool?.lat || !locationForGocharTool?.lon) {
             setMuhurtaData(null);
-            setError(t('muhurtaPage.noDataYet'));
+            setError(t('muhurtaPage.noDataYet', 'Please calculate a chart first to see Muhurta details.'));
             return;
         }
 
@@ -239,10 +239,10 @@ const MuhurtaPage = () => {
             {/* Display Date, Day, Sunrise, Sunset */}
             {muhurtaData && muhurtaData.inputParameters && (
                 <div className="muhurta-info-bar">
-                    <p><strong>{t('date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
-                    <p><strong>{t('day')}:</strong> {muhurtaData.inputParameters.day}</p>
-                    <p><strong>{t('sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
-                    <p><strong>{t('sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
+                    <p><strong>{t('muhurtaPage.date', 'Date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
+                    <p><strong>{t('muhurtaPage.day', 'Day')}:</strong> {muhurtaData.inputParameters.day}</p>
+                    <p><strong>{t('muhurtaPage.sunrise', 'Sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
+                    <p><strong>{t('muhurtaPage.sunset', 'Sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
                 </div>
             )}
 
@@ -260,7 +260,7 @@ const MuhurtaPage = () => {
                     </div>
                 )}
                 {!(parentIsLoading || isLoading) && !parentError && !error && !muhurtaData && (
-                    <p>{t('muhurtaPage.noDataYet')}</p>
+                    <p>{t('muhurtaPage.noDataYet', 'Please calculate a chart first to see Muhurta details.')}</p>
                 )}
             </div>
         </div>

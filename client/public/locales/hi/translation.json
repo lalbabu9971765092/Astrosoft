@@ -261,7 +261,8 @@
     "alertInvalidDateTime": "अमान्य दिनांक/समय: {{error}}",
     "alertInvalidCoords": "अमान्य निर्देशांक: {{error}}",
     "saveChartFailedGeneric": "चार्ट सहेजने में विफल।",
-    "saveChartErrorAlert": "चार्ट सहेजा नहीं जा सका: {{message}}"
+    "saveChartErrorAlert": "चार्ट सहेजा नहीं जा सका: {{message}}",
+    "preparedBy": "डेवलपर और ज्योतिषी: रवीन्द्र मोहन झा"
   },
   "ashtakavargaPage": {
     "title": "अष्टकवर्ग",

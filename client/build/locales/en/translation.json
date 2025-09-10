@@ -96,7 +96,13 @@
     "rashiLord": "Rashi Lord",
     "nakshatra": "Nakshatra",
     "nakshatraLord": "Nakshatra Lord",
-    "description": "Description"
+    "description": "Description",
+    "noDataYet": "Please calculate a chart first to see Muhurta details.",
+    "invalidDateFormatError": "Invalid date format: {{error}}",
+    "date": "Date",
+    "day": "Day",
+    "sunrise": "Sunrise",
+    "sunset": "Sunset"
   },
   "pageTitles": {
     "mainChart": "Main Astrology Chart",

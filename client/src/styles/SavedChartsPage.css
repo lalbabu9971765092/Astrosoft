@@ -1,0 +1,107 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.saved-charts-container {
+    padding: 20px;
+    max-width: 550px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.saved-charts-container h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.search-bar-container {
+    margin-bottom: 20px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.saved-charts-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.saved-charts-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.saved-charts-list li:last-child {
+    border-bottom: none;
+}
+
+.saved-charts-list li:hover {
+    background-color: #f9f9f9;
+}
+
+.chart-info {
+    cursor: pointer;
+    flex-grow: 1;
+}
+
+.chart-info strong {
+    font-size: 1.1em;
+    color: #3498db;
+}
+
+.chart-info small {
+    color: #7f8c8d;
+    display: block;
+    margin-top: 4px;
+}
+
+.delete-chart-button {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.delete-chart-button:hover {
+    background-color: #fbecec;
+    color: #c0392b;
+}
+
+.delete-chart-button:disabled {
+    color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.loader {
+    text-align: center;
+    padding: 20px;
+}
+
+.error-text {
+    color: #e74c3c;
+    text-align: center;
+    padding: 20px;
+}

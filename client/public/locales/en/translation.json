@@ -271,7 +271,8 @@
     "alertInvalidDateTime": "Invalid Date/Time: {{error}}",
     "alertInvalidCoords": "Invalid Coordinates: {{error}}",
     "saveChartFailedGeneric": "Failed to save chart.",
-    "saveChartErrorAlert": "Could not save chart: {{message}}"
+    "saveChartErrorAlert": "Could not save chart: {{message}}",
+    "preparedBy": "Developer and Astrologer: Rabindra Mohan Jha"
   },
   "ashtakavargaPage": {
     "title": "Ashtakavarga",

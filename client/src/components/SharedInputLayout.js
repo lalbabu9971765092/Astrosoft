@@ -21,7 +21,6 @@ const SharedInputLayout = () => {
     const { t } = useTranslation();
 
     // --- State ---
-    // ... (all your existing state variables: date, coords, placeName, isLoading, etc.) ...
     const [date, setDate] = useState('');
     const [coords, setCoords] = useState('');
     const [placeName, setPlaceName] = useState('');
@@ -37,34 +36,29 @@ const SharedInputLayout = () => {
     const [adjustedGocharDateTimeString, setAdjustedGocharDateTimeString] = useState(null);
     const [name, setName] = useState('');
     const [gender, setGender] = useState('');
-    const [savedCharts, setSavedCharts] = useState([]);
-    const [isLoadingSavedCharts, setIsLoadingSavedCharts] = useState(false);
-    const [savedChartsError, setSavedChartsError] = useState(null);
     const [isSavingChart, setIsSavingChart] = useState(false);
     const [savingChartError, setSavingChartError] = useState(null);
-    const [showLoadModal, setShowLoadModal] = useState(false);
-    const [isDeletingChart, setIsDeletingChart] = useState(false);
-    const [deletingChartId, setDeletingChartId] = useState(null);
-    const [deletingChartError, setDeletingChartError] = useState(null);
-
-    // *** RENAMED STATE for clarity ***
     const [isTopStripCollapsed, setIsTopStripCollapsed] = useState(false);
 
-    // --- Effects (Keep existing effects) ---
-    // ... (useEffect for initial load, useEffect for adjustedBirthDateTimeString) ...
+    const fetchSavedCharts = useCallback(async () => {
+        try {
+            await api.get('/charts');
+        } catch (err) {
+            console.error("Error fetching saved charts:", err);
+        }
+    }, []);
+
+    // --- Effects ---
     useEffect(() => {
-        // Set initial date/time input to current local time
         const now = new Date();
         const timezoneOffsetMinutes = now.getTimezoneOffset();
         const localNow = new Date(now.getTime() - timezoneOffsetMinutes * 60000);
-        const formattedDateTimeInput = localNow.toISOString().slice(0, 16); // YYYY-MM-DDTHH:MM for input field
+        const formattedDateTimeInput = localNow.toISOString().slice(0, 16);
         setDate(formattedDateTimeInput);
 
-        // Set initial Gochar time string using the consistent local formatter
-        const initialGocharStr = formatToLocalISOString(now); // YYYY-MM-DDTHH:MM:SS
+        const initialGocharStr = formatToLocalISOString(now);
         setAdjustedGocharDateTimeString(initialGocharStr);
 
-        // Get current location
         if (navigator.geolocation) {
             setIsFetchingLocation(true);
             setLocationError(null);
@@ -89,10 +83,8 @@ const SharedInputLayout = () => {
             setLocationError(t('sharedLayout.geolocationNotSupported'));
         }
         fetchSavedCharts();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [t]); // Add t to dependency array
+    }, [t, fetchSavedCharts]);
 
-    // Initialize adjustedBirthDateTimeString directly from calculationInputParams.date
     useEffect(() => {
         if (calculationInputParams?.date) {
             setAdjustedBirthDateTimeString(calculationInputParams.date);
@@ -101,10 +93,47 @@ const SharedInputLayout = () => {
         }
     }, [calculationInputParams]);
 
+    const handleLoadChart = useCallback((chartToLoad) => {
+        if (!chartToLoad) return;
+        setName(chartToLoad.name || '');
+        setGender(chartToLoad.gender || '');
+        let formattedLoadDate = '';
+        if (chartToLoad.date) {
+            try {
+                const validation = validateAndFormatDateTime(chartToLoad.date, t);
+                if (validation.isValid && validation.formattedDate) {
+                    formattedLoadDate = validation.formattedDate.slice(0, 16);
+                } else {
+                    const loadedDateObj = new Date(chartToLoad.date);
+                    if (!isNaN(loadedDateObj.getTime())) {
+                        const localDate = new Date(loadedDateObj.getTime() - loadedDateObj.getTimezoneOffset() * 60000);
+                        formattedLoadDate = localDate.toISOString().slice(0, 16);
+                    } else { console.error("Invalid date format in loaded chart data:", chartToLoad.date); }
+                }
+            } catch (e) { console.error("Error formatting loaded date:", e); }
+        }
+        setDate(formattedLoadDate);
+        setCoords(`${chartToLoad.latitude?.toFixed(6) || ''},${chartToLoad.longitude?.toFixed(6) || ''}`);
+        setPlaceName(chartToLoad.placeName || '');
+        setMainResult(null); setKpResult(null); setError(null); setLocationError(null); setCalculationInputParams(null);
+    }, [t]);
 
-    // --- Handlers (Keep existing handlers) ---
-    // ... (handleFindCoordinates, handleCalculateAll, handleBirthTimeChange, handleGocharTimeChange, fetchSavedCharts, handleSaveChart, handleLoadChart, handleDeleteChart) ...
-     // Geocoding Handler
+    useEffect(() => {
+        const handleChartLoadEvent = (event) => {
+            const { chartToLoad } = event.detail;
+            if (chartToLoad) {
+                handleLoadChart(chartToLoad);
+            }
+        };
+
+        window.addEventListener('loadChart', handleChartLoadEvent);
+
+        return () => {
+            window.removeEventListener('loadChart', handleChartLoadEvent);
+        };
+    }, [handleLoadChart]);
+
+    // --- Handlers ---
      const handleFindCoordinates = useCallback(async () => {
         if (!placeName.trim() || placeName === t('sharedLayout.currentLocationDefault', "Current Location")) {
             alert(t('sharedLayout.alertEnterPlace'));
@@ -115,7 +144,7 @@ const SharedInputLayout = () => {
         setLocationError(null);
         setCoords('');
         try {
-            const userAgent = 'AstrologyWebApp/1.0 (your-contact@example.com)'; // Replace with your details
+            const userAgent = 'AstrologyWebApp/1.0 (your-contact@example.com)';
             const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(placeName)}&format=json&limit=1&addressdetails=1`;
             const response = await axios.get(url, { headers: { 'User-Agent': userAgent } });
             if (response.data && response.data.length > 0) {
@@ -138,7 +167,6 @@ const SharedInputLayout = () => {
         }
     }, [placeName, t]);
 
-    // Main Calculation Handler
     const handleCalculateAll = useCallback(async (e, gocharDate = null) => {
         if (e) e.preventDefault();
         setIsLoading(true);
@@ -160,7 +188,6 @@ const SharedInputLayout = () => {
         const currentInputParams = { date: formattedDate, latitude, longitude, placeName: placeName };
 
         try {
-            
             const [mainResponse, kpResponse] = await Promise.all([
                 api.post('/calculate', currentInputParams).catch(err => ({ error: err })),
                 api.post('/kp-significators', currentInputParams).catch(err => ({ error: err }))
@@ -182,8 +209,6 @@ const SharedInputLayout = () => {
                 setKpResult({ ...kpResponse.data, inputParameters: currentInputParams });
             }
 
-            // IMPORTANT: Only update calculationInputParams if it's actually different
-            // This prevents unnecessary re-renders and potential infinite loops
             if (JSON.stringify(currentInputParams) !== JSON.stringify(calculationInputParams)) {
                 setCalculationInputParams(currentInputParams);
             }
@@ -198,61 +223,35 @@ const SharedInputLayout = () => {
         }
     }, [date, coords, placeName, t, calculationInputParams]);
 
-    // Effect to trigger initial calculation
     useEffect(() => {
         const hasValidInputs = date && coords && !locationError;
         const isReady = !isLoading && !isGeocoding && !isFetchingLocation;
         const needsCalculation = !calculationInputParams && !error;
 
         if (hasValidInputs && isReady && needsCalculation) {
-            
             handleCalculateAll();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [date, coords, locationError, isLoading, isGeocoding, isFetchingLocation, calculationInputParams, error]);
+    }, [date, coords, locationError, isLoading, isGeocoding, isFetchingLocation, calculationInputParams, error, handleCalculateAll]);
 
-    // Time Adjustment Handlers
     const handleBirthTimeChange = useCallback((newDateTimeString) => {
         setAdjustedBirthDateTimeString(newDateTimeString);
 
-        // Convert the ISO string (which is likely in UTC) to a local time for the input
         const dateObj = new Date(newDateTimeString);
         if (!isNaN(dateObj.getTime())) {
-            // Create a new Date object representing the local time
             const localDate = new Date(dateObj.getTime() - dateObj.getTimezoneOffset() * 60000);
-            // Format it for the datetime-local input (YYYY-MM-DDTHH:MM)
             const formattedForInput = localDate.toISOString().slice(0, 16);
             setDate(formattedForInput);
         } else {
-            // Fallback for safety, though less likely to happen
             setDate(newDateTimeString.slice(0, 16));
         }
 
-        // Explicitly trigger calculation with the new rectified date (original ISO string is fine here)
         handleCalculateAll(null, newDateTimeString);
     }, [handleCalculateAll]);
+
     const handleGocharTimeChange = useCallback((newDateTimeString) => {
         setAdjustedGocharDateTimeString(newDateTimeString);
     }, []);
 
-    // Fetch Saved Charts
-    const fetchSavedCharts = useCallback(async () => {
-        setIsLoadingSavedCharts(true);
-        setSavedChartsError(null);
-        setDeletingChartError(null);
-        try {
-            const response = await api.get('/charts');
-            setSavedCharts(response.data?.charts || []);
-        } catch (err) {
-            console.error("Error fetching saved charts:", err);
-            setSavedChartsError(t('sharedLayout.loadChartsFailed', { message: err.response?.data?.error || err.message || "Failed." }));
-            setSavedCharts([]);
-        } finally {
-            setIsLoadingSavedCharts(false);
-        }
-    }, [t]);
-
-    // Save Current Chart
     const handleSaveChart = useCallback(async () => {
         if (!name.trim()) { alert(t('sharedLayout.alertInvalidName')); return; }
         const dateTimeValidation = validateAndFormatDateTime(date, t);
@@ -272,49 +271,11 @@ const SharedInputLayout = () => {
         } finally { setIsSavingChart(false); }
     }, [name, gender, date, coords, placeName, fetchSavedCharts, t]);
 
-    // Load Selected Chart
-    const handleLoadChart = useCallback((chartToLoad) => {
-        if (!chartToLoad) return;
-        setName(chartToLoad.name || ''); setGender(chartToLoad.gender || '');
-        let formattedLoadDate = '';
-        if (chartToLoad.date) {
-            try {
-                const validation = validateAndFormatDateTime(chartToLoad.date, t);
-                if (validation.isValid && validation.formattedDate) {
-                    formattedLoadDate = validation.formattedDate.slice(0, 16);
-                } else {
-                    const loadedDateObj = new Date(chartToLoad.date);
-                    if (!isNaN(loadedDateObj.getTime())) {
-                        const localDate = new Date(loadedDateObj.getTime() - loadedDateObj.getTimezoneOffset() * 60000);
-                        formattedLoadDate = localDate.toISOString().slice(0, 16);
-                    } else { console.error("Invalid date format in loaded chart data:", chartToLoad.date); }
-                }
-            } catch (e) { console.error("Error formatting loaded date:", e); }
-        }
-        setDate(formattedLoadDate);
-        setCoords(`${chartToLoad.latitude?.toFixed(6) || ''},${chartToLoad.longitude?.toFixed(6) || ''}`);
-        setPlaceName(chartToLoad.placeName || '');
-        setMainResult(null); setKpResult(null); setError(null); setLocationError(null); setCalculationInputParams(null);
-        setShowLoadModal(false); setDeletingChartError(null);
-    }, [t]);
+    const handleOpenLoadChartWindow = () => {
+        const newWindow = window.open('/saved-charts', 'SavedCharts', 'width=600,height=400');
+        if (newWindow) newWindow.focus();
+    };
 
-    // Delete Handler
-    const handleDeleteChart = useCallback(async (chartIdToDelete, event) => {
-        event.stopPropagation();
-        if (!window.confirm(t('sharedLayout.deleteConfirmPrompt', { chartId: chartIdToDelete }))) return;
-        setIsDeletingChart(true); setDeletingChartId(chartIdToDelete); setDeletingChartError(null);
-        try {
-            await api.delete(`/charts/${chartIdToDelete}`);
-            fetchSavedCharts();
-        } catch (err) {
-            console.error(`Error deleting chart ${chartIdToDelete}:`, err);
-            const errorMsg = err.response?.data?.error || err.message || t('sharedLayout.deleteChartFailedGeneric');
-            setDeletingChartError(t('sharedLayout.deleteChartErrorSpecific', { chartId: chartIdToDelete, message: errorMsg }));
-        } finally { setIsDeletingChart(false); setDeletingChartId(null); }
-    }, [fetchSavedCharts, t]);
-
-
-    // --- Memos ---
     const locationForGocharTool = useMemo(() => {
         const coordsValidation = parseAndValidateCoords(coords);
         if (coordsValidation.isValid) {
@@ -326,42 +287,35 @@ const SharedInputLayout = () => {
         }
     }, [coords, calculationInputParams]);
 
-    // --- NEW: Toggle Handler ---
     const toggleTopStripCollapse = () => {
         setIsTopStripCollapsed(prev => !prev);
     };
 
-    // --- RENDER ---
     return (
         <div className="shared-layout-container">
-            {/* Top Strip - Apply collapsed class here */}
             <div
-                id="top-strip-controls" // Add ID for aria-controls
+                id="top-strip-controls"
                 className={`top-strip ${isTopStripCollapsed ? 'collapsed' : ''}`}
             >
-                {/* --- ADD GLOBAL TOGGLE BUTTON --- */}
                 <button
                     onClick={toggleTopStripCollapse}
                     className="top-strip-toggle-button"
                     title={isTopStripCollapsed ? t('sharedLayout.expandInputs') : t('sharedLayout.collapseInputs')}
                     aria-expanded={!isTopStripCollapsed}
-                    aria-controls="top-strip-controls" // Controls the whole strip
+                    aria-controls="top-strip-controls"
                 >
-                    {isTopStripCollapsed ? <FaEdit /> : <FaChevronUp />} {/* Edit icon when collapsed */}
-                    <span className="sr-only"> {/* Screen reader text */}
+                    {isTopStripCollapsed ? <FaEdit /> : <FaChevronUp />}
+                    <span className="sr-only">
                         {isTopStripCollapsed ? t('sharedLayout.expandInputs') : t('sharedLayout.collapseInputs')}
                     </span>
                 </button>
 
-                {/* --- Existing Sections (will be hidden by CSS when collapsed) --- */}
-                {/* Birth Time Rectification Tool */}
                 <div className="top-strip-section birth-rectification-tool-section">
                     {calculationInputParams?.date && adjustedBirthDateTimeString ? (
                         <TimeAdjustmentTool
-                           // Use original date as key for stability if needed, or adjusted if remount is desired on change
                            key="birth-time-adjustment-tool"
                             initialDateTimeString={calculationInputParams.date}
-                            value={adjustedBirthDateTimeString} // Pass the CURRENT adjusted value
+                            value={adjustedBirthDateTimeString}
                             onDateTimeChange={handleBirthTimeChange}
                             label={t('sharedLayout.rectificationToolLabel')}
                             showReset={true}
@@ -371,11 +325,8 @@ const SharedInputLayout = () => {
                     )}
                 </div>
 
-                {/* Input Form Section */}
                 <div className="top-strip-section input-form-section astrology-form-container">
-                    {/* Form content remains the same */}
                     <form onSubmit={handleCalculateAll} noValidate>
-                        {/* Row 1: Name & Gender */}
                         <div className="form-row">
                             <div className="input-group half-width">
                                 <label htmlFor="name-input">{t('sharedLayout.nameLabel')}</label>
@@ -391,14 +342,12 @@ const SharedInputLayout = () => {
                                 </select>
                             </div>
                         </div>
-                        {/* Row 2: Date & Time */}
                         <div className="form-row">
                             <div className="input-group full-width">
                                 <label htmlFor="date-input">{t('sharedLayout.dateTimeLabel')}</label>
                                 <input id="date-input" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} required aria-required="true" step="1" disabled={isLoading || isGeocoding || isFetchingLocation || isSavingChart} />
                             </div>
                         </div>
-                        {/* Row 3: Place & Find Coords */}
                         <div className="form-row">
                             <div className="input-group place-group">
                                 <label htmlFor="place-input">{t('sharedLayout.placeLabel')}</label>
@@ -411,7 +360,6 @@ const SharedInputLayout = () => {
                                 {isGeocoding && <div className="loader small-loader" aria-label={t('sharedLayout.findingCoordsButton')}></div>}
                             </div>
                         </div>
-                        {/* Row 4: Coordinates */}
                         <div className="form-row">
                              <div className="input-group full-width">
                                 <label htmlFor="coords-input">{t('sharedLayout.coordsLabel')}</label>
@@ -420,7 +368,6 @@ const SharedInputLayout = () => {
                                 {locationError && <p className="error-text small-error">{locationError}</p>}
                             </div>
                         </div>
-                        {/* Row 5: Action Buttons */}
                         <div className="form-row action-buttons-row">
                             <div className="submit-button-container">
                                 <button type="submit" disabled={isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
@@ -433,20 +380,17 @@ const SharedInputLayout = () => {
                                 </button>
                             </div>
                             <div className="save-load-button-container">
-                                <button type="button" onClick={() => { setShowLoadModal(true); fetchSavedCharts(); }} disabled={isLoadingSavedCharts || isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
-                                    {isLoadingSavedCharts ? t('sharedLayout.loadingListButton') : t('sharedLayout.loadChartButton')}
+                                <button type="button" onClick={handleOpenLoadChartWindow} disabled={isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
+                                    {t('sharedLayout.loadChartButton')}
                                 </button>
                             </div>
                         </div>
-                         {/* Global Loading/Error */}
                          {isLoading && <div className="main-loader small-loader" aria-live="polite">{t('sharedLayout.calculatingButton')}</div>}
                          {error && <p className="error-text small-error calculation-error" role="alert">{t('sharedLayout.calculationErrorPrefix')}: {error}</p>}
                          {savingChartError && <p className="error-text small-error save-load-error" role="alert">{t('sharedLayout.saveErrorPrefix')}: {savingChartError}</p>}
                     </form>
-                    {/* REMOVED the individual collapse button from here */}
                 </div>
 
-                {/* Gochar Time Progression Tool */}
                 <div className="top-strip-section transit-adjustment-tool-section">
                     {locationForGocharTool.lat !== null && locationForGocharTool.lon !== null && adjustedGocharDateTimeString ? (
                         <TimeAdjustmentTool
@@ -459,40 +403,8 @@ const SharedInputLayout = () => {
                          <div className="tool-placeholder">{t('sharedLayout.gocharPlaceholder')}</div>
                     )}
                 </div>
-            </div> {/* End Top Strip */}
+            </div>
 
-            {/* Load Chart Modal (Keep as is) */}
-            {showLoadModal && (
-                <div className="modal-overlay" onClick={() => { setShowLoadModal(false); setDeletingChartError(null); }}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <h3>{t('sharedLayout.loadModalTitle')}</h3>
-                        {isLoadingSavedCharts && <div className="loader">{t('sharedLayout.loadModalLoading')}</div>}
-                        {savedChartsError && <p className="error-text">{savedChartsError}</p>}
-                        {deletingChartError && <p className="error-text">{deletingChartError}</p>}
-                        {!isLoadingSavedCharts && !savedChartsError && (
-                            savedCharts.length > 0 ? (
-                                <ul className="saved-charts-list">
-                                    {savedCharts.map(chart => (
-                                        <li key={chart.id}>
-                                            <div className="chart-info" onClick={() => handleLoadChart(chart)}>
-                                                <strong>{chart.name}</strong> ({t(`sharedLayout.gender${chart.gender}`) || chart.gender || t('utils.notAvailable', 'N/A')})
-                                                <br />
-                                                <small>{formatToLocalISOString(new Date(chart.date))} - {chart.placeName}</small>
-                                            </div>
-                                            <button className="delete-chart-button" onClick={(e) => handleDeleteChart(chart.id, e)} disabled={isDeletingChart && deletingChartId === chart.id} title={t('sharedLayout.deleteButtonTitle', { chartName: chart.name })}>
-                                                {isDeletingChart && deletingChartId === chart.id ? t('sharedLayout.deletingButton') : t('sharedLayout.deleteButton')}
-                                            </button>
-                                        </li>
-                                    ))}
-                                </ul>
-                            ) : ( <p>{t('sharedLayout.loadModalNoCharts')}</p> )
-                        )}
-                        <button onClick={() => { setShowLoadModal(false); setDeletingChartError(null); }} className="modal-close-button">{t('sharedLayout.loadModalCloseButton')}</button>
-                    </div>
-                </div>
-            )}
-
-            {/* Content Area (This will shift up) */}
             <div className="content-area">
                 <Outlet context={{
                     mainResult, kpResult, isLoading, error, calculationInputParams,
