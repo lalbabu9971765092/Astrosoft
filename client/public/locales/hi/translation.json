@@ -648,7 +648,11 @@
     "invalidAdjustedBirthDate": "अमान्य समायोजित जन्म तिथि: {{error}}",
     "invalidAdjustedTransitDate": "अमान्य समायोजित गोचर तिथि: {{error}}",
     "fetchRectifiedNatalFailed": "सुधारा हुआ जन्म डेटा लाने में विफल।",
-    "fetchAdjustedTransitFailed": "समायोजित गोचर डेटा लाने में विफल।"
+    "fetchAdjustedTransitFailed": "समायोजित गोचर डेटा लाने में विफल।",
+    "toggleNatalPlanets": "जन्म ग्रह",
+    "toggleTransitPlanets": "गोचर ग्रह",
+    "toggleNatalHouse": "जन्म भाव",
+    "toggleTransitHouse": "गोचर भाव"
   },
   "planetDegreeTable": {
     "title": "{{type}} अंश",
@@ -1127,7 +1131,8 @@
     "placeholder": "चार्ट के लिए जन्म ग्रह डेटा अनुपलब्ध है।",
     "legendNatal": "जन्म",
     "legendTransit": "गोचर",
-    "legendHouses": "भाव",
+    "legendHouses": "जन्म भाव",
+    "legendTransitHouses": "गोचर भाव",
     "legendSigns": "राशि"
   },
   "rashisShort": {

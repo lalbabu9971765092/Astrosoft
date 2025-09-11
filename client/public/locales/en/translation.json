@@ -663,7 +663,11 @@
     "invalidAdjustedBirthDate": "Invalid adjusted birth date: {{error}}",
     "invalidAdjustedTransitDate": "Invalid adjusted transit date: {{error}}",
     "fetchRectifiedNatalFailed": "Failed to fetch rectified natal data.",
-    "fetchAdjustedTransitFailed": "Failed to fetch adjusted transit data."
+    "fetchAdjustedTransitFailed": "Failed to fetch adjusted transit data.",
+    "toggleNatalPlanets": "Natal Planets",
+    "toggleTransitPlanets": "Transit Planets",
+    "toggleNatalHouse": "Natal House",
+    "toggleTransitHouse": "Transit House"
   },
   "planetDegreeTable": {
     "title": "{{type}} Degrees",
@@ -1169,7 +1173,8 @@
     "placeholder": "Natal planet data unavailable for chart.",
     "legendNatal": "Natal",
     "legendTransit": "Transit",
-    "legendHouses": "Houses",
+    "legendHouses": "Natal Houses",
+    "legendTransitHouses": "Transit Houses",
     "legendSigns": "Signs"
   },
   "rashisShort": {

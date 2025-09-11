@@ -115,9 +115,41 @@
 
 /* Chart Area Styling (within the middle column) */
 .gochar-chart-area {
-  width: 100%;
-  max-width: 500px; /* Match chart size */
-  margin: 0 auto; /* Center if column is wider */
+    width: 100%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* --- Chart Header (Title + Controls) --- */
+.chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 700px; /* Match chart size */
+    margin-bottom: 10px;
+}
+
+/* --- Chart Visibility Controls --- */
+.chart-controls {
+    display: flex;
+    flex-direction: column; /* Stack controls vertically */
+    align-items: flex-start; /* Align text to the left */
+    gap: 5px; /* Space between checkboxes */
+    padding: 8px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.chart-controls label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8em; /* Even smaller font to fit nicely */
+    cursor: pointer;
 }
 
 /* Placeholder for chart area */

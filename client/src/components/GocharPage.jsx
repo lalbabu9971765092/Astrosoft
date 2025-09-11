@@ -99,6 +99,13 @@ const GocharPage = () => {
         threeColumnLayout: true,
         detailedPlanetTable: true,
     });
+    // --- State for Chart Visibility ---
+    const [visibility, setVisibility] = useState({
+        showNatalHouses: true,
+        showNatalPlanets: true,
+        showTransitHouses: true,
+        showTransitPlanets: true,
+    });
 
     const toggleSection = (section) => {
         setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -229,6 +236,14 @@ const GocharPage = () => {
         return transitData?.ascendant?.sidereal_dms ? createChartHousesFromAscendant(transitData.ascendant.sidereal_dms, t) : null;
     }, [transitData, t]);
 
+    // --- Handler for checkbox changes ---
+    const handleVisibilityChange = (event) => {
+        const { name, checked } = event.target;
+        setVisibility(prev => ({
+            ...prev,
+            [name]: checked
+        }));
+    };
     return (
         <div className="gochar-page result-container">
             {/* Translate page title */}
@@ -288,13 +303,36 @@ const GocharPage = () => {
                     {/* Column 2: Chart Area */}
                     <div className="gochar-column gochar-column-chart">
                         <div className="gochar-chart-area">
+                            {/* --- Chart Header with Title and Controls --- */}
+                            <div className="chart-header">
+                                <h4 className="chart-title">{t('gocharPage.chartTitle')}</h4>
+                                <div className="chart-controls">
+                                    <label>
+                                        <input type="checkbox" name="showNatalPlanets" checked={visibility.showNatalPlanets} onChange={handleVisibilityChange} />
+                                        {t('gocharPage.toggleNatalPlanets', 'Natal Planets')}
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="showNatalHouses" checked={visibility.showNatalHouses} onChange={handleVisibilityChange} />
+                                        {t('gocharPage.toggleNatalHouse', 'Natal House')}
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="showTransitPlanets" checked={visibility.showTransitPlanets} onChange={handleVisibilityChange} />
+                                        {t('gocharPage.toggleTransitPlanets', 'Transit Planets')}
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" name="showTransitHouses" checked={visibility.showTransitHouses} onChange={handleVisibilityChange} />
+                                        {t('gocharPage.toggleTransitHouse', 'Transit House')}
+                                    </label>
+                                </div>
+                            </div>
                             {canDisplayChart && !displayError ? (
                                 <ZodiacCircleChart
                                     // Translate chart title
-                                    title={t('gocharPage.chartTitle')}
-                                    natalPlanets={displayNatalResult.planetaryPositions.sidereal}
-                                    transitPlanets={transitData.planetaryPositions.sidereal}
-                                    houses={displayNatalResult.houses}
+                                    title="" // Title is now rendered outside
+                                    natalPlanets={visibility.showNatalPlanets ? displayNatalResult.planetaryPositions.sidereal : {}}
+                                    transitPlanets={visibility.showTransitPlanets ? transitData.planetaryPositions.sidereal : {}}
+                                    houses={visibility.showNatalHouses ? displayNatalResult.houses : null}
+                                    transitHouses={visibility.showTransitHouses ? transitData.houses : null}
                                     size={700} // Slightly smaller than before to fit better
                                 />
                             ) : (

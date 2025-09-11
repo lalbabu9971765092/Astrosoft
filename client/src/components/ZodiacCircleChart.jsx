@@ -27,17 +27,12 @@ const formatDM = (dmsString) => {
 const ZodiacCircleChart = ({
     natalPlanets,
     transitPlanets,
-    houses, // Should be natal houses
-    title = "Zodiac Chart", // Default title, ideally translated by parent
+    houses: natalHouses, // Renamed for clarity
+    transitHouses, // New prop for transit houses
+    title = "Zodiac Chart",
     size = 300
 }) => {
     const { t } = useTranslation(); // Call the hook
-
-    // Check if at least natal planets are available
-    if (!natalPlanets || Object.keys(natalPlanets).length === 0) {
-        // Translate placeholder message
-        return <div className="zodiac-chart-placeholder">{t('zodiacCircleChart.placeholder')}</div>;
-    }
 
     // --- Constants and Calculations (Keep as is) ---
     const radius = size / 2;
@@ -47,6 +42,7 @@ const ZodiacCircleChart = ({
     const signLabelRadius = radius * 0.9;
     const houseLineRadius = radius;
     const houseLabelRadius = radius * 0.5;
+    const transitHouseLabelRadius = radius * 0.65; // Place transit numbers slightly further out
     const planetSymbolFontSize = 12;
     const planetDegreeFontSize = 8;
     const degreeTextOffset = planetSymbolFontSize * 0.8;
@@ -144,10 +140,42 @@ const ZodiacCircleChart = ({
         });
     };
 
+    const renderHouseCusps = (houseData, color, strokeWidth, strokeDasharray, idPrefix) => {
+        if (!houseData || houseData.length !== 12 || !houseData.every(h => h?.start_dms)) {
+            return null;
+        }
+
+        return (
+            <>
+                {houseData.map((house, index) => {
+                    const cuspAngle = normalizeAngle(convertDMSToDegrees(house.start_dms));
+                    if (isNaN(cuspAngle)) return null;
+
+                    const cuspPos = getPosition(cuspAngle, houseLineRadius);
+                    const nextCuspAngle = normalizeAngle(convertDMSToDegrees(houseData[(index + 1) % 12].start_dms));
+                    let angleDiff = normalizeAngle(nextCuspAngle - cuspAngle);
+                    if (angleDiff <= 0) angleDiff += 360;
+                    const houseMidAngle = normalizeAngle(cuspAngle + angleDiff / 2);
+
+                    // Determine the radius for the house number based on type
+                    const labelRadius = idPrefix === 'natal' ? houseLabelRadius : transitHouseLabelRadius;
+                    const houseLabelPos = getPosition(houseMidAngle, labelRadius);
+
+                    return (
+                        <React.Fragment key={`house-${idPrefix}-${index}`}>
+                            <line x1={center} y1={center} x2={cuspPos.x} y2={cuspPos.y} stroke={color} strokeWidth={strokeWidth} strokeDasharray={strokeDasharray} />
+                            <text x={houseLabelPos.x} y={houseLabelPos.y} textAnchor="middle" dominantBaseline="middle" fontSize="12" fontWeight="bold" fill={color}>
+                                {index + 1}
+                            </text>
+                        </React.Fragment>
+                    );
+                })}
+            </>
+        );
+    };
+
     return (
         <div className="zodiac-chart-container">
-            {/* Title is passed as prop, assumed translated by parent */}
-            <h4 className="chart-title">{title}</h4>
             <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="zodiac-chart-svg">
                 {/* --- SVG Elements (Keep structure as is) --- */}
                 <circle cx={center} cy={center} r={radius} fill="none" stroke={GENERAL_STROKE_COLOR} strokeWidth="1" />
@@ -180,38 +208,11 @@ const ZodiacCircleChart = ({
                     );
                 })}
 
-                {/* Draw House Cusps and Numbers (Keep logic as is) */}
-                {houses && houses.length === 12 && houses.every(h => h?.start_dms) && (
-                    <>
-                        {houses.map((house, index) => {
-                            const cuspAngle = normalizeAngle(convertDMSToDegrees(house.start_dms));
-                            if (isNaN(cuspAngle)) return null;
+                {/* Draw Natal House Cusps */}
+                {renderHouseCusps(natalHouses, HOUSE_COLOR, "1", "none", "natal")}
 
-                            const cuspPos = getPosition(cuspAngle, houseLineRadius);
-                            const nextCuspAngle = normalizeAngle(convertDMSToDegrees(houses[(index + 1) % 12].start_dms));
-                            let angleDiff = normalizeAngle(nextCuspAngle - cuspAngle);
-                            if (angleDiff <= 0) angleDiff += 360;
-                            const houseMidAngle = normalizeAngle(cuspAngle + angleDiff / 2);
-                            const houseLabelPos = getPosition(houseMidAngle, houseLabelRadius);
-
-                            return (
-                                <React.Fragment key={`house-${index}`}>
-                                    <line
-                                        x1={center} y1={center} x2={cuspPos.x} y2={cuspPos.y}
-                                        stroke={HOUSE_COLOR} strokeWidth="1"
-                                    />
-                                    <text
-                                        x={houseLabelPos.x} y={houseLabelPos.y}
-                                        textAnchor="middle" dominantBaseline="middle"
-                                        fontSize="12" fontWeight="bold" fill={HOUSE_COLOR}
-                                    >
-                                        {index + 1}
-                                    </text>
-                                </React.Fragment>
-                            );
-                        })}
-                    </>
-                )}
+                {/* Draw Transit House Cusps */}
+                {renderHouseCusps(transitHouses, TRANSIT_COLOR, "0.75", "5,3", "transit")}
 
                 {/* Draw Natal Planets (Keep as is) */}
                 {renderPlanets(natalPlanets, natalPlanetRadius, NATAL_COLOR, 'natal')}
@@ -223,7 +224,8 @@ const ZodiacCircleChart = ({
                 <g transform={`translate(${size * 0.05}, ${size * 0.95})`}>
                     <text x="0" y="0" fontSize="10" fill={NATAL_COLOR}>■ {t('zodiacCircleChart.legendNatal')}</text>
                     {transitPlanets && <text x="50" y="0" fontSize="10" fill={TRANSIT_COLOR}>■ {t('zodiacCircleChart.legendTransit')}</text>}
-                    {houses && <text x="110" y="0" fontSize="10" fill={HOUSE_COLOR}>■ {t('zodiacCircleChart.legendHouses')}</text>}
+                    {natalHouses && <text x="110" y="0" fontSize="10" fill={HOUSE_COLOR}>■ {t('zodiacCircleChart.legendHouses')}</text>}
+                    {transitHouses && <text x="110" y="12" fontSize="10" fill={TRANSIT_COLOR}>■ {t('zodiacCircleChart.legendTransitHouses', 'Transit Houses')}</text>}
                     <text x="170" y="0" fontSize="10" fill={SIGN_COLOR}>■ {t('zodiacCircleChart.legendSigns')}</text>
                 </g>
             </svg>
@@ -240,7 +242,10 @@ ZodiacCircleChart.propTypes = {
     transitPlanets: PropTypes.objectOf(PropTypes.shape({
         dms: PropTypes.string,
     })),
-    houses: PropTypes.arrayOf(PropTypes.shape({
+    houses: PropTypes.arrayOf(PropTypes.shape({ // This is now natalHouses
+        start_dms: PropTypes.string,
+    })),
+    transitHouses: PropTypes.arrayOf(PropTypes.shape({
         start_dms: PropTypes.string,
         // Add other expected house properties if needed
     })),
