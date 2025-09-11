@@ -102,10 +102,10 @@ const MuhurtaPage = () => {
                             <tbody>
                                 {choghadiyas.map((c, index) => (
                                     <tr key={index}>
-                                        <td>{c.type}</td>
-                                        <td>{c.name}</td>
-                                        <td>{c.lord}</td>
-                                        <td>{c.periodType}</td>
+                                        <td>{t(`choghadiyaTypes.${c.type}`, { defaultValue: c.type })}</td>
+                                        <td>{t(`choghadiyaNames.${c.name}`, { defaultValue: c.name })}</td>
+                                        <td>{t(`planets.${c.lord}`, { defaultValue: c.lord })}</td>
+                                        <td>{t(`choghadiyaPeriodTypes.${c.periodType}`, { defaultValue: c.periodType })}</td>
                                         <td>{moment(c.start).format('HH:mm:ss')}</td>
                                         <td>{moment(c.end).format('HH:mm:ss')}</td>
                                     </tr>
@@ -142,8 +142,8 @@ const MuhurtaPage = () => {
                             <tbody>
                                 {horas.map((h, index) => (
                                     <tr key={index}>
-                                        <td>{h.type}</td>
-                                        <td>{h.lord}</td>
+                                        <td>{t(`choghadiyaTypes.${h.type}`, { defaultValue: h.type })}</td>
+                                        <td>{t(`planets.${h.lord}`, { defaultValue: h.lord })}</td>
                                         <td>{moment(h.start).format('HH:mm:ss')}</td>
                                         <td>{moment(h.end).format('HH:mm:ss')}</td>
                                     </tr>
@@ -192,6 +192,13 @@ const MuhurtaPage = () => {
         );
     };
 
+    // Helper function to create a translation key from a Muhurta name
+    const getMuhurtaTranslationKey = (name) => {
+        if (!name) return 'unknown';
+        // Converts "Abhijit Muhurta" to "abhijit_muhurta"
+        return name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    };
+
     const renderMuhurta = (muhurta) => {
         if (!muhurta || muhurta.length === 0) return <p>{t('muhurtaPage.noMuhurta')}</p>;
         return (
@@ -217,11 +224,14 @@ const MuhurtaPage = () => {
                             <tbody>
                                 {muhurta.map((m, index) => (
                                     <tr key={index}>
-                                        <td>{m.name}</td>
-                                        <td>{m.type}</td>
+                                        <td>{t(`muhurtaNames.${getMuhurtaTranslationKey(m.name)}`, { defaultValue: m.name })}</td>
+                                        <td>{t(`muhurtaTypes.${m.type}`, { defaultValue: m.type })}</td>
                                         <td>{moment(m.start).format('HH:mm:ss')}</td>
                                         <td>{moment(m.end).format('HH:mm:ss')}</td>
-                                        <td>{m.description}</td>
+                                        {/* Translate the description */}
+                                        <td>
+                                            {t(`muhurtaDescriptions.${getMuhurtaTranslationKey(m.name)}`, { defaultValue: m.description })}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -239,10 +249,10 @@ const MuhurtaPage = () => {
             {/* Display Date, Day, Sunrise, Sunset */}
             {muhurtaData && muhurtaData.inputParameters && (
                 <div className="muhurta-info-bar">
-                    <p><strong>{t('muhurtaPage.date', 'Date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
-                    <p><strong>{t('muhurtaPage.day', 'Day')}:</strong> {muhurtaData.inputParameters.day}</p>
-                    <p><strong>{t('muhurtaPage.sunrise', 'Sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
-                    <p><strong>{t('muhurtaPage.sunset', 'Sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
+                    <p><strong>{t('muhurtaPage.date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
+                    <p><strong>{t('muhurtaPage.day')}:</strong> {t(`weekdays.${muhurtaData.inputParameters.day}`, { defaultValue: muhurtaData.inputParameters.day })}</p>
+                    <p><strong>{t('muhurtaPage.sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
+                    <p><strong>{t('muhurtaPage.sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
                 </div>
             )}
 
@@ -251,17 +261,13 @@ const MuhurtaPage = () => {
                 {(parentError || error) && <p className="error-text">{parentError || error}</p>}
                 {!(parentIsLoading || isLoading) && !parentError && !error && muhurtaData && (
                     <div className="muhurta-details">
-                       
-                       
-                        {renderChoghadiya(muhurtaData.choghadiya)}
+                       {renderChoghadiya(muhurtaData.choghadiya)}
                         {renderHoras(muhurtaData.horas)}
                         {renderLagnas(muhurtaData.lagnas)}
                         {renderMuhurta(muhurtaData.muhurta)}
                     </div>
                 )}
-                {!(parentIsLoading || isLoading) && !parentError && !error && !muhurtaData && (
-                    <p>{t('muhurtaPage.noDataYet', 'Please calculate a chart first to see Muhurta details.')}</p>
-                )}
+                {!(parentIsLoading || isLoading) && !parentError && !error && !muhurtaData && <p>{t('muhurtaPage.noDataYet')}</p>}
             </div>
         </div>
     );

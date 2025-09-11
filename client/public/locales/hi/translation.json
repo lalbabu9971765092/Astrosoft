@@ -190,7 +190,13 @@
     "rashiLord": "राशि स्वामी",
     "nakshatra": "नक्षत्र",
     "nakshatraLord": "नक्षत्र स्वामी",
-    "description": "विवरण"
+    "description": "विवरण",
+    "noDataYet": "मुहूर्त विवरण देखने के लिए कृपया पहले एक चार्ट की गणना करें।",
+    "invalidDateFormatError": "अमान्य दिनांक प्रारूप: {{error}}",
+    "date": "दिनांक",
+    "day": "दिन",
+    "sunrise": "सूर्योदय",
+    "sunset": "सूर्यास्त"
   },
   "pageTitles": {
     "mainChart": "मुख्य ज्योतिष कुंडली",
@@ -1311,9 +1317,6 @@
     "Raudra": "रौद्र",
     "Durmati": "दुर्मति",
     "Dundubhi": "दुंदुभि",
-    "Rudhirodgari": "रुधिरोद्गारी",
-    "Raktakshi": "रक्ताक्षी",
-    "Krodhana": "क्रोधन",
     "Kshaya": "क्षय",
     "Unknown": "अज्ञात",
     "Mars in house 7 from Ascendant. Mars in house 7 (by Rashi count) from Moon.": "मंगल लग्न से 7वें घर में है। मंगल चंद्रमा से 7वें घर में (राशि गणना के अनुसार) है।",
@@ -1422,5 +1425,52 @@
 "Birth Details": "जन्म विवरण",
 "Ascendant Lord": "लग्न स्वामी",
 "Transit Ascendent": "गोचर लग्न",
-"Transit Ascendent Detail": "गोचर लग्न विवरण"
+"Transit Ascendent Detail": "गोचर लग्न विवरण",
+"choghadiyaTypes": {
+  "Day": "दिन",
+  "Night": "रात"
+},
+"choghadiyaNames": {
+  "Amrit": "अमृत",
+  "Char": "चर",
+  "Kaal": "काल",
+  "Labh": "लाभ",
+  "Rog": "रोग",
+  "Shubh": "शुभ",
+  "Udweg": "उद्वेग"
+},
+"choghadiyaPeriodTypes": {
+  "auspicious": "शुभ",
+  "inauspicious": "अशुभ"
+},
+"muhurtaNames": {
+  "abhijit_muhurta": "अभिजित मुहूर्त",
+  "rahu_kaal": "राहु काल",
+  "yam_ghanta": "यम घण्टा",
+  "guli_kaal_day": "गुलिक काल (दिन)",
+  "guli_kaal_night": "गुलिक काल (रात)",
+  "dur_muhurta_1": "दुर मुहूर्त १",
+  "dur_muhurta_2": "दुर मुहूर्त २",
+  "pradosh_kaal": "प्रदोष काल",
+  "varjyam": "वर्ज्यम",
+  "gand_mool_dosha": "गण्ड मूल दोष",
+  "unknown": "अज्ञात मुहूर्त"
+},
+"muhurtaDescriptions": {
+  "abhijit_muhurta": "दोपहर के आसपास एक सामान्य रूप से शुभ अवधि, नए उद्यम शुरू करने के लिए आदर्श।",
+  "rahu_kaal": "नई शुरुआत, यात्रा या महत्वपूर्ण निर्णयों से बचने के लिए एक अशुभ अवधि।",
+  "yam_ghanta": "एक अशुभ अवधि, जिसे आमतौर पर नई शुरुआत के लिए टाला जाता है।",
+  "guli_kaal_day": "एक अशुभ अवधि; इस दौरान किए गए कार्य दोहराए जाते हैं।",
+  "guli_kaal_night": "रात के दौरान एक अशुभ अवधि।",
+  "dur_muhurta_1": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।",
+  "dur_muhurta_2": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।",
+  "pradosh_kaal": "सूर्यास्त के आसपास एक शुभ अवधि, शिव पूजा के लिए आदर्श।",
+  "varjyam": "सरलीकृत गणना: भरणी नक्षत्र से जुड़ी एक अशुभ अवधि। वास्तविक प्रारंभ/समाप्ति समय विस्तृत नक्षत्र नियमों के अनुसार भिन्न होता है।",
+  "gand_mool_dosha": "चंद्रमा भरणी में है, जो एक गण्ड मूल नक्षत्र है।",
+  "unknown": "कोई विवरण उपलब्ध नहीं है।"
+},
+"muhurtaTypes": {
+  "auspicious": "शुभ",
+  "inauspicious": "अशुभ"
+}
 }

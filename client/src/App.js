@@ -1,6 +1,6 @@
 // src/App.js
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useState} from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SharedInputLayout from './components/SharedInputLayout';
 import AstrologyForm from './components/AstrologyForm';
 import PlanetDetailsPage from './components/PlanetDetailsPage';
@@ -19,7 +19,7 @@ import MainLayout from './components/MainLayout';
 import MinimalLayout from './components/MinimalLayout';
 
 // Import the hook and context
-import { useTranslation } from 'react-i18next';
+
 import './App.css';
 
 // --- Context for shared calculation results ---
@@ -27,9 +27,8 @@ export const CalculationContext = React.createContext(null);
 
 function AppWrapper() {
   // We need a component inside Router to use useLocation
-  const location = useLocation();
-  const { t, i18n } = useTranslation();
-
+ 
+  
   // --- State for shared calculation results ---
   const [mainResult, setMainResult] = useState(null);
   const [isLoading, setIsLoading] = useState(false);

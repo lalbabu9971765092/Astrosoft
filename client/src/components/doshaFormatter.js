@@ -17,9 +17,9 @@ const translateReasonString = (reason, t) => {
         let match = sentence.match(/(Mars|Sun|Moon|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu) in house (\d+) \(by Rashi count\) from (Ascendant|Moon|Venus)/i);
         if (match) {
             const options = {
-                0: t(`planets.${match[1]}`, match[1]),
+                0: t(`planets.${match[1]}`, { defaultValue: match[1] }),
                 1: match[2],
-                2: t(`doshaSources.${match[3]}`, match[3])
+                2: t(`doshaSources.${match[3]}`, { defaultValue: match[3] })
             };
             return t('doshaReasons.planetInHouseFromRashi', options);
         }
@@ -28,9 +28,9 @@ const translateReasonString = (reason, t) => {
         match = sentence.match(/(Mars|Sun|Moon|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu) in house (\d+) from (Ascendant|Moon|Venus)/i);
         if (match) {
             const options = {
-                0: t(`planets.${match[1]}`, match[1]),
+                0: t(`planets.${match[1]}`, { defaultValue: match[1] }),
                 1: match[2],
-                2: t(`doshaSources.${match[3]}`, match[3])
+                2: t(`doshaSources.${match[3]}`, { defaultValue: match[3] })
             };
             return t('doshaReasons.planetInHouseFrom', options);
         }
@@ -44,8 +44,8 @@ const translateReasonString = (reason, t) => {
         match = sentence.match(/Moon is in ([\w\s]+), which is not a Gand Mool Nakshatra/i);
         if (match) {
             const options = {
-                0: t('planets.Moon'),
-                1: t(`nakshatras.${match[1].trim()}`, match[1].trim())
+                0: t('planets.Moon', { defaultValue: 'Moon' }),
+                1: t(`nakshatras.${match[1].trim()}`, { defaultValue: match[1].trim() })
             };
             return t('doshaReasons.moonNotInGandMool', options);
         }
@@ -54,7 +54,7 @@ const translateReasonString = (reason, t) => {
         match = sentence.match(/Moon is in ([\w\s]+), which is a Gand Mool Nakshatra/i);
         if (match) {
             const options = {
-                0: t('planets.Moon'),
+                0: t('planets.Moon', { defaultValue: 'Moon' }),
                 1: t(`nakshatras.${match[1].trim()}`, { defaultValue: match[1].trim() })
             };
             return t('doshaReasons.moonInGandMool', options);
@@ -66,7 +66,7 @@ const translateReasonString = (reason, t) => {
         if (match) {
             const sources = match[3].split(/, | or /).map(source => t(`doshaSources.${source.trim()}`, { defaultValue: source.trim() })).join(', ');
             const options = {
-                0: t(`planets.${match[1]}`, match[1]),
+                0: t(`planets.${match[1]}`, { defaultValue: match[1] }),
                 1: match[2],
                 2: sources
             };

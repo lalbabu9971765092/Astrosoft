@@ -96,7 +96,13 @@
     "rashiLord": "राशि स्वामी",
     "nakshatra": "नक्षत्र",
     "nakshatraLord": "नक्षत्र स्वामी",
-    "description": "विवरण"
+    "description": "विवरण",
+    "noDataYet": "मुहूर्त विवरण देखने के लिए कृपया पहले एक चार्ट की गणना करें।",
+    "invalidDateFormatError": "अमान्य दिनांक प्रारूप: {{error}}",
+    "date": "दिनांक",
+    "day": "दिन",
+    "sunrise": "सूर्योदय",
+    "sunset": "सूर्यास्त"
   },
   "pageTitles": {
     "mainChart": "मुख्य ज्योतिष कुंडली",
