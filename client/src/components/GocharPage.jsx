@@ -3,9 +3,15 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; // Import the hook
 import api from './api';
+import DiamondChart from './DiamondChart'; // Import DiamondChart
 import ZodiacCircleChart from './ZodiacCircleChart';
 import DetailedPlanetTable from './DetailedPlanetTable';
-import { validateAndFormatDateTime, PLANET_ORDER, PLANET_SYMBOLS } from './AstrologyUtils';
+import {
+    validateAndFormatDateTime,
+    PLANET_ORDER,
+    PLANET_SYMBOLS,
+    createChartHousesFromAscendant // Import house creation utility
+} from './AstrologyUtils';
 import '../styles/GocharPage.css'; // Ensure this CSS file exists and is linked
 
 // Helper function to format date/time for display
@@ -218,6 +224,11 @@ const GocharPage = () => {
     // Extract planet data for tables (Unchanged)
     const natalPlanetsForTable = displayNatalResult?.planetaryPositions?.sidereal;
 
+    // --- Create houses for the transit chart ---
+    const transitHousesForChart = useMemo(() => {
+        return transitData?.ascendant?.sidereal_dms ? createChartHousesFromAscendant(transitData.ascendant.sidereal_dms, t) : null;
+    }, [transitData, t]);
+
     return (
         <div className="gochar-page result-container">
             {/* Translate page title */}
@@ -251,6 +262,22 @@ const GocharPage = () => {
                                 {/* Translate loading/error */}
                                 {isLoadingRectification && mainResult && <div className="loader tiny-loader" aria-label={t('gocharPage.updatingNatalData')}></div>}
                                 {!isLoadingRectification && rectificationError && mainResult && <p className="error-text tiny-error" role="alert">{t('gocharPage.natalUpdateErrorPrefix')}: {rectificationError}</p>}
+
+                                {/* --- Transit D1 Chart --- */}
+                                {transitData && transitHousesForChart && (
+                                    <div className="transit-d1-chart-container">
+                                        <h3 className="result-sub-title">{t('astrologyForm.chartGocharTitle')}</h3>
+                                        <DiamondChart
+                                            title={t('astrologyForm.chartGocharTitle')}
+                                            houses={transitHousesForChart}
+                                            planets={transitData.planetaryPositions.sidereal}
+                                            chartType="gochar"
+                                            size={250}
+                                        />
+                                    </div>
+                                )}
+
+
                             </div>
                         ) : (
                             // Translate info text
@@ -307,6 +334,21 @@ const GocharPage = () => {
                             {/* Translate loading/error */}
                             {isLoadingTransit && <div className="loader tiny-loader" aria-label={t('gocharPage.loadingTransitData')}></div>}
                             {!isLoadingTransit && transitError && <p className="error-text tiny-error" role="alert">{t('gocharPage.transitErrorPrefix')}: {transitError}</p>}
+
+                         {/* --- Transit Bhava Chalit Chart --- */}
+                         {transitData?.houses && transitData?.planetHousePlacements && (
+                            <div className="transit-bhava-chart-container">
+                                <h3 className="result-sub-title">{t('astrologyForm.chartBhavaTitle')} - {t('nav.gochar')}</h3>
+                                <DiamondChart
+                                    title={`${t('astrologyForm.chartBhavaTitle')} - ${t('nav.gochar')}`}
+                                    houses={transitData.houses}
+                                    planetHousePlacements={transitData.planetHousePlacements}
+                                    chartType="bhava"
+                                    size={250}
+                                />
+                            </div>
+                         )}
+
                         </div>
                     </div>
 

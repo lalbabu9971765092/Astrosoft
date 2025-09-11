@@ -772,3 +772,24 @@ export const formatToLocalISOString = (dateObj) => {
 
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 };
+
+export const createChartHousesFromAscendant = (ascendantDms, t) => {
+    if (!ascendantDms || typeof ascendantDms !== 'string') return null;
+
+    const ascendantDeg = convertDMSToDegrees(ascendantDms);
+    if (isNaN(ascendantDeg)) return null;
+
+    const ascendantRashiName = calculateRashi(ascendantDeg, t);
+    const ascendantRashiIndex = RASHIS.indexOf(ascendantRashiName);
+    if (ascendantRashiIndex === -1) return null;
+
+    const housesArray = [];
+    for (let i = 0; i < 12; i++) {
+        const currentRashiIndex = (ascendantRashiIndex + i) % 12;
+        const rashiStartDeg = currentRashiIndex * 30;
+        housesArray.push({
+            start_dms: convertToDMS(rashiStartDeg, t)
+        });
+    }
+    return housesArray;
+};

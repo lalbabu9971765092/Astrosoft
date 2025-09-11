@@ -350,10 +350,10 @@
     "middleColumnTitleRectified": "सुधारी हुई कुंडली और तालिकाएँ",
     "loadingRectifiedData": "सुधारा हुआ डेटा लोड हो रहा है...",
     "rectificationErrorPrefix": "सुधार त्रुटि",
-    "chartD1Title": "लग्न कुंडली (D1)",
+    "chartD1Title": "डी१ - लग्न कुंडली",
     "chartBhavaTitle": "निरयण भाव चलित",
     "chartD9Title": "नवांश (D9)",
-    "chartGocharTitle": "गोचर (Transit)",
+    "chartGocharTitle": "डी१ - लग्न कुंडली-गोचर",
     "chartPlaceholderD1": "D1 डेटा अनुपलब्ध",
     "chartPlaceholderBhava": "भाव चलित डेटा अनुपलब्ध",
     "chartPlaceholderD9": "D9 डेटा अनुपलब्ध",
@@ -1385,11 +1385,10 @@
     "Saturn": "श",
     "Rahu": "रा",
     "Ketu": "के",
-    "Uranus": "यूरे", 
-    "Neptune": "नेप", 
+    "Uranus": "यूरे",
+    "Neptune": "नेप",
     "Pluto": "प्लू",
     "Ascendant": "लग्न"
-   
   },
   "favourability": {
     "Favorable": "अनुकूल",

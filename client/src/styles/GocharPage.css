@@ -156,6 +156,14 @@
     text-align: center;
 }
 
+/* Styles for the new chart containers in columns */
+.transit-d1-chart-container,
+.transit-bhava-chart-container {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px dashed #ddd;
+}
+
 /* Keyframes for spin animation */
 @keyframes spin {
   0% { transform: rotate(0deg); }

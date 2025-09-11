@@ -61,18 +61,56 @@ const ZodiacCircleChart = ({
 
     // Modified renderPlanets (Keep as is)
     const renderPlanets = (planets, r, color, idPrefix) => {
-        if (!planets) return null;
+        if (!planets || Object.keys(planets).length === 0) return null;
 
-        return Object.entries(planets).map(([name, data]) => {
-            if (!data || !data.dms || data.dms === "Error") return null;
-            const degrees = convertDMSToDegrees(data.dms);
-            if (isNaN(degrees)) return null;
+        // 1. Process and sort planets by their degree
+        const processedPlanets = Object.entries(planets)
+            .map(([name, data]) => {
+                if (!data || !data.dms || data.dms === "Error") return null;
+                const degrees = convertDMSToDegrees(data.dms);
+                if (isNaN(degrees)) return null;
+                return { name, data, degrees: normalizeAngle(degrees) };
+            })
+            .filter(p => p !== null)
+            .sort((a, b) => a.degrees - b.degrees);
 
-            const normalizedDegrees = normalizeAngle(degrees);
-            const pos = getPosition(normalizedDegrees, r);
-            const symbol = PLANET_SYMBOLS[name] || name.substring(0, 2);
+        // 2. Adjust radius for overlapping planets with a more robust clustering logic
+        const overlapThreshold = 10; // degrees
+        const radialOffset = 18;   // pixels to push planets outwards
+        const adjustedPlanetData = [];
+
+        for (let i = 0; i < processedPlanets.length; i++) {
+            const current = processedPlanets[i];
+            const prev = i > 0 ? processedPlanets[i - 1] : null;
+            
+            let angleDiff = 360; // Default to a large difference
+            if (prev) {
+                angleDiff = Math.abs(current.degrees - prev.degrees);
+                if (angleDiff > 180) angleDiff = 360 - angleDiff; // Handle wrap-around
+            }
+
+            let currentRadius;
+            if (angleDiff < overlapThreshold) {
+                // This planet is part of a cluster with the previous one.
+                // Alternate the radius based on the previous planet's radius.
+                const prevAdjustedRadius = adjustedPlanetData[i - 1].adjustedRadius;
+                currentRadius = (prevAdjustedRadius === r) ? r + radialOffset : r;
+            } else {
+                // Not in a cluster, or the start of a new one.
+                currentRadius = r;
+            }
+
+            adjustedPlanetData.push({ ...current, adjustedRadius: currentRadius });
+        }
+
+        // 3. Render the adjusted planets
+        return adjustedPlanetData.map(p => {
+            const { name, data, degrees, adjustedRadius } = p;
+            const pos = getPosition(degrees, adjustedRadius);
+            // Use translation for the short planet name, with a fallback to the symbol constant.
+            const symbol = t(`planetsShort.${name}`, { defaultValue: PLANET_SYMBOLS[name] || name.substring(0, 2) });
             const degreeText = formatDM(data.dms);
-            const degreePos = getPosition(normalizedDegrees, r + degreeTextOffset);
+            const degreePos = getPosition(degrees, adjustedRadius + degreeTextOffset);
 
             return (
                 <React.Fragment key={`${idPrefix}-${name}`}>

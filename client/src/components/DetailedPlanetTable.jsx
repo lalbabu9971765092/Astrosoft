@@ -17,17 +17,17 @@ const DetailedPlanetTable = ({ planets, houses, planetDetails }) => {
     const hasPlanetPosData = planets && Object.keys(planets).length > 0;
     const hasHouseData = Array.isArray(houses) && houses.length === 12;
 
-    const meanCuspDegrees = React.useMemo(() => {
+    const placidusCuspDegrees = React.useMemo(() => {
         if (!hasHouseData) return [];
-        const degrees = houses.map(h => convertDMSToDegrees(h?.mean_dms));
+        const degrees = houses.map(h => convertDMSToDegrees(h?.start_dms));
         if (degrees.some(isNaN)) {
-            console.warn("Could not convert all mean cusp DMS to degrees.");
+            console.warn("Could not convert all Placidus cusp start_dms to degrees.");
             return [];
         }
         return degrees;
     }, [houses, hasHouseData]);
 
-    const canRenderPlanetTable = hasPlanetPosData && hasHouseData && meanCuspDegrees.length === 12;
+    const canRenderPlanetTable = hasPlanetPosData && hasHouseData && placidusCuspDegrees.length === 12;
 
     if (!canRenderPlanetTable) {
         return <p className="result-text">{t('planetDetailsPage.planetDataUnavailable')}</p>;
@@ -64,7 +64,7 @@ const DetailedPlanetTable = ({ planets, houses, planetDetails }) => {
                         const pada = planetData.pada ?? calculateNakshatraPada(siderealDeg, t);
                         const degreeWithinNakshatra = convertToDMS(calculateNakshatraDegree(siderealDeg), t);
                         const rashiKey = planetData.rashi ?? calculateRashi(siderealDeg, t);
-                        const house = calculateHouse(siderealDeg, meanCuspDegrees, t);
+                        const house = calculateHouse(siderealDeg, placidusCuspDegrees, t);
                         const nakshatraKey = planetData.nakshatra;
                         const nakLordKey = planetData.nakLord;
                         const subLordKey = planetData.subLord;
