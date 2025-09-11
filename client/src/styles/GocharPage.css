@@ -125,15 +125,20 @@
 /* --- Chart Header (Title + Controls) --- */
 .chart-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center; /* Center the main content (the title) */
     align-items: center;
     width: 100%;
     max-width: 700px; /* Match chart size */
     margin-bottom: 10px;
+    position: relative; /* Create a positioning context for the controls */
 }
 
 /* --- Chart Visibility Controls --- */
 .chart-controls {
+    position: absolute; /* Position controls relative to the header */
+    right: 0; /* Align to the right edge of the header */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Fine-tune vertical centering */
     display: flex;
     flex-direction: column; /* Stack controls vertically */
     align-items: flex-start; /* Align text to the left */
