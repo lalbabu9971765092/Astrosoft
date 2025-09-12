@@ -1,5 +1,5 @@
 // src/SharedInputLayout.js
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { Outlet } from 'react-router-dom';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +39,9 @@ const SharedInputLayout = () => {
     const [isSavingChart, setIsSavingChart] = useState(false);
     const [savingChartError, setSavingChartError] = useState(null);
     const [isTopStripCollapsed, setIsTopStripCollapsed] = useState(false);
+    const [initialBirthDateTime, setInitialBirthDateTime] = useState(null);
+    const hasSetInitialBirthDate = useRef(false);
+    const [initialGocharDateTime, setInitialGocharDateTime] = useState(null);
 
     const fetchSavedCharts = useCallback(async () => {
         try {
@@ -58,6 +61,7 @@ const SharedInputLayout = () => {
 
         const initialGocharStr = formatToLocalISOString(now);
         setAdjustedGocharDateTimeString(initialGocharStr);
+        setInitialGocharDateTime(initialGocharStr);
 
         if (navigator.geolocation) {
             setIsFetchingLocation(true);
@@ -88,8 +92,14 @@ const SharedInputLayout = () => {
     useEffect(() => {
         if (calculationInputParams?.date) {
             setAdjustedBirthDateTimeString(calculationInputParams.date);
+            if (!hasSetInitialBirthDate.current) {
+                setInitialBirthDateTime(calculationInputParams.date);
+                hasSetInitialBirthDate.current = true;
+            }
         } else {
             setAdjustedBirthDateTimeString(null);
+            setInitialBirthDateTime(null);
+            hasSetInitialBirthDate.current = false;
         }
     }, [calculationInputParams]);
 
@@ -174,7 +184,7 @@ const SharedInputLayout = () => {
         setLocationError(null);
         setMainResult(null);
         setKpResult(null);
-        setCalculationInputParams(null);
+
 
         const dateTimeToUse = gocharDate || date;
 
@@ -314,7 +324,7 @@ const SharedInputLayout = () => {
                     {calculationInputParams?.date && adjustedBirthDateTimeString ? (
                         <TimeAdjustmentTool
                            key="birth-time-adjustment-tool"
-                            initialDateTimeString={calculationInputParams.date}
+                            initialDateTimeString={initialBirthDateTime}
                             value={adjustedBirthDateTimeString}
                             onDateTimeChange={handleBirthTimeChange}
                             label={t('sharedLayout.rectificationToolLabel')}
@@ -394,10 +404,11 @@ const SharedInputLayout = () => {
                 <div className="top-strip-section transit-adjustment-tool-section">
                     {locationForGocharTool.lat !== null && locationForGocharTool.lon !== null && adjustedGocharDateTimeString ? (
                         <TimeAdjustmentTool
-                            initialDateTimeString={adjustedGocharDateTimeString}
+                            initialDateTimeString={initialGocharDateTime}
+                            value={adjustedGocharDateTimeString}
                             onDateTimeChange={handleGocharTimeChange}
                             label={t('sharedLayout.gocharToolLabel')}
-                            showReset={false}
+                            showReset={true}
                         />
                     ) : (
                          <div className="tool-placeholder">{t('sharedLayout.gocharPlaceholder')}</div>
