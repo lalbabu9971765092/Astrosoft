@@ -8,6 +8,15 @@ import { calculateMoolDosha } from './doshaUtils.js';
 import logger from './logger.js';
 import moment from 'moment-timezone';
 
+const VARJYAM_START_FRACTION = {
+    "Ashwini": 0.8333, "Bharani": 0.4, "Krittika": 0.5, "Rohini": 0.6667, "Mrigashira": 0.2333,
+    "Ardra": 0.35, "Punarvasu": 0.5, "Pushya": 0.3333, "Ashlesha": 0.5333, "Magha": 0.5,
+    "Purva Phalguni": 0.3333, "Uttara Phalguni": 0.3, "Hasta": 0.35, "Chitra": 0.3333,
+    "Swati": 0.5, "Vishakha": 0.2333, "Anuradha": 0.1667, "Jyeshtha": 0.2333, "Mula": 0.9333,
+    "Purva Ashadha": 0.4, "Uttara Ashadha": 0.3333, "Shravana": 0.1667, "Dhanishta": 0.1667,
+    "Shatabhisha": 0.3, "Purva Bhadrapada": 0.2667, "Uttara Bhadrapada": 0.5333, "Revati": 0.8333,
+};
+
 // --- Choghadiya Calculation ---
 const CHOGHADIYA_TYPES = {
     day: [
@@ -47,8 +56,17 @@ export async function calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurat
         // Day Choghadiyas
         let currentChoghadiyaStart = sunrise.clone();
         const dayChoghadiyaSequence = [...CHOGHADIYA_TYPES.day];
-        // Rotate sequence based on day of week (Sun starts with Udweg, Mon with Amrit, etc.)
-        const startIndexDay = dayOfWeek; // Sunday is 0, Udweg is 0 in array
+        
+        // Get the lord of the day
+        const dayLord = WEEKDAY_LORDS[dayOfWeek];
+
+        // Find the index of the Choghadiya corresponding to the day lord
+        const startIndexDay = dayChoghadiyaSequence.findIndex(choghadiya => choghadiya.lord === dayLord);
+
+        if (startIndexDay === -1) {
+            throw new Error(`Could not find starting Choghadiya for day lord: ${dayLord}`);
+        }
+
         const rotatedDaySequence = dayChoghadiyaSequence.slice(startIndexDay).concat(dayChoghadiyaSequence.slice(0, startIndexDay));
         rotatedDaySequence.push(rotatedDaySequence[0]); // The 8th Choghadiya is a repeat of the first
 
@@ -69,15 +87,18 @@ export async function calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurat
         // Night Choghadiyas
         let currentNightChoghadiyaStart = sunset.clone();
         const nightChoghadiyaSequence = [...CHOGHADIYA_TYPES.night];
-        // Rotate sequence based on day of week (Mon night starts with Amrit, Tue night with Char, etc.)
-        // Night sequence starts from the lord of the 5th choghadiya of the day
-        const startIndexNight = (dayOfWeek + 4) % 7;
+        
+        // The first night Choghadiya lord is the lord of the 5th day Choghadiya
+        const nightStartLord = rotatedDaySequence[4].lord;
 
-        // Create the 8-element rotated sequence
-        const rotatedNightSequence = [];
-        for (let i = 0; i < 7; i++) {
-            rotatedNightSequence.push(nightChoghadiyaSequence[(startIndexNight + i) % 7]);
+        // Find the index of the starting night Choghadiya
+        const startIndexNight = nightChoghadiyaSequence.findIndex(choghadiya => choghadiya.lord === nightStartLord);
+
+        if (startIndexNight === -1) {
+            throw new Error(`Could not find starting night Choghadiya for lord: ${nightStartLord}`);
         }
+
+        const rotatedNightSequence = nightChoghadiyaSequence.slice(startIndexNight).concat(nightChoghadiyaSequence.slice(0, startIndexNight));
         rotatedNightSequence.push(rotatedNightSequence[0]); // The 8th Choghadiya is a repeat of the first
 
         for (let i = 0; i < 8; i++) {
@@ -103,7 +124,7 @@ export async function calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurat
         return choghadiyas;
 
     } catch (error) {
-        logger.error(`Error calculating Choghadiya for ${dateString}: ${error.message}`, { stack: error.stack });
+        logger.error(`Error calculating Choghadiya: ${error.message}`, { stack: error.stack });
         throw new Error(`Failed to calculate Choghadiya: ${error.message}`);
     }
 }
@@ -350,13 +371,13 @@ export async function calculateRahuKaal(sunrise, sunset, dayDurationMs, dayOfWee
 // --- Dur Muhurta Constants ---
 // 1-based indices of Dur Muhurta for each day of the week (0=Sun)
 const DUR_MUHURTA_INDICES = {
-    0: [8],       // Sunday: 8th
-    1: [6, 11],   // Monday: 6th, 11th
-    2: [4, 12],   // Tuesday: 4th, 12th
-    3: [8],       // Wednesday: 8th
-    4: [2, 11],   // Thursday: 2nd, 11th
-    5: [4, 8],    // Friday: 4th, 8th
-    6: [1]        // Saturday: 1st
+    0: [8],       // Sunday
+    1: [6, 11],   // Monday
+    2: [4, 9],    // Tuesday
+    3: [8],       // Wednesday
+    4: [2, 11],   // Thursday
+    5: [4, 8],    // Friday
+    6: [1, 10]    // Saturday
 };
 
 /**
@@ -652,7 +673,7 @@ export async function calculatePanchak(dateString, latitude, longitude, sunrise,
  * @param {number} longitude - Observer's longitude.
  * @returns {Object|null} Varjyam details or null if not calculable.
  */
-export async function calculateVarjyam(dateString, latitude, longitude, sunrise, sunset, dayDurationMs) {
+export async function calculateVarjyam(dateString, latitude, longitude, sunrise, nextSunrise) {
     try {
         const { julianDayUT } = getJulianDateUT(dateString, latitude, longitude);
         if (julianDayUT === null) {
@@ -670,24 +691,34 @@ export async function calculateVarjyam(dateString, latitude, longitude, sunrise,
 
         const nakshatraDetails = getNakshatraDetails(moonLongitude);
         const nakshatraName = nakshatraDetails.name;
+        const nakshatraIndex = nakshatraDetails.index;
 
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for simplified Varjyam calculation on ${dateString}`);
+        const varjyamStartFraction = VARJYAM_START_FRACTION[nakshatraName];
+        if (varjyamStartFraction === undefined) {
+            logger.warn(`Varjyam data not found for Nakshatra: ${nakshatraName}`);
             return null;
         }
 
-        const varjyamDurationMs = 96 * 60 * 1000; // 96 minutes
+        const { entryTime, exitTime } = await getMoonNakshatraEntryExitTimes(dateString, latitude, longitude, nakshatraIndex, sunrise, nextSunrise);
+        if (!entryTime || !exitTime) {
+            logger.warn(`Could not determine Nakshatra entry/exit times for Varjyam calculation.`);
+            return null;
+        }
 
-        // Simplified start: Arbitrarily set to start 1/3rd of the way through the day duration
-        const varjyamStart = sunrise.clone().add(dayDurationMs / 3, 'milliseconds');
-        const varjyamEnd = varjyamStart.clone().add(varjyamDurationMs, 'milliseconds');
+        const nakshatraDurationMs = moment(exitTime).diff(moment(entryTime));
+        const varjyamDurationMs = nakshatraDurationMs / 15;
+
+        const varjyamStartMs = varjyamStartFraction * nakshatraDurationMs;
+
+        const varjyamStart = moment(entryTime).add(varjyamStartMs, 'milliseconds');
+        const varjyamEnd = moment(varjyamStart).add(varjyamDurationMs, 'milliseconds');
 
         return {
             name: "Varjyam",
             start: varjyamStart.toISOString(),
             end: varjyamEnd.toISOString(),
             type: "inauspicious",
-            description: `Simplified calculation: An inauspicious period associated with ${nakshatraName} Nakshatra. Actual start/end times vary by detailed Nakshatra rules.`
+            description: `An inauspicious period within ${nakshatraName} Nakshatra.`
         };
 
     } catch (error) {
@@ -780,7 +811,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const guliKaals = await calculateGuliKaal(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek); // Returns an array
     const durMuhurtas = await calculateDurMuhurta(sunrise, sunset, dayDurationMs, dayOfWeek);
     const pradoshKaal = await calculatePradoshKaal(sunset);
-    const varjyam = await calculateVarjyam(utcDate, latitude, longitude, sunrise, sunset, dayDurationMs);
+    const varjyam = await calculateVarjyam(utcDate, latitude, longitude, sunrise, nextSunrise);
     const panchak = await calculatePanchak(utcDate, latitude, longitude, sunrise, nextSunrise);
     const gandMool = await calculateMoolDosha(utcDate, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
 
