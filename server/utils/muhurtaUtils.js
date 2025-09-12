@@ -370,14 +370,18 @@ export async function calculateRahuKaal(sunrise, sunset, dayDurationMs, dayOfWee
 
 // --- Dur Muhurta Constants ---
 // 1-based indices of Dur Muhurta for each day of the week (0=Sun)
-const DUR_MUHURTA_INDICES = {
-    0: [8],       // Sunday
-    1: [6, 11],   // Monday
-    2: [4, 9],    // Tuesday
+const DUR_MUHURTA_INDICES_DAY = {
+    0: [14],      // Sunday
+    1: [9, 12],   // Monday
+    2: [4],       // Tuesday
     3: [8],       // Wednesday
-    4: [2, 11],   // Thursday
-    5: [4, 8],    // Friday
-    6: [1, 10]    // Saturday
+    4: [6, 12],   // Thursday
+    5: [4, 9],    // Friday
+    6: [3]        // Saturday
+};
+
+const DUR_MUHURTA_INDICES_NIGHT = {
+    2: [7]        // Tuesday
 };
 
 /**
@@ -388,45 +392,58 @@ const DUR_MUHURTA_INDICES = {
  * @param {number} longitude - Observer's longitude.
  * @returns {Array} An array of Dur Muhurta period objects, or an empty array on error.
  */
-export async function calculateDurMuhurta(sunrise, sunset, dayDurationMs, dayOfWeek) {
+export async function calculateDurMuhurta(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek) {
     try {
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Dur Muhurta calculation.`);
-            return [];
+        const calculatedDurMuhurtas = [];
+
+        // Day Muhurtas
+        if (DUR_MUHURTA_INDICES_DAY[dayOfWeek]) {
+            const muhurtaDurationMs = dayDurationMs / 15;
+            const durMuhurtaIndices = DUR_MUHURTA_INDICES_DAY[dayOfWeek];
+
+            const dayMuhurtas = durMuhurtaIndices.map((muhurtaIndex, i) => {
+                const zeroBasedIndex = muhurtaIndex - 1;
+                const startMoment = sunrise.clone().add(zeroBasedIndex * muhurtaDurationMs, 'milliseconds');
+                const endMoment = startMoment.clone().add(muhurtaDurationMs, 'milliseconds');
+                const name = durMuhurtaIndices.length > 1 ? `Dur Muhurta (Day) ${i + 1}` : "Dur Muhurta (Day)";
+
+                return {
+                    name: name,
+                    start: startMoment.toISOString(),
+                    end: endMoment.toISOString(),
+                    type: "inauspicious",
+                    description: "An inauspicious period. Avoid important activities."
+                };
+            });
+            calculatedDurMuhurtas.push(...dayMuhurtas);
         }
 
-        const muhurtaDurationMs = dayDurationMs / 15; // Day is divided into 15 muhurtas
-        const durMuhurtaIndices = DUR_MUHURTA_INDICES[dayOfWeek];
+        // Night Muhurtas
+        if (DUR_MUHURTA_INDICES_NIGHT[dayOfWeek]) {
+            const nightMuhurtaDurationMs = nightDurationMs / 15;
+            const durMuhurtaIndicesNight = DUR_MUHURTA_INDICES_NIGHT[dayOfWeek];
 
-        if (!durMuhurtaIndices || durMuhurtaIndices.length === 0) {
-            logger.warn(`No Dur Muhurta defined for day of week: ${dayOfWeek}`);
-            return [];
+            const nightMuhurtas = durMuhurtaIndicesNight.map((muhurtaIndex, i) => {
+                const zeroBasedIndex = muhurtaIndex - 1;
+                const startMoment = sunset.clone().add(zeroBasedIndex * nightMuhurtaDurationMs, 'milliseconds');
+                const endMoment = startMoment.clone().add(nightMuhurtaDurationMs, 'milliseconds');
+                const name = durMuhurtaIndicesNight.length > 1 ? `Dur Muhurta (Night) ${i + 1}` : "Dur Muhurta (Night)";
+
+                return {
+                    name: name,
+                    start: startMoment.toISOString(),
+                    end: endMoment.toISOString(),
+                    type: "inauspicious",
+                    description: "An inauspicious period. Avoid important activities."
+                };
+            });
+            calculatedDurMuhurtas.push(...nightMuhurtas);
         }
-
-        const calculatedDurMuhurtas = durMuhurtaIndices.map((muhurtaIndex, i) => {
-            // muhurtaIndex is 1-based, so subtract 1 for 0-based calculation
-            const zeroBasedIndex = muhurtaIndex - 1;
-            const startMoment = sunrise.clone().add(zeroBasedIndex * muhurtaDurationMs, 'milliseconds');
-            const endMoment = startMoment.clone().add(muhurtaDurationMs, 'milliseconds');
-
-            // Generate a unique name if there are multiple Dur Muhurtas on a day
-            const name = durMuhurtaIndices.length > 1
-                ? `Dur Muhurta ${i + 1}`
-                : "Dur Muhurta";
-
-            return {
-                name: name,
-                start: startMoment.toISOString(),
-                end: endMoment.toISOString(),
-                type: "inauspicious",
-                description: "An inauspicious period. Avoid important activities."
-            };
-        });
 
         return calculatedDurMuhurtas;
 
     } catch (error) {
-        logger.error(`Error calculating Dur Muhurta for ${dateString}: ${error.message}`, { stack: error.stack });
+        logger.error(`Error calculating Dur Muhurta for day ${dayOfWeek}: ${error.message}`, { stack: error.stack });
         return []; // Return empty array on error
     }
 }
@@ -809,7 +826,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const rahuKaal = await calculateRahuKaal(sunrise, sunset, dayDurationMs, dayOfWeek);
     const yamGhanta = await calculateYamGhanta(sunrise, sunset, dayDurationMs, dayOfWeek);
     const guliKaals = await calculateGuliKaal(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek); // Returns an array
-    const durMuhurtas = await calculateDurMuhurta(sunrise, sunset, dayDurationMs, dayOfWeek);
+    const durMuhurtas = await calculateDurMuhurta(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
     const pradoshKaal = await calculatePradoshKaal(sunset);
     const varjyam = await calculateVarjyam(utcDate, latitude, longitude, sunrise, nextSunrise);
     const panchak = await calculatePanchak(utcDate, latitude, longitude, sunrise, nextSunrise);
