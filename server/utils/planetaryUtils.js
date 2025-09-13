@@ -742,7 +742,7 @@ export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longi
     let currentMoment = startOfAstrologicalDay.clone();
 
     while (currentMoment.isSameOrBefore(endOfAstrologicalDay)) {
-        const { julianDayUT, momentLocal } = getJulianDateUT(currentMoment.format("YYYY-MM-DDTHH:mm:ss"), latitude, longitude);
+        const { julianDayUT, momentLocal: momentLocal1 } = getJulianDateUT(currentMoment.format("YYYY-MM-DDTHH:mm:ss"), latitude, longitude);
         if (julianDayUT === null) {
             logger.warn(`Invalid JD for Moon Nakshatra transit calculation at ${currentMoment.toISOString()}`);
             currentMoment.add(stepMinutes, 'minutes');
@@ -821,7 +821,7 @@ async function refineNakshatraTransitTime(startTime, endTime, latitude, longitud
 
     for (let i = 0; i < iterations; i++) {
         const mid = low.clone().add(high.diff(low) / 2, 'milliseconds');
-        const { julianDayUT, momentLocal } = getJulianDateUT(mid.format("YYYY-MM-DDTHH:mm:ss"), latitude, longitude);
+        const { julianDayUT, momentLocal: momentLocal2 } = getJulianDateUT(mid.format("YYYY-MM-DDTHH:mm:ss"), latitude, longitude);
 
         if (julianDayUT === null) {
             logger.warn(`Invalid JD during transit refinement at ${mid.toISOString()}`);
@@ -874,7 +874,7 @@ async function refineNakshatraTransitTime(startTime, endTime, latitude, longitud
  */
 export async function calculateKpRulingPlanets(dateString, latitude, longitude) {
     try {
-        const { julianDayUT, momentLocal } = await import('./coreUtils.js').then(m => m.getJulianDateUT(dateString, latitude, longitude));
+        const { julianDayUT, momentLocal: momentLocal3 } = await import('./coreUtils.js').then(m => m.getJulianDateUT(dateString, latitude, longitude));
         if (julianDayUT === null) {
             throw new Error("Invalid date or location for Ruling Planets calculation.");
         }
