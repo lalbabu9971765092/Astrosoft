@@ -110,17 +110,21 @@ export function getJulianDateUT(localDateString, latitude, longitude) {
             throw new Error(`Could not find IANA timezone for lat=${latitude}, lon=${longitude}`);
         }
         const timezoneName = ianaTimezones[0];
+        logger.info(`getJulianDateUT: localDateString=${localDateString}, lat=${latitude}, lon=${longitude}`);
+        logger.info(`getJulianDateUT: Found IANA timezone: ${timezoneName}`);
 
         // 2. Parse local string and get correct UTC moment using moment-timezone
         // By removing the format string, moment.tz can correctly handle both
         // local time strings and full ISO strings with a 'Z' (UTC) identifier.
         const momentLocal = moment.tz(localDateString, timezoneName);
+        logger.info(`getJulianDateUT: momentLocal (in timezone ${timezoneName}): ${momentLocal.toISOString()}`);
         if (!momentLocal.isValid()) {
              throw new Error(`Invalid date/time string or timezone combination: "${localDateString}", "${timezoneName}"`);
         }
 
         // 3. Convert to UTC and get components
         const momentUTC = momentLocal.clone().utc();
+        logger.info(`getJulianDateUT: momentUTC: ${momentUTC.toISOString()}`);
         const utcDate = momentUTC.toDate();
         if (isNaN(utcDate.getTime())) {
              throw new Error(`Failed to convert momentUTC to valid native Date object.`);
