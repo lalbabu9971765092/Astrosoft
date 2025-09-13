@@ -116,7 +116,7 @@ export function getJulianDateUT(localDateString, latitude, longitude) {
         // 2. Parse local string and get correct UTC moment using moment-timezone
         // By removing the format string, moment.tz can correctly handle both
         // local time strings and full ISO strings with a 'Z' (UTC) identifier.
-        const momentLocal = moment.tz(localDateString, timezoneName);
+        const momentLocal = moment.tz(localDateString, 'YYYY-MM-DDTHH:mm:ss', timezoneName);
         logger.info(`getJulianDateUT: momentLocal (in timezone ${timezoneName}): ${momentLocal.toISOString()}`);
         if (!momentLocal.isValid()) {
              throw new Error(`Invalid date/time string or timezone combination: "${localDateString}", "${timezoneName}"`);
