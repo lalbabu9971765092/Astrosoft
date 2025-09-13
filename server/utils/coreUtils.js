@@ -98,6 +98,11 @@ export function convertDMSToDegrees(dms) {
  */
 export function getJulianDateUT(localDateString, latitude, longitude) {
     try {
+        // Ensure localDateString is a string, convert if it's a Date object
+        if (localDateString instanceof Date) {
+            localDateString = localDateString.toISOString();
+        }
+
         // Validate coordinates first
         if (typeof latitude !== 'number' || isNaN(latitude) || latitude < -90 || latitude > 90 ||
             typeof longitude !== 'number' || isNaN(longitude) || longitude < -180 || longitude > 180) {
