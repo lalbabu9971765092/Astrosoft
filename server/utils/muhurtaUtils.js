@@ -811,7 +811,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const standardizedDateString = momentDate.format('YYYY-MM-DDTHH:mm:ss');
     // --- End Standardization ---
 
-    const { julianDayUT, utcDate } = getJulianDateUT(standardizedDateString, latitude, longitude);
+    const { julianDayUT, utcDate, momentLocal } = getJulianDateUT(dateString, latitude, longitude);
     if (julianDayUT === null) {
         throw new Error("Invalid date or location for Muhurta calculation.");
     }
@@ -825,16 +825,16 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
     if (!sunrise || !sunset || !nextSunrise || !sunrise.isValid() || !sunset.isValid() || !nextSunrise.isValid()) {
-        logger.warn(`Sunrise/Sunset/NextSunrise not available for comprehensive Muhurta calculation on ${standardizedDateString}`);
+        logger.warn(`Sunrise/Sunset/NextSunrise not available for comprehensive Muhurta calculation on ${dateString}`);
         return {
-            inputParameters: { date: standardizedDateString, latitude, longitude, day: 'N/A', sunrise: null, sunset: null },
+            inputParameters: { date: dateString, latitude, longitude, day: 'N/A', sunrise: null, sunset: null },
             choghadiya: [], horas: [], lagnas: [], muhurta: []
         };
     }
 
     const dayDurationMs = sunset.diff(sunrise);
     const nightDurationMs = nextSunrise.diff(sunset);
-    const dayOfWeek = sunrise.day(); // 0 for Sunday, 1 for Monday, etc.
+    const dayOfWeek = momentLocal.day(); // 0 for Sunday, 1 for Monday, etc.
 
     const choghadiya = await calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
     const horas = await calculateHora(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);

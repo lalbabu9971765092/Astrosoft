@@ -129,7 +129,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
 
         // --- Core Calculation Steps ---
         // *** CORRECTED CALL: Pass latNum and lonNum in the correct order ***
-        const { julianDayUT, utcDate, timezoneOffsetHours } = getJulianDateUT(date, latNum, lonNum);
+        const { julianDayUT, utcDate, timezoneOffsetHours, momentLocal } = getJulianDateUT(date, latNum, lonNum);
 
         // Check if getJulianDateUT failed (returned nulls)
         if (julianDayUT === null) {
@@ -345,7 +345,7 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
 
        
         // --- Core Calculation Steps ---
-        const { julianDayUT, utcDate, timezoneOffsetHours } = getJulianDateUT(date, latNum, lonNum);
+        const { julianDayUT, utcDate, timezoneOffsetHours, momentLocal } = getJulianDateUT(date, latNum, lonNum);
 
         if (julianDayUT === null) {
             throw new Error('Failed to calculate Julian Day UT. Check input date/coordinates or timezone lookup.');

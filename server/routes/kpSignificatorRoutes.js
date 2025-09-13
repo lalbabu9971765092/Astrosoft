@@ -69,7 +69,7 @@ router.post('/', kpValidation, async (req, res) => {
         const lonNum = longitude;
 
        
-        const { julianDayUT, utcDate } = getJulianDateUT(date, latNum, lonNum);
+        const { julianDayUT, utcDate, momentLocal } = getJulianDateUT(date, latNum, lonNum);
 
         if (julianDayUT === null) {
             throw new Error('Failed to calculate Julian Day UT for KP Significators. Check input date/coordinates or timezone lookup.');
@@ -124,7 +124,7 @@ router.post('/rotated', rotatedKpValidation, async (req, res) => {
         const latNum = latitude;
         const lonNum = longitude;
 
-        const { julianDayUT, utcDate } = getJulianDateUT(date, latNum, lonNum);
+        const { julianDayUT, utcDate, momentLocal } = getJulianDateUT(date, latNum, lonNum);
 
         if (julianDayUT === null) {
             throw new Error('Failed to calculate Julian Day UT for KP Significators. Check input date/coordinates or timezone lookup.');

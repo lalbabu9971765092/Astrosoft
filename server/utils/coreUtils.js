@@ -116,12 +116,7 @@ export function getJulianDateUT(localDateString, latitude, longitude) {
         }
         const timezoneName = ianaTimezones[0];
 
-        let momentLocal;
-        if (localDateString.endsWith('Z')) {
-            momentLocal = moment.utc(localDateString);
-        } else {
-            momentLocal = moment.tz(localDateString, 'YYYY-MM-DDTHH:mm:ss', timezoneName);
-        }
+        let momentLocal = moment.tz(localDateString, timezoneName);
 
         if (!momentLocal.isValid()) {
              throw new Error(`Invalid date/time string or timezone combination: "${localDateString}", "${timezoneName}"`);
@@ -157,11 +152,11 @@ export function getJulianDateUT(localDateString, latitude, longitude) {
 
        
 
-        return { julianDayUT: jdResult, utcDate: utcDate, timezoneOffsetHours: timezoneOffsetHours };
+        return { julianDayUT: jdResult, utcDate: utcDate, timezoneOffsetHours: timezoneOffsetHours, momentLocal: momentLocal };
 
     } catch (error) {
         logger.error(`Error in getJulianDateUT for date "${localDateString}", lat ${latitude}, lon ${longitude}: ${error.message}`, { stack: error.stack });
-        return { julianDayUT: null, utcDate: null, timezoneOffsetHours: null };
+        return { julianDayUT: null, utcDate: null, timezoneOffsetHours: null, momentLocal: null };
     }
 }
 

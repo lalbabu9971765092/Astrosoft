@@ -425,7 +425,7 @@ router.get("/sankranti/:year",
 
             // Get initial Rashi
             try {
-                const { julianDayUT: initialJd } = getJulianDateUT(currentDate.toISOString(), lat, lon);
+                const { julianDayUT: initialJd, momentLocal } = getJulianDateUT(currentDate.toISOString(), lat, lon);
                 const initialPositions = calculatePlanetaryPositions(initialJd);
                 const initialSunLon = initialPositions?.sidereal?.Sun?.longitude;
                 if (initialSunLon !== undefined && !isNaN(initialSunLon)) {
@@ -444,7 +444,7 @@ router.get("/sankranti/:year",
 
                 try {
                     // Calculate Sun's position using Swisseph via utils
-                  const { julianDayUT } = getJulianDateUT(currentDate.toISOString(), lat, lon); // Pass lat too if needed by util
+                  const { julianDayUT, momentLocal } = getJulianDateUT(currentDate.toISOString(), lat, lon); // Pass lat too if needed by util
 
                   // *** ADD NULL CHECK ***
                   if (julianDayUT === null) {

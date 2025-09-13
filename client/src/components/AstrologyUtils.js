@@ -770,7 +770,13 @@ export const formatToLocalISOString = (dateObj) => {
   const minutes = dateObj.getMinutes().toString().padStart(2, "0");
   const seconds = dateObj.getSeconds().toString().padStart(2, "0");
 
-  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+  const timezoneOffset = -dateObj.getTimezoneOffset();
+  const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60).toString().padStart(2, "0");
+  const offsetMinutes = (Math.abs(timezoneOffset) % 60).toString().padStart(2, "0");
+  const offsetSign = timezoneOffset >= 0 ? "+" : "-";
+  const timezoneString = `${offsetSign}${offsetHours}:${offsetMinutes}`;
+
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${timezoneString}`;
 };
 
 export const createChartHousesFromAscendant = (ascendantDms, t) => {

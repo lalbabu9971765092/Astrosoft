@@ -282,11 +282,11 @@ export async function calculateMoolDosha(dateString, latitude, longitude, sidere
     }
 
     // Get Moon's Nakshatra at sunrise and next sunrise
-    const { julianDayUT: sunriseJD } = getJulianDateUT(sunrise.toISOString(), latitude, longitude);
+    const { julianDayUT: sunriseJD, momentLocal } = getJulianDateUT(sunrise.toISOString(), latitude, longitude);
     const sunriseMoonLng = (await calculatePlanetaryPositions(sunriseJD))?.sidereal?.Moon?.longitude;
     const sunriseNakshatraName = sunriseMoonLng !== undefined && !isNaN(sunriseMoonLng) ? getNakshatraDetails(sunriseMoonLng).name : null;
 
-    const { julianDayUT: nextSunriseJD } = getJulianDateUT(nextSunrise.toISOString(), latitude, longitude);
+    const { julianDayUT: nextSunriseJD, momentLocal } = getJulianDateUT(nextSunrise.toISOString(), latitude, longitude);
     const nextSunriseMoonLng = (await calculatePlanetaryPositions(nextSunriseJD))?.sidereal?.Moon?.longitude;
     const nextSunriseNakshatraName = nextSunriseMoonLng !== undefined && !isNaN(nextSunriseMoonLng) ? getNakshatraDetails(nextSunriseMoonLng).name : null;
 

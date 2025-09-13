@@ -3,7 +3,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOutletContext } from 'react-router-dom';
 import api from './api';
-import { validateAndFormatDateTime } from './AstrologyUtils';
+import { validateAndFormatDateTime, formatToLocalISOString } from './AstrologyUtils';
 
 import moment from 'moment-timezone';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'; // Import icons
@@ -41,7 +41,6 @@ const MuhurtaPage = () => {
             return;
         }
 
-        // Validate and format the date before sending it to the backend
         const dateTimeValidation = validateAndFormatDateTime(adjustedGocharDateTimeString, t);
         if (!dateTimeValidation.isValid) {
             setError(t('muhurtaPage.invalidDateFormatError', { error: dateTimeValidation.error }));
@@ -49,7 +48,7 @@ const MuhurtaPage = () => {
             setMuhurtaData(null);
             return;
         }
-        const formattedDateForApi = dateTimeValidation.formattedDate;
+        const dateForApi = formatToLocalISOString(new Date(adjustedGocharDateTimeString));
 
         setIsLoading(true);
         setError(null);
@@ -57,7 +56,7 @@ const MuhurtaPage = () => {
 
         try {
             const payload = {
-                date: formattedDateForApi, // Use the correctly formatted date
+                date: dateForApi, // Use the correctly formatted date
                 latitude: locationForGocharTool.lat,
                 longitude: locationForGocharTool.lon,
             };
