@@ -872,10 +872,10 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
 
     return {
         inputParameters: { 
-            date: standardizedDateString, 
+            date: dateString, 
             latitude, 
             longitude, 
-            day: sunrise ? sunrise.format('dddd') : 'N/A', // Get day name from sunrise
+            day: momentLocal.format('dddd'), // Get day name from momentLocal
             sunrise: sunrise ? sunrise.toISOString() : null, // Add sunrise
             sunset: sunset ? sunset.toISOString() : null, // Add sunset
             nextSunrise: nextSunrise ? nextSunrise.toISOString() : null, // Add nextSunrise
