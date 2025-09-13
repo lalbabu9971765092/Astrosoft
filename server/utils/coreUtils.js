@@ -115,27 +115,19 @@ export function getJulianDateUT(localDateString, latitude, longitude) {
             throw new Error(`Could not find IANA timezone for lat=${latitude}, lon=${longitude}`);
         }
         const timezoneName = ianaTimezones[0];
-        logger.info(`getJulianDateUT: localDateString=${localDateString}, lat=${latitude}, lon=${longitude}`);
-        logger.info(`getJulianDateUT: Found IANA timezone: ${timezoneName}`);
 
         let momentLocal;
-        // Check if the date string is already in ISO 8601 UTC format (ends with 'Z')
-        if (localDateString.endsWith('Z') || /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z/.test(localDateString)) {
+        if (localDateString.endsWith('Z')) {
             momentLocal = moment.utc(localDateString);
-            logger.info(`getJulianDateUT: Parsed as UTC (ends with Z): ${momentLocal.toISOString()}`);
         } else {
-            // Parse local string with explicit format and timezone
             momentLocal = moment.tz(localDateString, 'YYYY-MM-DDTHH:mm:ss', timezoneName);
-            logger.info(`getJulianDateUT: Parsed as local (in timezone ${timezoneName}): ${momentLocal.toISOString()}`);
         }
 
         if (!momentLocal.isValid()) {
              throw new Error(`Invalid date/time string or timezone combination: "${localDateString}", "${timezoneName}"`);
         }
 
-        // 3. Convert to UTC and get components
         const momentUTC = momentLocal.clone().utc();
-        logger.info(`getJulianDateUT: momentUTC: ${momentUTC.toISOString()}`);
         const utcDate = momentUTC.toDate();
         if (isNaN(utcDate.getTime())) {
              throw new Error(`Failed to convert momentUTC to valid native Date object.`);

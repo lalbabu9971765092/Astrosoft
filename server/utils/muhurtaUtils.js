@@ -785,13 +785,11 @@ export async function calculatePradoshKaal(sunset) {
  * @returns {string} The inauspicious direction for travel.
  */
 export function calculateDishaShool(dayOfWeek) {
-    logger.info(`Calculating Disha Shool for dayOfWeek: ${dayOfWeek}`);
     const direction = DISHA_SHOOL_DIRECTIONS[dayOfWeek];
     if (!direction) {
         logger.warn(`Disha Shool direction not found for day of week: ${dayOfWeek}`);
         return "Unknown";
     }
-    logger.info(`Disha Shool for day ${dayOfWeek} is: ${direction}`);
     return direction;
 }
 
