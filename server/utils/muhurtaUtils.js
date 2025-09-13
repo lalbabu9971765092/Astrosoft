@@ -3,18 +3,21 @@ import { normalizeAngle, getJulianDateUT, calculateAyanamsa, convertToDMS } from
 import { calculateHousesAndAscendant } from './coreUtils.js';
 import { getNakshatraDetails, getRashiDetails, calculatePlanetaryPositions, getMoonNakshatraEntryExitTimes } from './planetaryUtils.js';
 import { calculateSunMoonTimes } from './panchangUtils.js';
-import { WEEKDAY_LORDS, PLANET_ORDER, RASHIS, RASHI_LORDS } from './constants.js';
+import { WEEKDAY_LORDS, PLANET_ORDER, RASHIS, RASHI_LORDS, DISHA_SHOOL_DIRECTIONS } from './constants.js';
 import { calculateMoolDosha } from './doshaUtils.js';
 import logger from './logger.js';
 import moment from 'moment-timezone';
 
+// These fractions determine the start of Varjyam within each Nakshatra.
+// They are based on specific astrological traditions and may need adjustment
+// depending on the desired calculation method or school of thought.
 const VARJYAM_START_FRACTION = {
-    "Ashwini": 0.8333, "Bharani": 0.4, "Krittika": 0.5, "Rohini": 0.6667, "Mrigashira": 0.2333,
+    "Ashwini": 0.8333, "Bharani": 0.06, "Krittika": 0.5, "Rohini": 0.6667, "Mrigashira": 0.2333,
     "Ardra": 0.35, "Punarvasu": 0.5, "Pushya": 0.3333, "Ashlesha": 0.5333, "Magha": 0.5,
-    "Purva Phalguni": 0.3333, "Uttara Phalguni": 0.3, "Hasta": 0.35, "Chitra": 0.3333,
-    "Swati": 0.5, "Vishakha": 0.2333, "Anuradha": 0.1667, "Jyeshtha": 0.2333, "Mula": 0.9333,
-    "Purva Ashadha": 0.4, "Uttara Ashadha": 0.3333, "Shravana": 0.1667, "Dhanishta": 0.1667,
-    "Shatabhisha": 0.3, "Purva Bhadrapada": 0.2667, "Uttara Bhadrapada": 0.5333, "Revati": 0.8333,
+    "Purva Phalguni": 0.3333, "Uttara Phalguni": 0.01, "Hasta": 0.35, "Chitra": 0.3333,
+    "Swati": 0.2333, "Vishakha": 0.2333, "Anuradha": 0.1667, "Jyeshtha": 0.23, "Mula": 0.3333,
+    "Purva Ashadha": 0.3333, "Uttara Ashadha": 0.3333, "Shravana": 0.1667, "Dhanishta": 0.1667,
+    "Shatabhisha": 0.3, "Purva Bhadrapada": 0.2667, "Uttara Bhadrapada": 0.5, "Revati": 0.5,
 };
 
 // --- Choghadiya Calculation ---
@@ -777,6 +780,22 @@ export async function calculatePradoshKaal(sunset) {
 }
 
 /**
+ * Calculates Disha Shool (inauspicious direction for travel) for a given day of the week.
+ * @param {number} dayOfWeek - The day of the week (0 for Sunday, 6 for Saturday).
+ * @returns {string} The inauspicious direction for travel.
+ */
+export function calculateDishaShool(dayOfWeek) {
+    logger.info(`Calculating Disha Shool for dayOfWeek: ${dayOfWeek}`);
+    const direction = DISHA_SHOOL_DIRECTIONS[dayOfWeek];
+    if (!direction) {
+        logger.warn(`Disha Shool direction not found for day of week: ${dayOfWeek}`);
+        return "Unknown";
+    }
+    logger.info(`Disha Shool for day ${dayOfWeek} is: ${direction}`);
+    return direction;
+}
+
+/**
  * Calculates various Muhurtas for a given date, time, and location.
  * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
  * @param {number} latitude - Observer's latitude.
@@ -831,6 +850,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const varjyam = await calculateVarjyam(utcDate, latitude, longitude, sunrise, nextSunrise);
     const panchak = await calculatePanchak(utcDate, latitude, longitude, sunrise, nextSunrise);
     const gandMool = await calculateMoolDosha(utcDate, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
+    const dishaShool = calculateDishaShool(dayOfWeek);
 
     const muhurtaPeriods = [];
     if (abhijitMuhurta) muhurtaPeriods.push(abhijitMuhurta);
@@ -868,5 +888,6 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
         horas,
         lagnas,
         muhurta: muhurtaPeriods,
+        dishaShool: dishaShool,
     };
 }

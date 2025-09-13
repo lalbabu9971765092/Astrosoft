@@ -101,7 +101,7 @@ const MuhurtaPage = () => {
                             </thead>
                             <tbody>
                                 {choghadiyas.map((c, index) => (
-                                    <tr key={index}>
+                                    <tr key={index} className={c.periodType === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
                                         <td>{t(`choghadiyaTypes.${c.type}`, { defaultValue: c.type })}</td>
                                         <td>{t(`choghadiyaNames.${c.name}`, { defaultValue: c.name })}</td>
                                         <td>{t(`planets.${c.lord}`, { defaultValue: c.lord })}</td>
@@ -223,7 +223,7 @@ const MuhurtaPage = () => {
                             </thead>
                             <tbody>
                                 {muhurta.map((m, index) => (
-                                    <tr key={index}>
+                                    <tr key={index} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
                                         <td>{t(`muhurtaNames.${getMuhurtaTranslationKey(m.name)}`, { defaultValue: m.name })}</td>
                                         <td>{t(`muhurtaTypes.${m.type}`, { defaultValue: m.type })}</td>
                                         <td>{moment(m.start).format('HH:mm:ss')}</td>
@@ -253,6 +253,7 @@ const MuhurtaPage = () => {
                     <p><strong>{t('muhurtaPage.day')}:</strong> {t(`weekdays.${muhurtaData.inputParameters.day}`, { defaultValue: muhurtaData.inputParameters.day })}</p>
                     <p><strong>{t('muhurtaPage.sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
                     <p><strong>{t('muhurtaPage.sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
+                    <p className="inauspicious-period"><strong>{t('muhurtaPage.dishaShool')}:</strong> {t(`directions.${muhurtaData.dishaShool}`, { defaultValue: muhurtaData.dishaShool })}</p>
                 </div>
             )}
 

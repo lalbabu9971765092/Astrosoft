@@ -196,7 +196,15 @@
     "date": "दिनांक",
     "day": "दिन",
     "sunrise": "सूर्योदय",
-    "sunset": "सूर्यास्त"
+    "sunset": "सूर्यास्त",
+    "dishaShool": "दिशा शूल"
+  },
+  "directions": {
+    "East": "पूर्व",
+    "West": "पश्चिम",
+    "North": "उत्तर",
+    "South": "दक्षिण",
+    "Unknown": "अज्ञात"
   },
   "pageTitles": {
     "mainChart": "मुख्य ज्योतिष कुंडली",

@@ -1,5 +1,10 @@
 /* src/App.css */
 
+:root {
+  --color-green: #28a745; /* A standard green */
+  --color-red: #dc3545;   /* A standard red */
+}
+
 .App {
   /* Optional: Add padding if nav becomes fixed */
   /* padding-top: 70px; */

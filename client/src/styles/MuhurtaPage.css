@@ -111,6 +111,16 @@
     background-color: var(--table-row-hover-bg);
 }
 
+.auspicious-period {
+    color: var(--color-green);
+    font-weight: bold;
+}
+
+.inauspicious-period {
+    color: var(--color-red);
+    font-weight: bold;
+}
+
 .result-sub-title {
     color: var(--text-color-secondary);
     margin-top: 20px;

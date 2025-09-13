@@ -430,6 +430,16 @@ export const NAKSHATRA_PADA_ALPHABETS = {
     "Revati": ["De", "Do", "Cha", "Chi"]
 };
 
+export const DISHA_SHOOL_DIRECTIONS = {
+    0: "West",      // Sunday
+    1: "East",      // Monday
+    2: "North",     // Tuesday
+    3: "North",     // Wednesday
+    4: "South",     // Thursday
+    5: "West",      // Friday
+    6: "East"       // Saturday
+};
+
 export const SAMVATSAR_NAMES = [
     'Prabhava', 'Vibhava', 'Shukla', 'Pramoda', 'Prajapati', 'Angira', 'Shrimukha', 'Bhava', 'Yuva', 'Dhatri',
     'Ishwara', 'Bahudhanya', 'Pramathi', 'Vikrama', 'Vishu', 'Chitrabhanu', 'Subhanu', 'Tarana', 'Parthiva', 'Vyaya',

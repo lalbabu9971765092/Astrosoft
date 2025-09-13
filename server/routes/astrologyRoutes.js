@@ -125,7 +125,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const latNum = latitude; // Already parsed to float by validator
         const lonNum = longitude; // Already parsed to float by validator
 
-        console.log(`Received date: ${date}, latitude: ${latitude}, longitude: ${longitude}`);
+        
 
         // --- Core Calculation Steps ---
         // *** CORRECTED CALL: Pass latNum and lonNum in the correct order ***
@@ -1119,6 +1119,7 @@ router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
             horas: muhurtaResult.horas,
             lagnas: muhurtaResult.lagnas,
             muhurta: muhurtaResult.muhurta,
+            dishaShool: muhurtaResult.dishaShool,
         };
 
        res.json(responsePayload);

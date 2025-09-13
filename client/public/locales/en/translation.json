@@ -206,7 +206,15 @@
     "date": "Date",
     "day": "Day",
     "sunrise": "Sunrise",
-    "sunset": "Sunset"
+    "sunset": "Sunset",
+    "dishaShool": "Disha Shool"
+  },
+  "directions": {
+    "East": "East",
+    "West": "West",
+    "North": "North",
+    "South": "South",
+    "Unknown": "Unknown"
   },
   "pageTitles": {
     "mainChart": "Main Astrology Chart",
