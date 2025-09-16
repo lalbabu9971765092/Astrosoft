@@ -13,6 +13,7 @@ import PrashnaNumberPage from './components/PrashnaNumberPage';
 import VarshphalPage from './components/VarshphalPage';
 import RemediesPage from './components/RemediesPage';
 import MuhurtaPage from './components/MuhurtaPage';
+import MonthlyYogasPage from './components/MonthlyYogasPage';
 import SavedChartsPage from './components/SavedChartsPage';
 import api from './components/api'; // Assuming api setup for context
 import MainLayout from './components/MainLayout';
@@ -99,6 +100,7 @@ function AppWrapper() {
                 <Route path="/prashna-time" element={<PrashnaTimeLocationPage />} />
                 <Route path="/prashna-number" element={<PrashnaNumberPage />} />
                 <Route path="/remedies" element={<RemediesPage />} />
+                <Route path="/monthly-yogas" element={<MonthlyYogasPage />} />
             </Route>
             <Route element={<MinimalLayout />}>
                 <Route path="/saved-charts" element={<SavedChartsPage />} />

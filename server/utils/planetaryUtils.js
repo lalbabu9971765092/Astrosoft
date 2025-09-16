@@ -2,7 +2,7 @@
 // utils/planetaryUtils.js
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
-import { NAKSHATRAS, NAKSHATRA_SPAN, RASHIS, RASHI_LORDS, RASHI_SPAN,
+import { NAKSHATRAS, NAKSHATRA_SPAN, RASHIS, RASHI_LORDS, RASHI_SPAN, VARJYAM_START_FRACTION,
     PLANET_ORDER, SUBLORD_DATA, VIMS_DASHA_SEQUENCE, VIMS_DASHA_YEARS, NAKSHATRA_PADA_ALPHABETS
 } from './constants.js';
 import { normalizeAngle, convertToDMS, calculateAyanamsa, getJulianDateUT } from './coreUtils.js';
@@ -719,6 +719,11 @@ export function calculateVimshottariDashaBalance(moonLongitude) {
  */
 export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longitude, targetNakshatraIndex, sunrise, nextSunrise) {
 
+    if (!sunrise || !nextSunrise || !moment(sunrise).isValid() || !moment(nextSunrise).isValid()) {
+        logger.warn(`Invalid sunrise or nextSunrise provided to getMoonNakshatraEntryExitTimes`);
+        return { entryTime: null, exitTime: null };
+    }
+
     const startOfAstrologicalDay = moment(sunrise);
     const endOfAstrologicalDay = moment(nextSunrise);
 
@@ -793,7 +798,7 @@ export async function getMoonNakshatraEntryExitTimes(dateString, latitude, longi
         exitTime = endOfAstrologicalDay.toISOString();
     }
 
-    return { entryTime, exitTime };
+    return { entryTime, exitTime, endOfAstrologicalDay: endOfAstrologicalDay.toISOString() };
 }
 
 /**
@@ -1133,4 +1138,115 @@ export function calculateDashaPeriods(birthChartData) {
     }
 
     return dashaPeriods;
+}
+
+export async function findNextNakshatraChange(startTime, latitude, longitude) {
+    const startMoment = moment(startTime);
+    const { julianDayUT: startJD } = getJulianDateUT(startMoment.toISOString(), latitude, longitude);
+    if (!startJD) return null;
+
+    const startMoonLng = (await calculatePlanetaryPositions(startJD))?.sidereal?.Moon?.longitude;
+    if (startMoonLng === undefined || isNaN(startMoonLng)) return null;
+
+    const startNakshatraIndex = getNakshatraDetails(startMoonLng).index;
+
+    let currentMoment = startMoment.clone();
+    const stepMinutes = 30;
+
+    for (let i = 0; i < 48; i++) { // Search for up to 24 hours
+        currentMoment.add(stepMinutes, 'minutes');
+        const { julianDayUT } = getJulianDateUT(currentMoment.toISOString(), latitude, longitude);
+        if (!julianDayUT) continue;
+
+        const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
+        const moonLongitude = planetaryPositions?.sidereal?.Moon?.longitude;
+        if (moonLongitude === undefined || isNaN(moonLongitude)) continue;
+
+        const currentNakshatraIndex = getNakshatraDetails(moonLongitude).index;
+
+        if (currentNakshatraIndex !== startNakshatraIndex) {
+            return refineNakshatraTransitTime(
+                currentMoment.clone().subtract(stepMinutes, 'minutes'),
+                currentMoment,
+                latitude,
+                longitude,
+                startNakshatraIndex,
+                'exit',
+                10,
+                currentMoment.toISOString()
+            );
+        }
+    }
+
+    return null; // Not found within 24 hours
+}
+
+/**
+ * Calculates Abhijit Muhurta for a given day.
+ * @param {moment.Moment} sunrise - The moment object for sunrise.
+ * @param {number} dayDurationMs - The duration of the day in milliseconds.
+ * @returns {Object|null} Abhijit Muhurta details or null.
+ */
+export function calculateAbhijitMuhurta(sunrise, dayDurationMs) {
+    try {
+        const midday = sunrise.clone().add(dayDurationMs / 2, 'milliseconds');
+        const abhijitStart = midday.clone().subtract(24, 'minutes');
+        const abhijitEnd = midday.clone().add(24, 'minutes');
+
+        return {
+            name: "Abhijit Muhurta",
+            start: abhijitStart.toISOString(), end: abhijitEnd.toISOString(),
+            type: "auspicious",
+            description: "A generally auspicious period around midday, ideal for starting new ventures."
+        };
+    } catch (error) {
+        logger.error(`Error calculating Abhijit Muhurta: ${error.message}`, { stack: error.stack });
+        return null;
+    }
+}
+
+/**
+ * Calculates Varjyam for a given date and location.
+ * @param {string} dateString - Local date string for context.
+ * @param {number} latitude - Observer's latitude.
+ * @param {number} longitude - Observer's longitude.
+ * @param {moment.Moment} sunrise - The moment object for sunrise.
+ * @param {moment.Moment} nextSunrise - The moment object for the next day's sunrise.
+ * @returns {Promise<Object|null>} Varjyam details or null.
+ */
+export async function calculateVarjyam(dateString, latitude, longitude, sunrise, nextSunrise) {
+    try {
+        const { julianDayUT } = getJulianDateUT(dateString, latitude, longitude);
+        if (julianDayUT === null) throw new Error("Could not get Julian Day for Varjyam.");
+
+        const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
+        const moonLongitude = planetaryPositions?.sidereal?.Moon?.longitude;
+        if (moonLongitude === undefined || isNaN(moonLongitude)) throw new Error("Moon longitude unavailable.");
+
+        const nakshatraDetails = getNakshatraDetails(moonLongitude);
+        const nakshatraName = nakshatraDetails.name;
+        const nakshatraIndex = nakshatraDetails.index;
+
+        const varjyamStartFraction = VARJYAM_START_FRACTION[nakshatraName];
+        if (varjyamStartFraction === undefined) return null; // Not all nakshatras have Varjyam
+
+        const { entryTime, exitTime } = await getMoonNakshatraEntryExitTimes(dateString, latitude, longitude, nakshatraIndex, sunrise, nextSunrise);
+        if (!entryTime || !exitTime) throw new Error("Could not determine Nakshatra entry/exit times.");
+
+        const nakshatraDurationMs = moment(exitTime).diff(moment(entryTime));
+        const varjyamDurationMs = nakshatraDurationMs / 15; // Varjyam duration is 1/15th of Nakshatra duration
+        const varjyamStartMsOffset = varjyamStartFraction * nakshatraDurationMs;
+
+        const varjyamStart = moment(entryTime).add(varjyamStartMsOffset, 'milliseconds');
+        const varjyamEnd = varjyamStart.clone().add(varjyamDurationMs, 'milliseconds');
+
+        return {
+            name: "Varjyam",
+            start: varjyamStart.toISOString(), end: varjyamEnd.toISOString(),
+            type: "inauspicious", description: `An inauspicious period within ${nakshatraName} Nakshatra.`
+        };
+    } catch (error) {
+        logger.error(`Error calculating Varjyam: ${error.message}`, { stack: error.stack });
+        return null;
+    }
 }

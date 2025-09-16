@@ -10,7 +10,7 @@ import logger from './logger.js';
  * @returns {Array<object>} An array of eclipse event objects.
  */
 export function calculateEclipsesForYear(year, latitude, longitude) {
-    logger.info(`[EclipseCalc] Calculating eclipses for year: ${year} at lat: ${latitude}, lon: ${longitude} using Astronomy Engine.`);
+   
     const eclipses = [];
     const observer = new Astronomy.Observer(latitude, longitude, 0);
     let searchTime = new Date(Date.UTC(year, 0, 1));

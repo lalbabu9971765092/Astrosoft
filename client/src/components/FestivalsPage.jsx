@@ -534,6 +534,69 @@ const FestivalsPage = () => {
 
                 {/* --- Column 1: Sankranti & Eclipses --- */}
                 <div className="results-column sankranti-column">
+                    {/* --- Tithi Date Finder (Moved Here) --- */}
+                    <div className="tithi-finder-section">
+                        <h2 className="result-title">{t('festivalsPage.tithiFinderColumnTitle')}</h2>
+                        <div className="tithi-finder-controls">
+                            <label htmlFor="tithi-year-input">{t('festivalsPage.yearLabel')} </label>
+                            <input type="number" id="tithi-year-input" value={tithiSearchYear} onChange={handleTithiYearChange} onKeyPress={handleTithiKeyPress} min="1900" max="2100" placeholder={t('festivalsPage.yearPlaceholder')} disabled={isLoadingTithiDates} className="year-input" />
+
+                            <label htmlFor="hindi-month-select">{t('festivalsPage.tithiFinderMonthLabel')} </label>
+                            <select id="hindi-month-select" value={targetHindiMonth} onChange={handleHindiMonthChange} onKeyPress={handleTithiKeyPress} disabled={isLoadingTithiDates}>
+                                <option value="">{t('festivalsPage.tithiFinderAllMonthsOption')}</option>
+                                {HINDI_MONTH_KEYS.map(monthKey => (
+                                    <option key={monthKey} value={monthKey}>{t(`hindiMonths.${monthKey}`, { defaultValue: monthKey })}</option>
+                                ))}
+                            </select>
+
+                            <label htmlFor="tithi-num-input">{t('festivalsPage.tithiFinderTithiLabel')} </label>
+                            <input type="number" id="tithi-num-input" value={targetTithi} onChange={handleTithiNumChange} onKeyPress={handleTithiKeyPress} min="1" max="15" placeholder={t('festivalsPage.tithiFinderTithiPlaceholder')} disabled={isLoadingTithiDates} />
+
+                            <label htmlFor="paksha-select">{t('festivalsPage.tithiFinderPakshaLabel')} </label>
+                            <select id="paksha-select" value={targetPaksha} onChange={handlePakshaChange} onKeyPress={handleTithiKeyPress} disabled={isLoadingTithiDates}>
+                                <option value="Shukla">{t('festivalsPage.tithiFinderPakshaShukla')}</option>
+                                <option value="Krishna">{t('festivalsPage.tithiFinderPakshaKrishna')}</option>
+                            </select>
+
+                            <button onClick={findTithiDates} disabled={isLoadingTithiDates}>
+                                {isLoadingTithiDates ? t('festivalsPage.tithiFinderSearchingButton') : t('festivalsPage.tithiFinderFindButton')}
+                            </button>
+                        </div>
+
+                        {tithiDateError && <p className="error-text">{tithiDateError}</p>}
+                        <div className="tithi-results-section">
+                            {isLoadingTithiDates && <div className="loader">{t('festivalsPage.tithiFinderSearchingButton')}</div>}
+                            {!isLoadingTithiDates && !tithiDateError && tithiDates.length > 0 && (
+                                <>
+                                    {tithiResultsHeading && <h4 className="result-sub-title">{tithiResultsHeading}:</h4>}
+                                    <div className="table-container">
+                                        <table className="results-table">
+                                            <thead><tr>
+                                                <th>{t('festivalsPage.tithiFinderResultsHeaderDate')}</th>
+                                                <th>{t('festivalsPage.tithiFinderResultsHeaderSunrise')}</th>
+                                                <th>{t('festivalsPage.tithiFinderResultsHeaderStart')}</th>
+                                                <th>{t('festivalsPage.tithiFinderResultsHeaderEnd')}</th>
+                                            </tr></thead>
+                                            <tbody>
+                                                {tithiDates.map((tithiInfo, index) => (
+                                                    <tr key={`specific-tithi-row-${index}-${tithiInfo.date}`}>
+                                                        <td>{formatDateForDisplay(tithiInfo.date)}</td>
+                                                        <td>{formatDateTimeForDisplay(tithiInfo.sunrise)}</td>
+                                                        <td>{formatDateTimeForDisplay(tithiInfo.startTime)}</td>
+                                                        <td>{formatDateTimeForDisplay(tithiInfo.endTime)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
+                            )}
+                            {!isLoadingTithiDates && !tithiDateError && tithiDates.length === 0 && (
+                                <p className="info-text">{t('festivalsPage.tithiFinderNoResults')}</p>
+                            )}
+                        </div>
+                    </div>
+
                     <h2 className="result-title">{t('festivalsPage.sankrantiColumnTitle', { year: yearForFetching || '...' })}</h2>
                     {isLoadingSankranti && <div className="loader">{t('festivalsPage.sankrantiLoading')}</div>}
                     {sankrantiError && <p className="error-text">{sankrantiError}</p>}
@@ -693,69 +756,6 @@ const FestivalsPage = () => {
                         {!isLoadingRecurringTithis && !recurringTithiError && (!recurringTithiResults?.dates || recurringTithiResults.dates.length === 0) && (
                             <p className="info-text">{t('festivalsPage.recurringTithisNoData')}</p>
                         )}
-                    </div>
-
-                    {/* --- Tithi Date Finder (Manual Specific Search) --- */}
-                    <div className="tithi-finder-section" style={{ marginTop: '2rem' }}>
-                        <h2 className="result-title">{t('festivalsPage.tithiFinderColumnTitle')}</h2>
-                        <div className="tithi-finder-controls">
-                            <label htmlFor="tithi-year-input">{t('festivalsPage.yearLabel')} </label>
-                            <input type="number" id="tithi-year-input" value={tithiSearchYear} onChange={handleTithiYearChange} onKeyPress={handleTithiKeyPress} min="1900" max="2100" placeholder={t('festivalsPage.yearPlaceholder')} disabled={isLoadingTithiDates} className="year-input" />
-
-                            <label htmlFor="hindi-month-select">{t('festivalsPage.tithiFinderMonthLabel')} </label>
-                            <select id="hindi-month-select" value={targetHindiMonth} onChange={handleHindiMonthChange} onKeyPress={handleTithiKeyPress} disabled={isLoadingTithiDates}>
-                                <option value="">{t('festivalsPage.tithiFinderAllMonthsOption')}</option>
-                                {HINDI_MONTH_KEYS.map(monthKey => (
-                                    <option key={monthKey} value={monthKey}>{t(`hindiMonths.${monthKey}`, { defaultValue: monthKey })}</option>
-                                ))}
-                            </select>
-
-                            <label htmlFor="tithi-num-input">{t('festivalsPage.tithiFinderTithiLabel')} </label>
-                            <input type="number" id="tithi-num-input" value={targetTithi} onChange={handleTithiNumChange} onKeyPress={handleTithiKeyPress} min="1" max="15" placeholder={t('festivalsPage.tithiFinderTithiPlaceholder')} disabled={isLoadingTithiDates} />
-
-                            <label htmlFor="paksha-select">{t('festivalsPage.tithiFinderPakshaLabel')} </label>
-                            <select id="paksha-select" value={targetPaksha} onChange={handlePakshaChange} onKeyPress={handleTithiKeyPress} disabled={isLoadingTithiDates}>
-                                <option value="Shukla">{t('festivalsPage.tithiFinderPakshaShukla')}</option>
-                                <option value="Krishna">{t('festivalsPage.tithiFinderPakshaKrishna')}</option>
-                            </select>
-
-                            <button onClick={findTithiDates} disabled={isLoadingTithiDates}>
-                                {isLoadingTithiDates ? t('festivalsPage.tithiFinderSearchingButton') : t('festivalsPage.tithiFinderFindButton')}
-                            </button>
-                        </div>
-
-                        {tithiDateError && <p className="error-text">{tithiDateError}</p>}
-                        <div className="tithi-results-section">
-                            {isLoadingTithiDates && <div className="loader">{t('festivalsPage.tithiFinderSearchingButton')}</div>}
-                            {!isLoadingTithiDates && !tithiDateError && tithiDates.length > 0 && (
-                                <>
-                                    {tithiResultsHeading && <h4 className="result-sub-title">{tithiResultsHeading}:</h4>}
-                                    <div className="table-container">
-                                        <table className="results-table">
-                                            <thead><tr>
-                                                <th>{t('festivalsPage.tithiFinderResultsHeaderDate')}</th>
-                                                <th>{t('festivalsPage.tithiFinderResultsHeaderSunrise')}</th>
-                                                <th>{t('festivalsPage.tithiFinderResultsHeaderStart')}</th>
-                                                <th>{t('festivalsPage.tithiFinderResultsHeaderEnd')}</th>
-                                            </tr></thead>
-                                            <tbody>
-                                                {tithiDates.map((tithiInfo, index) => (
-                                                    <tr key={`specific-tithi-row-${index}-${tithiInfo.date}`}>
-                                                        <td>{formatDateForDisplay(tithiInfo.date)}</td>
-                                                        <td>{formatDateTimeForDisplay(tithiInfo.sunrise)}</td>
-                                                        <td>{formatDateTimeForDisplay(tithiInfo.startTime)}</td>
-                                                        <td>{formatDateTimeForDisplay(tithiInfo.endTime)}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </>
-                            )}
-                            {!isLoadingTithiDates && !tithiDateError && tithiDates.length === 0 && (
-                                <p className="info-text">{t('festivalsPage.tithiFinderNoResults')}</p>
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>

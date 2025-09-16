@@ -448,3 +448,14 @@ export const SAMVATSAR_NAMES = [
     'Plavanga', 'Kilaka', 'Saumya', 'Sadharana', 'Virodhakrit', 'Paridhavi', 'Pramadicha', 'Ananda', 'Rakshasa', 'Nala',
     'Pingala', 'Kalayukti', 'Siddharthi', 'Raudra', 'Durmati', 'Dundubhi', 'Rudhirodgari', 'Raktakshi', 'Krodhana', 'Kshaya' // or Akshaya
 ];
+
+// Fractions for Varjyam calculation within a Nakshatra's duration.
+export const VARJYAM_START_FRACTION = {
+    "Ashwini": 0.8333, "Bharani": 0.4, "Krittika": 0.5, "Rohini": 0.6667, "Mrigashira": 0.2333,
+    "Ardra": 0.35, "Punarvasu": 0.5, "Pushya": 0.3333, "Ashlesha": 0.5333, "Magha": 0.5,
+    "Purva Phalguni": 0.3333, "Uttara Phalguni": 0.3, "Hasta": 0.35, "Chitra": 0.3333,
+    "Swati": 0.2333, "Vishakha": 0.2333, "Anuradha": 0.1667, "Jyeshtha": 0.2333, "Mula": 0.3333,
+    "Purva Ashadha": 0.4, "Uttara Ashadha": 0.3333, "Shravana": 0.1667, "Dhanishtha": 0.1667,
+    "Shatabhisha": 0.3, "Purva Bhadrapada": 0.2667, "Uttara Bhadrapada": 0.4, "Revati": 0.8
+};
+

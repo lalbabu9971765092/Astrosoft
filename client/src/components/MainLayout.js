@@ -36,6 +36,7 @@ const MainLayout = () => {
                         <li><NavLink to="/remedies" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.remedies')}</NavLink></li>
                         <li><NavLink to="/varshphal" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.varshphal')}</NavLink></li>
                         <li><NavLink to="/muhurta" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.muhurta')}</NavLink></li>
+                        <li><NavLink to="/monthly-yogas" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.monthlyYogas')}</NavLink></li>
                     </ul>
                 </div>
             </nav>

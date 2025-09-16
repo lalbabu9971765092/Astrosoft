@@ -25,8 +25,9 @@ import {
 } from '../utils/index.js'; // Adjust path if your index is elsewhere or import directly
 import { calculatePanchang } from '../utils/panchangUtils.js';
 import { calculateHousesAndAscendant } from '../utils/coreUtils.js';
-import { calculateChoghadiya, calculateHora, calculateLagnasForDay, calculateMuhurta } from '../utils/muhurtaUtils.js';
+import { calculateMuhurta } from '../utils/muhurtaUtils.js';
 import { rotateHouses } from '../utils/rotationUtils.js';
+import { calculateYogasForMonth } from '../utils/monthlyYogaUtils.js';
 
 const router = express.Router();
 
@@ -1119,7 +1120,11 @@ router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
             horas: muhurtaResult.horas,
             lagnas: muhurtaResult.lagnas,
             muhurta: muhurtaResult.muhurta,
+            activeChoghadiya: muhurtaResult.activeChoghadiya,
+            activeHora: muhurtaResult.activeHora,
+            activeLagna: muhurtaResult.activeLagna,
             dishaShool: muhurtaResult.dishaShool,
+            activeYogas: muhurtaResult.activeYogas,
         };
 
        res.json(responsePayload);
@@ -1173,6 +1178,26 @@ router.post('/kp-significators', baseChartValidation, async (req, res) => {
 
     } catch (error) {
         handleRouteError(res, error, '/kp-significators', req.body);
+    }
+});
+
+router.post('/calculate-monthly-yogas', [
+    body('year').isInt({ min: 1900, max: 2100 }).toInt(),
+    body('month').isInt({ min: 1, max: 12 }).toInt(),
+    body('latitude').isFloat({ min: -90, max: 90 }).toFloat(),
+    body('longitude').isFloat({ min: -180, max: 180 }).toFloat(),
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const { year, month, latitude, longitude } = req.body;
+        const yogas = await calculateYogasForMonth(year, month, latitude, longitude);
+        res.json(yogas);
+    } catch (error) {
+        handleRouteError(res, error, '/calculate-monthly-yogas', req.body);
     }
 });
 

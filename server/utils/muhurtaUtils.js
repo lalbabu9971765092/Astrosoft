@@ -1,210 +1,16 @@
 // utils/muhurtaUtils.js
 import { normalizeAngle, getJulianDateUT, calculateAyanamsa, convertToDMS } from './coreUtils.js';
 import { calculateHousesAndAscendant } from './coreUtils.js';
-import { getNakshatraDetails, getRashiDetails, calculatePlanetaryPositions, getMoonNakshatraEntryExitTimes } from './planetaryUtils.js';
+import { getNakshatraDetails, getRashiDetails, calculatePlanetaryPositions, getMoonNakshatraEntryExitTimes, calculateAbhijitMuhurta, calculateVarjyam } from './planetaryUtils.js';
 import { calculateSunMoonTimes } from './panchangUtils.js';
-import { WEEKDAY_LORDS, PLANET_ORDER, RASHIS, RASHI_LORDS, DISHA_SHOOL_DIRECTIONS } from './constants.js';
+import { DISHA_SHOOL_DIRECTIONS } from './constants.js';
 import { calculateMoolDosha } from './doshaUtils.js';
+import { calculateSarvarthSiddhaYoga, calculateAmritSiddhiYoga, calculateVishaYoga } from './yogaUtils.js';
+import { calculateChoghadiya } from './muhurta/choghadiyaUtils.js';
+import { calculateHora } from './muhurta/horaUtils.js';
+import { calculateRahuKaal, calculateDurMuhurta, calculateGuliKaal, calculateYamGhanta, calculatePradoshKaal } from './muhurta/kaalUtils.js';
 import logger from './logger.js';
 import moment from 'moment-timezone';
-
-// These fractions determine the start of Varjyam within each Nakshatra.
-// They are based on specific astrological traditions and may need adjustment
-// depending on the desired calculation method or school of thought.
-const VARJYAM_START_FRACTION = {
-    "Ashwini": 0.8333, "Bharani": 0.06, "Krittika": 0.5, "Rohini": 0.6667, "Mrigashira": 0.2333,
-    "Ardra": 0.35, "Punarvasu": 0.5, "Pushya": 0.3333, "Ashlesha": 0.5333, "Magha": 0.5,
-    "Purva Phalguni": 0.3333, "Uttara Phalguni": 0.01, "Hasta": 0.35, "Chitra": 0.3333,
-    "Swati": 0.2333, "Vishakha": 0.2333, "Anuradha": 0.1667, "Jyeshtha": 0.23, "Mula": 0.3333,
-    "Purva Ashadha": 0.3333, "Uttara Ashadha": 0.3333, "Shravana": 0.1667, "Dhanishta": 0.1667,
-    "Shatabhisha": 0.3, "Purva Bhadrapada": 0.2667, "Uttara Bhadrapada": 0.5, "Revati": 0.5,
-};
-
-// --- Choghadiya Calculation ---
-const CHOGHADIYA_TYPES = {
-    day: [
-        { name: "Udweg", lord: "Sun", type: "inauspicious" },
-        { name: "Char", lord: "Venus", type: "auspicious" },
-        { name: "Labh", lord: "Mercury", type: "auspicious" },
-        { name: "Amrit", lord: "Moon", type: "auspicious" },
-        { name: "Kaal", lord: "Saturn", type: "inauspicious" },
-        { name: "Shubh", lord: "Jupiter", type: "auspicious" },
-        { name: "Rog", lord: "Mars", type: "inauspicious" },
-    ],
-    night: [
-        { name: "Amrit", lord: "Moon", type: "auspicious" },
-        { name: "Char", lord: "Venus", type: "auspicious" },
-        { name: "Rog", lord: "Mars", type: "inauspicious" },
-        { name: "Kaal", lord: "Saturn", type: "inauspicious" },
-        { name: "Labh", lord: "Mercury", type: "auspicious" },
-        { name: "Udweg", lord: "Sun", type: "inauspicious" },
-        { name: "Shubh", lord: "Jupiter", type: "auspicious" },
-    ]
-};
-
-/**
- * Calculates Choghadiya for a given date, time, and location.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Array<Object>} Array of Choghadiya periods for the day.
- */
-export async function calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek) {
-    try {
-        const dayChoghadiyaDurationMs = dayDurationMs / 8;
-        const nightChoghadiyaDurationMs = nightDurationMs / 8;
-
-        const choghadiyas = [];
-
-        // Day Choghadiyas
-        let currentChoghadiyaStart = sunrise.clone();
-        const dayChoghadiyaSequence = [...CHOGHADIYA_TYPES.day];
-        
-        // Get the lord of the day
-        const dayLord = WEEKDAY_LORDS[dayOfWeek];
-
-        // Find the index of the Choghadiya corresponding to the day lord
-        const startIndexDay = dayChoghadiyaSequence.findIndex(choghadiya => choghadiya.lord === dayLord);
-
-        if (startIndexDay === -1) {
-            throw new Error(`Could not find starting Choghadiya for day lord: ${dayLord}`);
-        }
-
-        const rotatedDaySequence = dayChoghadiyaSequence.slice(startIndexDay).concat(dayChoghadiyaSequence.slice(0, startIndexDay));
-        rotatedDaySequence.push(rotatedDaySequence[0]); // The 8th Choghadiya is a repeat of the first
-
-        for (let i = 0; i < 8; i++) {
-            const choghadiya = rotatedDaySequence[i];
-            const end = currentChoghadiyaStart.clone().add(dayChoghadiyaDurationMs, 'milliseconds');
-            choghadiyas.push({
-                type: "Day",
-                name: choghadiya.name,
-                lord: choghadiya.lord,
-                periodType: choghadiya.type,
-                start: currentChoghadiyaStart.toISOString(),
-                end: end.toISOString(),
-            });
-            currentChoghadiyaStart = end;
-        }
-
-        // Night Choghadiyas
-        let currentNightChoghadiyaStart = sunset.clone();
-        const nightChoghadiyaSequence = [...CHOGHADIYA_TYPES.night];
-        
-        // The first night Choghadiya lord is the lord of the 5th day Choghadiya
-        const nightStartLord = rotatedDaySequence[4].lord;
-
-        // Find the index of the starting night Choghadiya
-        const startIndexNight = nightChoghadiyaSequence.findIndex(choghadiya => choghadiya.lord === nightStartLord);
-
-        if (startIndexNight === -1) {
-            throw new Error(`Could not find starting night Choghadiya for lord: ${nightStartLord}`);
-        }
-
-        const rotatedNightSequence = nightChoghadiyaSequence.slice(startIndexNight).concat(nightChoghadiyaSequence.slice(0, startIndexNight));
-        rotatedNightSequence.push(rotatedNightSequence[0]); // The 8th Choghadiya is a repeat of the first
-
-        for (let i = 0; i < 8; i++) {
-            const choghadiya = rotatedNightSequence[i];
-            let end;
-            if (i === 7) {
-                end = nextSunrise.clone();
-            } else {
-                end = currentNightChoghadiyaStart.clone().add(nightChoghadiyaDurationMs, 'milliseconds');
-            }
-
-            choghadiyas.push({
-                type: "Night",
-                name: choghadiya.name,
-                lord: choghadiya.lord,
-                periodType: choghadiya.type,
-                start: currentNightChoghadiyaStart.toISOString(),
-                end: end.toISOString(),
-            });
-            currentNightChoghadiyaStart = end;
-        }
-
-        return choghadiyas;
-
-    } catch (error) {
-        logger.error(`Error calculating Choghadiya: ${error.message}`, { stack: error.stack });
-        throw new Error(`Failed to calculate Choghadiya: ${error.message}`);
-    }
-}
-
-// --- Hora Calculation ---
-const HORA_SEQUENCE = [
-    "Saturn", "Jupiter", "Mars", "Sun", "Venus", "Mercury", "Moon"
-];
-
-/**
- * Calculates Horas for a given date, time, and location.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Array<Object>} Array of Hora periods for the day.
- */
-export async function calculateHora(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek) {
-    try {
-        const dayHoraDurationMs = dayDurationMs / 12;
-        const nightHoraDurationMs = nightDurationMs / 12;
-
-        const horas = [];
-
-        // Determine the starting Hora lord for the day
-        const dayLord = WEEKDAY_LORDS[dayOfWeek];
-        const startIndex = HORA_SEQUENCE.indexOf(dayLord);
-        if (startIndex === -1) {
-            throw new Error(`Day lord ${dayLord} not found in Hora sequence.`);
-        }
-
-        // Day Horas
-        let currentHoraStart = sunrise.clone();
-        for (let i = 0; i < 12; i++) {
-            const horaLord = HORA_SEQUENCE[(startIndex + i) % HORA_SEQUENCE.length];
-            const end = currentHoraStart.clone().add(dayHoraDurationMs, 'milliseconds');
-            horas.push({
-                type: "Day",
-                lord: horaLord,
-                start: currentHoraStart.toISOString(),
-                end: end.toISOString(),
-            });
-            currentHoraStart = end;
-        }
-
-        // Night Horas
-        // The first Hora of the night is the 5th lord from the day's first Hora lord
-        const nightStartIndex = (startIndex + 5) % HORA_SEQUENCE.length;
-        let currentNightHoraStart = sunset.clone();
-        for (let i = 0; i < 11; i++) { // Loop for first 11 horas
-            const horaLord = HORA_SEQUENCE[(nightStartIndex + i) % HORA_SEQUENCE.length];
-            const end = currentNightHoraStart.clone().add(nightHoraDurationMs, 'milliseconds');
-            horas.push({
-                type: "Night",
-                lord: horaLord,
-                start: currentNightHoraStart.toISOString(),
-                end: end.toISOString(),
-            });
-            currentNightHoraStart = end;
-        }
-
-        // Add the 12th (last) Hora, ensuring it ends at nextSunrise
-        const lastNightHoraLord = HORA_SEQUENCE[(nightStartIndex + 11) % HORA_SEQUENCE.length];
-        horas.push({
-            type: "Night",
-            lord: lastNightHoraLord,
-            start: currentNightHoraStart.toISOString(),
-            end: nextSunrise.toISOString(),
-        });
-
-      
-        return horas;
-
-    } catch (error) {
-        logger.error(`Error calculating Hora for ${dateString}: ${error.message}`, { stack: error.stack });
-        throw new Error(`Failed to calculate Hora: ${error.message}`);
-    }
-}
 
 // --- Lagna (Ascendant) Calculation for the day ---
 /**
@@ -272,321 +78,6 @@ export async function calculateLagnasForDay(latitude, longitude, sunrise, nextSu
     } catch (error) {
         logger.error(`Error calculating Lagnas for day: ${error.message}`, { stack: error.stack });
         throw new Error(`Failed to calculate Lagnas: ${error.message}`);
-    }
-}
-
-// --- Muhurta Calculation (Placeholder for now) ---
-/**
- * Placeholder for Muhurta calculation. This is a complex topic and will require
- * detailed rules for various types of Muhurtas.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Array<Object>} Placeholder for Muhurta periods.
- */
-/**
- * Calculates Abhijit Muhurta for a given date and location.
- * Abhijit Muhurta is typically the 48-minute period centered around local apparent noon.
- * It is generally considered auspicious.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Object|null} Abhijit Muhurta details or null if not calculable.
- */
-export async function calculateAbhijitMuhurta(sunrise, sunset, dayDurationMs) {
-    try {
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Abhijit Muhurta calculation.`);
-            return null;
-        }
-
-        const midday = sunrise.clone().add(dayDurationMs / 2, 'milliseconds');
-
-        const abhijitStart = midday.clone().subtract(24, 'minutes');
-        const abhijitEnd = midday.clone().add(24, 'minutes');
-
-        return {
-            name: "Abhijit Muhurta",
-            start: abhijitStart.toISOString(),
-            end: abhijitEnd.toISOString(),
-            type: "auspicious",
-            description: "A generally auspicious period around midday, ideal for starting new ventures."
-        };
-    } catch (error) {
-        logger.error(`Error calculating Abhijit Muhurta for ${dateString}: ${error.message}`, { stack: error.stack });
-        return null;
-    }
-}
-
-// --- 
-//  Kaal Constants ---
-// Rahu Kaal Muhurta index for each day (0-indexed, where Sunday is 0)
-const RAHU_KAAL_MUHURTA_INDEX = {
-    0: 7, // Sunday: 8th Muhurta
-    1: 1, // Monday: 2nd Muhurta
-    2: 6, // Tuesday: 7th Muhurta
-    3: 4, // Wednesday: 5th Muhurta
-    4: 5, // Thursday: 6th Muhurta
-    5: 3, // Friday: 4th Muhurta
-    6: 2  // Saturday: 3rd Muhurta
-};
-
-/**
- * Calculates Rahu Kaal for a given date and location.
- * Rahu Kaal is an inauspicious period to avoid new beginnings.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Object|null} Rahu Kaal details or null if not calculable.
- */
-export async function calculateRahuKaal(sunrise, sunset, dayDurationMs, dayOfWeek) {
-    try {
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Rahu Kaal calculation.`);
-            return null;
-        }
-
-        const muhurtaDurationMs = dayDurationMs / 8; // Day divided into 8 Muhurtas
-
-        const rahuKaalMuhurtaIndex = RAHU_KAAL_MUHURTA_INDEX[dayOfWeek];
-
-        if (rahuKaalMuhurtaIndex === undefined) {
-            logger.error(`Invalid day of week for Rahu Kaal calculation: ${dayOfWeek}`);
-            return null;
-        }
-
-        const rahuKaalStart = sunrise.clone().add(rahuKaalMuhurtaIndex * muhurtaDurationMs, 'milliseconds');
-        const rahuKaalEnd = rahuKaalStart.clone().add(muhurtaDurationMs, 'milliseconds');
-
-        return {
-            name: "Rahu Kaal",
-            start: rahuKaalStart.toISOString(),
-            end: rahuKaalEnd.toISOString(),
-            type: "inauspicious",
-            description: "An inauspicious period to avoid new beginnings, travel, or important decisions."
-        };
-    } catch (error) {
-        logger.error(`Error calculating Rahu Kaal for ${dateString}: ${error.message}`, { stack: error.stack });
-        return null;
-    }
-}
-
-// --- Dur Muhurta Constants ---
-// 1-based indices of Dur Muhurta for each day of the week (0=Sun)
-const DUR_MUHURTA_INDICES_DAY = {
-    0: [14],      // Sunday
-    1: [9, 12],   // Monday
-    2: [4],       // Tuesday
-    3: [8],       // Wednesday
-    4: [6, 12],   // Thursday
-    5: [4, 9],    // Friday
-    6: [3]        // Saturday
-};
-
-const DUR_MUHURTA_INDICES_NIGHT = {
-    2: [7]        // Tuesday
-};
-
-/**
- * Calculates Dur Muhurta for a given date and location.
- * Dur Muhurta is an inauspicious period.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Array} An array of Dur Muhurta period objects, or an empty array on error.
- */
-export async function calculateDurMuhurta(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek) {
-    try {
-        const calculatedDurMuhurtas = [];
-
-        // Day Muhurtas
-        if (DUR_MUHURTA_INDICES_DAY[dayOfWeek]) {
-            const muhurtaDurationMs = dayDurationMs / 15;
-            const durMuhurtaIndices = DUR_MUHURTA_INDICES_DAY[dayOfWeek];
-
-            const dayMuhurtas = durMuhurtaIndices.map((muhurtaIndex, i) => {
-                const zeroBasedIndex = muhurtaIndex - 1;
-                const startMoment = sunrise.clone().add(zeroBasedIndex * muhurtaDurationMs, 'milliseconds');
-                const endMoment = startMoment.clone().add(muhurtaDurationMs, 'milliseconds');
-                const name = durMuhurtaIndices.length > 1 ? `Dur Muhurta (Day) ${i + 1}` : "Dur Muhurta (Day)";
-
-                return {
-                    name: name,
-                    start: startMoment.toISOString(),
-                    end: endMoment.toISOString(),
-                    type: "inauspicious",
-                    description: "An inauspicious period. Avoid important activities."
-                };
-            });
-            calculatedDurMuhurtas.push(...dayMuhurtas);
-        }
-
-        // Night Muhurtas
-        if (DUR_MUHURTA_INDICES_NIGHT[dayOfWeek]) {
-            const nightMuhurtaDurationMs = nightDurationMs / 15;
-            const durMuhurtaIndicesNight = DUR_MUHURTA_INDICES_NIGHT[dayOfWeek];
-
-            const nightMuhurtas = durMuhurtaIndicesNight.map((muhurtaIndex, i) => {
-                const zeroBasedIndex = muhurtaIndex - 1;
-                const startMoment = sunset.clone().add(zeroBasedIndex * nightMuhurtaDurationMs, 'milliseconds');
-                const endMoment = startMoment.clone().add(nightMuhurtaDurationMs, 'milliseconds');
-                const name = durMuhurtaIndicesNight.length > 1 ? `Dur Muhurta (Night) ${i + 1}` : "Dur Muhurta (Night)";
-
-                return {
-                    name: name,
-                    start: startMoment.toISOString(),
-                    end: endMoment.toISOString(),
-                    type: "inauspicious",
-                    description: "An inauspicious period. Avoid important activities."
-                };
-            });
-            calculatedDurMuhurtas.push(...nightMuhurtas);
-        }
-
-        return calculatedDurMuhurtas;
-
-    } catch (error) {
-        logger.error(`Error calculating Dur Muhurta for day ${dayOfWeek}: ${error.message}`, { stack: error.stack });
-        return []; // Return empty array on error
-    }
-}
-
-// --- Guli Kaal Constants ---
-const GULI_KAAL_DAY_SEGMENT_INDEX = {
-    0: 6, // Sunday: 7th segment
-    1: 5, // Monday: 6th segment
-    2: 4, // Tuesday: 5th segment
-    3: 3, // Wednesday: 4th segment
-    4: 2, // Thursday: 3rd segment
-    5: 1, // Friday: 2nd segment
-    6: 0  // Saturday: 1st segment
-};
-
-const GULI_KAAL_NIGHT_SEGMENT_INDEX = {
-    0: 2, // Sunday Night: 3rd segment
-    1: 1, // Monday Night: 2nd segment
-    2: 0, // Tuesday Night: 1st segment
-    3: 6, // Wednesday Night: 7th segment
-    4: 5, // Thursday Night: 6th segment
-    5: 4, // Friday Night: 5th segment
-    6: 3  // Saturday Night: 4th segment
-};
-
-
-/**
- * Calculates Guli Kaal for a given date and location.
- * Guli Kaal is an inauspicious period.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Object|null} Guli Kaal details or null if not calculable.
- */
-export async function calculateGuliKaal(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek) {
-    try {
-        if (!sunrise || !sunset || !nextSunrise || !sunrise.isValid() || !sunset.isValid() || !nextSunrise.isValid()) {
-            logger.warn(`Sunrise/Sunset/NextSunrise not available for Guli Kaal calculation.`);
-            return []; // Return empty array
-        }
-
-        const daySegmentDurationMs = dayDurationMs / 8;
-        const nightSegmentDurationMs = nightDurationMs / 8;
-
-        // Guli Kaal segment index for each day (0-indexed)
-        const guliKaalDaySegmentIndex = GULI_KAAL_DAY_SEGMENT_INDEX[dayOfWeek];
-        const guliKaalNightSegmentIndex = GULI_KAAL_NIGHT_SEGMENT_INDEX[dayOfWeek];
-
-        const guliKaals = [];
-
-        // Day Guli Kaal
-        if (guliKaalDaySegmentIndex !== undefined) {
-            const guliKaalStart = sunrise.clone().add(guliKaalDaySegmentIndex * daySegmentDurationMs, 'milliseconds');
-            const guliKaalEnd = guliKaalStart.clone().add(daySegmentDurationMs, 'milliseconds');
-            guliKaals.push({
-                name: "Guli Kaal (Day)",
-                start: guliKaalStart.toISOString(),
-                end: guliKaalEnd.toISOString(),
-                type: "inauspicious",
-                description: "An inauspicious period; actions performed during this time tend to repeat."
-            });
-        }
-
-        // Night Guli Kaal
-        if (guliKaalNightSegmentIndex !== undefined) {
-            const guliKaalNightStart = sunset.clone().add(guliKaalNightSegmentIndex * nightSegmentDurationMs, 'milliseconds');
-            const guliKaalNightEnd = guliKaalNightStart.clone().add(nightSegmentDurationMs, 'milliseconds');
-            guliKaals.push({
-                name: "Guli Kaal (Night)",
-                start: guliKaalNightStart.toISOString(),
-                end: guliKaalNightEnd.toISOString(),
-                type: "inauspicious",
-                description: "An inauspicious period during the night."
-            });
-        }
-
-        return guliKaals;
-
-    } catch (error) {
-        logger.error(`Error calculating Guli Kaal for ${dateString}: ${error.message}`, { stack: error.stack });
-        return []; // Return empty array on error
-    }
-}
-
-/**
- * Calculates Yam Ghanta for a given date and location.
- * Yam Ghanta is an inauspicious period.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Object|null} Yam Ghanta details or null if not calculable.
- */
-export async function calculateYamGhanta(sunrise, sunset, dayDurationMs, dayOfWeek) {
-    try {
-        if (!sunrise || !sunset || !sunrise.isValid() || !sunset.isValid()) {
-            logger.warn(`Sunrise/Sunset not available for Yam Ghanta calculation.`);
-            return null;
-        }
-
-        const segmentDurationMs = dayDurationMs / 8;
-
-        // Planetary rulership sequence for segments: Sun, Moon, Mars, Mercury, Jupiter, Venus, Saturn
-        const planetarySequence = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
-        const weekdayLord = WEEKDAY_LORDS[dayOfWeek]; // WEEKDAY_LORDS is defined in constants.js
-
-        // Determine the starting planet for the day's segments
-        const startIndex = planetarySequence.indexOf(weekdayLord);
-        if (startIndex === -1) {
-            logger.error(`Day lord ${weekdayLord} not found in planetary sequence for Yam Ghanta.`);
-            return null;
-        }
-
-        // Find Jupiter's position in the sequence relative to the starting planet
-        let jupiterIndex = -1;
-        for (let i = 0; i < 8; i++) { // Iterate through 8 segments
-            const currentPlanet = planetarySequence[(startIndex + i) % planetarySequence.length];
-            if (currentPlanet === "Jupiter") {
-                jupiterIndex = i;
-                break;
-            }
-        }
-
-        if (jupiterIndex === -1) {
-            logger.error("Jupiter not found in Yam Ghanta sequence, this should not happen.");
-            return null;
-        }
-
-        const yamGhantaStart = sunrise.clone().add(jupiterIndex * segmentDurationMs, 'milliseconds');
-        const yamGhantaEnd = yamGhantaStart.clone().add(segmentDurationMs, 'milliseconds');
-
-        return {
-            name: "Yam Ghanta",
-            start: yamGhantaStart.toISOString(),
-            end: yamGhantaEnd.toISOString(),
-            type: "inauspicious",
-            description: "An inauspicious period, generally avoided for new beginnings."
-        };
-    } catch (error) {
-        logger.error(`Error calculating Yam Ghanta for ${dateString}: ${error.message}`, { stack: error.stack });
-        return null;
     }
 }
 
@@ -686,100 +177,6 @@ export async function calculatePanchak(dateString, latitude, longitude, sunrise,
 }
 
 /**
- * Calculates Varjyam for a given date and location.
- * Varjyam is an inauspicious period based on Nakshatra.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Object|null} Varjyam details or null if not calculable.
- */
-export async function calculateVarjyam(dateString, latitude, longitude, sunrise, nextSunrise) {
-    try {
-        const { julianDayUT } = getJulianDateUT(dateString, latitude, longitude);
-        if (julianDayUT === null) {
-            logger.warn(`Julian Day UT not available for Varjyam calculation on ${dateString}`);
-            return null;
-        }
-
-        const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
-        const moonLongitude = planetaryPositions?.sidereal?.Moon?.longitude;
-
-        if (moonLongitude === undefined || isNaN(moonLongitude)) {
-            logger.warn(`Moon longitude not available for Varjyam calculation on ${dateString}`);
-            return null;
-        }
-
-        const nakshatraDetails = getNakshatraDetails(moonLongitude);
-        const nakshatraName = nakshatraDetails.name;
-        const nakshatraIndex = nakshatraDetails.index;
-
-        const varjyamStartFraction = VARJYAM_START_FRACTION[nakshatraName];
-        if (varjyamStartFraction === undefined) {
-            logger.warn(`Varjyam data not found for Nakshatra: ${nakshatraName}`);
-            return null;
-        }
-
-        const { entryTime, exitTime } = await getMoonNakshatraEntryExitTimes(dateString, latitude, longitude, nakshatraIndex, sunrise, nextSunrise);
-        if (!entryTime || !exitTime) {
-            logger.warn(`Could not determine Nakshatra entry/exit times for Varjyam calculation.`);
-            return null;
-        }
-
-        const nakshatraDurationMs = moment(exitTime).diff(moment(entryTime));
-        const varjyamDurationMs = nakshatraDurationMs / 15;
-
-        const varjyamStartMs = varjyamStartFraction * nakshatraDurationMs;
-
-        const varjyamStart = moment(entryTime).add(varjyamStartMs, 'milliseconds');
-        const varjyamEnd = moment(varjyamStart).add(varjyamDurationMs, 'milliseconds');
-
-        return {
-            name: "Varjyam",
-            start: varjyamStart.toISOString(),
-            end: varjyamEnd.toISOString(),
-            type: "inauspicious",
-            description: `An inauspicious period within ${nakshatraName} Nakshatra.`
-        };
-
-    } catch (error) {
-        logger.error(`Error calculating Varjyam for ${dateString}: ${error.message}`, { stack: error.stack });
-        return null;
-    }
-}
-
-/**
- * Calculates Pradosh Kaal for a given date and location.
- * Pradosh Kaal is an auspicious period around sunset.
- * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
- * @param {number} latitude - Observer's latitude.
- * @param {number} longitude - Observer's longitude.
- * @returns {Object|null} Pradosh Kaal details or null if not calculable.
- */
-export async function calculatePradoshKaal(sunset) {
-    try {
-        if (!sunset || !sunset.isValid()) {
-            logger.warn(`Sunset not available for Pradosh Kaal calculation.`);
-            return null;
-        }
-
-        const pradoshDurationMs = 96 * 60 * 1000; // 96 minutes
-        const pradoshStart = sunset.clone();
-        const pradoshEnd = pradoshStart.clone().add(pradoshDurationMs, 'milliseconds');
-
-        return {
-            name: "Pradosh Kaal",
-            start: pradoshStart.toISOString(),
-            end: pradoshEnd.toISOString(),
-            type: "auspicious",
-            description: "An auspicious period around sunset, ideal for Shiva worship."
-        };
-    } catch (error) {
-        logger.error(`Error calculating Pradosh Kaal for ${dateString}: ${error.message}`, { stack: error.stack });
-        return null;
-    }
-}
-
-/**
  * Calculates Disha Shool (inauspicious direction for travel) for a given day of the week.
  * @param {number} dayOfWeek - The day of the week (0 for Sunday, 6 for Saturday).
  * @returns {string} The inauspicious direction for travel.
@@ -839,12 +236,12 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const choghadiya = await calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
     const horas = await calculateHora(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
     const lagnas = await calculateLagnasForDay(latitude, longitude, sunrise, nextSunrise);
-    const abhijitMuhurta = await calculateAbhijitMuhurta(sunrise, sunset, dayDurationMs);
-    const rahuKaal = await calculateRahuKaal(sunrise, sunset, dayDurationMs, dayOfWeek);
-    const yamGhanta = await calculateYamGhanta(sunrise, sunset, dayDurationMs, dayOfWeek);
-    const guliKaals = await calculateGuliKaal(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek); // Returns an array
-    const durMuhurtas = await calculateDurMuhurta(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
-    const pradoshKaal = await calculatePradoshKaal(sunset);
+    const abhijitMuhurta = calculateAbhijitMuhurta(sunrise, dayDurationMs);
+    const rahuKaal = calculateRahuKaal(sunrise, dayDurationMs, dayOfWeek);
+    const yamGhanta = calculateYamGhanta(sunrise, dayDurationMs, dayOfWeek);
+    const guliKaals = calculateGuliKaal(sunrise, sunset, dayDurationMs, nightDurationMs, dayOfWeek); // Returns an array
+    const durMuhurtas = calculateDurMuhurta(sunrise, sunset, dayDurationMs, nightDurationMs, dayOfWeek);
+    const pradoshKaal = calculatePradoshKaal(sunset);
     const varjyam = await calculateVarjyam(utcDate, latitude, longitude, sunrise, nextSunrise);
     const panchak = await calculatePanchak(utcDate, latitude, longitude, sunrise, nextSunrise);
     const gandMool = await calculateMoolDosha(utcDate, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
@@ -867,8 +264,52 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
         description: gandMool.reason || "Gand Mool Dosha is present."
     });
 
+    const nakshatraDetails = getNakshatraDetails(planetaryPositions.sidereal.Moon.longitude);
+    const nakshatraName = nakshatraDetails.name;
+    
+    // Calculate Yogas for the entire day
+    let currentNakshatraTime = sunrise.clone();
+    while (currentNakshatraTime.isBefore(nextSunrise)) {
+        const { julianDayUT: nakshatraJD } = getJulianDateUT(currentNakshatraTime.toISOString(), latitude, longitude);
+        const nakshatraPositions = await calculatePlanetaryPositions(nakshatraJD);
+        const currentNakshatraDetails = getNakshatraDetails(nakshatraPositions.sidereal.Moon.longitude);
+        const { entryTime, exitTime } = await getMoonNakshatraEntryExitTimes(currentNakshatraTime.toISOString(), latitude, longitude, currentNakshatraDetails.index, sunrise, nextSunrise);
+
+        if (entryTime && exitTime) {
+            const dayName = momentLocal.format('dddd');
+            const sarvarthSiddhaYoga = calculateSarvarthSiddhaYoga(dayName, currentNakshatraDetails.name, entryTime, exitTime);
+            if (sarvarthSiddhaYoga) {
+                muhurtaPeriods.push(sarvarthSiddhaYoga);
+            }
+
+            const amritSiddhiYoga = calculateAmritSiddhiYoga(dayName, currentNakshatraDetails.name, entryTime, exitTime);
+            if (amritSiddhiYoga) {
+                muhurtaPeriods.push(amritSiddhiYoga);
+            }
+
+            const vishaYoga = calculateVishaYoga(dayName, currentNakshatraDetails.name, entryTime, exitTime);
+            if (vishaYoga) {
+                muhurtaPeriods.push(vishaYoga);
+            }
+        }
+
+        if (exitTime && moment(exitTime).isAfter(currentNakshatraTime)) {
+            currentNakshatraTime = moment(exitTime).add(1, 'minute');
+        } else {
+            // If exitTime is not advancing, manually advance time to avoid an infinite loop
+            // and ensure we check the whole day.
+            currentNakshatraTime.add(1, 'hour');
+        }
+    }
+
     // Get the day name from the sunrise moment object
     const dayName = sunrise ? sunrise.format('dddd') : 'N/A';
+
+    // Find active periods based on the calculation time
+    const calculationTime = momentLocal;
+    const activeChoghadiya = choghadiya.find(c => calculationTime.isBetween(moment.utc(c.start), moment.utc(c.end)));
+    const activeHora = horas.find(h => calculationTime.isBetween(moment.utc(h.start), moment.utc(h.end)));
+    const activeLagna = lagnas.find(l => calculationTime.isBetween(moment.utc(l.start_time), moment.utc(l.end_time)));
 
     return {
         inputParameters: { 
@@ -885,7 +326,19 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
         choghadiya,
         horas,
         lagnas,
+        activeChoghadiya,
+        activeHora,
+        activeLagna,
         muhurta: muhurtaPeriods,
         dishaShool: dishaShool,
+        activeYogas: muhurtaPeriods.filter(yoga => {
+            // Use momentLocal which has the correct timezone info from getJulianDateUT
+            const calculationTime = momentLocal; 
+            const yogaStart = moment.utc(yoga.start).tz(momentLocal.tz());
+            const yogaEnd = moment.utc(yoga.end).tz(momentLocal.tz());
+            const isActive = calculationTime.isBetween(yogaStart, yogaEnd, null, '[]');
+
+            return isActive;
+        })
     };
 }

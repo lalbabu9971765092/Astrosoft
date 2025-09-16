@@ -28,6 +28,7 @@ const MuhurtaPage = () => {
     const [isHorasCollapsed, setIsHorasCollapsed] = useState(false);
     const [isLagnasCollapsed, setIsLagnasCollapsed] = useState(false);
     const [isMuhurtaCollapsed, setIsMuhurtaCollapsed] = useState(false);
+    
 
     // Generic toggle function
     const toggleCollapse = useCallback((setter) => {
@@ -198,12 +199,16 @@ const MuhurtaPage = () => {
         return name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
     };
 
-    const renderMuhurta = (muhurta) => {
-        if (!muhurta || muhurta.length === 0) return <p>{t('muhurtaPage.noMuhurta')}</p>;
+    const renderCombinedMuhurtaAndYogas = (muhurtaDataArray) => {
+        if (!muhurtaDataArray || muhurtaDataArray.length === 0) return <p>{t('muhurtaPage.noMuhurta')}</p>;
+
+        // Sort all items by start time for a chronological view
+        const allItems = [...muhurtaDataArray].sort((a, b) => moment(a.start).diff(moment(b.start)));
+
         return (
             <div className="muhurta-section">
                 <div className="section-header" onClick={() => toggleCollapse(setIsMuhurtaCollapsed)}>
-                    <h3>{t('muhurtaPage.muhurtaTitle')}</h3>
+                    <h3>{t('muhurtaPage.muhurtaTitle', 'Muhurta Periods')} & {t('muhurtaPage.yogasTitle', 'Yogas')}</h3>
                     <button className="toggle-button">
                         {isMuhurtaCollapsed ? <FaChevronDown /> : <FaChevronUp />}
                     </button>
@@ -213,34 +218,31 @@ const MuhurtaPage = () => {
                         <table className="results-table">
                             <thead>
                                 <tr>
-                                    <th>{t('muhurtaPage.name')}</th>
-                                    <th>{t('muhurtaPage.type')}</th>
-                                    <th>{t('muhurtaPage.start')}</th>
-                                    <th>{t('muhurtaPage.end')}</th>
-                                    <th>{t('muhurtaPage.description')}</th>
+                                    <th>{t('muhurtaPage.name', 'Name')}</th>
+                                    <th>{t('muhurtaPage.type', 'Type')}</th>
+                                    <th>{t('muhurtaPage.start', 'Start')}</th>
+                                    <th>{t('muhurtaPage.end', 'End')}</th>
+                                    <th>{t('muhurtaPage.description', 'Description')}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {muhurta.map((m, index) => (
-                                    <tr key={index} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
+                                {allItems.map((m, index) => (
+                                    <tr key={`muhurta-${index}`} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
                                         <td>{t(`muhurtaNames.${getMuhurtaTranslationKey(m.name)}`, { defaultValue: m.name })}</td>
                                         <td>{t(`muhurtaTypes.${m.type}`, { defaultValue: m.type })}</td>
                                         <td>{moment(m.start).format('HH:mm:ss')}</td>
                                         <td>{moment(m.end).format('HH:mm:ss')}</td>
-                                        {/* Translate the description */}
-                                        <td>
-                                            {t(`muhurtaDescriptions.${getMuhurtaTranslationKey(m.name)}`, { defaultValue: m.description })}
-                                        </td>
+                                        <td>{t(`muhurtaDescriptions.${getMuhurtaTranslationKey(m.name)}`, { defaultValue: m.description })}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </div>
                 </div>
+
             </div>
         );
     };
-
     return (
         <div className="muhurta-page">
             <h1 className="page-title">{t('muhurtaPage.pageTitle')}</h1>
@@ -250,9 +252,32 @@ const MuhurtaPage = () => {
                 <div className="muhurta-info-bar">
                     <p><strong>{t('muhurtaPage.date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
                     <p><strong>{t('muhurtaPage.day')}:</strong> {t(`weekdays.${muhurtaData.inputParameters.day}`, { defaultValue: muhurtaData.inputParameters.day })}</p>
-                    <p><strong>{t('muhurtaPage.sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
-                    <p><strong>{t('muhurtaPage.sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
-                    <p className="inauspicious-period"><strong>{t('muhurtaPage.dishaShool')}:</strong> {t(`directions.${muhurtaData.dishaShool}`, { defaultValue: muhurtaData.dishaShool })}</p>
+                    <p><strong>{t('muhurtaPage.sunrise', 'Sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
+                    <p><strong>{t('muhurtaPage.sunset', 'Sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
+                    <p className="inauspicious-period"><strong>{t('muhurtaPage.dishaShool', 'Disha Shool')}:</strong> {t(`directions.${muhurtaData.dishaShool}`, { defaultValue: muhurtaData.dishaShool })}</p>
+                    {/* Display Active Choghadiya, Hora, and Lagna */}
+                    {muhurtaData.activeChoghadiya && (
+                        <p className={muhurtaData.activeChoghadiya.periodType === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
+                            <strong>{t('muhurtaPage.activeChoghadiya', 'Active Choghadiya')}:</strong> {t(`choghadiyaNames.${muhurtaData.activeChoghadiya.name}`, { defaultValue: muhurtaData.activeChoghadiya.name })}
+                        </p>
+                    )}
+                    {muhurtaData.activeHora && (
+                        <p>
+                            <strong>{t('muhurtaPage.activeHora', 'Active Hora')}:</strong> {t(`planets.${muhurtaData.activeHora.lord}`, { defaultValue: muhurtaData.activeHora.lord })}
+                        </p>
+                    )}
+                    {muhurtaData.activeLagna && (
+                        <p>
+                            <strong>{t('muhurtaPage.activeLagna', 'Active Lagna')}:</strong> {t(`rashis.${muhurtaData.activeLagna.rashi}`, { defaultValue: muhurtaData.activeLagna.rashi })}
+                        </p>
+                    )}
+                     {/* Display active yogas here */}
+                    {muhurtaData.activeYogas && muhurtaData.activeYogas.map((yoga, index) => (
+                         <p key={`active-yoga-${index}`} className={yoga.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
+                             <strong>{t(`muhurtaNames.${getMuhurtaTranslationKey(yoga.name)}`, { defaultValue: yoga.name })}:</strong> {` (${moment(yoga.start).format('HH:mm')} - ${moment(yoga.end).format('HH:mm')})`}
+                        
+                         </p>
+                     ))}
                 </div>
             )}
 
@@ -264,7 +289,7 @@ const MuhurtaPage = () => {
                        {renderChoghadiya(muhurtaData.choghadiya)}
                         {renderHoras(muhurtaData.horas)}
                         {renderLagnas(muhurtaData.lagnas)}
-                        {renderMuhurta(muhurtaData.muhurta)}
+                        {renderCombinedMuhurtaAndYogas(muhurtaData.muhurta)}
                     </div>
                 )}
                 {!(parentIsLoading || isLoading) && !parentError && !error && !muhurtaData && <p>{t('muhurtaPage.noDataYet')}</p>}
