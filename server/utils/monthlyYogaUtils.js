@@ -1,7 +1,7 @@
 // utils/monthlyYogaUtils.js
 import moment from 'moment-timezone';
 import { getJulianDateUT } from './coreUtils.js';
-import { calculatePlanetaryPositions, getNakshatraDetails, getMoonNakshatraEntryExitTimes } from './planetaryUtils.js';
+import { calculatePlanetaryPositions, getNakshatraDetails, findNextNakshatraChange } from './planetaryUtils.js';
 import { calculateSarvarthSiddhaYoga, calculateAmritSiddhiYoga, calculateVishaYoga } from './yogaUtils.js';
 import logger from './logger.js';
 import { calculateSunMoonTimes } from './panchangUtils.js';
@@ -27,67 +27,72 @@ export async function calculateYogasForMonth(year, month, latitude, longitude) {
         const astrologicalDayEnd = moment(nextDaySunTimes.sunrise);
         const dayOfWeek = astrologicalDayStart.format('dddd');
 
-        let tempMoment = astrologicalDayStart.clone();
-        while (tempMoment.isBefore(astrologicalDayEnd)) {
-            const { julianDayUT } = getJulianDateUT(tempMoment.toISOString(), latitude, longitude);
+        let currentMoment = astrologicalDayStart.clone();
+
+        while (currentMoment.isBefore(astrologicalDayEnd)) {
+            const { julianDayUT } = getJulianDateUT(currentMoment.toISOString(), latitude, longitude);
             if (!julianDayUT) {
-                tempMoment.add(1, 'hour');
+                currentMoment.add(1, 'hour'); // Failsafe
                 continue;
             }
 
             const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
             const moonLongitude = planetaryPositions.sidereal.Moon.longitude;
-            const nakshatraDetails = getNakshatraDetails(moonLongitude);
+            const currentNakshatra = getNakshatraDetails(moonLongitude);
 
-            const { entryTime, exitTime } = await getMoonNakshatraEntryExitTimes(tempMoment.toISOString(), latitude, longitude, nakshatraDetails.index, sunTimes.sunrise, nextDaySunTimes.sunrise);
+            const nextChangeTimeStr = await findNextNakshatraChange(currentMoment.toISOString(), latitude, longitude);
+            const nextChangeMoment = nextChangeTimeStr ? moment(nextChangeTimeStr) : astrologicalDayEnd;
 
-            if (entryTime) {
-                const yogaStartTime = moment.max(astrologicalDayStart, moment(entryTime));
-                const yogaEndTime = exitTime ? moment.min(astrologicalDayEnd, moment(exitTime)) : astrologicalDayEnd;
+            const periodStart = currentMoment;
+            const periodEnd = moment.min(nextChangeMoment, astrologicalDayEnd);
 
-                const sarvarthSiddhaYoga = calculateSarvarthSiddhaYoga(dayOfWeek, nakshatraDetails.name, yogaStartTime.toISOString(), yogaEndTime.toISOString());
-                if (sarvarthSiddhaYoga) {
-                    yogas.push({
-                        date: astrologicalDayStart.format('YYYY-MM-DD'),
-                        day: dayOfWeek,
-                        nakshatra: nakshatraDetails.name,
-                        ...sarvarthSiddhaYoga
-                    });
+            if (periodStart.isSameOrAfter(periodEnd)) {
+                currentMoment = periodEnd.clone();
+                if (currentMoment.isSameOrBefore(periodStart)) {
+                    currentMoment.add(1, 'minute'); // Ensure progress
                 }
+                continue;
+            }
 
-                const amritSiddhiYoga = calculateAmritSiddhiYoga(dayOfWeek, nakshatraDetails.name, yogaStartTime.toISOString(), yogaEndTime.toISOString());
-                if (amritSiddhiYoga) {
-                    yogas.push({
-                        date: astrologicalDayStart.format('YYYY-MM-DD'),
-                        day: dayOfWeek,
-                        nakshatra: nakshatraDetails.name,
-                        ...amritSiddhiYoga
-                    });
-                }
+            const sarvarthSiddhaYoga = calculateSarvarthSiddhaYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString());
+            if (sarvarthSiddhaYoga) {
+                yogas.push({
+                    date: astrologicalDayStart.format('YYYY-MM-DD'),
+                    day: dayOfWeek,
+                    nakshatra: currentNakshatra.name,
+                    ...sarvarthSiddhaYoga
+                });
+            }
 
-                const vishaYoga = calculateVishaYoga(dayOfWeek, nakshatraDetails.name, yogaStartTime.toISOString(), yogaEndTime.toISOString());
-                if (vishaYoga) {
-                    yogas.push({
-                        date: astrologicalDayStart.format('YYYY-MM-DD'),
-                        day: dayOfWeek,
-                        nakshatra: nakshatraDetails.name,
-                        ...vishaYoga
-                    });
-                }
+            const amritSiddhiYoga = calculateAmritSiddhiYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString());
+            if (amritSiddhiYoga) {
+                yogas.push({
+                    date: astrologicalDayStart.format('YYYY-MM-DD'),
+                    day: dayOfWeek,
+                    nakshatra: currentNakshatra.name,
+                    ...amritSiddhiYoga
+                });
+            }
 
-                if (exitTime && moment(exitTime).isAfter(tempMoment)) {
-                    tempMoment = moment(exitTime);
-                } else {
-                    tempMoment.add(1, 'hour');
-                }
-            } else {
-                tempMoment.add(1, 'hour');
+            const vishaYoga = calculateVishaYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString());
+            if (vishaYoga) {
+                yogas.push({
+                    date: astrologicalDayStart.format('YYYY-MM-DD'),
+                    day: dayOfWeek,
+                    nakshatra: currentNakshatra.name,
+                    ...vishaYoga
+                });
+            }
+
+            currentMoment = periodEnd.clone();
+             if (currentMoment.isSameOrBefore(periodStart)) {
+                currentMoment.add(1, 'minute'); // Ensure progress
             }
         }
     }
 
     // Remove duplicate yogas
-    const uniqueYogas = yogas.filter((yoga, index, self) =>
+        const uniqueYogas = yogas.filter((yoga, index, self) =>
         index === self.findIndex((y) => (
             y.name === yoga.name && y.start === yoga.start && y.end === yoga.end
         ))
