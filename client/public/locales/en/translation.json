@@ -1485,7 +1485,10 @@
     "pradosh_kaal": "Pradosh Kaal",
     "varjyam": "Varjyam",
     "gand_mool_dosha": "Gand Mool Dosha",
-    "unknown": "Unknown Muhurta"
+    "unknown": "Unknown Muhurta",
+    "bhadra": "Bhadra",
+    "dur_muhurta_day": "Dur Muhurta (Day)",
+    "dur_muhurta_night": "Dur Muhurta (Night)"
   },
   "muhurtaDescriptions": {
     "abhijit_muhurta": "A generally auspicious period around midday, ideal for starting new ventures.",

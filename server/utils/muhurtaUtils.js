@@ -9,6 +9,7 @@ import { calculateSarvarthSiddhaYoga, calculateAmritSiddhiYoga, calculateVishaYo
 import { calculateChoghadiya } from './muhurta/choghadiyaUtils.js';
 import { calculateHora } from './muhurta/horaUtils.js';
 import { calculateRahuKaal, calculateDurMuhurta, calculateGuliKaal, calculateYamGhanta, calculatePradoshKaal } from './muhurta/kaalUtils.js';
+import { calculateBhadra } from './muhurta/bhadraUtils.js';
 import logger from './logger.js';
 import moment from 'moment-timezone';
 
@@ -245,6 +246,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const varjyam = await calculateVarjyam(utcDate, latitude, longitude, sunrise, nextSunrise);
     const panchak = await calculatePanchak(utcDate, latitude, longitude, sunrise, nextSunrise);
     const gandMool = await calculateMoolDosha(utcDate, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
+    const bhadra = await calculateBhadra(latitude, longitude, sunrise, nextSunrise); // Corrected call
     const dishaShool = calculateDishaShool(dayOfWeek);
 
     const muhurtaPeriods = [];
@@ -252,10 +254,11 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     if (rahuKaal) muhurtaPeriods.push(rahuKaal);
     if (yamGhanta) muhurtaPeriods.push(yamGhanta);
     if (guliKaals && guliKaals.length > 0) muhurtaPeriods.push(...guliKaals); // Spread the array
-    if (durMuhurtas && durMuhurtas.length > 0) muhurtaPeriods.push(...durMuhurtas);
+    if (durMuhurtas && durMuhurtas.length > 0) muhurtaPeriods.push(...durMuhurtas); // Spread the array
     if (pradoshKaal) muhurtaPeriods.push(pradoshKaal);
     if (varjyam) muhurtaPeriods.push(varjyam);
     if (panchak) muhurtaPeriods.push(panchak);
+    if (bhadra && bhadra.length > 0) muhurtaPeriods.push(...bhadra);
     if (gandMool && gandMool.present) muhurtaPeriods.push({
         name: "Gand Mool Dosha",
         start: gandMool.start,
@@ -310,6 +313,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const activeChoghadiya = choghadiya.find(c => calculationTime.isBetween(moment.utc(c.start), moment.utc(c.end)));
     const activeHora = horas.find(h => calculationTime.isBetween(moment.utc(h.start), moment.utc(h.end)));
     const activeLagna = lagnas.find(l => calculationTime.isBetween(moment.utc(l.start_time), moment.utc(l.end_time)));
+    const activeBhadra = bhadra.find(b => calculationTime.isBetween(moment.utc(b.start), moment.utc(b.end)));
 
     return {
         inputParameters: { 
@@ -329,8 +333,11 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
         activeChoghadiya,
         activeHora,
         activeLagna,
-        muhurta: muhurtaPeriods,
+        bhadra,
+        activeBhadra,
+        muhurta: muhurtaPeriods, // This now includes Bhadra for the main table
         dishaShool: dishaShool,
+        // Use the already combined muhurtaPeriods array to find active yogas
         activeYogas: muhurtaPeriods.filter(yoga => {
             // Use momentLocal which has the correct timezone info from getJulianDateUT
             const calculationTime = momentLocal; 
