@@ -52,7 +52,7 @@
     "postcss": "^8.4.31",
     "semver": "^7.5.4",
     "webpack": "^5.76.0",
-    "http-proxy": "^1.19.1",
+    "http-proxy": "^1.18.1",
     "yaml": "^2.2.2",
     "@babel/traverse": "^7.23.2"
   }
