@@ -1,5 +1,5 @@
 
-import axios from 'axios';
+import api from '../components/api';
 import {
   USER_LOGIN_REQUEST,
   USER_LOGIN_SUCCESS,
@@ -26,7 +26,7 @@ export const login = (email, password) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post(
+    const { data } = await api.post(
       '/users/login',
       { email, password },
       config
@@ -61,7 +61,7 @@ export const register = (name, email, password) => async (dispatch) => {
       },
     };
 
-    const { data } = await axios.post(
+    const { data } = await api.post(
       '/users/register',
       { name, email, password },
       config
@@ -93,7 +93,7 @@ export const forgotPassword = (email) => async (dispatch) => {
       },
     };
 
-    await axios.post('/users/forgotpassword', { email }, config);
+    await api.post('/users/forgotpassword', { email }, config);
 
     dispatch({ type: USER_FORGOT_PASSWORD_SUCCESS });
   } catch (error) {
@@ -117,7 +117,7 @@ export const resetPassword = (token, password) => async (dispatch) => {
       },
     };
 
-    await axios.put(
+    await api.put(
       `/users/resetpassword/${token}`,
       { password },
       config
