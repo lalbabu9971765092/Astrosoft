@@ -15,6 +15,11 @@ import RemediesPage from './components/RemediesPage';
 import MuhurtaPage from './components/MuhurtaPage';
 import MonthlyYogasPage from './components/MonthlyYogasPage';
 import SavedChartsPage from './components/SavedChartsPage';
+import LoginScreen from './components/LoginScreen';
+import RegisterScreen from './components/RegisterScreen';
+import ForgotPasswordScreen from './components/ForgotPasswordScreen';
+import ResetPasswordScreen from './components/ResetPasswordScreen';
+import PrivateRoute from './components/PrivateRoute';
 import api from './components/api'; // Assuming api setup for context
 import MainLayout from './components/MainLayout';
 import MinimalLayout from './components/MinimalLayout';
@@ -86,24 +91,32 @@ function AppWrapper() {
     // Provide the context to all child routes
     <CalculationContext.Provider value={contextValue}>
         <Routes>
-            <Route element={<MainLayout />}>
-                <Route path="/" element={<SharedInputLayout />}>
-                    <Route index element={<AstrologyForm />} />
-                    <Route path="planets" element={<PlanetDetailsPage />} />
-                    <Route path="gochar" element={<GocharPage />} />
-                    <Route path="kp" element={<KpSignificatorsPage />} />
-                    <Route path="ashtakavarga" element={<AshtakavargaPage />} />
-                    <Route path="varshphal" element={<VarshphalPage />} />
-                    <Route path="muhurta" element={<MuhurtaPage />} />
-                    <Route path="festivals" element={<FestivalsPage />} />
+            <Route element={<PrivateRoute />}> {/* Add PrivateRoute here */}
+                <Route element={<MainLayout />}>
+                    <Route path="/" element={<SharedInputLayout />}>
+                        <Route index element={<AstrologyForm />} />
+                        <Route path="planets" element={<PlanetDetailsPage />} />
+                        <Route path="gochar" element={<GocharPage />} />
+                        <Route path="kp" element={<KpSignificatorsPage />} />
+                        <Route path="ashtakavarga" element={<AshtakavargaPage />} />
+                        <Route path="varshphal" element={<VarshphalPage />} />
+                        <Route path="muhurta" element={<MuhurtaPage />} />
+                        <Route path="festivals" element={<FestivalsPage />} />
+                    </Route>
+                    <Route path="/prashna-time" element={<PrashnaTimeLocationPage />} />
+                    <Route path="/prashna-number" element={<PrashnaNumberPage />} />
+                    <Route path="/remedies" element={<RemediesPage />} />
+                    <Route path="/monthly-yogas" element={<MonthlyYogasPage />} />
                 </Route>
-                <Route path="/prashna-time" element={<PrashnaTimeLocationPage />} />
-                <Route path="/prashna-number" element={<PrashnaNumberPage />} />
-                <Route path="/remedies" element={<RemediesPage />} />
-                <Route path="/monthly-yogas" element={<MonthlyYogasPage />} />
             </Route>
             <Route element={<MinimalLayout />}>
-                <Route path="/saved-charts" element={<SavedChartsPage />} />
+                <Route path="/login" element={<LoginScreen />} />
+                <Route path="/register" element={<RegisterScreen />} />
+                <Route path="/forgotpassword" element={<ForgotPasswordScreen />} />
+                <Route path="/resetpassword/:resettoken" element={<ResetPasswordScreen />} />
+                <Route path="" element={<PrivateRoute />}>
+                    <Route path="/saved-charts" element={<SavedChartsPage />} />
+                </Route>
             </Route>
         </Routes>
     </CalculationContext.Provider>

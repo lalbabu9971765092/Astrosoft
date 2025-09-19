@@ -28,6 +28,7 @@ import { calculateHousesAndAscendant } from '../utils/coreUtils.js';
 import { calculateMuhurta } from '../utils/muhurtaUtils.js';
 import { rotateHouses } from '../utils/rotationUtils.js';
 import { calculateYogasForMonth } from '../utils/monthlyYogaUtils.js';
+import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -546,7 +547,7 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
 // ... (Keep the rest of your routes as they were, ensuring they also use handleRouteError and correct variable names) ...
 
 // --- Route: Save Birth Chart Data ---
-router.post('/charts', saveChartValidation, async (req, res) => {
+router.post('/charts', protect, saveChartValidation, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -554,7 +555,7 @@ router.post('/charts', saveChartValidation, async (req, res) => {
 
     try {
         const { name, gender, date, latitude, longitude, placeName } = req.body;
-        const chartDataToSave = { name, gender: gender || '', date, latitude, longitude, placeName: placeName || '' };
+        const chartDataToSave = { name, gender: gender || '', date, latitude, longitude, placeName: placeName || '', user: req.user._id };
         const savedChart = await Chart.create(chartDataToSave);
       
         res.status(201).json(savedChart);
@@ -568,7 +569,7 @@ router.post('/charts', saveChartValidation, async (req, res) => {
 });
 
 // --- Route: Get Saved Birth Chart Data (with Pagination) ---
-router.get('/charts', paginationValidation, async (req, res) => {
+router.get('/charts', protect, paginationValidation, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -578,12 +579,12 @@ router.get('/charts', paginationValidation, async (req, res) => {
         const page = req.query.page || 1;
         const limit = req.query.limit || 20;
         const skip = (page - 1) * limit;
-        const savedCharts = await Chart.find({})
+        const savedCharts = await Chart.find({ user: req.user._id })
             .sort({ name: 1 })
             .skip(skip)
             .limit(limit)
             .lean();
-        const totalCharts = await Chart.countDocuments();
+        const totalCharts = await Chart.countDocuments({ user: req.user._id });
         const chartsForFrontend = savedCharts.map(chart => ({ ...chart, id: chart._id.toString() }));
         res.json({ charts: chartsForFrontend, currentPage: page, totalPages: Math.ceil(totalCharts / limit), totalCharts });
     } catch (error) {
@@ -592,7 +593,7 @@ router.get('/charts', paginationValidation, async (req, res) => {
 });
 
 // --- Route: Delete Saved Chart ---
-router.delete('/charts/:id', deleteChartValidation, async (req, res) => {
+router.delete('/charts/:id', protect, deleteChartValidation, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -600,7 +601,19 @@ router.delete('/charts/:id', deleteChartValidation, async (req, res) => {
 
     try {
         const chartId = req.params.id;
-       
+
+        const chart = await Chart.findById(chartId);
+
+        if (!chart) {
+            logger.warn(`Chart not found for deletion with ID: ${chartId}`);
+            return res.status(404).json({ error: 'Chart not found.' });
+        }
+
+        // Check if user owns the chart
+        if (chart.user.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ error: 'Not authorized to delete this chart.' });
+        }
+
         const deletedChart = await Chart.findByIdAndDelete(chartId);
         if (!deletedChart) {
             logger.warn(`Chart not found for deletion with ID: ${chartId}`);

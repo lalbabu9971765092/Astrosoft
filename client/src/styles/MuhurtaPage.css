@@ -14,6 +14,28 @@
     font-weight: 700;
 }
 
+.muhurta-info-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: var(--card-bg-color);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: var(--box-shadow);
+}
+
+.info-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info-row p {
+    margin: 0;
+}
+
 .muhurta-results-container {
     background-color: var(--card-bg-color);
     border-radius: 10px;

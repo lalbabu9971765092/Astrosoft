@@ -44,7 +44,7 @@ export function calculateVishaYoga(dayOfWeek, nakshatraName, nakshatraStartTime,
         const applicableNakshatras = VISHA_YOGA_RULES[dayOfWeek];
         if (applicableNakshatras && applicableNakshatras.includes(nakshatraName)) {
             return {
-                name: "yogas.visha",
+                name: "Visha Yoga",
                 start: nakshatraStartTime,
                 end: nakshatraEndTime,
                 type: "inauspicious",
@@ -71,7 +71,7 @@ export function calculateSarvarthSiddhaYoga(dayOfWeek, nakshatraName, nakshatraS
         const applicableNakshatras = SARVARTH_SIDDHA_YOGA_RULES[dayOfWeek];
         if (applicableNakshatras && applicableNakshatras.includes(nakshatraName)) {
             return {
-                name: "yogas.sarvarthSiddha",
+                name: "Sarvarth Siddha Yoga",
                 start: nakshatraStartTime,
                 end: nakshatraEndTime,
                 type: "auspicious",
@@ -98,7 +98,7 @@ export function calculateAmritSiddhiYoga(dayOfWeek, nakshatraName, nakshatraStar
         const applicableNakshatras = AMRIT_SIDDHI_YOGA_RULES[dayOfWeek];
         if (applicableNakshatras && applicableNakshatras.includes(nakshatraName)) {
             return {
-                name: "yogas.amritSiddhi",
+                name: "Amrit Siddhi Yoga",
                 start: nakshatraStartTime,
                 end: nakshatraEndTime,
                 type: "auspicious",
@@ -108,6 +108,33 @@ export function calculateAmritSiddhiYoga(dayOfWeek, nakshatraName, nakshatraStar
         return null;
     } catch (error) {
         logger.error(`Error calculating Amrit Siddhi Yoga: ${error.message}`, { stack: error.stack });
+        return null;
+    }
+}
+
+/**
+ * Calculates Guru Pushya Yoga for a given date and location.
+ * Guru Pushya Yoga occurs when Pushya Nakshatra falls on a Thursday.
+ * @param {string} dayOfWeek - The day of the week (e.g., "Thursday").
+ * @param {string} nakshatraName - The name of the Nakshatra.
+ * @param {string} nakshatraStartTime - The start time of the Nakshatra.
+ * @param {string} nakshatraEndTime - The end time of the Nakshatra.
+ * @returns {Object|null} Guru Pushya Yoga details or null if not present.
+ */
+export function calculateGuruPushyaYoga(dayOfWeek, nakshatraName, nakshatraStartTime, nakshatraEndTime) {
+    try {
+        if (dayOfWeek === "Thursday" && nakshatraName === "Pushya") {
+            return {
+                name: "Guru Pushya Yoga",
+                start: nakshatraStartTime,
+                end: nakshatraEndTime,
+                type: "auspicious",
+                description: `Highly auspicious Guru Pushya Yoga formed by Pushya Nakshatra on a Thursday.`
+            };
+        }
+        return null;
+    } catch (error) {
+        logger.error(`Error calculating Guru Pushya Yoga: ${error.message}`, { stack: error.stack });
         return null;
     }
 }

@@ -41,6 +41,21 @@ body {
     margin: 0;
 }
 
+.delete-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-left: 10px;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+}
+
 .saved-charts-list li {
     display: flex;
     justify-content: space-between;

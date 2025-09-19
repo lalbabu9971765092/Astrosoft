@@ -1,3 +1,26 @@
+.nav-button {
+  text-decoration: none;
+  color: #fff;
+  background-color: #3498db;
+  font-weight: bold;
+  padding: 8px 15px;
+  border-radius: 5px;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease-in-out;
+  display: block;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border: none; /* Ensure no default button border */
+  cursor: pointer; /* Indicate it's clickable */
+}
+
+.nav-button:hover,
+.nav-button:focus {
+  background-color: #2980b9;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
 /* src/App.css */
 
 :root {

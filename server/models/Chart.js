@@ -8,6 +8,7 @@ const chartSchema = new mongoose.Schema({
     latitude: { type: Number, required: true },
     longitude: { type: Number, required: true },
     placeName: { type: String, trim: true },
+    user: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
 }, { timestamps: true });
 
 // Register the model

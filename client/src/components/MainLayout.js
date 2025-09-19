@@ -1,13 +1,20 @@
 // src/components/MainLayout.js
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation, Outlet } from 'react-router-dom';
+import { NavLink, useLocation, Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../store/actions/userActions';
 import '../App.css';
 
 const MainLayout = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [isNavOpen, setIsNavOpen] = useState(false);
     const { t, i18n } = useTranslation();
+
+    const dispatch = useDispatch();
+    const userLogin = useSelector((state) => state.userLogin);
+    const { userInfo } = userLogin;
 
     const toggleNav = () => {
         setIsNavOpen(!isNavOpen);
@@ -16,6 +23,11 @@ const MainLayout = () => {
     useEffect(() => {
         setIsNavOpen(false);
     }, [location]);
+
+    const logoutHandler = () => {
+        dispatch(logout());
+        navigate('/login');
+    };
 
     return (
         <div className="App">
@@ -37,6 +49,13 @@ const MainLayout = () => {
                         <li><NavLink to="/varshphal" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.varshphal')}</NavLink></li>
                         <li><NavLink to="/muhurta" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.muhurta')}</NavLink></li>
                         <li><NavLink to="/monthly-yogas" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.monthlyYogas')}</NavLink></li>
+                        {userInfo ? (
+                            <>
+                                <li><button onClick={logoutHandler} className="nav-button">{t('nav.logout')}{userInfo?.name ? ` (${userInfo.name})` : ''}</button></li>
+                            </>
+                        ) : (
+                            <li><NavLink to="/login" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.login')}</NavLink></li>
+                        )}
                     </ul>
                 </div>
             </nav>

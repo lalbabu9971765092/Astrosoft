@@ -159,21 +159,22 @@
     "Kimstughna": "Kimstughna",
     "Unknown": "Unknown"
   },
-  "nav": {
-    "mainChart": "Main Chart",
-    "planetDetails": "Planet Details",
-    "gochar": "Transit",
-    "kpSignificators": "KP Significators",
-    "ashtakavarga": "Ashtakavarga",
-    "festivals": "Festivals",
-    "prashnaTime": "Prashna (Time)",
-    "prashnaNumber": "Prashna (Number)",
-    "remedies": "Remedies",
-    "varshphal": "Varshphal",
-    "muhurta": "Muhurta",
-    "monthlyYogas": "Monthly Yogas"
-  },
-  "monthlyYogasPage": {
+      "nav": {
+        "mainChart": "Main Chart",
+        "planetDetails": "Planet Details",
+        "gochar": "Transit",
+        "kpSignificators": "KP Significators",
+        "ashtakavarga": "Ashtakavarga",
+        "festivals": "Festivals",
+        "prashnaTime": "Prashna (Time)",
+        "prashnaNumber": "Prashna (Number)",
+        "remedies": "Remedies",
+        "varshphal": "Varshphal",
+        "muhurta": "Muhurta",
+        "monthlyYogas": "Monthly Yogas",
+        "logout": "Logout",
+        "savedCharts": "Saved Charts"
+      },  "monthlyYogasPage": {
     "pageTitle": "Monthly Yogas",
     "year": "Year",
     "month": "Month",
@@ -1189,7 +1190,8 @@
     "house": "House",
     "start": "Start",
     "mean": "Mean",
-    "end": "End"
+    "end": "End",
+     "login": "Login"
   },
   "zodiacCircleChart": {
     "placeholder": "Natal planet data unavailable for chart.",
@@ -1501,46 +1503,74 @@
     "pradosh_kaal": "An auspicious period around sunset, ideal for Shiva worship.",
     "varjyam": "Simplified calculation: An inauspicious period associated with Bharani Nakshatra. Actual start/end times vary by detailed Nakshatra rules.",
     "gand_mool_dosha": "Moon is in Bharani, which is a Gand Mool Nakshatra.",
-    "unknown": "No description available."
+    "unknown": "No description available.",
+    "sarvarthSiddhi": "Auspicious yoga formed by Pushya on a Thursday.",
+    "amritSiddhi": "Auspicious yoga formed by Pushya on a Thursday.",
+    "guruPushya": "Highly auspicious Guru Pushya Yoga formed by Pushya Nakshatra on a Thursday.",
+    "gand_mool_dosha_ashlesha": "Moon is in Ashlesha, which is a Gand Mool Nakshatra."
   },
   "muhurtaTypes": {
     "auspicious": "auspicious",
     "inauspicious": "inauspicious"
   },
   "yogas": {
-    "Vishkumbha": "Vishkumbha",
-    "Priti": "Priti",
-    "Ayushman": "Ayushman",
-    "Saubhagya": "Saubhagya",
-    "Shobhana": "Shobhana",
-    "Atiganda": "Atiganda",
-    "Sukarma": "Sukarma",
-    "Sukarman": "Sukarman",
-    "Dhriti": "Dhriti",
-    "Shoola": "Shoola",
-    "Ganda": "Ganda",
-    "Vriddhi": "Vriddhi",
-    "Vridhi": "Vriddhi",
-    "Dhruva": "Dhruva",
-    "Vyaghata": "Vyaghata",
-    "Harshana": "Harshana",
-    "Vajra": "Vajra",
-    "Siddhi": "Siddhi",
-    "Vyatipata": "Vyatipata",
-    "Variyana": "Variyana",
-    "Parigha": "Parigha",
-    "Shiva": "Shiva",
-    "Siddha": "Siddha",
-    "Sadhya": "Sadhya",
-    "Shubha": "Shubha",
-    "Shukla": "Shukla",
-    "Brahma": "Brahma",
-    "Indra": "Indra",
-    "Aindra": "Aindra",
-    "Vaidhriti": "Vaidhriti",
-    "Unknown": "Unknown",
-    "sarvarthSiddha": "Sarvarth Siddha Yoga",
+    "ananda": "Ananda Yoga",
+    "ardra": "Ardra Yoga",
+    "ashlesha": "Ashlesha Yoga",
+    "chitra": "Chitra Yoga",
+    "dhanishta": "Dhanishta Yoga",
+    "dwipushkar": "Dwipushkar Yoga",
+    "harshana": "Harshana Yoga",
+    "jayanti": "Jayanti Yoga",
+    "jyeshta": "Jyeshta Yoga",
+    "karthika": "Karthika Yoga",
+    "krittika": "Krittika Yoga",
+    "mahendra": "Mahendra Yoga",
+    "moola": "Moola Yoga",
+    "mrityu": "Mrityu Yoga",
+    "naga": "Naga Yoga",
+    "nanda": "Nanda Yoga",
+    "prabala": "Prabala Yoga",
+    "pushya": "Pushya Yoga",
+    "ravi": "Ravi Yoga",
+    "siddha": "Siddha Yoga",
+    "siddhi": "Siddhi Yoga",
+    "subha": "Subha Yoga",
+    "tripushkar": "Tripushkar Yoga",
+    "vajra": "Vajra Yoga",
+    "vyatipata": "Vyatipata Yoga",
+    "yamaganda": "Yamaganda Yoga",
+    "sarvarthSiddhi": "Sarvarth Siddhi Yoga",
     "amritSiddhi": "Amrit Siddhi Yoga",
-    "visha": "Visha Yoga"
-  }
-}
+    "guruPushya": "Guru Pushya Yoga"
+  },
+      "login": {
+        "title": "Sign In",
+        "email": "Email Address",
+        "enterEmail": "Enter email",
+        "password": "Password",
+        "enterPassword": "Enter password",
+        "signIn": "Sign In",
+        "forgotPassword": "Forgot Password?",
+        "newCustomer": "New Customer?",
+        "register": "Register"
+      },
+      "forgotPassword": {
+        "title": "Forgot Password",
+        "email": "Email Address",
+        "enterEmail": "Enter email",
+        "sendResetLink": "Send Reset Link",
+        "emailSent": "Password reset email sent. Please check your inbox."
+      },
+      "resetPassword": {
+        "success": "Password has been reset successfully.",
+        "passwordsDoNotMatch": "Passwords do not match.",
+        "title": "Reset Password",
+        "newPassword": "New Password",
+        "enterNewPassword": "Enter new password",
+        "confirmNewPassword": "Confirm New Password",
+        "resetPassword": "Reset Password"
+      }
+     
+    }
+  

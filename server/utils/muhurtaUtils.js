@@ -5,7 +5,7 @@ import { getNakshatraDetails, getRashiDetails, calculatePlanetaryPositions, getM
 import { calculateSunMoonTimes } from './panchangUtils.js';
 import { DISHA_SHOOL_DIRECTIONS } from './constants.js';
 import { calculateMoolDosha } from './doshaUtils.js';
-import { calculateSarvarthSiddhaYoga, calculateAmritSiddhiYoga, calculateVishaYoga } from './yogaUtils.js';
+import { calculateSarvarthSiddhaYoga, calculateAmritSiddhiYoga, calculateVishaYoga, calculateGuruPushyaYoga } from './yogaUtils.js';
 import { calculateChoghadiya } from './muhurta/choghadiyaUtils.js';
 import { calculateHora } from './muhurta/horaUtils.js';
 import { calculateRahuKaal, calculateDurMuhurta, calculateGuliKaal, calculateYamGhanta, calculatePradoshKaal } from './muhurta/kaalUtils.js';
@@ -293,6 +293,11 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
             const vishaYoga = calculateVishaYoga(dayName, currentNakshatraDetails.name, entryTime, exitTime);
             if (vishaYoga) {
                 muhurtaPeriods.push(vishaYoga);
+            }
+
+            const guruPushyaYoga = calculateGuruPushyaYoga(dayName, currentNakshatraDetails.name, entryTime, exitTime);
+            if (guruPushyaYoga) {
+                muhurtaPeriods.push(guruPushyaYoga);
             }
         }
 

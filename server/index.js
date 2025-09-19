@@ -17,6 +17,7 @@ import logger from './utils/logger.js';
 import astrologyRoutes from './routes/astrologyRoutes.js';
 import kpSignificatorRoutes from './routes/kpSignificatorRoutes.js';
 import generalRoutes from './routes/generalRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 const app = express();
 
@@ -45,6 +46,7 @@ mongoose.connect(MONGODB_URI)
         // Import the model file AFTER connection to ensure Mongoose is ready
         // and the model gets registered correctly.
         import('./models/Chart.js'); // Dynamic import or place static import here
+        import('./models/User.js');
         // Import other models if you have them
         // ---------------------------------
     })
@@ -108,6 +110,7 @@ try {
 app.use('/api', astrologyRoutes);
 app.use('/api/kp-significators', kpSignificatorRoutes);
 app.use('/api/general', generalRoutes);
+app.use('/api/users', userRoutes);
 
 app.set('trust proxy', 1);
 // --- Basic Root Route (Optional Health Check) ---
