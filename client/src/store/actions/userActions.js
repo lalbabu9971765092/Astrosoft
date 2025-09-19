@@ -1,5 +1,5 @@
 
-import api from '../components/api';
+import api from '../../components/api';
 import {
   USER_LOGIN_REQUEST,
   USER_LOGIN_SUCCESS,
