@@ -27,7 +27,7 @@ export const login = (email, password) => async (dispatch) => {
     };
 
     const { data } = await axios.post(
-      '/api/users/login',
+      '/users/login',
       { email, password },
       config
     );
@@ -62,7 +62,7 @@ export const register = (name, email, password) => async (dispatch) => {
     };
 
     const { data } = await axios.post(
-      '/api/users/register',
+      '/users/register',
       { name, email, password },
       config
     );
@@ -93,7 +93,7 @@ export const forgotPassword = (email) => async (dispatch) => {
       },
     };
 
-    await axios.post('/api/users/forgotpassword', { email }, config);
+    await axios.post('/users/forgotpassword', { email }, config);
 
     dispatch({ type: USER_FORGOT_PASSWORD_SUCCESS });
   } catch (error) {
@@ -118,7 +118,7 @@ export const resetPassword = (token, password) => async (dispatch) => {
     };
 
     await axios.put(
-      `/api/users/resetpassword/${token}`,
+      `/users/resetpassword/${token}`,
       { password },
       config
     );
