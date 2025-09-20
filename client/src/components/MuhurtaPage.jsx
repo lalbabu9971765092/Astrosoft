@@ -9,6 +9,24 @@ import moment from 'moment-timezone';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'; // Import icons
 import '../../src/styles/MuhurtaPage.css'; // Import the new CSS file
 
+// Helper function to format date/time for display
+// Pass 't' for potential error/invalid messages
+const formatDateTime = (dateTimeString, t) => {
+    if (!dateTimeString) return t ? t('planetDegreeTable.notAvailable', 'N/A') : 'N/A';
+    try {
+        const date = new Date(dateTimeString);
+        if (isNaN(date.getTime())) return t ? t('gocharPage.invalidDate', 'Invalid Date') : 'Invalid Date';
+        // Consider using i18n.language for locale-aware formatting
+        return date.toLocaleString(undefined, {
+            year: 'numeric', month: 'numeric', day: 'numeric',
+            hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true
+        });
+    } catch (e) {
+        console.error("Error formatting date:", e);
+        return dateTimeString; // Return original on error
+    }
+};
+
 const MuhurtaPage = () => {
     const { t } = useTranslation();
     // Get context from SharedInputLayout
@@ -17,6 +35,7 @@ const MuhurtaPage = () => {
         locationForGocharTool, // Use the transit location
         isLoading: parentIsLoading,
         error: parentError,
+        transitPlaceName,
     } = useOutletContext() || {};
 
     const [muhurtaData, setMuhurtaData] = useState(null);
@@ -261,6 +280,11 @@ const MuhurtaPage = () => {
                         <p><strong>{t('muhurtaPage.day')}:</strong> {t(`weekdays.${muhurtaData.inputParameters.day}`, { defaultValue: muhurtaData.inputParameters.day })}</p>
                         <p><strong>{t('muhurtaPage.sunrise', 'Sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
                         <p><strong>{t('muhurtaPage.sunset', 'Sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
+                    </div>
+                    <div className="info-row">
+                        <p><strong>{t('muhurtaPage.time', 'Time')}:</strong> {formatDateTime(adjustedGocharDateTimeString, t)}</p>
+                        <p><strong>{t('muhurtaPage.coords', 'Coords')}:</strong> {locationForGocharTool?.lat?.toFixed(4)}, {locationForGocharTool?.lon?.toFixed(4)}</p>
+                        {transitPlaceName && <p><strong>{t('muhurtaPage.place', 'Place')}:</strong> {transitPlaceName}</p>}
                     </div>
                     <div className="info-row">
                         <p className="inauspicious-period"><strong>{t('muhurtaPage.dishaShool', 'Disha Shool')}:</strong> {t(`directions.${muhurtaData.dishaShool}`, { defaultValue: muhurtaData.dishaShool })}</p>

@@ -84,17 +84,15 @@ const GocharPage = () => {
         adjustedBirthDateTimeString,
         adjustedGocharDateTimeString,
         locationForGocharTool,
+        transitResult,
+        isCalculatingTransit,
+        transitError
     } = useOutletContext() || {};
 
     // --- State for NATAL Rectification Data ---
     const [rectifiedNatalResult, setRectifiedNatalResult] = useState(null);
     const [isLoadingRectification, setIsLoadingRectification] = useState(false);
     const [rectificationError, setRectificationError] = useState(null);
-
-    // --- State for TRANSIT Data ---
-    const [transitData, setTransitData] = useState(null);
-    const [isLoadingTransit, setIsLoadingTransit] = useState(false);
-    const [transitError, setTransitError] = useState(null);
     const [openSections, setOpenSections] = useState({
         threeColumnLayout: true,
         detailedPlanetTable: true,
@@ -158,46 +156,6 @@ const GocharPage = () => {
         return () => clearTimeout(timerId);
     }, [adjustedBirthDateTimeString, calculationInputParams, t]); // Add t dependency
 
-    // --- Effect to Fetch TRANSIT Data ---
-    useEffect(() => {
-        if (!adjustedGocharDateTimeString || !locationForGocharTool?.lat || !locationForGocharTool?.lon) {
-            setTransitData(null);
-            if (!locationForGocharTool?.lat || !locationForGocharTool?.lon) {
-                // Translate location required error
-                setTransitError(t('gocharPage.validLocationRequired'));
-            } else { setTransitError(null); } // Clear error if location becomes available but time is not
-            return;
-        }
-        // Pass 't' to validation function
-        const dateTimeValidation = validateAndFormatDateTime(adjustedGocharDateTimeString, t);
-        if (!dateTimeValidation.isValid) {
-            // Translate error message with interpolation
-            setTransitError(t('gocharPage.invalidAdjustedTransitDate', { error: dateTimeValidation.error }));
-            setTransitData(null); setIsLoadingTransit(false); return;
-        }
-        const formattedDateForApi = dateTimeValidation.formattedDate;
-
-       
-        setIsLoadingTransit(true); setTransitError(null);
-
-        const fetchTransitData = async () => {
-            try {
-                const payload = { date: formattedDateForApi, latitude: locationForGocharTool.lat, longitude: locationForGocharTool.lon };
-                const response = await api.post('/calculate', payload);
-                setTransitData(response.data);
-              
-            } catch (err) {
-                console.error("GocharPage: Adjusted TRANSIT fetch error:", err.response?.data || err.message || err);
-                const backendError = err.response?.data?.error || err.response?.data?.message;
-                // Translate generic fetch error
-                setTransitError(backendError || err.message || t('gocharPage.fetchAdjustedTransitFailed'));
-                setTransitData(null);
-            } finally { setIsLoadingTransit(false); }
-        };
-        const timerId = setTimeout(fetchTransitData, 300);
-        return () => clearTimeout(timerId);
-    }, [adjustedGocharDateTimeString, locationForGocharTool, t]); // Add t dependency
-
     // --- Determine which NATAL result set to display (Unchanged) ---
     const displayNatalResult = rectifiedNatalResult || mainResult;
 
@@ -212,19 +170,19 @@ const GocharPage = () => {
     const transitLocation = useMemo(() => {
         if (locationForGocharTool?.lat !== null && locationForGocharTool?.lon !== null) {
             return { lat: locationForGocharTool.lat, lon: locationForGocharTool.lon };
-        } else if (transitData?.inputParameters) {
-             return { lat: transitData.inputParameters.latitude, lon: transitData.inputParameters.longitude };
+        } else if (transitResult?.inputParameters) {
+             return { lat: transitResult.inputParameters.latitude, lon: transitResult.inputParameters.longitude };
         }
         return { lat: null, lon: null };
-    }, [locationForGocharTool, transitData]);
+    }, [locationForGocharTool, transitResult]);
 
     // --- Determine if chart can be displayed (Unchanged) ---
     const canDisplayChart = displayNatalResult?.planetaryPositions?.sidereal
                             && displayNatalResult?.houses
-                            && transitData?.planetaryPositions?.sidereal;
+                            && transitResult?.planetaryPositions?.sidereal;
 
     // Combine loading states (Unchanged)
-    const isLoading = isLoadingRectification || isLoadingTransit;
+    const isLoading = isLoadingRectification || isCalculatingTransit;
     // Combine error states (Unchanged)
     const displayError = transitError || rectificationError;
 
@@ -233,8 +191,8 @@ const GocharPage = () => {
 
     // --- Create houses for the transit chart ---
     const transitHousesForChart = useMemo(() => {
-        return transitData?.ascendant?.sidereal_dms ? createChartHousesFromAscendant(transitData.ascendant.sidereal_dms, t) : null;
-    }, [transitData, t]);
+        return transitResult?.ascendant?.sidereal_dms ? createChartHousesFromAscendant(transitResult.ascendant.sidereal_dms, t) : null;
+    }, [transitResult, t]);
 
     // --- Handler for checkbox changes ---
     const handleVisibilityChange = (event) => {
@@ -279,13 +237,13 @@ const GocharPage = () => {
                                 {!isLoadingRectification && rectificationError && mainResult && <p className="error-text tiny-error" role="alert">{t('gocharPage.natalUpdateErrorPrefix')}: {rectificationError}</p>}
 
                                 {/* --- Transit D1 Chart --- */}
-                                {transitData && transitHousesForChart && (
+                                {transitResult && transitHousesForChart && (
                                     <div className="transit-d1-chart-container">
                                         <h3 className="result-sub-title">{t('astrologyForm.chartGocharTitle')}</h3>
                                         <DiamondChart
                                             title={t('astrologyForm.chartGocharTitle')}
                                             houses={transitHousesForChart}
-                                            planets={transitData.planetaryPositions.sidereal}
+                                            planets={transitResult.planetaryPositions.sidereal}
                                             chartType="gochar"
                                             size={250}
                                         />
@@ -330,9 +288,9 @@ const GocharPage = () => {
                                     // Translate chart title
                                     title="" // Title is now rendered outside
                                     natalPlanets={visibility.showNatalPlanets ? displayNatalResult.planetaryPositions.sidereal : {}}
-                                    transitPlanets={visibility.showTransitPlanets ? transitData.planetaryPositions.sidereal : {}}
+                                    transitPlanets={visibility.showTransitPlanets ? transitResult.planetaryPositions.sidereal : {}}
                                     houses={visibility.showNatalHouses ? displayNatalResult.houses : null}
-                                    transitHouses={visibility.showTransitHouses ? transitData.houses : null}
+                                    transitHouses={visibility.showTransitHouses ? transitResult.houses : null}
                                     size={700} // Slightly smaller than before to fit better
                                 />
                             ) : (
@@ -340,7 +298,7 @@ const GocharPage = () => {
                                     {/* Translate placeholder messages */}
                                     {!isLoading && displayError && <p className="error-text">{t('gocharPage.errorDisplayChart')}</p>}
                                     {!isLoading && !displayError && !displayNatalResult && <p className="info-text">{t('gocharPage.errorLoadNatalFirst')}</p>}
-                                    {!isLoading && !displayError && displayNatalResult && !transitData && <p className="info-text">{t('gocharPage.errorLoadingTransitForChart')}</p>}
+                                    {!isLoading && !displayError && displayNatalResult && !transitResult && <p className="info-text">{t('gocharPage.errorLoadingTransitForChart')}</p>}
                                     {isLoading && <p className="info-text">{t('gocharPage.errorLoadingChartData')}</p>}
                                 </div>
                             )}
@@ -352,35 +310,29 @@ const GocharPage = () => {
                         <div className="result-section input-summary">
                             {/* Translate title */}
                             <h3 className="result-sub-title">{t('gocharPage.transitsForTitle')}</h3>
-                            {transitLocation.lat !== null && transitLocation.lon !== null ? (
-                                // Translate label
-                                <p><strong>{t('gocharPage.coordsLabel')}</strong> {transitLocation.lat.toFixed(4)}, {transitLocation.lon.toFixed(4)}</p>
-                            ) : (
-                                // Translate info text
-                                !isLoadingTransit && <p><strong>{t('gocharPage.coordsLabel')}</strong> {t('gocharPage.locationNotSet')}</p>
+                            {transitResult && transitResult.inputParameters && (
+                                <div className="input-summary">
+                                    <p><strong>{t('gocharPage.dateLabel')}</strong> {formatDateTime(transitResult.inputParameters.date, t)}</p>
+                                    <p><strong>{t('gocharPage.coordsLabel')}</strong> {transitResult.inputParameters.latitude?.toFixed(4)}, {transitResult.inputParameters.longitude?.toFixed(4)}</p>
+                                    {transitResult.inputParameters.placeName && <p><strong>{t('gocharPage.placeLabel')}</strong> {transitResult.inputParameters.placeName}</p>}
+                                </div>
                             )}
-                            {adjustedGocharDateTimeString ? (
-                                // Translate label
-                                <p><strong>{t('gocharPage.timeLabel')}</strong> {formatDateTime(adjustedGocharDateTimeString, t)}</p>
-                            ) : (
-                                // Translate info text
-                                !isLoadingTransit && <p><strong>{t('gocharPage.timeLabel')}</strong> {t('gocharPage.transitTimeNotSet')}</p>
-                            )}
+
                             {/* Transit Planet Table - Pass translated key */}
-                            <PlanetDegreeTable titleKey="Transit" planets={transitData?.planetaryPositions?.sidereal} />
+                            <PlanetDegreeTable titleKey="Transit" planets={transitResult?.planetaryPositions?.sidereal} />
                             {/* Transit Loading/Error */}
                             {/* Translate loading/error */}
-                            {isLoadingTransit && <div className="loader tiny-loader" aria-label={t('gocharPage.loadingTransitData')}></div>}
-                            {!isLoadingTransit && transitError && <p className="error-text tiny-error" role="alert">{t('gocharPage.transitErrorPrefix')}: {transitError}</p>}
+                            {isCalculatingTransit && <div className="loader tiny-loader" aria-label={t('gocharPage.loadingTransitData')}></div>}
+                            {!isCalculatingTransit && transitError && <p className="error-text tiny-error" role="alert">{t('gocharPage.transitErrorPrefix')}: {transitError}</p>}
 
                          {/* --- Transit Bhava Chalit Chart --- */}
-                         {transitData?.houses && transitData?.planetHousePlacements && (
+                         {transitResult?.houses && transitResult?.planetHousePlacements && (
                             <div className="transit-bhava-chart-container">
                                 <h3 className="result-sub-title">{t('astrologyForm.chartBhavaTitle')} - {t('nav.gochar')}</h3>
                                 <DiamondChart
                                     title={`${t('astrologyForm.chartBhavaTitle')} - ${t('nav.gochar')}`}
-                                    houses={transitData.houses}
-                                    planetHousePlacements={transitData.planetHousePlacements}
+                                    houses={transitResult.houses}
+                                    planetHousePlacements={transitResult.planetHousePlacements}
                                     chartType="bhava"
                                     size={250}
                                 />
@@ -396,7 +348,7 @@ const GocharPage = () => {
                     <h3 className="result-sub-title">{t('astrologyForm.transitPlanetaryPositionsTitle')}</h3>
                     <button className="toggle-button">{openSections.detailedPlanetTable ? '−' : '+'}</button>
                 </div>
-                {openSections.detailedPlanetTable && transitData && transitData.planetaryPositions && transitData.houses && transitData.planetDetails && <DetailedPlanetTable planets={transitData.planetaryPositions.sidereal} houses={transitData.houses} planetDetails={transitData.planetDetails} />}
+                {openSections.detailedPlanetTable && transitResult && transitResult.planetaryPositions && transitResult.houses && transitResult.planetDetails && <DetailedPlanetTable planets={transitResult.planetaryPositions.sidereal} houses={transitResult.houses} planetDetails={transitResult.planetDetails} />}
             </div>
         </div>
     );

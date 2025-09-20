@@ -327,6 +327,14 @@ const AstrologyForm = () => {
 
         return (
             <div className="gochar-details-content">
+                {gocharData && gocharData.inputParameters && (
+                    <div className="result-section">
+                        <h4 className="result-sub-title">{t('astrologyForm.transitCalculatedForLabel', 'Calculated for')}</h4>
+                        <p><strong>{t('astrologyForm.dateLabel')}</strong> {formatDisplayDateTime(gocharData.inputParameters.date)}</p>
+                        <p><strong>{t('astrologyForm.coordsLabel')}</strong> {gocharData.inputParameters.latitude?.toFixed(4)}, {gocharData.inputParameters.longitude?.toFixed(4)}</p>
+                        {gocharData.inputParameters.placeName && <p><strong>{t('astrologyForm.placeLabel')}</strong> {gocharData.inputParameters.placeName}</p>}
+                    </div>
+                 )}
                  {/* Transit Time, Basic Info */}
                  <div className="result-section">
                     <div className="section-header" onClick={() => toggleSection('transitBasicInfo')}>

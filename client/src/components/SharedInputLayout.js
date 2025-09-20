@@ -42,6 +42,13 @@ const SharedInputLayout = () => {
     const [initialBirthDateTime, setInitialBirthDateTime] = useState(null);
     const hasSetInitialBirthDate = useRef(false);
     const [initialGocharDateTime, setInitialGocharDateTime] = useState(null);
+    const [transitDateTime, setTransitDateTime] = useState('');
+    const [transitPlaceName, setTransitPlaceName] = useState('');
+    const [transitCoords, setTransitCoords] = useState('');
+    const [transitResult, setTransitResult] = useState(null);
+    const [isCalculatingTransit, setIsCalculatingTransit] = useState(false);
+    const [transitError, setTransitError] = useState(null);
+
 
     const fetchSavedCharts = useCallback(async () => {
         try {
@@ -51,6 +58,39 @@ const SharedInputLayout = () => {
         }
     }, []);
 
+    const calculateInitialTransit = useCallback(async (initialTransitDateTime, initialTransitCoords, initialTransitPlaceName) => {
+        setIsCalculatingTransit(true);
+        setTransitError(null);
+
+        const dateTimeValidation = validateAndFormatDateTime(initialTransitDateTime, t);
+        if (!dateTimeValidation.isValid) {
+            setTransitError(dateTimeValidation.error);
+            setIsCalculatingTransit(false);
+            return;
+        }
+        const coordsValidation = parseAndValidateCoords(initialTransitCoords, t);
+        if (!coordsValidation.isValid) {
+            setTransitError(coordsValidation.error);
+            setIsCalculatingTransit(false);
+            return;
+        }
+
+        const { formattedDate } = dateTimeValidation;
+        const { latitude, longitude } = coordsValidation;
+        const transitInputParams = { date: formattedDate, latitude, longitude, placeName: initialTransitPlaceName };
+
+        try {
+            const response = await api.post('/calculate', transitInputParams);
+            setTransitResult(response.data);
+        } catch (err) {
+            console.error("Initial transit calculation API error:", err.response?.data || err.message || err);
+            setTransitError(err.response?.data?.error || err.message || t('sharedLayout.calculationFailedGeneric'));
+            setTransitResult(null);
+        } finally {
+            setIsCalculatingTransit(false);
+        }
+    }, [t]);
+
     // --- Effects ---
     useEffect(() => {
         const now = new Date();
@@ -58,6 +98,7 @@ const SharedInputLayout = () => {
         const localNow = new Date(now.getTime() - timezoneOffsetMinutes * 60000);
         const formattedDateTimeInput = localNow.toISOString().slice(0, 16);
         setDate(formattedDateTimeInput);
+        setTransitDateTime(formattedDateTimeInput);
 
         const initialGocharStr = formatToLocalISOString(now);
         setAdjustedGocharDateTimeString(initialGocharStr);
@@ -73,7 +114,10 @@ const SharedInputLayout = () => {
                     const formattedCoords = `${lat.toFixed(6)},${lon.toFixed(6)}`;
                     setCoords(formattedCoords);
                     setPlaceName(t('sharedLayout.currentLocationDefault', "Current Location"));
+                    setTransitCoords(formattedCoords);
+                    setTransitPlaceName(t('sharedLayout.currentLocationDefault', "Current Location"));
                     setIsFetchingLocation(false);
+                    calculateInitialTransit(formattedDateTimeInput, formattedCoords, t('sharedLayout.currentLocationDefault', "Current Location"));
                 },
                 (geoError) => {
                     console.error("Error getting geolocation:", geoError);
@@ -87,7 +131,7 @@ const SharedInputLayout = () => {
             setLocationError(t('sharedLayout.geolocationNotSupported'));
         }
         fetchSavedCharts();
-    }, [t, fetchSavedCharts]);
+    }, [t, fetchSavedCharts, calculateInitialTransit]);
 
     useEffect(() => {
         if (calculationInputParams?.date) {
@@ -177,6 +221,38 @@ const SharedInputLayout = () => {
         }
     }, [placeName, t]);
 
+    const handleFindTransitCoordinates = useCallback(async () => {
+        if (!transitPlaceName.trim() || transitPlaceName === t('sharedLayout.currentLocationDefault', "Current Location")) {
+            alert(t('sharedLayout.alertEnterPlace'));
+            return;
+        }
+        setIsGeocoding(true);
+        setTransitError(null);
+        setTransitCoords('');
+        try {
+            const userAgent = 'AstrologyWebApp/1.0 (your-contact@example.com)';
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(transitPlaceName)}&format=json&limit=1&addressdetails=1`;
+            const response = await axios.get(url, { headers: { 'User-Agent': userAgent } });
+            if (response.data && response.data.length > 0) {
+                const { lat, lon, display_name } = response.data[0];
+                const latNum = parseFloat(lat);
+                const lonNum = parseFloat(lon);
+                if (!isNaN(latNum) && !isNaN(lonNum)) {
+                    const formattedCoords = `${latNum.toFixed(6)},${lonNum.toFixed(6)}`;
+                    setTransitCoords(formattedCoords);
+                    setTransitPlaceName(display_name || transitPlaceName);
+                } else { throw new Error('Received invalid coordinate data.'); }
+            } else {
+                setTransitError(t('sharedLayout.geocodingNotFound', { place: transitPlaceName }));
+            }
+        } catch (err) {
+            console.error('Geocoding error:', err.response || err.message || err);
+            setTransitError(t('sharedLayout.geocodingFailed', { message: err.response?.data?.error || err.message || 'Request failed.' }));
+        } finally {
+            setIsGeocoding(false);
+        }
+    }, [transitPlaceName, t]);
+
     const handleCalculateAll = useCallback(async (e, gocharDate = null) => {
         if (e) e.preventDefault();
         setIsLoading(true);
@@ -232,6 +308,34 @@ const SharedInputLayout = () => {
             setIsLoading(false);
         }
     }, [date, coords, placeName, t, calculationInputParams]);
+
+    const handleUpdateTransit = useCallback(async (e) => {
+        if (e) e.preventDefault();
+        setIsCalculatingTransit(true);
+        setTransitError(null);
+        setTransitResult(null);
+
+        const dateTimeValidation = validateAndFormatDateTime(transitDateTime, t);
+        if (!dateTimeValidation.isValid) { setTransitError(dateTimeValidation.error); setIsCalculatingTransit(false); return; }
+        const coordsValidation = parseAndValidateCoords(transitCoords, t);
+        if (!coordsValidation.isValid) { setTransitError(coordsValidation.error); setIsCalculatingTransit(false); return; }
+
+        const { formattedDate } = dateTimeValidation;
+        const { latitude, longitude } = coordsValidation;
+        const transitInputParams = { date: formattedDate, latitude, longitude, placeName: transitPlaceName };
+
+        try {
+            const response = await api.post('/calculate', transitInputParams);
+            setTransitResult(response.data);
+            setAdjustedGocharDateTimeString(formattedDate);
+        } catch (err) {
+            console.error("Transit calculation API error:", err.response?.data || err.message || err);
+            setTransitError(err.response?.data?.error || err.message || t('sharedLayout.calculationFailedGeneric'));
+            setTransitResult(null);
+        } finally {
+            setIsCalculatingTransit(false);
+        }
+    }, [transitDateTime, transitCoords, transitPlaceName, t]);
 
     useEffect(() => {
         const hasValidInputs = date && coords && !locationError;
@@ -398,6 +502,41 @@ const SharedInputLayout = () => {
                          {isLoading && <div className="main-loader small-loader" aria-live="polite">{t('sharedLayout.calculatingButton')}</div>}
                          {error && <p className="error-text small-error calculation-error" role="alert">{t('sharedLayout.calculationErrorPrefix')}: {error}</p>}
                          {savingChartError && <p className="error-text small-error save-load-error" role="alert">{t('sharedLayout.saveErrorPrefix')}: {savingChartError}</p>}
+                        <hr />
+                        <h3>{t('sharedLayout.transitDetailsTitle', 'Transit Details')}</h3>
+                        <div className="form-row">
+                            <div className="input-group full-width">
+                                <label htmlFor="transit-date-input">{t('sharedLayout.transitDateTimeLabel', 'Transit Time')}</label>
+                                <input id="transit-date-input" type="datetime-local" value={transitDateTime} onChange={(e) => setTransitDateTime(e.target.value)} step="1" disabled={isCalculatingTransit || isGeocoding} />
+                            </div>
+                        </div>
+                        <div className="form-row">
+                            <div className="input-group place-group">
+                                <label htmlFor="transit-place-input">{t('sharedLayout.transitPlaceLabel', 'Transit Place')}</label>
+                                <input id="transit-place-input" type="text" value={transitPlaceName} onChange={(e) => setTransitPlaceName(e.target.value)} placeholder={t('sharedLayout.placePlaceholder')} disabled={isCalculatingTransit || isGeocoding} />
+                            </div>
+                            <div className="button-container find-coords-button">
+                                <button type="button" onClick={handleFindTransitCoordinates} disabled={isCalculatingTransit || isGeocoding || !transitPlaceName.trim() || transitPlaceName === t('sharedLayout.currentLocationDefault', "Current Location")} title={t('sharedLayout.findCoordsTitle')}>
+                                    {isGeocoding ? t('sharedLayout.findingCoordsButton') : t('sharedLayout.findCoordsButton')}
+                                </button>
+                                {isGeocoding && <div className="loader small-loader" aria-label={t('sharedLayout.findingCoordsButton')}></div>}
+                            </div>
+                        </div>
+                        <div className="form-row">
+                             <div className="input-group full-width">
+                                <label htmlFor="transit-coords-input">{t('sharedLayout.coordsLabel')}</label>
+                                <input id="transit-coords-input" type="text" value={transitCoords} onChange={(e) => setTransitCoords(e.target.value)} placeholder={t('sharedLayout.coordsPlaceholder')} required aria-required="true" disabled={isCalculatingTransit || isGeocoding} title={t('sharedLayout.coordsTitle')} />
+                                {transitError && <p className="error-text small-error">{transitError}</p>}
+                            </div>
+                        </div>
+                        <div className="form-row action-buttons-row">
+                            <div className="submit-button-container">
+                                <button type="button" onClick={handleUpdateTransit} disabled={isCalculatingTransit || isGeocoding}>
+                                    {isCalculatingTransit ? t('sharedLayout.calculatingButton') : t('sharedLayout.updateTransitButton', 'Update Transit')}
+                                </button>
+                            </div>
+                        </div>
+                        {isCalculatingTransit && <div className="main-loader small-loader" aria-live="polite">{t('sharedLayout.calculatingButton')}</div>}
                     </form>
                 </div>
 
@@ -423,7 +562,8 @@ const SharedInputLayout = () => {
                     adjustedGocharDateTimeString, handleGocharTimeChange,
                     locationForGocharTool, currentName: name, currentGender: gender,
                     currentDate: date, currentCoords: coords, currentPlaceName: placeName,
-                    isGeocoding, isFetchingLocation
+                    isGeocoding, isFetchingLocation, transitDateTime, transitResult,
+                    isCalculatingTransit, transitError, transitPlaceName
                  }} />
             </div>
         </div>
