@@ -31,6 +31,7 @@ import { calculateYogasForMonth } from '../utils/monthlyYogaUtils.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+const muhurtaCache = new Map();
 
 
 
@@ -1124,7 +1125,11 @@ router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
         const latNum = latitude;
         const lonNum = longitude;
 
-       
+        const cacheKey = `${date}:${latNum}:${lonNum}`;
+        if (muhurtaCache.has(cacheKey)) {
+            return res.json(muhurtaCache.get(cacheKey));
+        }
+
         const muhurtaResult = await calculateMuhurta(date, latNum, lonNum);
 
         const responsePayload = {
@@ -1139,6 +1144,8 @@ router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
             dishaShool: muhurtaResult.dishaShool,
             activeYogas: muhurtaResult.activeYogas,
         };
+
+        muhurtaCache.set(cacheKey, responsePayload);
 
        res.json(responsePayload);
 

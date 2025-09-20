@@ -68,7 +68,7 @@ export async function calculateLagnasForDay(latitude, longitude, sunrise, nextSu
                 rashiLord: rashiDetails.lord,
             };
 
-            currentMoment.add(1, 'minute');
+            currentMoment.add(15, 'minutes');
         }
 
         if (lagnas.length > 0) {
