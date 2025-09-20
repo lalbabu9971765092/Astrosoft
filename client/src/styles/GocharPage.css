@@ -45,11 +45,8 @@
 
 
 /* Styles for content within columns */
-.gochar-column .result-section {
-  margin-bottom: 0; /* Remove bottom margin inside columns */
-  border: none; /* Remove internal borders */
-  padding: 0; /* Remove internal padding */
-  background-color: transparent; /* Make transparent */
+.gochar-column .result-section.input-summary {
+  background-color: #f9f9f9;
 }
 
 .gochar-column .result-sub-title {
@@ -60,6 +57,14 @@
   border-bottom: 1px solid #eee;
   padding-bottom: 8px;
   margin-bottom: 15px; /* Increased margin */
+}
+
+.input-summary {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #eee;
 }
 
 .gochar-column .input-summary p {

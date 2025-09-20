@@ -67,6 +67,7 @@ const createChartHousesFromAscendant = (ascendantDms, t) => {
 
 const AstrologyForm = () => {
     const { t, i18n } = useTranslation();
+    const outletContext = useOutletContext() || {};
     const {
         mainResult,
         isLoading: isInitialLoading,
@@ -75,7 +76,8 @@ const AstrologyForm = () => {
         adjustedBirthDateTimeString,
         adjustedGocharDateTimeString,
         locationForGocharTool,
-    } = useOutletContext() || {};
+        transitPlaceName,
+    } = outletContext;
 
     // --- State ---
     const [rectifiedResult, setRectifiedResult] = useState(null);
@@ -177,7 +179,8 @@ const AstrologyForm = () => {
                     const response = await api.post('/calculate', {
                         date: dateForApi,
                         latitude: locationForGocharTool.lat,
-                        longitude: locationForGocharTool.lon
+                        longitude: locationForGocharTool.lon,
+                        placeName: transitPlaceName
                     });
                     setGocharData(response.data);
                 } catch (err) {
@@ -196,7 +199,7 @@ const AstrologyForm = () => {
             if (gocharError) setGocharError(null);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [adjustedGocharDateTimeString, locationForGocharTool, t]);
+    }, [adjustedGocharDateTimeString, locationForGocharTool, t, transitPlaceName]);
     const displayResult = rectifiedResult || mainResult;
 
     useEffect(() => {
@@ -328,11 +331,11 @@ const AstrologyForm = () => {
         return (
             <div className="gochar-details-content">
                 {gocharData && gocharData.inputParameters && (
-                    <div className="result-section">
+                    <div className="result-section input-summary">
                         <h4 className="result-sub-title">{t('astrologyForm.transitCalculatedForLabel', 'Calculated for')}</h4>
                         <p><strong>{t('astrologyForm.dateLabel')}</strong> {formatDisplayDateTime(gocharData.inputParameters.date)}</p>
                         <p><strong>{t('astrologyForm.coordsLabel')}</strong> {gocharData.inputParameters.latitude?.toFixed(4)}, {gocharData.inputParameters.longitude?.toFixed(4)}</p>
-                        {gocharData.inputParameters.placeName && <p><strong>{t('astrologyForm.placeLabel')}</strong> {gocharData.inputParameters.placeName}</p>}
+                        {(gocharData.inputParameters.placeName || gocharData.placeName) && <p><strong>{t('astrologyForm.placeLabel')}</strong> {gocharData.inputParameters.placeName || gocharData.placeName}</p>}
                     </div>
                  )}
                  {/* Transit Time, Basic Info */}

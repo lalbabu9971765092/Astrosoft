@@ -124,10 +124,7 @@
     }
 
      /* Adjust toggle button position if needed for column layout */
-     .top-strip-toggle-button {
-         /* position: static; */ /* Or adjust top/right */
-         /* margin-bottom: 10px; */ /* Add space below button if static */
-     }
+    
 
     /* Ensure form elements stack nicely */
     .astrology-form-container .form-row {
@@ -191,4 +188,4 @@
   border-width: 0;
 }
 
-/* Add other base styles and potentially refine breakpoints */
+

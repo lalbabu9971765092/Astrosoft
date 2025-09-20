@@ -211,9 +211,7 @@
   background-color: #f1f1f1; /* Hover effect */
 }
 
-/* Specific table adjustments if needed */
-.houses-table { /* Example */ }
-.planets-table { /* Example */ }
+
 
 /* --- Gochar Details --- */
 .gochar-details-content .result-section {
@@ -272,10 +270,7 @@
   .results-column {
     min-width: 100%; /* Allow columns to take full width */
   }
-  .charts-grid-2x2 {
-    /* Optional: Stack charts on medium screens too */
-    /* grid-template-columns: 1fr; */
-  }
+ 
 }
 
 @media (max-width: 768px) {

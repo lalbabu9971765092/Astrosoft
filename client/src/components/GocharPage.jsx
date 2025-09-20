@@ -311,11 +311,11 @@ const GocharPage = () => {
                             {/* Translate title */}
                             <h3 className="result-sub-title">{t('gocharPage.transitsForTitle')}</h3>
                             {transitResult && transitResult.inputParameters && (
-                                <div className="input-summary">
+                                <>
                                     <p><strong>{t('gocharPage.dateLabel')}</strong> {formatDateTime(transitResult.inputParameters.date, t)}</p>
                                     <p><strong>{t('gocharPage.coordsLabel')}</strong> {transitResult.inputParameters.latitude?.toFixed(4)}, {transitResult.inputParameters.longitude?.toFixed(4)}</p>
                                     {transitResult.inputParameters.placeName && <p><strong>{t('gocharPage.placeLabel')}</strong> {transitResult.inputParameters.placeName}</p>}
-                                </div>
+                                </>
                             )}
 
                             {/* Transit Planet Table - Pass translated key */}
