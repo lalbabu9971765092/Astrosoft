@@ -215,10 +215,21 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     }
     const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
 
-    const sunMoonTimes = await calculateSunMoonTimes(utcDate, latitude, longitude);
+    // First, get sunrise for the given date to see if we are before it.
+    const initialSunMoonTimes = await calculateSunMoonTimes(utcDate, latitude, longitude);
+    const initialSunrise = initialSunMoonTimes.sunrise ? moment(initialSunMoonTimes.sunrise) : null;
+
+    let targetUtcDate = utcDate;
+    // If the calculation time is before today's sunrise, we need to calculate for the previous day's night periods.
+    if (initialSunrise && momentLocal.isBefore(initialSunrise)) {
+        targetUtcDate = moment(utcDate).subtract(1, 'day').toDate();
+    }
+
+    const sunMoonTimes = await calculateSunMoonTimes(targetUtcDate, latitude, longitude);
     const sunrise = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
     const sunset = sunMoonTimes.sunset ? moment(sunMoonTimes.sunset) : null;
-    const nextDayUtcDate = moment(utcDate).add(1, 'day').toDate(); // Get UTC date for next day
+    
+    const nextDayUtcDate = moment(targetUtcDate).add(1, 'day').toDate();
     const nextDaySunMoonTimes = await calculateSunMoonTimes(nextDayUtcDate, latitude, longitude);
     const nextSunrise = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
@@ -232,7 +243,7 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
 
     const dayDurationMs = sunset.diff(sunrise);
     const nightDurationMs = nextSunrise.diff(sunset);
-    const dayOfWeek = momentLocal.day(); // 0 for Sunday, 1 for Monday, etc.
+    const dayOfWeek = moment(targetUtcDate).day(); // 0 for Sunday, 1 for Monday, etc.
 
     const choghadiya = await calculateChoghadiya(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
     const horas = await calculateHora(sunrise, sunset, nextSunrise, dayDurationMs, nightDurationMs, dayOfWeek);
@@ -322,10 +333,10 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
 
     return {
         inputParameters: { 
-            date: dateString, 
+            date: targetUtcDate.toISOString(), 
             latitude, 
             longitude, 
-            day: momentLocal.format('dddd'), // Get day name from momentLocal
+            day: moment(targetUtcDate).format('dddd'), // Get day name from adjusted date
             sunrise: sunrise ? sunrise.toISOString() : null, // Add sunrise
             sunset: sunset ? sunset.toISOString() : null, // Add sunset
             nextSunrise: nextSunrise ? nextSunrise.toISOString() : null, // Add nextSunrise
