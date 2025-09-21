@@ -12,10 +12,10 @@ import '../../src/styles/MuhurtaPage.css'; // Import the new CSS file
 // Helper function to format date/time for display
 // Pass 't' for potential error/invalid messages
 const formatDateTime = (dateTimeString, t) => {
-    if (!dateTimeString) return t ? t('planetDegreeTable.notAvailable', 'N/A') : 'N/A';
+    if (!dateTimeString) return t ? t('planetDegreeTable.notAvailable', { defaultValue: 'N/A' }) : 'N/A';
     try {
         const date = new Date(dateTimeString);
-        if (isNaN(date.getTime())) return t ? t('gocharPage.invalidDate', 'Invalid Date') : 'Invalid Date';
+        if (isNaN(date.getTime())) return t ? t('gocharPage.invalidDate', { defaultValue: 'Invalid Date' }) : 'Invalid Date';
         // Consider using i18n.language for locale-aware formatting
         return date.toLocaleString(undefined, {
             year: 'numeric', month: 'numeric', day: 'numeric',
@@ -57,7 +57,7 @@ const MuhurtaPage = () => {
     const handleCalculateMuhurta = useCallback(async () => {
         if (!adjustedGocharDateTimeString || !locationForGocharTool?.lat || !locationForGocharTool?.lon) {
             setMuhurtaData(null);
-            setError(t('muhurtaPage.noDataYet', 'Please calculate a chart first to see Muhurta details.'));
+            setError(t('muhurtaPage.noDataYet', { defaultValue: 'Please calculate a chart first to see Muhurta details.' }));
             return;
         }
 
@@ -216,12 +216,20 @@ const MuhurtaPage = () => {
     // Helper function to format yoga names for translation
     const formatYogaNameForTranslation = (name) => {
         const yogaNameMap = {
-            "Sarvarth Siddha Yoga": "sarvarthSiddhi",
-            "Amrit Siddhi Yoga": "amritSiddhi",
-            "Guru Pushya Yoga": "guruPushya",
+            "Sarvarth Siddha Yoga": "sarvarth_siddhi",
+            "Amrit Siddhi Yoga": "amrit_siddhi",
+            "Guru Pushya Yoga": "guru_pushya",
+            "Abhijit Muhurta": "abhijit_muhurta",
+            "Yama Ghanta": "yam_ghanta",
+            "Gulika Kaal (Day)": "guli_kaal_day",
+            "Varjyam": "varjyam",
+            "Dur Muhurta (Day)": "dur_muhurta_day",
+            "Rahu Kaal": "rahu_kaal",
+            "Pradosh Kaal": "pradosh_kaal",
+            "Guli Kaal (Night)": "guli_kaal_night",
             // Add other yoga names if they come in full form from backend
         };
-        return yogaNameMap[name] || name; // Return mapped name or original if not found
+        return yogaNameMap[name] || name.toLowerCase().replace(/\s+/g, '_').replace(/[()]/g, '');
     };
 
     const renderCombinedMuhurtaAndYogas = (muhurtaDataArray) => {
@@ -233,7 +241,7 @@ const MuhurtaPage = () => {
         return (
             <div className="muhurta-section">
                 <div className="section-header" onClick={() => toggleCollapse(setIsMuhurtaCollapsed)}>
-                    <h3>{t('muhurtaPage.muhurtaTitle', 'Muhurta Periods')} & {t('muhurtaPage.yogasTitle', 'Yogas')}</h3>
+                    <h3>{t('muhurtaPage.muhurtaTitle', { defaultValue: 'Muhurta Periods' })} & {t('muhurtaPage.yogasTitle', { defaultValue: 'Yogas' })}</h3>
                     <button className="toggle-button">
                         {isMuhurtaCollapsed ? <FaChevronDown /> : <FaChevronUp />}
                     </button>
@@ -243,23 +251,27 @@ const MuhurtaPage = () => {
                         <table className="results-table">
                             <thead>
                                 <tr>
-                                    <th>{t('muhurtaPage.name', 'Name')}</th>
-                                    <th>{t('muhurtaPage.type', 'Type')}</th>
-                                    <th>{t('muhurtaPage.start', 'Start')}</th>
-                                    <th>{t('muhurtaPage.end', 'End')}</th>
-                                    <th>{t('muhurtaPage.description', 'Description')}</th>
+                                    <th>{t('muhurtaPage.name', { defaultValue: 'Name' })}</th>
+                                    <th>{t('muhurtaPage.type', { defaultValue: 'Type' })}</th>
+                                    <th>{t('muhurtaPage.start', { defaultValue: 'Start' })}</th>
+                                    <th>{t('muhurtaPage.end', { defaultValue: 'End' })}</th>
+                                    <th>{t('muhurtaPage.description', { defaultValue: 'Description' })}</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {allItems.map((m, index) => (
-                                    <tr key={`muhurta-${index}`} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
-                                        <td>{t(`yogas.${formatYogaNameForTranslation(m.name)}`, { defaultValue: m.name })}</td>
-                                        <td>{t(`muhurtaTypes.${m.type}`, { defaultValue: m.type })}</td>
-                                        <td>{moment(m.start).format('HH:mm:ss')}</td>
-                                        <td>{moment(m.end).format('HH:mm:ss')}</td>
-                                        <td>{m.description}</td>
-                                    </tr>
-                                ))}
+                                {allItems.map((m, index) => {
+                                    const yogaTranslation = t(`yogas.${formatYogaNameForTranslation(m.name)}`, { returnObjects: true, defaultValue: { name: m.name, description: m.description } });
+
+                                    return (
+                                        <tr key={`muhurta-${index}`} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
+                                            <td>{yogaTranslation.name}</td>
+                                            <td>{t(`muhurtaTypes.${m.type}`, { defaultValue: m.type })}</td>
+                                            <td>{moment(m.start).format('HH:mm:ss')}</td>
+                                            <td>{moment(m.end).format('HH:mm:ss')}</td>
+                                            <td>{yogaTranslation.description}</td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
@@ -278,56 +290,51 @@ const MuhurtaPage = () => {
                     <div className="info-row">
                         <p><strong>{t('muhurtaPage.date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
                         <p><strong>{t('muhurtaPage.day')}:</strong> {t(`weekdays.${muhurtaData.inputParameters.day}`, { defaultValue: muhurtaData.inputParameters.day })}</p>
-                        <p><strong>{t('muhurtaPage.sunrise', 'Sunrise')}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
-                        <p><strong>{t('muhurtaPage.sunset', 'Sunset')}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
+                        <p><strong>{t('muhurtaPage.sunrise', { defaultValue: 'Sunrise' })}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
+                        <p><strong>{t('muhurtaPage.sunset', { defaultValue: 'Sunset' })}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
                     </div>
                     <div className="info-row">
-                        <p><strong>{t('muhurtaPage.time', 'Time')}:</strong> {formatDateTime(adjustedGocharDateTimeString, t)}</p>
-                        <p><strong>{t('muhurtaPage.coords', 'Coords')}:</strong> {locationForGocharTool?.lat?.toFixed(4)}, {locationForGocharTool?.lon?.toFixed(4)}</p>
-                        {transitPlaceName && <p><strong>{t('muhurtaPage.place', 'Place')}:</strong> {transitPlaceName}</p>}
+                        <p><strong>{t('muhurtaPage.time', { defaultValue: 'Time' })}:</strong> {formatDateTime(adjustedGocharDateTimeString, t)}</p>
+                        <p><strong>{t('muhurtaPage.coords', { defaultValue: 'Coords' })}:</strong> {locationForGocharTool?.lat?.toFixed(4)}, {locationForGocharTool?.lon?.toFixed(4)}</p>
+                        {transitPlaceName && <p><strong>{t('muhurtaPage.place', { defaultValue: 'Place' })}:</strong> {transitPlaceName}</p>}
                     </div>
                     <div className="info-row">
-                        <p className="inauspicious-period"><strong>{t('muhurtaPage.dishaShool', 'Disha Shool')}:</strong> {t(`directions.${muhurtaData.dishaShool}`, { defaultValue: muhurtaData.dishaShool })}</p>
+                        <p className="inauspicious-period"><strong>{t('muhurtaPage.dishaShool', { defaultValue: 'Disha Shool' })}:</strong> {t(`directions.${muhurtaData.dishaShool}`, { defaultValue: muhurtaData.dishaShool })}</p>
                         {muhurtaData.activeChoghadiya && (
                             <p className={muhurtaData.activeChoghadiya.periodType === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
-                                <strong>{t('muhurtaPage.activeChoghadiya', 'Active Choghadiya')}:</strong> {t(`choghadiyaNames.${muhurtaData.activeChoghadiya.name}`, { defaultValue: muhurtaData.activeChoghadiya.name })}
+                                <strong>{t('muhurtaPage.activeChoghadiya', { defaultValue: 'Active Choghadiya' })}:</strong> {t(`choghadiyaNames.${muhurtaData.activeChoghadiya.name}`, { defaultValue: muhurtaData.activeChoghadiya.name })}
                             </p>
                         )}
                         {muhurtaData.activeHora && (
                             <p>
-                                <strong>{t('muhurtaPage.activeHora', 'Active Hora')}:</strong> {t(`planets.${muhurtaData.activeHora.lord}`, { defaultValue: muhurtaData.activeHora.lord })}
+                                <strong>{t('muhurtaPage.activeHora', { defaultValue: 'Active Hora' })}:</strong> {t(`planets.${muhurtaData.activeHora.lord}`, { defaultValue: muhurtaData.activeHora.lord })}
                             </p>
                         )}
                         {muhurtaData.activeLagna && (
                             <p>
-                                <strong>{t('muhurtaPage.activeLagna', 'Active Lagna')}:</strong> {t(`rashis.${muhurtaData.activeLagna.rashi}`, { defaultValue: muhurtaData.activeLagna.rashi })}
+                                <strong>{t('muhurtaPage.activeLagna', { defaultValue: 'Active Lagna' })}:</strong> {t(`rashis.${muhurtaData.activeLagna.rashi}`, { defaultValue: muhurtaData.activeLagna.rashi })}
                             </p>
                         )}
                     </div>
                     <div className="info-row">
                         {muhurtaData.activeYogas && muhurtaData.activeYogas.map((yoga, index) => (
                             <p key={`active-yoga-${index}`} className={yoga.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
-                                <strong>{t(`yogas.${formatYogaNameForTranslation(yoga.name)}`, { defaultValue: yoga.name })}:</strong> {` (${moment(yoga.start).format('HH:mm')} - ${moment(yoga.end).format('HH:mm')})`}
+                                <strong>{t(`yogas.${formatYogaNameForTranslation(yoga.name)}.name`, { defaultValue: yoga.name })}:</strong> {` (${moment(yoga.start).format('HH:mm')} - ${moment(yoga.end).format('HH:mm')})`}
                             </p>
                         ))}
                          {muhurtaData.bhadra && muhurtaData.bhadra.bhadra_details && (
                     <p className="inauspicious-period">
-                        <strong>{t('muhurtaPage.bhadra', 'Bhadra')}:</strong> {`${moment(muhurtaData.bhadra.bhadra_details.start).format('HH:mm')} - ${moment(muhurtaData.bhadra.bhadra_details.end).format('HH:mm')} (${t(`bhadraResidence.${muhurtaData.bhadra.bhadra_details.residence}`, { defaultValue: muhurtaData.bhadra.bhadra_details.residence })})`}
-                    </p>
+                        <strong>{t('muhurtaPage.bhadra', { defaultValue: 'Bhadra' })}:</strong> {`${moment(muhurtaData.bhadra.bhadra_details.start).format('HH:mm')} - ${moment(muhurtaData.bhadra.bhadra_details.end).format('HH:mm')} (${t(`bhadraResidence.${muhurtaData.bhadra.bhadra_details.residence}`, { defaultValue: muhurtaData.bhadra.bhadra_details.residence })})`}</p>
                 )}
-
                 {/* Display Gand Mool Dosha */}
                 {muhurtaData.gandMool && muhurtaData.gandMool.active_gand_mool && (
                     <p className="inauspicious-period">
-                        <strong>{t('muhurtaPage.gandMool', 'Gand Mool Dosha')}:</strong> {`${moment(muhurtaData.gandMool.active_gand_mool.start).format('HH:mm')} - ${moment(muhurtaData.gandMool.active_gand_mool.end).format('HH:mm')}`}
-                    </p>
+                        <strong>{t('muhurtaPage.gandMool', { defaultValue: 'Gand Mool Dosha' })}:</strong> {`${moment(muhurtaData.gandMool.active_gand_mool.start).format('HH:mm')} - ${moment(muhurtaData.gandMool.active_gand_mool.end).format('HH:mm')}`}</p>
                 )}
-
                 {/* Display Yam Ghanta */}
                 {muhurtaData.yamGhanta && (
                     <p className="inauspicious-period">
-                        <strong>{t('muhurtaPage.yamGhanta', 'Yam Ghanta')}:</strong> {`(${muhurtaData.yamGhanta.start} - ${muhurtaData.yamGhanta.end})`}
-                    </p>
+                        <strong>{t('muhurtaPage.yamGhanta', { defaultValue: 'Yam Ghanta' })}:</strong> {`(${muhurtaData.yamGhanta.start} - ${muhurtaData.yamGhanta.end})`}</p>
                 )}
                     </div>
                 </div>
@@ -344,7 +351,7 @@ const MuhurtaPage = () => {
                         {renderCombinedMuhurtaAndYogas(muhurtaData.muhurta)}
                     </div>
                 )}
-                {!(parentIsLoading || isLoading) && !parentError && !error && !muhurtaData && <p>{t('muhurtaPage.noDataYet')}</p>}
+                {!(parentIsLoading || isLoading) && !parentError && !error && !muhurtaData && <p>{t('muhurtaPage.noDataYet', { defaultValue: 'Please calculate a chart first to see Muhurta details.' })}</p>}
             </div>
         </div>
     );

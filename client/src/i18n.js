@@ -15,6 +15,7 @@ i18n
 
     ns: ['translation'],
     defaultNS: 'translation',
+    returnObjects: true,
 
     detection: {
       order: ['querystring', 'cookie', 'localStorage', 'navigator', 'htmlTag'],
