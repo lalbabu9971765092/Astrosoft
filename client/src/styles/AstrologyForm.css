@@ -13,20 +13,22 @@
 .results-column {
   flex: 1; /* Allow columns to grow and shrink equally by default */
   min-width: 300px; /* Minimum width before wrapping */
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: #f8f9fa; /* Default/Middle column shade */
+  border: 1px solid #e9ecef;
+  border-radius: 8px; /* Slightly more rounded corners */
+  padding: 20px; /* More internal spacing */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* A bit more pronounced shadow */
   box-sizing: border-box; /* Include padding and border in width */
 }
 
 .results-column.left-column {
   flex: 1;
+  background-color: #f0f7ff; /* Lighter blue shade for left column */
 }
 
 .results-column.right-column {
   flex: 2;
+  background-color: #f0fff4; /* Lighter green shade for right column */
 }
 
 .right-column-top {
@@ -53,11 +55,11 @@
 .bottom-row-table {
   flex: 1;
   min-width: 300px;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: #ffffff;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   box-sizing: border-box;
 }
 
@@ -65,7 +67,7 @@
   margin-top: 0;
   margin-bottom: 15px;
   font-size: 1.3em;
-  color: #333;
+  color: #2c3e50; /* Darker, more professional color */
   border-bottom: 2px solid #007bff; /* Accent color */
   padding-bottom: 8px;
   text-align: center;
@@ -87,7 +89,7 @@
   margin-top: 0;
   margin-bottom: 10px;
   font-size: 1.1em;
-  color: #444;
+  color: #34495e; /* Darker, more professional color */
   border-bottom: 1px solid #ddd;
   padding-bottom: 5px;
 }
@@ -177,38 +179,44 @@
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   max-width: 100%; /* Prevent wrapper from exceeding column width */
   margin-bottom: 1em; /* Add some space below tables */
-  border: 1px solid #ddd; /* Add border around scrollable area */
-  border-radius: 4px;
+  border: 1px solid #dee2e6; /* Slightly more defined border */
+  border-radius: 6px; /* Match column rounding */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03); /* Subtle shadow for depth */
 }
 
 .results-table {
   width: 100%;
-  border-collapse: collapse;
+  border-spacing: 0; /* Use spacing instead of collapse for better border control */
   font-size: 0.85em; /* Slightly smaller font for tables */
 }
 
 .results-table th,
 .results-table td {
-  border: 1px solid #ddd;
-  padding: 6px 8px; /* Adjust padding */
+  border: 0; /* Remove all borders by default */
+  border-bottom: 1px solid #e9ecef; /* Add only horizontal borders */
+  padding: 10px 12px; /* Increase padding for more space */
   text-align: left;
   vertical-align: middle;
+  white-space: nowrap; /* Keep content on one line */
 }
 
 .results-table thead th {
-  background-color: #f8f9fa; /* Light header background */
+  background-color: #eef2f7; /* A cool, light blue-grey header */
+  color: #4a5568; /* Darker text for header */
   font-weight: bold;
   position: sticky; /* Make header sticky within the wrapper */
   top: 0;
   z-index: 1;
+  border-bottom-width: 2px; /* Make header border thicker */
+  border-bottom-color: #d1d9e6;
 }
 
 .results-table tbody tr:nth-child(even) {
-  background-color: #fdfdfd; /* Subtle striping */
+  background-color: #f7fafc; /* A very subtle blueish-white for striping */
 }
 
 .results-table tbody tr:hover {
-  background-color: #f1f1f1; /* Hover effect */
+  background-color: #edf2f7; /* A slightly darker blue-grey on hover */
 }
 
 

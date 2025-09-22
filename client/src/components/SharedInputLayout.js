@@ -441,6 +441,7 @@ const SharedInputLayout = () => {
 
                 <div className="top-strip-section input-form-section astrology-form-container">
                     <form onSubmit={handleCalculateAll} noValidate>
+                        <h3>{t('sharedLayout.birthDetailsTitle', 'Birth Details')}</h3>
                         <div className="form-row">
                             <div className="input-group half-width">
                                 <label htmlFor="name-input">{t('sharedLayout.nameLabel')}</label>
@@ -482,22 +483,18 @@ const SharedInputLayout = () => {
                                 {locationError && <p className="error-text small-error">{locationError}</p>}
                             </div>
                         </div>
-                        <div className="form-row action-buttons-row">
-                            <div className="submit-button-container">
-                                <button type="submit" disabled={isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
-                                    {isLoading ? t('sharedLayout.calculatingButton') : t('sharedLayout.calculateButton')}
-                                </button>
-                            </div>
-                            <div className="save-load-button-container">
-                                <button type="button" onClick={handleSaveChart} disabled={isSavingChart || isLoading || isGeocoding || isFetchingLocation || !name.trim()}>
-                                    {isSavingChart ? t('sharedLayout.savingButton') : t('sharedLayout.saveChartButton')}
-                                </button>
-                            </div>
-                            <div className="save-load-button-container">
-                                <button type="button" onClick={handleOpenLoadChartWindow} disabled={isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
-                                    {t('sharedLayout.loadChartButton')}
-                                </button>
-                            </div>
+                        <div className="form-row">
+                            <div className="action-buttons-row">
+                                    <button type="submit" disabled={isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
+                                        {isLoading ? t('sharedLayout.calculatingButton') : t('sharedLayout.calculateButton')}
+                                    </button>
+                                    <button type="button" onClick={handleSaveChart} disabled={isSavingChart || isLoading || isGeocoding || isFetchingLocation || !name.trim()}>
+                                        {isSavingChart ? t('sharedLayout.savingButton') : t('sharedLayout.saveChartButton')}
+                                    </button>
+                                    <button type="button" onClick={handleOpenLoadChartWindow} disabled={isLoading || isGeocoding || isFetchingLocation || isSavingChart}>
+                                        {t('sharedLayout.loadChartButton')}
+                                    </button>
+                                </div>
                         </div>
                          {isLoading && <div className="main-loader small-loader" aria-live="polite">{t('sharedLayout.calculatingButton')}</div>}
                          {error && <p className="error-text small-error calculation-error" role="alert">{t('sharedLayout.calculationErrorPrefix')}: {error}</p>}

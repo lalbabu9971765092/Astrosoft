@@ -1,6 +1,6 @@
 /* src/styles/SharedInputLayout.css */
 
-/* --- Existing Styles --- */
+/* --- Layout Styles --- */
 .shared-layout-container {
     display: flex;
     flex-direction: column;
@@ -11,7 +11,7 @@
     display: flex;
     flex-direction: row; /* Default for wider screens */
     justify-content: space-between; /* Or space-around */
-    align-items: flex-start; /* Align items to the top */
+    align-items: stretch; /* Make all columns equal height */
     padding: 10px;
     background-color: #f0f0f0; /* Example background */
     border-bottom: 1px solid #ccc;
@@ -76,23 +76,51 @@
 .top-strip-section {
     flex: 1; /* Allow sections to grow */
     margin: 0 5px; /* Add some space between sections */
-    padding: 10px;
+    padding: 15px;
     border: 1px solid #ddd; /* Optional: visual separation */
-    background-color: #fff; /* Optional: background */
+    background-color: #fdfdfd; /* A slightly off-white default */
     min-width: 280px; /* Prevent sections from becoming too narrow */
     box-sizing: border-box;
+    border-radius: 8px; /* Add some rounding to the corners */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04); /* Add a subtle shadow */
 }
 
 /* Specific section styling if needed */
 .input-form-section {
    flex-basis: 40%; /* Give the main form a bit more space initially */
-   /* Add other specific styles */
+   background-color: #f0f3c8; /* Light yellow-green */
+   display: flex; /* Use flexbox to allow content to grow */
+   flex-direction: column;
+}
+
+.input-form-section > form {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allow the form to grow to fill the container */
+}
+
+.input-form-section label {
+    color: #017ff5; /* Darker blue for labels */
+}
+
+.input-form-section > form h3 {
+    text-align: center;
+    color: #334e68;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+.input-form-section > form hr {
+    border: 0;
+    border-top: 5px solid rgba(255, 3, 3, 0.1);
+    margin: 1.5rem 0; /* Add some vertical spacing */
 }
 
 .birth-rectification-tool-section,
 .transit-adjustment-tool-section {
     flex-basis: 30%;
-    /* Add other specific styles */
+    background-color: #51d0f0; /* A very light, mint green */
 }
 
 .content-area {
@@ -100,6 +128,30 @@
     padding: 15px;
     transition: margin-top 0.5s ease-out; /* Smooth transition for content area */
     margin-top: 0; /* Default margin */
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end; /* Aligns items to the bottom, useful for buttons and inputs */
+}
+
+/* Specific styling for the place input row */
+.input-group.place-group {
+    flex: 1 1 auto; /* Allow the input group to grow and fill space */
+}
+
+.button-container.find-coords-button {
+    flex: 0 0 auto; /* Prevent the button container from growing or shrinking */
+}
+
+
+.action-buttons-row {
+    display: flex;
+    justify-content: space-between; /* This will space out the buttons evenly */
+    gap: 10px; /* This adds a small gap between the buttons */
+    width: 100%;
 }
 
 /* --- Responsive Adjustments for Mobile --- */
@@ -147,14 +199,6 @@
      .astrology-form-container .button-container button {
         width: 100%; /* Make buttons full width */
     }
-
-    .astrology-form-container .action-buttons-row {
-        flex-direction: column; /* Stack action buttons */
-    }
-     .astrology-form-container .action-buttons-row > div { /* Target button containers */
-        width: 100%;
-        margin-bottom: 10px;
-    }
      .astrology-form-container .action-buttons-row > div:last-child {
         margin-bottom: 0;
     }
@@ -187,5 +231,3 @@
   white-space: nowrap;
   border-width: 0;
 }
-
-

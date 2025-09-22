@@ -140,7 +140,7 @@ const PlanetDetailsPage = () => {
         if (!Array.isArray(houses) || houses.length !== 12) return [];
         const degrees = houses.map(h => convertDMSToDegrees(h?.mean_dms));
          if (degrees.some(isNaN)) {
-             console.warn("Could not convert all mean cusp DMS to degrees for displayResult.");
+              console.warn("Could not convert all mean cusp DMS to degrees for displayResult.");
              return [];
          }
         return degrees;
@@ -253,11 +253,14 @@ const PlanetDetailsPage = () => {
                                         <tr key={`row-${planet}`}>
                                             {/* Translate row label */}
                                             <td>{t(`planets.${planet}`, { defaultValue: planet })}</td>
-                                            {ASPECT_TABLE_PLANETS.map((targetPlanet) => (
-                                                <td key={`cell-${planet}-${targetPlanet}`}>
-                                                    {(planet !== targetPlanet && aspectingPlanetsArray?.includes(targetPlanet)) ? '✓' : '-'}
-                                                </td>
-                                            ))}
+                                            {ASPECT_TABLE_PLANETS.map((targetPlanet) => {
+                                                const hasAspect = planet !== targetPlanet && aspectingPlanetsArray?.includes(targetPlanet);
+                                                return (
+                                                    <td key={`cell-${planet}-${targetPlanet}`} className={hasAspect ? 'has-aspect' : ''}>
+                                                        {hasAspect ? '✓' : '-'}
+                                                    </td>
+                                                );
+                                            })}
                                         </tr>
                                     );
                                 })}
@@ -294,8 +297,13 @@ const PlanetDetailsPage = () => {
                                         <td>{t(`planets.${planet}`, { defaultValue: planet })}</td>
                                         {CORE_VEDIC_PLANETS.map((targetPlanet) => {
                                             const friendshipTermKey = friendshipData[planet]?.[targetPlanet];
+                                            // Helper to create a CSS-friendly class name from the friendship term
+                                            const friendshipClass = friendshipTermKey ? `friendship-${friendshipTermKey.toLowerCase().replace(/ /g, '-')}` : '';
                                             return (
-                                                <td key={`cell-friend-${planet}-${targetPlanet}`}>
+                                                <td
+                                                    key={`cell-friend-${planet}-${targetPlanet}`}
+                                                    className={friendshipClass}
+                                                >
                                                     {planet === targetPlanet
                                                         ? t('planetDetailsPage.friendshipSelf')
                                                         // Translate friendship term

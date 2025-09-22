@@ -114,16 +114,6 @@
 
 /* --- Specific Table Styles --- */
 
-/* Planetary Positions Table */
-.planets-table td, .planets-table th {
-    /* Add specific widths if needed, e.g. */
-    /* &.col-planet { min-width: 60px; } */
-}
-
-/* Aspects Table */
-.aspect-table-wrapper {
-    /* Wrapper specific styles if needed */
-}
 .aspect-table th, .aspect-table td {
     text-align: center;
     min-width: 45px; /* Small min-width for aspect marks */
@@ -135,11 +125,14 @@
     min-width: 80px;
     font-weight: bold;
 }
-
-/* Friendship Table */
-.friendship-table-wrapper {
-    /* No max-width needed, let table-wrapper handle scrolling */
+.aspect-table .has-aspect {
+    background-color: #d1e7dd; /* Light green for aspected cells */
+    color: #0f5132;
+    font-weight: bold;
+    text-align: center;
 }
+
+
 .friendship-table {
     table-layout: auto; /* Let browser decide column widths */
     min-width: 500px; /* Adjust minimum width as needed */
@@ -178,9 +171,7 @@
     text-align: center;
     font-weight: bold;
 }
-.shadbala-table td:nth-last-child(2) strong { /* Total Rupas value */
-    /* Optional: Add specific style if needed */
-}
+
 
 /* Shadbala Minimums & Note */
 .shadbala-minimums {
@@ -214,26 +205,24 @@
 }
 
 /* Resulting Friendship Colors */
-.friendship-great-friend {
+.friendship-best-friend {
     background-color: #c3e6cb; /* Darker green background */
     color: #155724;
     font-weight: bold;
 }
 .friendship-friend {
-    background-color: #d4edda; /* Lighter green background */
+    background-color: #d4edda; /* Lighter green */
     color: #155724;
-    font-weight: bold;
 }
 .friendship-neutral {
     background-color: #e2e3e5; /* Grey background */
     color: #383d41;
 }
 .friendship-enemy {
-    background-color: #f8d7da; /* Lighter red background */
+    background-color: #f8d7da; /* Lighter red */
     color: #721c24;
-    font-weight: bold;
 }
-.friendship-great-enemy {
+.friendship-bitter-enemy {
     background-color: #f5c6cb; /* Darker red background */
     color: #721c24;
     font-weight: bold;

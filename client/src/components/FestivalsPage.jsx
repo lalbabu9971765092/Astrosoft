@@ -597,36 +597,38 @@ const FestivalsPage = () => {
                         </div>
                     </div>
 
-                    <h2 className="result-title">{t('festivalsPage.sankrantiColumnTitle', { year: yearForFetching || '...' })}</h2>
-                    {isLoadingSankranti && <div className="loader">{t('festivalsPage.sankrantiLoading')}</div>}
-                    {sankrantiError && <p className="error-text">{sankrantiError}</p>}
-                    {!isLoadingSankranti && !sankrantiError && sankrantiData.length > 0 && (
-                        <div className="table-container">
-                            <table className="results-table">
-                                <thead><tr>
-                                    <th>{t('festivalsPage.sankrantiHeaderName')}</th>
-                                    <th>{t('festivalsPage.sankrantiHeaderDate')}</th>
-                                    <th>{t('festivalsPage.sankrantiHeaderMoment')}</th>
-                                </tr></thead>
-                                <tbody>
-                                    {sankrantiData.map((sankranti, index) => (
-                                        <tr key={sankranti.rashi || `sankranti-${index}-${sankranti.date}`}>
-                                            <td>
-                                                {t(`festivalsPage.sankrantiNames.${sankranti.rashi}`, {
-                                                    defaultValue: sankranti.name || t(FALLBACK_UNKNOWN_KEY)
-                                                })}
-                                            </td>
-                                            <td>{formatDateForDisplay(sankranti.date)}</td>
-                                            <td>{formatSankrantiMoment(sankranti.moment || sankranti.date)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                    {!isLoadingSankranti && !sankrantiError && sankrantiData.length === 0 && (
-                        <p className="info-text">{t('festivalsPage.sankrantiNoData')}</p>
-                    )}
+                    <div className="sankranti-block">
+                        <h2 className="result-title">{t('festivalsPage.sankrantiColumnTitle', { year: yearForFetching || '...' })}</h2>
+                        {isLoadingSankranti && <div className="loader">{t('festivalsPage.sankrantiLoading')}</div>}
+                        {sankrantiError && <p className="error-text">{sankrantiError}</p>}
+                        {!isLoadingSankranti && !sankrantiError && sankrantiData.length > 0 && (
+                            <div className="table-container">
+                                <table className="results-table">
+                                    <thead><tr>
+                                        <th>{t('festivalsPage.sankrantiHeaderName')}</th>
+                                        <th>{t('festivalsPage.sankrantiHeaderDate')}</th>
+                                        <th>{t('festivalsPage.sankrantiHeaderMoment')}</th>
+                                    </tr></thead>
+                                    <tbody>
+                                        {sankrantiData.map((sankranti, index) => (
+                                            <tr key={sankranti.rashi || `sankranti-${index}-${sankranti.date}`}>
+                                                <td>
+                                                    {t(`festivalsPage.sankrantiNames.${sankranti.rashi}`, {
+                                                        defaultValue: sankranti.name || t(FALLBACK_UNKNOWN_KEY)
+                                                    })}
+                                                </td>
+                                                <td>{formatDateForDisplay(sankranti.date)}</td>
+                                                <td>{formatSankrantiMoment(sankranti.moment || sankranti.date)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                        {!isLoadingSankranti && !sankrantiError && sankrantiData.length === 0 && (
+                            <p className="info-text">{t('festivalsPage.sankrantiNoData')}</p>
+                        )}
+                    </div>
 
                     {/* --- Eclipses Display --- */}
                     <div className="eclipses-section" style={{ marginTop: '2rem' }}>
@@ -713,7 +715,7 @@ const FestivalsPage = () => {
                 </div>
 
                 {/* --- Column 3: Recurring Tithis & Tithi Finder --- */}
-                <div className="results-column combined-column">
+                <div className="results-column recurring-tithis-column">
                     {/* --- Recurring Tithis Display --- */}
                     <div className="recurring-tithis-section">
                         <h2 className="result-title">
