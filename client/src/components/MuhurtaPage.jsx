@@ -27,6 +27,20 @@ const formatDateTime = (dateTimeString, t) => {
     }
 };
 
+const formatDuration = (ms) => {
+    if (ms === null || isNaN(ms)) return 'N/A';
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return [
+        hours.toString().padStart(2, '0'),
+        minutes.toString().padStart(2, '0'),
+        seconds.toString().padStart(2, '0')
+    ].join(':');
+};
+
 const MuhurtaPage = () => {
     const { t } = useTranslation();
     // Get context from SharedInputLayout
@@ -98,41 +112,43 @@ const MuhurtaPage = () => {
     const renderChoghadiya = (choghadiyas) => {
         if (!choghadiyas || choghadiyas.length === 0) return <p>{t('muhurtaPage.noChoghadiya')}</p>;
         return (
-            <div className="muhurta-section">
-                <div className="section-header" onClick={() => toggleCollapse(setIsChoghadiyaCollapsed)}>
-                    <h3>{t('muhurtaPage.choghadiyaTitle')}</h3>
-                    <button className="toggle-button">
-                        {isChoghadiyaCollapsed ? <FaChevronDown /> : <FaChevronUp />}
-                    </button>
-                </div>
-                <div className={`section-content ${isChoghadiyaCollapsed ? 'collapsed' : ''}`}>
-                    <div className="table-wrapper">
-                        <table className="results-table">
-                            <thead>
-                                <tr>
-                                    <th>{t('muhurtaPage.type')}</th>
-                                    <th>{t('muhurtaPage.name')}</th>
-                                    <th>{t('muhurtaPage.lord')}</th>
-                                    <th>{t('muhurtaPage.periodType')}</th>
-                                    <th>{t('muhurtaPage.start')}</th>
-                                    <th>{t('muhurtaPage.end')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {choghadiyas.map((c, index) => (
-                                    <tr key={index} className={c.periodType === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
-                                        <td>{t(`choghadiyaTypes.${c.type}`, { defaultValue: c.type })}</td>
-                                        <td>{t(`choghadiyaNames.${c.name}`, { defaultValue: c.name })}</td>
-                                        <td>{t(`planets.${c.lord}`, { defaultValue: c.lord })}</td>
-                                        <td>{t(`choghadiyaPeriodTypes.${c.periodType}`, { defaultValue: c.periodType })}</td>
-                                        <td>{moment(c.start).format('HH:mm:ss')}</td>
-                                        <td>{moment(c.end).format('HH:mm:ss')}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            <div className="muhurta-section muhurta-section-shade-1">
+                <>
+                    <div className="section-header" onClick={() => toggleCollapse(setIsChoghadiyaCollapsed)}>
+                        <h3>{t('muhurtaPage.choghadiyaTitle')}</h3>
+                        <button className="toggle-button">
+                            {isChoghadiyaCollapsed ? <FaChevronDown /> : <FaChevronUp />}
+                        </button>
                     </div>
-                </div>
+                    <div className={`section-content ${isChoghadiyaCollapsed ? 'collapsed' : ''}`}>
+                        <div className="table-wrapper">
+                            <table className="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>{t('muhurtaPage.type')}</th>
+                                        <th>{t('muhurtaPage.name')}</th>
+                                        <th>{t('muhurtaPage.lord')}</th>
+                                        <th>{t('muhurtaPage.periodType')}</th>
+                                        <th>{t('muhurtaPage.start')}</th>
+                                        <th>{t('muhurtaPage.end')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {choghadiyas.map((c, index) => (
+                                        <tr key={index} className={c.periodType === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
+                                            <td>{t(`choghadiyaTypes.${c.type}`, { defaultValue: c.type })}</td>
+                                            <td>{t(`choghadiyaNames.${c.name}`, { defaultValue: c.name })}</td>
+                                            <td>{t(`planets.${c.lord}`, { defaultValue: c.lord })}</td>
+                                            <td>{t(`choghadiyaPeriodTypes.${c.periodType}`, { defaultValue: c.periodType })}</td>
+                                            <td>{moment(c.start).format('HH:mm:ss')}</td>
+                                            <td>{moment(c.end).format('HH:mm:ss')}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
             </div>
         );
     };
@@ -140,37 +156,39 @@ const MuhurtaPage = () => {
     const renderHoras = (horas) => {
         if (!horas || horas.length === 0) return <p>{t('muhurtaPage.noHoras')}</p>;
         return (
-            <div className="muhurta-section">
-                <div className="section-header" onClick={() => toggleCollapse(setIsHorasCollapsed)}>
-                    <h3>{t('muhurtaPage.horasTitle')}</h3>
-                    <button className="toggle-button">
-                        {isHorasCollapsed ? <FaChevronDown /> : <FaChevronUp />}
-                    </button>
-                </div>
-                <div className={`section-content ${isHorasCollapsed ? 'collapsed' : ''}`}>
-                    <div className="table-wrapper">
-                        <table className="results-table">
-                            <thead>
-                                <tr>
-                                    <th>{t('muhurtaPage.type')}</th>
-                                    <th>{t('muhurtaPage.lord')}</th>
-                                    <th>{t('muhurtaPage.start')}</th>
-                                    <th>{t('muhurtaPage.end')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {horas.map((h, index) => (
-                                    <tr key={index}>
-                                        <td>{t(`choghadiyaTypes.${h.type}`, { defaultValue: h.type })}</td>
-                                        <td>{t(`planets.${h.lord}`, { defaultValue: h.lord })}</td>
-                                        <td>{moment(h.start).format('HH:mm:ss')}</td>
-                                        <td>{moment(h.end).format('HH:mm:ss')}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            <div className="muhurta-section muhurta-section-shade-2">
+                <>
+                    <div className="section-header" onClick={() => toggleCollapse(setIsHorasCollapsed)}>
+                        <h3>{t('muhurtaPage.horasTitle')}</h3>
+                        <button className="toggle-button">
+                            {isHorasCollapsed ? <FaChevronDown /> : <FaChevronUp />}
+                        </button>
                     </div>
-                </div>
+                    <div className={`section-content ${isHorasCollapsed ? 'collapsed' : ''}`}>
+                        <div className="table-wrapper">
+                            <table className="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>{t('muhurtaPage.type')}</th>
+                                        <th>{t('muhurtaPage.lord')}</th>
+                                        <th>{t('muhurtaPage.start')}</th>
+                                        <th>{t('muhurtaPage.end')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {horas.map((h, index) => (
+                                        <tr key={index}>
+                                            <td>{t(`choghadiyaTypes.${h.type}`, { defaultValue: h.type })}</td>
+                                            <td>{t(`planets.${h.lord}`, { defaultValue: h.lord })}</td>
+                                            <td>{moment(h.start).format('HH:mm:ss')}</td>
+                                            <td>{moment(h.end).format('HH:mm:ss')}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
             </div>
         );
     };
@@ -178,35 +196,37 @@ const MuhurtaPage = () => {
     const renderLagnas = (lagnas) => {
         if (!lagnas || lagnas.length === 0) return <p>{t('muhurtaPage.noLagnas')}</p>;
         return (
-            <div className="muhurta-section">
-                <div className="section-header" onClick={() => toggleCollapse(setIsLagnasCollapsed)}>
-                    <h3>{t('muhurtaPage.lagnasTitle')}</h3>
-                    <button className="toggle-button">
-                        {isLagnasCollapsed ? <FaChevronDown /> : <FaChevronUp />}
-                    </button>
-                </div>
-                <div className={`section-content ${isLagnasCollapsed ? 'collapsed' : ''}`}>
-                    <div className="table-wrapper">
-                        <table className="results-table">
-                            <thead>
-                                <tr>
-                                    <th>{t('muhurtaPage.time')}</th>
-                                    <th>{t('muhurtaPage.rashi')}</th>
-                                    <th>{t('muhurtaPage.rashiLord')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {lagnas.map((l, index) => (
-                                    <tr key={index}>
-                                        <td>{`${moment(l.start_time).format('HH:mm:ss')} to ${moment(l.end_time).format('HH:mm:ss')}`}</td>
-                                        <td>{t(`rashis.${l.rashi}`, { defaultValue: l.rashi })}</td>
-                                        <td>{t(`planets.${l.rashiLord}`, { defaultValue: l.rashiLord })}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+            <div className="muhurta-section muhurta-section-shade-3">
+                <>
+                    <div className="section-header" onClick={() => toggleCollapse(setIsLagnasCollapsed)}>
+                        <h3>{t('muhurtaPage.lagnasTitle')}</h3>
+                        <button className="toggle-button">
+                            {isLagnasCollapsed ? <FaChevronDown /> : <FaChevronUp />}
+                        </button>
                     </div>
-                </div>
+                    <div className={`section-content ${isLagnasCollapsed ? 'collapsed' : ''}`}>
+                        <div className="table-wrapper">
+                            <table className="results-table">
+                                <thead>
+                                    <tr>
+                                        <th>{t('muhurtaPage.time')}</th>
+                                        <th>{t('muhurtaPage.rashi')}</th>
+                                        <th>{t('muhurtaPage.rashiLord')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {lagnas.map((l, index) => (
+                                        <tr key={index}>
+                                            <td>{`${moment(l.start_time).format('HH:mm:ss')} to ${moment(l.end_time).format('HH:mm:ss')}`}</td>
+                                            <td>{t(`rashis.${l.rashi}`, { defaultValue: l.rashi })}</td>
+                                            <td>{t(`planets.${l.rashiLord}`, { defaultValue: l.rashiLord })}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </>
             </div>
         );
     };
@@ -224,9 +244,20 @@ const MuhurtaPage = () => {
             "Gulika Kaal (Day)": "guli_kaal_day",
             "Varjyam": "varjyam",
             "Dur Muhurta (Day)": "dur_muhurta_day",
+            "Dur Muhurta (Day) 1": "dur_muhurta_1",
+            "Dur Muhurta (Day) 2": "dur_muhurta_2",
+            "Dur Muhurta (Night)": "dur_muhurta_night",
             "Rahu Kaal": "rahu_kaal",
             "Pradosh Kaal": "pradosh_kaal",
             "Guli Kaal (Night)": "guli_kaal_night",
+            "Day Ardha Prahar 1": "day_ardha_prahar_1",
+            "Day Ardha Prahar 2": "day_ardha_prahar_2",
+            "Day Ardha Prahar 3": "day_ardha_prahar_3",
+            "Day Ardha Prahar 4": "day_ardha_prahar_4",
+            "Night Ardha Prahar 1": "night_ardha_prahar_1",
+            "Night Ardha Prahar 2": "night_ardha_prahar_2",
+            "Night Ardha Prahar 3": "night_ardha_prahar_3",
+            "Night Ardha Prahar 4": "night_ardha_prahar_4",
             // Add other yoga names if they come in full form from backend
         };
         return yogaNameMap[name] || name.toLowerCase().replace(/\s+/g, '_').replace(/[()]/g, '');
@@ -235,11 +266,51 @@ const MuhurtaPage = () => {
     const renderCombinedMuhurtaAndYogas = (muhurtaDataArray) => {
         if (!muhurtaDataArray || muhurtaDataArray.length === 0) return <p>{t('muhurtaPage.noMuhurta')}</p>;
 
-        // Sort all items by start time for a chronological view
-        const allItems = [...muhurtaDataArray].sort((a, b) => moment(a.start).diff(moment(b.start)));
+        const groupedMuhurtas = {};
+
+        // Define the order of display for different types
+        const displayOrder = [
+            "Abhijit Muhurta",
+            "Rahu Kaal",
+            "Yama Ghanta",
+            "Gulika Kaal (Day)",
+            "Gulika Kaal (Night)",
+            "Dur Muhurta (Day)",
+            "Dur Muhurta (Night)",
+            "Pradosh Kaal",
+            "Varjyam",
+            "Panchak",
+            "Gand Mool Dosha",
+            "Bhadra",
+            "Day Ardha Prahar", // Group all day ardhapraharas
+            "Night Ardha Prahar", // Group all night ardhapraharas
+            "Sarvarth Siddha Yoga",
+            "Amrit Siddhi Yoga",
+            "Guru Pushya Yoga",
+            "Visha Yoga",
+            // Add other yoga types if needed
+        ];
+
+        muhurtaDataArray.forEach(item => {
+            let groupName = item.name;
+            if (item.name.startsWith("Day Ardha Prahar")) {
+                groupName = "Day Ardha Prahar";
+            } else if (item.name.startsWith("Night Ardha Prahar")) {
+                groupName = "Night Ardha Prahar";
+            } else if (item.name.startsWith("Dur Muhurta (Day")) {
+                groupName = "Dur Muhurta (Day)"; // Group day Dur Muhurtas
+            } else if (item.name.startsWith("Dur Muhurta (Night")) {
+                groupName = "Dur Muhurta (Night)"; // Group night Dur Muhurtas
+            }
+
+            if (!groupedMuhurtas[groupName]) {
+                groupedMuhurtas[groupName] = [];
+            }
+            groupedMuhurtas[groupName].push(item);
+        });
 
         return (
-            <div className="muhurta-section">
+            <div className="muhurta-section muhurta-section-shade-4">
                 <div className="section-header" onClick={() => toggleCollapse(setIsMuhurtaCollapsed)}>
                     <h3>{t('muhurtaPage.muhurtaTitle', { defaultValue: 'Muhurta Periods' })} & {t('muhurtaPage.yogasTitle', { defaultValue: 'Yogas' })}</h3>
                     <button className="toggle-button">
@@ -259,27 +330,44 @@ const MuhurtaPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {allItems.map((m, index) => {
-                                    const yogaTranslation = t(`yogas.${formatYogaNameForTranslation(m.name)}`, { returnObjects: true, defaultValue: { name: m.name, description: m.description } });
+                                {displayOrder.map(groupName => {
+                                    const items = groupedMuhurtas[groupName];
+                                    if (!items || items.length === 0) return null;
 
-                                    return (
-                                        <tr key={`muhurta-${index}`} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
-                                            <td>{yogaTranslation.name}</td>
-                                            <td>{t(`muhurtaTypes.${m.type}`, { defaultValue: m.type })}</td>
-                                            <td>{moment(m.start).format('HH:mm:ss')}</td>
-                                            <td>{moment(m.end).format('HH:mm:ss')}</td>
-                                            <td>{yogaTranslation.description}</td>
-                                        </tr>
-                                    );
+                                    const sortedItems = [...items].sort((a, b) => moment(a.start).diff(moment(b.start)));
+
+                                                                                    return sortedItems.map((m, index) => {
+                                                                                        console.log("Item name:", m.name);
+                                                                                        let translatedName = m.name;                                        let translatedDescription = m.description;
+
+                                        if (m.name.includes("Yoga") || m.name.includes("Ardha Prahar")) {
+                                            const yogaTranslation = t(`yogas.${formatYogaNameForTranslation(m.name)}`, { returnObjects: true, defaultValue: { name: m.name, description: m.description } });
+                                            translatedName = yogaTranslation.name;
+                                            translatedDescription = yogaTranslation.description;
+                                        } else {
+                                            // For all other muhurta periods, use muhurtaNames
+                                            const muhurtaTranslation = t(`muhurtaNames.${formatYogaNameForTranslation(m.name)}`, { returnObjects: true, defaultValue: { name: m.name, description: m.description } });
+                                            translatedName = muhurtaTranslation.name;
+                                            translatedDescription = muhurtaTranslation.description;
+                                        }                                        return (
+                                            <tr key={`${groupName}-${index}`} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
+                                                <td>{translatedName}</td>
+                                                <td>{t(`muhurtaTypes.${m.type}`, { defaultValue: m.type })}</td>
+                                                <td>{moment(m.start).format('HH:mm:ss')}</td>
+                                                <td>{moment(m.end).format('HH:mm:ss')}</td>
+                                                <td>{translatedDescription}</td>
+                                            </tr>
+                                        );
+                                    });
                                 })}
                             </tbody>
                         </table>
                     </div>
                 </div>
-
             </div>
         );
     };
+
     return (
         <div className="muhurta-page">
             <h1 className="page-title">{t('muhurtaPage.pageTitle')}</h1>
@@ -288,15 +376,17 @@ const MuhurtaPage = () => {
             {muhurtaData && muhurtaData.inputParameters && (
                 <div className="muhurta-info-bar">
                     <div className="info-row">
+                        <p><strong>{t('muhurtaPage.time', { defaultValue: 'Time' })}:</strong> {formatDateTime(adjustedGocharDateTimeString, t)}</p>
+                        <p><strong>{t('muhurtaPage.coords', { defaultValue: 'Coords' })}:</strong> {locationForGocharTool?.lat?.toFixed(4)}, {locationForGocharTool?.lon?.toFixed(4)}</p>
+                        {transitPlaceName && <p><strong>{t('muhurtaPage.place', { defaultValue: 'Place' })}:</strong> {transitPlaceName}</p>}
+                    </div>
+                    <div className="info-row">
                         <p><strong>{t('muhurtaPage.date')}:</strong> {moment(muhurtaData.inputParameters.date).format('LL')}</p>
                         <p><strong>{t('muhurtaPage.day')}:</strong> {t(`weekdays.${muhurtaData.inputParameters.day}`, { defaultValue: muhurtaData.inputParameters.day })}</p>
                         <p><strong>{t('muhurtaPage.sunrise', { defaultValue: 'Sunrise' })}:</strong> {moment(muhurtaData.inputParameters.sunrise).format('HH:mm:ss')}</p>
                         <p><strong>{t('muhurtaPage.sunset', { defaultValue: 'Sunset' })}:</strong> {moment(muhurtaData.inputParameters.sunset).format('HH:mm:ss')}</p>
-                    </div>
-                    <div className="info-row">
-                        <p><strong>{t('muhurtaPage.time', { defaultValue: 'Time' })}:</strong> {formatDateTime(adjustedGocharDateTimeString, t)}</p>
-                        <p><strong>{t('muhurtaPage.coords', { defaultValue: 'Coords' })}:</strong> {locationForGocharTool?.lat?.toFixed(4)}, {locationForGocharTool?.lon?.toFixed(4)}</p>
-                        {transitPlaceName && <p><strong>{t('muhurtaPage.place', { defaultValue: 'Place' })}:</strong> {transitPlaceName}</p>}
+                        <p><strong>{t('muhurtaPage.dinamaan', { defaultValue: 'Dinamaan' })}:</strong> {formatDuration(muhurtaData.inputParameters.dayDurationMs)}</p>
+                        <p><strong>{t('muhurtaPage.ratrimaan', { defaultValue: 'Ratriman' })}:</strong> {formatDuration(muhurtaData.inputParameters.nightDurationMs)}</p>
                     </div>
                     <div className="info-row">
                         <p className="inauspicious-period"><strong>{t('muhurtaPage.dishaShool', { defaultValue: 'Disha Shool' })}:</strong> {t(`directions.${muhurtaData.dishaShool}`, { defaultValue: muhurtaData.dishaShool })}</p>

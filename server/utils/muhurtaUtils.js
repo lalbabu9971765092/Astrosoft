@@ -10,6 +10,7 @@ import { calculateChoghadiya } from './muhurta/choghadiyaUtils.js';
 import { calculateHora } from './muhurta/horaUtils.js';
 import { calculateRahuKaal, calculateDurMuhurta, calculateGuliKaal, calculateYamGhanta, calculatePradoshKaal } from './muhurta/kaalUtils.js';
 import { calculateBhadra } from './muhurta/bhadraUtils.js';
+import { getArdhaprahara } from './muhurta/ardhapraharaUtils.js';
 import logger from './logger.js';
 import moment from 'moment-timezone';
 
@@ -261,6 +262,8 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const dishaShool = calculateDishaShool(dayOfWeek);
 
     const muhurtaPeriods = [];
+    const ardhapraharas = getArdhaprahara(sunrise.toDate(), sunset.toDate(), nextSunrise.toDate());
+    if (ardhapraharas && ardhapraharas.length > 0) muhurtaPeriods.push(...ardhapraharas);
     if (abhijitMuhurta) muhurtaPeriods.push(abhijitMuhurta);
     if (rahuKaal) muhurtaPeriods.push(rahuKaal);
     if (yamGhanta) muhurtaPeriods.push(yamGhanta);

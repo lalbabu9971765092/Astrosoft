@@ -222,7 +222,9 @@
     "day": "Day",
     "sunrise": "Sunrise",
     "sunset": "Sunset",
-    "dishaShool": "Disha Shool"
+    "dishaShool": "Disha Shool",
+    "dinamaan": "Dinamaan",
+    "ratrimaan": "Ratriman"
   },
   "directions": {
     "East": "East",
@@ -1477,21 +1479,22 @@
     "inauspicious": "inauspicious"
   },
   "muhurtaNames": {
-    "abhijit_muhurta": "Abhijit Muhurta",
-    "rahu_kaal": "Rahu Kaal",
-    "yam_ghanta": "Yam Ghanta",
-    "guli_kaal_day": "Guli Kaal (Day)",
-    "guli_kaal_night": "Guli Kaal (Night)",
-    "dur_muhurta_1": "Dur Muhurta 1",
-    "dur_muhurta_2": "Dur Muhurta 2",
-    "pradosh_kaal": "Pradosh Kaal",
-    "varjyam": "Varjyam",
-    "gand_mool_dosha": "Gand Mool Dosha",
-    "unknown": "Unknown Muhurta",
-    "bhadra": "Bhadra",
-    "dur_muhurta_day": "Dur Muhurta (Day)",
-    "dur_muhurta_night": "Dur Muhurta (Night)"
-  },
+    "abhijit_muhurta": { "name": "Abhijit Muhurta", "description": "A generally auspicious period around midday, ideal for starting new ventures." },
+    "rahu_kaal": { "name": "Rahu Kaal", "description": "An inauspicious period to avoid new beginnings, travel, or important decisions." },
+    "yam_ghanta": { "name": "Yam Ghanta", "description": "An inauspicious period, generally avoided for new beginnings." },
+    "guli_kaal_day": { "name": "Gulika Kaal (Day)", "description": "An inauspicious period; actions performed during this time tend to repeat." },
+    "guli_kaal_night": { "name": "Gulika Kaal (Night)", "description": "An inauspicious period during the night." },
+    "pradosh_kaal": { "name": "Pradosh Kaal", "description": "An auspicious period around sunset, ideal for Shiva worship." },
+    "varjyam": { "name": "Varjyam", "description": "Simplified calculation: An inauspicious period associated with Bharani Nakshatra. Actual start/end times vary by detailed Nakshatra rules." },
+    "gand_mool_dosha": { "name": "Gand Mool Dosha", "description": "Moon is in Bharani, which is a Gand Mool Nakshatra." },
+    "unknown": { "name": "Unknown Muhurta", "description": "No description available." },
+    "dur_muhurta_day": { "name": "Dur Muhurta (Day)", "description": "An inauspicious period. Avoid important activities." },
+    "dur_muhurta_1": { "name": "Dur Muhurta (Day) 1", "description": "An inauspicious period. Avoid important activities." },
+    "dur_muhurta_2": { "name": "Dur Muhurta (Day) 2", "description": "An inauspicious period. Avoid important activities." },
+    "dur_muhurta_night": { "name": "Dur Muhurta (Night)", "description": "An inauspicious period. Avoid important activities." },
+    "day_ardha_prahar": { "name": "Day Ardhaprahara", "description": "Ardhaprahara is an inauspicious period." },
+    "night_ardha_prahar": { "name": "Night Ardhaprahara", "description": "Ardhaprahara is an inauspicious period." },
+    "bhadra": { "name": "Bhadra", "description": "An inauspicious period (Vishti Karan). Avoid important activities." },
   "muhurtaDescriptions": {
     "abhijit_muhurta": "A generally auspicious period around midday, ideal for starting new ventures.",
     "rahu_kaal": "An inauspicious period to avoid new beginnings, travel, or important decisions.",
@@ -1549,7 +1552,23 @@
     "yamaganda": { "name": "Yamaganda Yoga", "description": "Yamaganda Yoga" },
     "sarvarthSiddhi": { "name": "Sarvarth Siddhi Yoga", "description": "Auspicious yoga formed by Pushya on a Thursday." },
     "amritSiddhi": { "name": "Amrit Siddhi Yoga", "description": "Auspicious yoga formed by Pushya on a Thursday." },
-    "guruPushya": { "name": "Guru Pushya Yoga", "description": "Highly auspicious Guru Pushya Yoga formed by Pushya Nakshatra on a Thursday." }
+    "guruPushya": { "name": "Guru Pushya Yoga", "description": "Highly auspicious Guru Pushya Yoga formed by Pushya Nakshatra on a Thursday." },
+    "day_ardha_prahar_1": { "name": "Day Ardha Prahar 1", "description": "Inauspicious period. (Friday)" },
+    "day_ardha_prahar_2": { "name": "Day Ardha Prahar 2", "description": "Inauspicious period. (Tuesday, Monday)" },
+    "day_ardha_prahar_3": { "name": "Day Ardha Prahar 3", "description": "Inauspicious period. (Thursday, Wednesday)" },
+    "day_ardha_prahar_4": { "name": "Day Ardha Prahar 4", "description": "Inauspicious period. (Sunday, Friday)" },
+    "day_ardha_prahar_5": { "name": "Day Ardha Prahar 5", "description": "Inauspicious period. (Sunday, Saturday)" },
+    "day_ardha_prahar_6": { "name": "Day Ardha Prahar 6", "description": "Inauspicious period. (Tuesday, Saturday)" },
+    "day_ardha_prahar_7": { "name": "Day Ardha Prahar 7", "description": "Inauspicious period. (Monday, Wednesday, Thursday)" },
+    "day_ardha_prahar_8": { "name": "Day Ardha Prahar 8", "description": "Inauspicious period. (Thursday, Saturday)" },
+    "night_ardha_prahar_1": { "name": "Night Ardha Prahar 1", "description": "Inauspicious period. (Sunday, Saturday)" },
+    "night_ardha_prahar_2": { "name": "Night Ardha Prahar 2", "description": "Inauspicious period. (Tuesday, Saturday)" },
+    "night_ardha_prahar_3": { "name": "Night Ardha Prahar 3", "description": "Inauspicious period. (Monday, Friday)" },
+    "night_ardha_prahar_4": { "name": "Night Ardha Prahar 4", "description": "Inauspicious period. (Sunday, Wednesday)" },
+    "night_ardha_prahar_5": { "name": "Night Ardha Prahar 5", "description": "Inauspicious period. (Tuesday, Thursday, Wednesday)" },
+    "night_ardha_prahar_6": { "name": "Night Ardha Prahar 6", "description": "Inauspicious period. (Monday, Thursday, Saturday)" },
+    "night_ardha_prahar_7": { "name": "Night Ardha Prahar 7", "description": "Inauspicious period. (Friday, Wednesday)" },
+    "night_ardha_prahar_8": { "name": "Night Ardha Prahar 8", "description": "Inauspicious period. (Thursday, Saturday)" }
   },
       "login": {
         "title": "Sign In",
@@ -1579,5 +1598,5 @@
         "resetPassword": "Reset Password"
       }
      
-    }
+      }}
   
