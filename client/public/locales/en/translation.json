@@ -1572,7 +1572,7 @@
     "night_ardha_prahar_6": { "name": "Night Ardha Prahar 6", "description": "Inauspicious period. (Monday, Thursday, Saturday)" },
     "night_ardha_prahar_7": { "name": "Night Ardha Prahar 7", "description": "Inauspicious period. (Friday, Wednesday)" },
     "night_ardha_prahar_8": { "name": "Night Ardha Prahar 8", "description": "Inauspicious period. (Thursday, Saturday)" }
-  },
+  }},
       "login": {
         "title": "Sign In",
         "email": "Email Address",
@@ -1601,5 +1601,5 @@
         "resetPassword": "Reset Password"
       }
      
-      }}
+      }
   
