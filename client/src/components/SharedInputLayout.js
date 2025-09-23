@@ -44,7 +44,9 @@ const SharedInputLayout = () => {
     const [initialGocharDateTime, setInitialGocharDateTime] = useState(null);
     const [transitDateTime, setTransitDateTime] = useState('');
     const [transitPlaceName, setTransitPlaceName] = useState('');
+    const [displayedTransitPlaceName, setDisplayedTransitPlaceName] = useState('');
     const [transitCoords, setTransitCoords] = useState('');
+    const [displayedTransitCoords, setDisplayedTransitCoords] = useState('');
     const [transitResult, setTransitResult] = useState(null);
     const [isCalculatingTransit, setIsCalculatingTransit] = useState(false);
     const [transitError, setTransitError] = useState(null);
@@ -82,6 +84,8 @@ const SharedInputLayout = () => {
         try {
             const response = await api.post('/calculate', transitInputParams);
             setTransitResult(response.data);
+            setDisplayedTransitPlaceName(initialTransitPlaceName);
+            setDisplayedTransitCoords(initialTransitCoords);
         } catch (err) {
             console.error("Initial transit calculation API error:", err.response?.data || err.message || err);
             setTransitError(err.response?.data?.error || err.message || t('sharedLayout.calculationFailedGeneric'));
@@ -99,6 +103,7 @@ const SharedInputLayout = () => {
         const formattedDateTimeInput = localNow.toISOString().slice(0, 16);
         setDate(formattedDateTimeInput);
         setTransitDateTime(formattedDateTimeInput);
+        setPlaceName(t('sharedLayout.currentLocationDefault', "Current Location"));
 
         const initialGocharStr = formatToLocalISOString(now);
         setAdjustedGocharDateTimeString(initialGocharStr);
@@ -113,9 +118,10 @@ const SharedInputLayout = () => {
                     const lon = position.coords.longitude;
                     const formattedCoords = `${lat.toFixed(6)},${lon.toFixed(6)}`;
                     setCoords(formattedCoords);
-                    setPlaceName(t('sharedLayout.currentLocationDefault', "Current Location"));
                     setTransitCoords(formattedCoords);
+                    setDisplayedTransitCoords(formattedCoords);
                     setTransitPlaceName(t('sharedLayout.currentLocationDefault', "Current Location"));
+                    setDisplayedTransitPlaceName(t('sharedLayout.currentLocationDefault', "Current Location"));
                     setIsFetchingLocation(false);
                     calculateInitialTransit(formattedDateTimeInput, formattedCoords, t('sharedLayout.currentLocationDefault', "Current Location"));
                 },
@@ -309,13 +315,14 @@ const SharedInputLayout = () => {
         }
     }, [date, coords, placeName, t, calculationInputParams]);
 
-    const handleUpdateTransit = useCallback(async (e) => {
+    const handleUpdateTransit = useCallback(async (e, newTransitDate = null) => {
         if (e) e.preventDefault();
         setIsCalculatingTransit(true);
         setTransitError(null);
         setTransitResult(null);
 
-        const dateTimeValidation = validateAndFormatDateTime(transitDateTime, t);
+        const dateTimeToUse = newTransitDate || transitDateTime;
+        const dateTimeValidation = validateAndFormatDateTime(dateTimeToUse, t);
         if (!dateTimeValidation.isValid) { setTransitError(dateTimeValidation.error); setIsCalculatingTransit(false); return; }
         const coordsValidation = parseAndValidateCoords(transitCoords, t);
         if (!coordsValidation.isValid) { setTransitError(coordsValidation.error); setIsCalculatingTransit(false); return; }
@@ -328,6 +335,8 @@ const SharedInputLayout = () => {
             const response = await api.post('/calculate', transitInputParams);
             setTransitResult(response.data);
             setAdjustedGocharDateTimeString(formattedDate);
+            setDisplayedTransitPlaceName(transitPlaceName);
+            setDisplayedTransitCoords(transitCoords);
         } catch (err) {
             console.error("Transit calculation API error:", err.response?.data || err.message || err);
             setTransitError(err.response?.data?.error || err.message || t('sharedLayout.calculationFailedGeneric'));
@@ -364,7 +373,20 @@ const SharedInputLayout = () => {
 
     const handleGocharTimeChange = useCallback((newDateTimeString) => {
         setAdjustedGocharDateTimeString(newDateTimeString);
-    }, []);
+
+        // Also update the main transit time input field
+        const dateObj = new Date(newDateTimeString);
+        if (!isNaN(dateObj.getTime())) {
+            const localDate = new Date(dateObj.getTime() - dateObj.getTimezoneOffset() * 60000);
+            const formattedForInput = localDate.toISOString().slice(0, 16);
+            setTransitDateTime(formattedForInput);
+        } else {
+            setTransitDateTime(newDateTimeString.slice(0, 16));
+        }
+
+        // Trigger the calculation for the new transit time
+        handleUpdateTransit(null, newDateTimeString);
+    }, [handleUpdateTransit]);
 
     const handleSaveChart = useCallback(async () => {
         if (!name.trim()) { alert(t('sharedLayout.alertInvalidName')); return; }
@@ -391,15 +413,19 @@ const SharedInputLayout = () => {
     };
 
     const locationForGocharTool = useMemo(() => {
-        const coordsValidation = parseAndValidateCoords(coords);
-        if (coordsValidation.isValid) {
-            return { lat: coordsValidation.latitude, lon: coordsValidation.longitude };
-        } else if (calculationInputParams?.latitude && calculationInputParams?.longitude) {
-            return { lat: calculationInputParams.latitude, lon: calculationInputParams.longitude };
-        } else {
-            return { lat: null, lon: null };
+        const transitCoordsValidation = parseAndValidateCoords(displayedTransitCoords);
+        if (transitCoordsValidation.isValid) {
+            return { lat: transitCoordsValidation.latitude, lon: transitCoordsValidation.longitude };
         }
-    }, [coords, calculationInputParams]);
+        const birthCoordsValidation = parseAndValidateCoords(coords);
+        if (birthCoordsValidation.isValid) {
+            return { lat: birthCoordsValidation.latitude, lon: birthCoordsValidation.longitude };
+        }
+        if (calculationInputParams?.latitude && calculationInputParams?.longitude) {
+            return { lat: calculationInputParams.latitude, lon: calculationInputParams.longitude };
+        }
+        return { lat: null, lon: null };
+    }, [displayedTransitCoords, coords, calculationInputParams]);
 
     const toggleTopStripCollapse = () => {
         setIsTopStripCollapsed(prev => !prev);
@@ -560,7 +586,7 @@ const SharedInputLayout = () => {
                     locationForGocharTool, currentName: name, currentGender: gender,
                     currentDate: date, currentCoords: coords, currentPlaceName: placeName,
                     isGeocoding, isFetchingLocation, transitDateTime, transitResult,
-                    isCalculatingTransit, transitError, transitPlaceName
+                    isCalculatingTransit, transitError, transitPlaceName: displayedTransitPlaceName
                  }} />
             </div>
         </div>
