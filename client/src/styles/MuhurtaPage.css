@@ -116,7 +116,7 @@
 }
 
 .section-content {
-    max-height: 1000px; /* Arbitrarily large value */
+    max-height: 1270px; /* Arbitrarily large value */
     
     overflow-y: auto;
     transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
