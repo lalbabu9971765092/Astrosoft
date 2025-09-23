@@ -303,7 +303,10 @@
     "alertInvalidCoords": "Invalid Coordinates: {{error}}",
     "saveChartFailedGeneric": "Failed to save chart.",
     "saveChartErrorAlert": "Could not save chart: {{message}}",
-    "preparedBy": "Developer and Astrologer: Rabindra Mohan Jha"
+    "preparedBy": "Developer and Astrologer: Rabindra Mohan Jha",
+    "birthDetails": {
+      "currentLocationDefault": "Current Location"
+    }
   },
   "ashtakavargaPage": {
     "title": "Ashtakavarga",

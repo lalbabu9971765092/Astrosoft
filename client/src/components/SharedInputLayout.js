@@ -103,7 +103,7 @@ const SharedInputLayout = () => {
         const formattedDateTimeInput = localNow.toISOString().slice(0, 16);
         setDate(formattedDateTimeInput);
         setTransitDateTime(formattedDateTimeInput);
-        setPlaceName(t('sharedLayout.currentLocationDefault', "Current Location"));
+        setPlaceName(t('sharedLayout.birthDetails.currentLocationDefault', "Current Location"));
 
         const initialGocharStr = formatToLocalISOString(now);
         setAdjustedGocharDateTimeString(initialGocharStr);

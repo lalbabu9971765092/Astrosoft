@@ -304,6 +304,9 @@
     "saveChartFailedGeneric": "चार्ट सहेजने में विफल।",
     "saveChartErrorAlert": "चार्ट सहेजा नहीं जा सका: {{message}}",
     "preparedBy": "डेवलपर और ज्योतिषी: रवीन्द्र मोहन झा",
+    "birthDetails": {
+      "currentLocationDefault": "वर्तमान स्थान"
+    },
     "transitDetailsTitle": "गोचर विवरण",
     "transitDateTimeLabel": "गोचर समय",
     "transitPlaceLabel": "गोचर स्थान",
@@ -451,8 +454,11 @@
     "currentDashaTitle": "वर्तमान दशा",
     "mahaDashaLabel": "महादशा:",
     "antarDashaLabel": "अंतर्दशा:",
-    "pratyantarDashaLabel": "प्रत्यंतर दशा:"
+    "pratyantarDashaLabel": "प्रत्यंतर दशा:",
+    "transitCalculatedForLabel": "इसके लिए गणना की गई"
   },
+  
+  
   "utils": {
     "notAvailable": "उपलब्ध नहीं",
     "validationErrorDateTimeMissing": "दिनांक और समय आवश्यक हैं।",
