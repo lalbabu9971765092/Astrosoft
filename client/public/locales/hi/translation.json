@@ -1268,6 +1268,7 @@
   
 
   "yogas": {
+    "vishaYoga": { "name": "विष योग", "description": "अशुभ विष योग" },
     "Vishkumbha": { "name": "विष्कुम्भ", "description": "" },
     "Priti": { "name": "प्रीति", "description": "" },
     "Ayushman": { "name": "आयुष्मान", "description": "" },
@@ -1298,9 +1299,9 @@
     "Aindra": { "name": "ऐन्द्र", "description": "" },
     "Vaidhriti": { "name": "वैधृति", "description": "" },
     "Unknown": { "name": "अज्ञात", "description": "" },
-    "sarvarth_siddhi": { "name": "सर्वार्थ सिद्धि योग", "description": "उत्तरा फाल्गुनी पर रविवार को बनने वाला शुभ योग।" },
-    "amrit_siddhi": { "name": "अमृत सिद्धि योग", "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला शुभ योग।" },
-    "guru_pushya": { "name": "गुरु पुष्य योग", "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला अत्यंत शुभ गुरु पुष्य योग।" },
+    "sarvarthSiddhi": { "name": "सर्वार्थ सिद्धि योग", "description": "उत्तरा फाल्गुनी पर रविवार को बनने वाला शुभ योग।" },
+    "amritSiddhi": { "name": "अमृत सिद्धि योग", "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला शुभ योग।" },
+    "guruPushya": { "name": "गुरु पुष्य योग", "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला अत्यंत शुभ गुरु पुष्य योग।" },
     "day_ardha_prahar_1": { "name": "दिन का अर्द्ध प्रहर १", "description": "अशुभ अवधि। (शुक्रवार)" },
     "day_ardha_prahar_2": { "name": "दिन का अर्द्ध प्रहर २", "description": "अशुभ अवधि। (मंगलवार, सोमवार)" },
     "day_ardha_prahar_3": { "name": "दिन का अर्द्ध प्रहर ३", "description": "अशुभ अवधि। (गुरुवार, बुधवार)" },

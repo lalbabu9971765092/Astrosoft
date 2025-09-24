@@ -388,7 +388,7 @@ const AstrologyForm = () => {
                             {gocharNakshatra?.start && gocharNakshatra?.end && ` (${formatPanchangTime(gocharNakshatra.start, t, i18n)} - ${formatPanchangTime(gocharNakshatra.end, t, i18n)})`}
                         </p>
                         <p className="result-text">
-                            {t('astrologyForm.yogaLabel')} {t(`yogas.${gocharYogaKey}`, { defaultValue: gocharYogaKey ?? t('utils.notAvailable', 'N/A') })}
+                            {t('astrologyForm.yogaLabel')} {t(`yogas.${gocharYogaKey}.name`, { defaultValue: gocharYogaKey ?? t('utils.notAvailable', 'N/A') })}
                             {gocharPanchang?.Yoga?.start && gocharPanchang?.Yoga?.end && ` (${formatPanchangTime(gocharPanchang.Yoga.start, t, i18n)} - ${formatPanchangTime(gocharPanchang.Yoga.end, t, i18n)})`}
                         </p>
                         <p className="result-text">
@@ -576,7 +576,7 @@ const AstrologyForm = () => {
                             {t('astrologyForm.nakDegLabel')} {convertToDMS(moonNakDegree, t)}
                         </p>
                         <p className="result-text">
-                            {t('astrologyForm.yogaLabel')} {t(`yogas.${birthYogaKey}`, { defaultValue: birthYogaKey ?? t('utils.notAvailable', 'N/A') })}
+                            {t('astrologyForm.yogaLabel')} {t(`yogas.${birthYogaKey}.name`, { defaultValue: birthYogaKey ?? t('utils.notAvailable', 'N/A') })}
                             {birthPanchang?.Yoga?.start && birthPanchang?.Yoga?.end && ` (${formatPanchangTime(birthPanchang.Yoga.start, t, i18n)} - ${formatPanchangTime(birthPanchang.Yoga.end, t, i18n)})`}
                         </p>
                         <p className="result-text">

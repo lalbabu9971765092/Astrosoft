@@ -1527,6 +1527,7 @@
     "inauspicious": "inauspicious"
   },
   "yogas": {
+    "vishaYoga": { "name": "Visha Yoga", "description": "Inauspicious Visha Yoga" },
     "ananda": { "name": "Ananda Yoga", "description": "Ananda Yoga" },
     "ardra": { "name": "Ardra Yoga", "description": "Ardra Yoga" },
     "ashlesha": { "name": "Ashlesha Yoga", "description": "Ashlesha Yoga" },

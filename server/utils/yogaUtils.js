@@ -44,7 +44,7 @@ export function calculateVishaYoga(dayOfWeek, nakshatraName, nakshatraStartTime,
         const applicableNakshatras = VISHA_YOGA_RULES[dayOfWeek];
         if (applicableNakshatras && applicableNakshatras.includes(nakshatraName)) {
             return {
-                name: "Visha Yoga",
+                name: "vishaYoga",
                 start: nakshatraStartTime,
                 end: nakshatraEndTime,
                 type: "inauspicious",
@@ -71,7 +71,7 @@ export function calculateSarvarthSiddhaYoga(dayOfWeek, nakshatraName, nakshatraS
         const applicableNakshatras = SARVARTH_SIDDHA_YOGA_RULES[dayOfWeek];
         if (applicableNakshatras && applicableNakshatras.includes(nakshatraName)) {
             return {
-                name: "Sarvarth Siddha Yoga",
+                name: "sarvarthSiddhi",
                 start: nakshatraStartTime,
                 end: nakshatraEndTime,
                 type: "auspicious",
@@ -98,7 +98,7 @@ export function calculateAmritSiddhiYoga(dayOfWeek, nakshatraName, nakshatraStar
         const applicableNakshatras = AMRIT_SIDDHI_YOGA_RULES[dayOfWeek];
         if (applicableNakshatras && applicableNakshatras.includes(nakshatraName)) {
             return {
-                name: "Amrit Siddhi Yoga",
+                name: "amritSiddhi",
                 start: nakshatraStartTime,
                 end: nakshatraEndTime,
                 type: "auspicious",
@@ -125,7 +125,7 @@ export function calculateGuruPushyaYoga(dayOfWeek, nakshatraName, nakshatraStart
     try {
         if (dayOfWeek === "Thursday" && nakshatraName === "Pushya") {
             return {
-                name: "Guru Pushya Yoga",
+                name: "guruPushya",
                 start: nakshatraStartTime,
                 end: nakshatraEndTime,
                 type: "auspicious",
