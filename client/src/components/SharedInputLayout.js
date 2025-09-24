@@ -129,6 +129,18 @@ const SharedInputLayout = () => {
                     console.error("Error getting geolocation:", geoError);
                     setLocationError(t('sharedLayout.locationErrorPrefix', { message: geoError.message }));
                     setIsFetchingLocation(false);
+
+                    // Fallback to Delhi
+                    const delhiLat = 28.6139;
+                    const delhiLon = 77.2090;
+                    const formattedCoords = `${delhiLat.toFixed(6)},${delhiLon.toFixed(6)}`;
+                    setCoords(formattedCoords);
+                    setTransitCoords(formattedCoords);
+                    setDisplayedTransitCoords(formattedCoords);
+                    setPlaceName("Delhi");
+                    setTransitPlaceName("Delhi");
+                    setDisplayedTransitPlaceName("Delhi");
+                    calculateInitialTransit(formattedDateTimeInput, formattedCoords, "Delhi");
                 },
                 { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
             );
