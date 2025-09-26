@@ -1600,6 +1600,20 @@
         "enterNewPassword": "Enter new password",
         "confirmNewPassword": "Confirm New Password",
         "resetPassword": "Reset Password"
+      },
+      "register": {
+        "title": "Register",
+        "name": "Name",
+        "enterName": "Enter name",
+        "email": "Email Address",
+        "enterEmail": "Enter email",
+        "password": "Password",
+        "enterPassword": "Enter password",
+        "confirmPassword": "Confirm Password",
+        "register": "Register",
+        "haveAccount": "Have an account?",
+        "login": "Login",
+        "passwordsDoNotMatch": "Passwords do not match"
       }
      
       }
