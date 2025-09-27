@@ -227,7 +227,15 @@ export async function calculatePanchang(dateString, latitude, longitude, planeta
         }
 
         // Calculate Vikram Samvat and Saka Year
-        const vsNewYearDate = await findChaitraShuklaPratipada(utcDate.getUTCFullYear(), latitude, longitude);
+        let vsNewYearDate = await findChaitraShuklaPratipada(utcDate.getUTCFullYear(), latitude, longitude);
+
+        // If the new year for the *current* Gregorian year hasn't happened yet
+        // (e.g., it's January and the new year is in March),
+        // we need to base our calculation on the *previous* year's new year date.
+        if (!vsNewYearDate || utcDate < vsNewYearDate) {
+            vsNewYearDate = await findChaitraShuklaPratipada(utcDate.getUTCFullYear() - 1, latitude, longitude);
+        }
+
         const vikramSamvat = calculateVikramSamvat(utcDate, vsNewYearDate);
         const sakaYear = calculateSakaYear(utcDate, vsNewYearDate);
         const samvatsarName = getSamvatsarNameFromSaka(sakaYear);
