@@ -179,7 +179,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const sunriseMoment = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
         const nextSunriseMoment = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
-        const detailedPanchang = await calculatePanchang(utcDate, latNum, lonNum); // Throws on error
+        const detailedPanchang = await calculatePanchang(utcDate, latNum, lonNum, planetaryPositions); // Throws on error
         
  // *** CONSISTENCY FIX: Ensure Panchang Nakshatra name matches Moon's calculated Nakshatra ***
  const moonNakshatraNameFromPosition = siderealPositions['Moon']?.nakshatra;

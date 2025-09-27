@@ -223,10 +223,30 @@ router.get("/find-tithi-date",
                 if (hindiMonth) {
                     try {
                         const calendarInfo = obj.calendar(new Date(d.date + 'T12:00:00Z'), lat, lon);
-                        // Assuming MhahPanchang provides a 'MoonMasa' or similar property for lunar month
-                        const currentHindiMonth = calendarInfo?.MoonMasa?.name_en_IN || calendarInfo?.Masa?.name_en_IN; // Fallback to Masa if MoonMasa not found
-                        // Check if the calculated month string *ends with* the provided hindiMonth query param
-                        return typeof currentHindiMonth === 'string' && currentHindiMonth.toLowerCase().endsWith(hindiMonth.toLowerCase());
+
+                        // Correct the amanta month from mhah-panchang
+                        if (calendarInfo && calendarInfo.MoonMasa) {
+                            const originalIno = calendarInfo.MoonMasa.ino;
+                            const correctedIno = (originalIno - 1 + 12) % 12;
+                            calendarInfo.MoonMasa.ino = correctedIno;
+                            calendarInfo.MoonMasa.name = obj.mhahLocalConstant.Masa.name[correctedIno];
+                            calendarInfo.MoonMasa.name_en_IN = obj.mhahLocalConstant.Masa.name_en_IN[correctedIno];
+                        }
+
+                        // Calculate Purnimanta month
+                        let purnimantaMonthName = null;
+                        if (calendarInfo && calendarInfo.MoonMasa && calendarInfo.Paksha) {
+                            const amantaMonthIndex = calendarInfo.MoonMasa.ino;
+                            const paksha = calendarInfo.Paksha.name_en_IN;
+
+                            let purnimantaMonthIndex = amantaMonthIndex;
+                            if (paksha === 'Krishna') {
+                                purnimantaMonthIndex = (amantaMonthIndex + 1) % 12;
+                            }
+                            purnimantaMonthName = obj.mhahLocalConstant.Masa.name_en_IN[purnimantaMonthIndex];
+                        }
+
+                        return typeof purnimantaMonthName === 'string' && purnimantaMonthName.toLowerCase() === hindiMonth.toLowerCase();
                     } catch (monthError) {
                         logger.error(`[find-tithi-date] Error getting calendar info for month filter on ${d.date}: ${monthError.message}`);
                         return false; // Exclude if month calculation fails

@@ -118,7 +118,7 @@ function getSamvatsarNameFromSaka(sakaYear) {
  * @param {number} longitude - Observer's longitude.
  * @returns {Promise<object | null>} Promise resolving to Panchang details object or null on error.
  */
-export async function calculatePanchang(dateString, latitude, longitude, siderealCuspStartDegrees) {
+export async function calculatePanchang(dateString, latitude, longitude, planetaryPositions) {
     try {
         const utcDate = new Date(dateString);
         if (isNaN(utcDate.getTime())) {
@@ -128,6 +128,39 @@ export async function calculatePanchang(dateString, latitude, longitude, siderea
         const obj = new MhahPanchang();
         let panchangDetails = obj.calculate(utcDate, latitude, longitude);
         let calendarInfo = obj.calendar(utcDate, latitude, longitude);
+
+        // Calculate solar day
+        if (calendarInfo && calendarInfo.Masa && planetaryPositions?.sidereal?.Sun?.longitude) {
+            const sunLongitude = planetaryPositions.sidereal.Sun.longitude;
+            const solarDay = Math.floor(sunLongitude % 30) + 1;
+            calendarInfo.Masa.solar_day = solarDay;
+        }
+
+        // Correct the amanta month from mhah-panchang (off-by-one error)
+        if (calendarInfo && calendarInfo.MoonMasa) {
+            const originalIno = calendarInfo.MoonMasa.ino;
+            const correctedIno = (originalIno - 1 + 12) % 12;
+            calendarInfo.MoonMasa.ino = correctedIno;
+            calendarInfo.MoonMasa.name = obj.mhahLocalConstant.Masa.name[correctedIno];
+            calendarInfo.MoonMasa.name_en_IN = obj.mhahLocalConstant.Masa.name_en_IN[correctedIno];
+        }
+
+        // Calculate Purnimanta month
+        if (calendarInfo && calendarInfo.MoonMasa && calendarInfo.Paksha) {
+            const amantaMonthIndex = calendarInfo.MoonMasa.ino;
+            const paksha = calendarInfo.Paksha.name_en_IN;
+
+            let purnimantaMonthIndex = amantaMonthIndex;
+            if (paksha === 'Krishna') {
+                purnimantaMonthIndex = (amantaMonthIndex + 1) % 12;
+            }
+
+            calendarInfo.PurnimantaMasa = {
+                ino: purnimantaMonthIndex,
+                name: obj.mhahLocalConstant.Masa.name[purnimantaMonthIndex],
+                name_en_IN: obj.mhahLocalConstant.Masa.name_en_IN[purnimantaMonthIndex]
+            };
+        }
 
         // --- Enhance Tithi with precise start and end times ---
         if (panchangDetails?.Tithi) {

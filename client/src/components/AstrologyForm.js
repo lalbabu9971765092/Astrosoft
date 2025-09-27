@@ -308,7 +308,9 @@ const AstrologyForm = () => {
         const gocharNakshatra = gocharPanchang?.Nakshatra;
         const gocharYogaKey = gocharPanchang?.Yoga?.name_en_IN; // Get English key
         const gocharKaranaKey = gocharPanchang?.Karna?.name_en_IN; // Get English key
-        const gocharLunarMonthKey = gocharPanchang?.Masa?.name_en_IN; // Get English key
+        const gocharSolarMonthKey = gocharPanchang?.Masa?.name_en_IN; // Get English key
+        const gocharAmantaMonthKey = gocharPanchang?.MoonMasa?.name_en_IN; // Get English key
+        const gocharPurnimantaMonthKey = gocharPanchang?.PurnimantaMasa?.name_en_IN; // Get English key
         const gocharRituKey = gocharPanchang?.Ritu?.name_en_UK; // Get English key (from API response)
         const gocharSamvatsarKey = gocharData.panchang?.samvatsar;
         const gocharVikramSamvat = gocharData.panchang?.vikram_samvat;
@@ -374,7 +376,9 @@ const AstrologyForm = () => {
                         <p className="result-text">{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${gocharSamvatsarKey}`, { defaultValue: gocharSamvatsarKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">{t('astrologyForm.vikramSamvatLabel')} {gocharVikramSamvat ?? t('utils.notAvailable', 'N/A')}</p>
                         <p className="result-text">{t('astrologyForm.sakaYearLabel')} {gocharSakaYear ?? t('utils.notAvailable', 'N/A')}</p>
-                        <p className="result-text">{t('astrologyForm.lunarMonthLabel')} {t(`hindiMonths.${gocharLunarMonthKey}`, { defaultValue: gocharLunarMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">{t('astrologyForm.solarMonthLabel')} {t(`hindiMonths.${gocharSolarMonthKey}`, { defaultValue: gocharSolarMonthKey ?? t('utils.notAvailable', 'N/A') })} ({gocharPanchang?.Masa?.solar_day})</p>
+                        <p className="result-text">{t('astrologyForm.amantaLunarMonthLabel')} {t(`hindiMonths.${gocharAmantaMonthKey}`, { defaultValue: gocharAmantaMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">{t('astrologyForm.purnimantaLunarMonthLabel')} {t(`hindiMonths.${gocharPurnimantaMonthKey}`, { defaultValue: gocharPurnimantaMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">{t('astrologyForm.rituLabel')} {t(`ritus.${gocharRituKey}`, { defaultValue: gocharRituKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">
                             {t('astrologyForm.tithiLabel')} {formattedGocharTithi}
@@ -438,7 +442,9 @@ const AstrologyForm = () => {
         const birthNakshatra = birthPanchang?.Nakshatra;
         const birthYogaKey = birthPanchang?.Yoga?.name_en_IN; // Get English key
         const birthKaranaKey = birthPanchang?.Karna?.name_en_IN; // Get English key
-        const birthLunarMonthKey = birthPanchang?.Masa?.name_en_IN; // Get English key
+        const birthSolarMonthKey = birthPanchang?.Masa?.name_en_IN; // Get English key
+        const birthAmantaMonthKey = birthPanchang?.MoonMasa?.name_en_IN; // Get English key
+        const birthPurnimantaMonthKey = birthPanchang?.PurnimantaMasa?.name_en_IN; // Get English key
         const birthRituKey = birthPanchang?.Ritu?.name_en_UK; // Get English key (from API response)
         const birthSamvatsarKey = displayResult.panchang?.samvatsar;
         const birthVikramSamvat = displayResult.panchang?.vikram_samvat;
@@ -559,7 +565,9 @@ const AstrologyForm = () => {
                         <p className="result-text">{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${birthSamvatsarKey}`, { defaultValue: birthSamvatsarKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">{t('astrologyForm.vikramSamvatLabel')} {birthVikramSamvat ?? t('utils.notAvailable', 'N/A')}</p>
                          <p className="result-text">{t('astrologyForm.sakaYearLabel')} {birthSakaYear ?? t('utils.notAvailable', 'N/A')}</p>
-                        <p className="result-text">{t('astrologyForm.lunarMonthLabel')} {t(`hindiMonths.${birthLunarMonthKey}`, { defaultValue: birthLunarMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">{t('astrologyForm.solarMonthLabel')} {t(`hindiMonths.${birthSolarMonthKey}`, { defaultValue: birthSolarMonthKey ?? t('utils.notAvailable', 'N/A') })} ({birthPanchang?.Masa?.solar_day})</p>
+                        <p className="result-text">{t('astrologyForm.amantaLunarMonthLabel')} {t(`hindiMonths.${birthAmantaMonthKey}`, { defaultValue: birthAmantaMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
+                        <p className="result-text">{t('astrologyForm.purnimantaLunarMonthLabel')} {t(`hindiMonths.${birthPurnimantaMonthKey}`, { defaultValue: birthPurnimantaMonthKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">{t('astrologyForm.rituLabel')} {t(`ritus.${birthRituKey}`, { defaultValue: birthRituKey ?? t('utils.notAvailable', 'N/A') })}</p>
                         <p className="result-text">
                             {t('astrologyForm.tithiLabel')} {formattedBirthTithi}
