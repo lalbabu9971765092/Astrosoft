@@ -39,7 +39,7 @@ const TITHI_FESTIVAL_RULES = [
     { name: "Shravana Putrada Ekadashi", month: "Srabana", tithi: 11, paksha: "Shukla" },
     { name: "Raksha Bandhan / Shravana Purnima", month: "Srabana", tithi: 15, paksha: "Shukla" },
     { name: "Kajari Teej", month: "Bhadraba", tithi: 3, paksha: "Krishna" },
-    { name: "Krishna Janmashtami", month: "Srabana", tithi: 8, paksha: "Krishna", gregorianMonth: 8 },
+    { name: "Krishna Janmashtami", month: "Bhadraba", tithi: 8, paksha: "Krishna" },
     { name: "Hartalika Teej", month: "Bhadraba", tithi: 3, paksha: "Shukla" },
     { name: "Ganesh Chaturthi", month: "Bhadraba", tithi: 4, paksha: "Shukla" },
     { name: "Radha Ashtami", month: "Bhadraba", tithi: 8, paksha: "Shukla" },
@@ -343,10 +343,15 @@ router.get("/tithi-festivals/:year",
                 // Pre-calculate Panchang/Calendar/Sun info for the day once
                 let detailedPanchang, calendarInfo, sunTimes, sunriseISO;
                 try {
-                    detailedPanchang = obj.calculate(currentDate, lat, lon);
-                    calendarInfo = obj.calendar(currentDate, lat, lon);
                     sunTimes = SunCalc.getTimes(currentDate, lat, lon);
-                    sunriseISO = sunTimes?.sunrise instanceof Date && !isNaN(sunTimes.sunrise) ? sunTimes.sunrise.toISOString() : null;
+                    const sunriseTime = sunTimes.sunrise;
+                    const calculationTime = (sunriseTime instanceof Date && !isNaN(sunriseTime))
+                                          ? sunriseTime
+                                          : new Date(new Date(currentDate).setUTCHours(12, 0, 0, 0));
+
+                    detailedPanchang = obj.calculate(calculationTime, lat, lon);
+                    calendarInfo = obj.calendar(calculationTime, lat, lon);
+                    sunriseISO = sunriseTime instanceof Date && !isNaN(sunriseTime) ? sunriseTime.toISOString() : null;
                 } catch (calcError) {
                     logger.error(`[tithi-festivals] Error calculating base data for ${currentDateString}: ${calcError.message}`);
                     currentDate.setUTCDate(currentDate.getUTCDate() + 1); // Move to next day on error
@@ -362,12 +367,25 @@ router.get("/tithi-festivals/:year",
                         if (detailedPanchang?.Tithi && detailedPanchang?.Paksha && calendarInfo?.Masa) {
                             const calculatedTithiNumberIno = detailedPanchang.Tithi.ino;
                             const calculatedPaksha = detailedPanchang.Paksha.name_en_IN;
-                            const currentHindiMonth = calendarInfo.Masa.name_en_IN;
                             let adjustedTithiNumber = (calculatedTithiNumberIno % 15) + 1;
+
+                            // Calculate Purnimanta month for matching
+                            let purnimantaMonthName = null;
+                            if (calendarInfo && calendarInfo.MoonMasa) {
+                                const originalIno = calendarInfo.MoonMasa.ino;
+                                const correctedIno = (originalIno - 1 + 12) % 12;
+                                const amantaMonthIndex = correctedIno;
+
+                                let purnimantaMonthIndex = amantaMonthIndex;
+                                if (calculatedPaksha === 'Krishna') {
+                                    purnimantaMonthIndex = (amantaMonthIndex + 1) % 12;
+                                }
+                                purnimantaMonthName = obj.mhahLocalConstant.Masa.name_en_IN[purnimantaMonthIndex];
+                            }
 
                             const tithiMatch = adjustedTithiNumber === rule.tithi;
                             const pakshaMatch = calculatedPaksha?.toLowerCase() === rule.paksha?.toLowerCase();
-                            const monthMatch = (!rule.month || (typeof currentHindiMonth === 'string' && currentHindiMonth.toLowerCase() === rule.month.toLowerCase())) && (!rule.gregorianMonth || currentDate.getUTCMonth() + 1 === rule.gregorianMonth);
+                            const monthMatch = (!rule.month || (typeof purnimantaMonthName === 'string' && purnimantaMonthName.toLowerCase() === rule.month.toLowerCase())) && (!rule.gregorianMonth || currentDate.getUTCMonth() + 1 === rule.gregorianMonth);
 
                             if (tithiMatch && pakshaMatch && monthMatch) {
                                 foundFestivals.push({
