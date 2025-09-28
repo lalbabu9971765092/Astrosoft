@@ -104,10 +104,16 @@ async function findDatesForTithi(year, tithiNumbers, lat, lon) {
     while (currentDate <= endDate) {
         const currentDateString = currentDate.toISOString().split("T")[0];
         try {
-            const detailedPanchang = obj.calculate(currentDate, lat, lon);
             const sunTimes = SunCalc.getTimes(currentDate, lat, lon);
-            const sunriseISO = sunTimes?.sunrise instanceof Date && !isNaN(sunTimes.sunrise)
-                               ? sunTimes.sunrise.toISOString()
+            const sunriseTime = sunTimes.sunrise;
+            const calculationTime = (sunriseTime instanceof Date && !isNaN(sunriseTime))
+                                  ? sunriseTime
+                                  : new Date(new Date(currentDate).setUTCHours(12, 0, 0, 0)); // Use a copy to avoid mutation
+
+            const detailedPanchang = obj.calculate(calculationTime, lat, lon);
+            const calendarInfo = obj.calendar(calculationTime, lat, lon); // Calculate calendar info here
+            const sunriseISO = sunriseTime instanceof Date && !isNaN(sunriseTime)
+                               ? sunriseTime.toISOString()
                                : null;
 
             if (detailedPanchang?.Tithi && detailedPanchang?.Paksha) {
@@ -116,12 +122,28 @@ async function findDatesForTithi(year, tithiNumbers, lat, lon) {
                 const calculatedPaksha = detailedPanchang.Paksha.name_en_IN;
 
                 if (targetTithis.includes(adjustedTithiNumber)) {
+                    // Get month info
+                    let purnimantaMonthName = null;
+                    if (calendarInfo && calendarInfo.MoonMasa) {
+                        const originalIno = calendarInfo.MoonMasa.ino;
+                        const correctedIno = (originalIno - 1 + 12) % 12;
+                        const amantaMonthIndex = correctedIno;
+                        const paksha = detailedPanchang.Paksha.name_en_IN; // Use paksha from detailedPanchang
+
+                        let purnimantaMonthIndex = amantaMonthIndex;
+                        if (paksha === 'Krishna') {
+                            purnimantaMonthIndex = (amantaMonthIndex + 1) % 12;
+                        }
+                        purnimantaMonthName = obj.mhahLocalConstant.Masa.name_en_IN[purnimantaMonthIndex];
+                    }
+
                     const dateKey = `${currentDateString}-${adjustedTithiNumber}-${calculatedPaksha}`;
                     if (!datesFound.has(dateKey)) {
                          matchingDates.push({
                             date: currentDateString,
                             tithiNumber: adjustedTithiNumber,
                             paksha: calculatedPaksha,
+                            month: purnimantaMonthName, // Add month here
                             startTime: detailedPanchang.Tithi.start || null,
                             endTime: detailedPanchang.Tithi.end || null,
                             sunrise: sunriseISO,
@@ -213,46 +235,14 @@ router.get("/find-tithi-date",
 
           
             const allDatesForTithi = await findDatesForTithi(year, tithi, lat, lon);
-            const obj = new MhahPanchang(); // Instantiate once for efficiency
-
-            // Filter by Paksha and optionally by Hindi Month
             const filteredDates = allDatesForTithi.filter(d => {
                 const pakshaMatch = d.paksha?.toLowerCase() === paksha?.toLowerCase();
                 if (!pakshaMatch) return false;
 
                 if (hindiMonth) {
-                    try {
-                        const calendarInfo = obj.calendar(new Date(d.date + 'T12:00:00Z'), lat, lon);
-
-                        // Correct the amanta month from mhah-panchang
-                        if (calendarInfo && calendarInfo.MoonMasa) {
-                            const originalIno = calendarInfo.MoonMasa.ino;
-                            const correctedIno = (originalIno - 1 + 12) % 12;
-                            calendarInfo.MoonMasa.ino = correctedIno;
-                            calendarInfo.MoonMasa.name = obj.mhahLocalConstant.Masa.name[correctedIno];
-                            calendarInfo.MoonMasa.name_en_IN = obj.mhahLocalConstant.Masa.name_en_IN[correctedIno];
-                        }
-
-                        // Calculate Purnimanta month
-                        let purnimantaMonthName = null;
-                        if (calendarInfo && calendarInfo.MoonMasa && calendarInfo.Paksha) {
-                            const amantaMonthIndex = calendarInfo.MoonMasa.ino;
-                            const paksha = calendarInfo.Paksha.name_en_IN;
-
-                            let purnimantaMonthIndex = amantaMonthIndex;
-                            if (paksha === 'Krishna') {
-                                purnimantaMonthIndex = (amantaMonthIndex + 1) % 12;
-                            }
-                            purnimantaMonthName = obj.mhahLocalConstant.Masa.name_en_IN[purnimantaMonthIndex];
-                        }
-
-                        return typeof purnimantaMonthName === 'string' && purnimantaMonthName.toLowerCase() === hindiMonth.toLowerCase();
-                    } catch (monthError) {
-                        logger.error(`[find-tithi-date] Error getting calendar info for month filter on ${d.date}: ${monthError.message}`);
-                        return false; // Exclude if month calculation fails
-                    }
+                    return d.month?.toLowerCase() === hindiMonth.toLowerCase();
                 }
-                return true; // Paksha matched and no month filter or month matched
+                return true;
             });
 
             res.json({ dates: filteredDates });
