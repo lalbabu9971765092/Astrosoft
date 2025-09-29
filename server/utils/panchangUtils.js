@@ -125,11 +125,8 @@ export async function calculatePanchang(dateString, latitude, longitude, planeta
             throw new Error(`Invalid date string provided: ${dateString}`);
         }
 
-        // --- FIX: Use sunrise time for all calculations to ensure accuracy for the day ---
-        const sunTimes = SunCalc.getTimes(utcDate, latitude, longitude);
-        const sunriseTime = sunTimes.sunrise;
-        // Fallback to noon if sunrise is not available
-        const calculationTime = (sunriseTime instanceof Date && !isNaN(sunriseTime)) ? sunriseTime : new Date(new Date(utcDate).setUTCHours(12, 0, 0, 0));
+        // Use the exact UTC date and time for all calculations as per user request
+        const calculationTime = utcDate;
 
 
         const obj = new MhahPanchang();
