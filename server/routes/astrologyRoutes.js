@@ -1,6 +1,6 @@
 // routes/astrologyRoutes.js
 import express from 'express'; // Using import syntax
-import mongoose from 'mongoose';
+
 import { body, query, param, validationResult } from 'express-validator';
 import moment from 'moment-timezone';
 import Chart from '../models/Chart.js';

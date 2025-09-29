@@ -186,6 +186,7 @@
     "endTime": "अंतिम समय"
   },
   "muhurtaPage": {
+    "infoBarTitle": "वर्तमान ज्योतिषीय विवरण",
     "pageTitle": "दैनिक मुहूर्त, चौघड़िया, होरा और लग्न",
     "fetchError": "मुहूर्त डेटा लाने में विफल।",
     "loadingData": "मुहूर्त डेटा लोड हो रहा है...",
@@ -224,7 +225,19 @@
     "activeHora": "सक्रिय होरा",
     "activeLagna": "सक्रिय लग्न",
     "coords": "निर्देशांक",
-    "place": "स्थान"
+    "place": "स्थान",
+    "vikramSamvat": "विक्रम संवत",
+    "samvatsar": "संवत्सर",
+    "moonRashi": "चंद्र राशि",
+    "lunarMonth": "चंद्र मास",
+    "tithi": "तिथि",
+    "moonNakshatra": "चंद्र नक्षत्र",
+    "yoga": "योग",
+    "karana": "करण",
+    "sanmukhChandra": "सन्मुख चंद्र",
+    "bhadra": "भद्रा",
+    "gandMool": "गंड मूल",
+    "yamGhanta": "यम घंटा"
   },
   "directions": {
     "East": "पूर्व",
@@ -246,6 +259,7 @@
     "varshphal": "वर्षफल (वार्षिक कुंडली)"
   },
  "sharedLayout": {
+    "birthDetailsTitle": "जन्म विवरण",
     "currentLocationDefault": "वर्तमान स्थान",
     "locationErrorPrefix": "स्थान त्रुटि: {{message}}",
     "geolocationNotSupported": "यह ब्राउज़र जियोलोकेशन का समर्थन नहीं करता है।",
@@ -1281,6 +1295,8 @@
   
 
   "yogas": {
+    "bhadra": { "name": "भद्रा", "description": "एक अशुभ अवधि (विष्टि करण)। महत्वपूर्ण गतिविधियों से बचें।" },
+    "gand_mool_dosha": { "name": "गण्ड मूल दोष", "description": "चंद्रमा भरणी में है, जो एक गण्ड मूल नक्षत्र है।" },
     "vishaYoga": { "name": "विष योग", "description": "अशुभ विष योग" },
     "Vishkumbha": { "name": "विष्कुम्भ", "description": "" },
     "Priti": { "name": "प्रीति", "description": "" },

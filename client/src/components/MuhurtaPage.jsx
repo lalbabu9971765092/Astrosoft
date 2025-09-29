@@ -339,7 +339,8 @@ const MuhurtaPage = () => {
 
                                                                                     return sortedItems.map((m, index) => {
                                                                                         console.log("Item name:", m.name);
-                                                                                        let translatedName = m.name;                                        let translatedDescription = m.description;
+                                                                                        let translatedName = m.name;
+                                        let translatedDescription;
 
                                         if (m.name.includes("Yoga") || m.name.includes("Ardha Prahar")) {
                                             const yogaTranslation = t(`yogas.${formatYogaNameForTranslation(m.name)}`, { returnObjects: true, defaultValue: { name: m.name, description: m.description } });
@@ -350,6 +351,10 @@ const MuhurtaPage = () => {
                                             const muhurtaTranslation = t(`muhurtaNames.${formatYogaNameForTranslation(m.name)}`, { returnObjects: true, defaultValue: { name: m.name, description: m.description } });
                                             translatedName = muhurtaTranslation.name;
                                             translatedDescription = muhurtaTranslation.description;
+                                        }
+
+                                        if (typeof translatedDescription === 'object' && translatedDescription !== null) {
+                                            translatedDescription = translatedDescription.description;
                                         }                                        return (
                                             <tr key={`${groupName}-${index}`} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
                                                 <td>{translatedName}</td>
@@ -401,13 +406,13 @@ const MuhurtaPage = () => {
                                 {muhurtaData.panchang && (
                                     <>
                                         <p className="vikram-samvat-color"><strong>{t('muhurtaPage.vikramSamvat', { defaultValue: 'Vikram Samvat' })}:</strong> {muhurtaData.panchang?.vikram_samvat}</p>
-                                        <p className="samvatsar-color"><strong>{t('muhurtaPage.samvatsar', { defaultValue: 'Samvatsar' })}:</strong> {muhurtaData.panchang?.samvatsar}</p>
+                                        <p className="samvatsar-color"><strong>{t('muhurtaPage.samvatsar', { defaultValue: 'Samvatsar' })}:</strong> {t(`samvatsaras.${muhurtaData.panchang?.samvatsar}`, { defaultValue: muhurtaData.panchang?.samvatsar })}</p>
                                         <p className="moon-rashi-color"><strong>{t('muhurtaPage.moonRashi', { defaultValue: 'Moon Rashi' })}:</strong> {t(`rashis.${muhurtaData.moonRashi}`, { defaultValue: muhurtaData.moonRashi })}</p>
-                                        <p className="lunar-month-color"><strong>{t('muhurtaPage.lunarMonth', { defaultValue: 'Lunar Month' })}:</strong> {t(`months.${muhurtaData.panchang?.PurnimantaMasa?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.PurnimantaMasa?.name_en_IN })}</p>
+                                        <p className="lunar-month-color"><strong>{t('muhurtaPage.lunarMonth', { defaultValue: 'Lunar Month' })}:</strong> {t(`hindiMonths.${muhurtaData.panchang?.PurnimantaMasa?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.PurnimantaMasa?.name_en_IN })}</p>
                                         <p className="tithi-color"><strong>{t('muhurtaPage.tithi', { defaultValue: 'Tithi' })}:</strong> {t(`tithis.${muhurtaData.panchang?.Tithi?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.Tithi?.name_en_IN })}</p>
                                         <p className="moon-nakshatra-color"><strong>{t('muhurtaPage.moonNakshatra', { defaultValue: 'Moon Nakshatra' })}:</strong> {t(`nakshatras.${muhurtaData.panchang?.Nakshatra?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.Nakshatra?.name_en_IN })}</p>
-                                        <p className="yoga-color"><strong>{t('muhurtaPage.yoga', { defaultValue: 'Yoga' })}:</strong> {t(`yogas.${muhurtaData.panchang?.Yoga?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.Yoga?.name_en_IN })}</p>
-                                        <p className="karana-color"><strong>{t('muhurtaPage.karana', { defaultValue: 'Karana' })}:</strong> {t(`karanas.${muhurtaData.panchang?.Karna?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.Karna?.name_en_IN })}</p>
+                                        <p className="yoga-color"><strong>{t('muhurtaPage.yoga', { defaultValue: 'Yoga' })}:</strong> {t(`yogas.${muhurtaData.panchang?.Yoga?.name_en_IN}.name`, { defaultValue: muhurtaData.panchang?.Yoga?.name_en_IN })}</p>
+                                        <p className="karana-color"><strong>{t('muhurtaPage.karana', { defaultValue: 'Karana' })}:</strong> {t(`karans.${muhurtaData.panchang?.Karna?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.Karna?.name_en_IN })}</p>
                                     </>
                                 )}
                             </div>
@@ -438,12 +443,12 @@ const MuhurtaPage = () => {
                                 ))}
                                  {muhurtaData.bhadra && muhurtaData.bhadra.bhadra_details && (
                             <p className="inauspicious-period">
-                                <strong>{t('muhurtaPage.bhadra', { defaultValue: 'Bhadra' })}:</strong> {`${moment(muhurtaData.bhadra.bhadra_details.start).format('HH:mm')} - ${moment(muhurtaData.bhadra.bhadra_details.end).format('HH:mm')} (${t(`bhadraResidence.${muhurtaData.bhadra.bhadra_details.residence}`, { defaultValue: muhurtaData.bhadra.bhadra_details.residence })})`}</p>
+                                <strong>{t('muhurtaNames.bhadra.name', { defaultValue: 'Bhadra' })}:</strong> {`${moment(muhurtaData.bhadra.bhadra_details.start).format('HH:mm')} - ${moment(muhurtaData.bhadra.bhadra_details.end).format('HH:mm')} (${t(`bhadraResidence.${muhurtaData.bhadra.bhadra_details.residence}`, { defaultValue: muhurtaData.bhadra.bhadra_details.residence })})`}</p>
                         )}
                         {/* Display Gand Mool Dosha */}
                         {muhurtaData.gandMool && muhurtaData.gandMool.active_gand_mool && (
                             <p className="inauspicious-period">
-                                <strong>{t('muhurtaPage.gandMool', { defaultValue: 'Gand Mool Dosha' })}:</strong> {`${moment(muhurtaData.gandMool.active_gand_mool.start).format('HH:mm')} - ${moment(muhurtaData.gandMool.active_gand_mool.end).format('HH:mm')}`}</p>
+                                <strong>{t('muhurtaNames.gand_mool.name', { defaultValue: 'Gand Mool Dosha' })}:</strong> {`${moment(muhurtaData.gandMool.active_gand_mool.start).format('HH:mm')} - ${moment(muhurtaData.gandMool.active_gand_mool.end).format('HH:mm')}`}</p>
                         )}
                         {/* Display Yam Ghanta */}
                         {muhurtaData.yamGhanta && (
