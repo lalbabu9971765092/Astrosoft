@@ -245,3 +245,35 @@
         font-size: 0.8em;
     }
 }
+
+.info-row .moon-rashi-color {
+    background-color: #e3f2fd;
+}
+
+.info-row .lunar-month-color {
+    background-color: #e8f5e9;
+}
+
+.info-row .tithi-color {
+    background-color: #fff3e0;
+}
+
+.info-row .moon-nakshatra-color {
+    background-color: #fce4ec;
+}
+
+.info-row .yoga-color {
+    background-color: #ede7f6;
+}
+
+.info-row .karana-color {
+    background-color: #e0f2f1;
+}
+
+.info-row .vikram-samvat-color {
+    background-color: #c8e6c9;
+}
+
+.info-row .samvatsar-color {
+    background-color: #f8bbd0;
+}

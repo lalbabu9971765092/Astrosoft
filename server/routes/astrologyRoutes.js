@@ -1142,6 +1142,9 @@ router.post('/calculate-muhurta', baseChartValidation, async (req, res) => {
             activeHora: muhurtaResult.activeHora,
             activeLagna: muhurtaResult.activeLagna,
             dishaShool: muhurtaResult.dishaShool,
+            moonRashi: muhurtaResult.moonRashi,
+            sanmukhChandra: muhurtaResult.sanmukhChandra,
+            panchang: muhurtaResult.panchang,
             activeYogas: muhurtaResult.activeYogas,
         };
 

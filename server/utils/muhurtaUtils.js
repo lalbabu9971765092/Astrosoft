@@ -2,7 +2,7 @@
 import { normalizeAngle, getJulianDateUT, calculateAyanamsa, convertToDMS } from './coreUtils.js';
 import { calculateHousesAndAscendant } from './coreUtils.js';
 import { getNakshatraDetails, getRashiDetails, calculatePlanetaryPositions, getMoonNakshatraEntryExitTimes, calculateAbhijitMuhurta, calculateVarjyam } from './planetaryUtils.js';
-import { calculateSunMoonTimes } from './panchangUtils.js';
+import { calculateSunMoonTimes, calculatePanchang } from './panchangUtils.js';
 import { DISHA_SHOOL_DIRECTIONS } from './constants.js';
 import { calculateMoolDosha } from './doshaUtils.js';
 import { calculateSarvarthSiddhaYoga, calculateAmritSiddhiYoga, calculateVishaYoga, calculateGuruPushyaYoga } from './yogaUtils.js';
@@ -193,6 +193,29 @@ export function calculateDishaShool(dayOfWeek) {
 }
 
 /**
+ * Calculates Sanmukh Chandra (auspicious direction for travel based on Moon's Rashi).
+ * @param {number} moonLongitude - The longitude of the Moon.
+ * @returns {string} The auspicious direction for travel.
+ */
+export function calculateSanmukhChandra(moonLongitude) {
+    const rashiDetails = getRashiDetails(moonLongitude);
+    const rashiName = rashiDetails.name;
+
+    if (["Aries", "Leo", "Sagittarius"].includes(rashiName)) {
+        return "East";
+    } else if (["Taurus", "Virgo", "Capricorn"].includes(rashiName)) {
+        return "South";
+    } else if (["Gemini", "Libra", "Aquarius"].includes(rashiName)) {
+        return "West";
+    } else if (["Cancer", "Scorpio", "Pisces"].includes(rashiName)) {
+        return "North";
+    } else {
+        logger.warn(`Sanmukh Chandra direction not found for Rashi: ${rashiName}`);
+        return "Unknown";
+    }
+}
+
+/**
  * Calculates various Muhurtas for a given date, time, and location.
  * @param {string} dateString - Local date string (YYYY-MM-DDTHH:MM:SS).
  * @param {number} latitude - Observer's latitude.
@@ -260,6 +283,9 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
     const gandMool = await calculateMoolDosha(utcDate, latitude, longitude, planetaryPositions.sidereal, sunrise, nextSunrise);
     const bhadra = await calculateBhadra(latitude, longitude, sunrise, nextSunrise); // Corrected call
     const dishaShool = calculateDishaShool(dayOfWeek);
+    const moonRashi = getRashiDetails(planetaryPositions.sidereal.Moon.longitude).name;
+    const sanmukhChandra = calculateSanmukhChandra(planetaryPositions.sidereal.Moon.longitude);
+    const panchang = await calculatePanchang(utcDate, latitude, longitude, planetaryPositions);
 
     const muhurtaPeriods = [];
     const ardhapraharas = getArdhaprahara(sunrise.toDate(), sunset.toDate(), nextSunrise.toDate());
@@ -356,6 +382,9 @@ export async function calculateMuhurta(dateString, latitude, longitude) {
         activeBhadra,
         muhurta: muhurtaPeriods, // This now includes Bhadra for the main table
         dishaShool: dishaShool,
+        moonRashi: moonRashi,
+        sanmukhChandra: sanmukhChandra,
+        panchang: panchang,
         // Use the already combined muhurtaPeriods array to find active yogas
         activeYogas: muhurtaPeriods.filter(yoga => {
             // Use momentLocal which has the correct timezone info from getJulianDateUT
