@@ -82,8 +82,6 @@ const GocharPage = () => {
         mainResult,
         calculationInputParams,
         adjustedBirthDateTimeString,
-        adjustedGocharDateTimeString,
-        locationForGocharTool,
         transitResult,
         isCalculatingTransit,
         transitError
@@ -166,15 +164,8 @@ const GocharPage = () => {
         } else { return calculationInputParams; }
     }, [rectifiedNatalResult, calculationInputParams, adjustedBirthDateTimeString]);
 
-    // --- Determine location used for transit calculation (Unchanged) ---
-    const transitLocation = useMemo(() => {
-        if (locationForGocharTool?.lat !== null && locationForGocharTool?.lon !== null) {
-            return { lat: locationForGocharTool.lat, lon: locationForGocharTool.lon };
-        } else if (transitResult?.inputParameters) {
-             return { lat: transitResult.inputParameters.latitude, lon: transitResult.inputParameters.longitude };
-        }
-        return { lat: null, lon: null };
-    }, [locationForGocharTool, transitResult]);
+   
+    
 
     // --- Determine if chart can be displayed (Unchanged) ---
     const canDisplayChart = displayNatalResult?.planetaryPositions?.sidereal

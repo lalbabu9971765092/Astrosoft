@@ -984,9 +984,9 @@ export function calculateLongevityFactors(housesData) {
         return { error: "Invalid house data provided." };
     }
 
-    const secondLord = housesData[1]?.mean_rashi_lord;
-    const seventhLord = housesData[6]?.mean_rashi_lord;
-    const eighthLord = housesData[7]?.mean_rashi_lord;
+    const secondLord = housesData[1]?.start_rashi_lord;
+    const seventhLord = housesData[6]?.start_rashi_lord;
+    const eighthLord = housesData[7]?.start_rashi_lord;
 
     if (!secondLord || !seventhLord || !eighthLord) {
         logger.warn("Cannot calculate longevity factors: Missing lord data for 2nd, 7th, or 8th house.");

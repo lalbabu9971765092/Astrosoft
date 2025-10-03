@@ -195,10 +195,13 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             const meanNakDetails = getNakshatraDetails(meanDeg);
             const meanRashiDetails = getRashiDetails(meanDeg);
             const meanCharan = calculateNakshatraPada(meanDeg);
+            const startRashiDetails = getRashiDetails(startDeg);
             housesData.push({
                 house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
                 mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
                 mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
+                start_rashi: startRashiDetails.name,
+                start_rashi_lord: startRashiDetails.lord,
             });
         }
 
@@ -396,12 +399,6 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
         const sunriseMoment = sunMoonTimes.sunrise ? moment(sunMoonTimes.sunrise) : null;
         const nextSunriseMoment = nextDaySunMoonTimes.sunrise ? moment(nextDaySunMoonTimes.sunrise) : null;
 
-        const detailedPanchang = await calculatePanchang(utcDate, latNum, lonNum);
-        const moonNakshatraNameFromPosition = siderealPositions['Moon']?.nakshatra;
-        if (detailedPanchang?.Nakshatra && moonNakshatraNameFromPosition && detailedPanchang.Nakshatra.name_en_IN !== moonNakshatraNameFromPosition) {
-            detailedPanchang.Nakshatra.name_en_IN = moonNakshatraNameFromPosition;
-        }
-
         const housesData = [];
         for (let i = 0; i < 12; i++) {
             const houseNumber = i + 1;
@@ -411,10 +408,13 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
             const meanNakDetails = getNakshatraDetails(meanDeg);
             const meanRashiDetails = getRashiDetails(meanDeg);
             const meanCharan = calculateNakshatraPada(meanDeg);
+            const startRashiDetails = getRashiDetails(startDeg);
             housesData.push({
                 house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
                 mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
                 mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
+                start_rashi: startRashiDetails.name,
+                start_rashi_lord: startRashiDetails.lord,
             });
         }
 
