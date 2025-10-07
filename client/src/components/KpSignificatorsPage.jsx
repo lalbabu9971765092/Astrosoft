@@ -48,7 +48,8 @@ const KpSignificatorsPage = () => {
         isLoading: isInitialLoading,
         error: initialError,
         calculationInputParams,
-        adjustedBirthDateTimeString
+        adjustedBirthDateTimeString,
+        adjustedGocharDateTimeString
     } = useOutletContext() || {};
 
     // --- Local state ---
@@ -269,12 +270,12 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
 
     useEffect(() => {
         if (chartData) {
-            const now = new Date();
+            const transitTime = adjustedGocharDateTimeString ? new Date(adjustedGocharDateTimeString) : new Date();
             const findCurrentPeriod = (periods, level) => {
                 return periods.find(p => {
                     const start = new Date(p.start);
                     const end = new Date(p.end);
-                    return p.level === level && now >= start && now <= end;
+                    return p.level === level && transitTime >= start && transitTime <= end;
                 });
             };
 
@@ -293,7 +294,7 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                 setCurrentDasha(null);
             }
         }
-    }, [chartData]);
+    }, [chartData, adjustedGocharDateTimeString]);
 
 
     // --- Calculate Significator Details Map (MODIFIED TO INCLUDE SCORING & LOGGING) ---
