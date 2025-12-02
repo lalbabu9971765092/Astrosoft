@@ -578,7 +578,7 @@ router.get('/charts', protect, paginationValidation, async (req, res) => {
 
     try {
         const page = req.query.page || 1;
-        const limit = req.query.limit || 20;
+        const limit = parseInt(req.query.limit) || 999999;
         const skip = (page - 1) * limit;
         const savedCharts = await Chart.find({ user: req.user._id })
             .sort({ name: 1 })
