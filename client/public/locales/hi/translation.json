@@ -410,6 +410,7 @@
     "loadingRectifiedData": "सुधारा हुआ डेटा लोड हो रहा है...",
     "rectificationErrorPrefix": "सुधार त्रुटि",
     "chartD1Title": "डी१ - लग्न कुंडली",
+    "chartNirayanTitle": "निरयन चार्ट",
     "chartBhavaTitle": "निरयण भाव चलित",
     "chartD9Title": "नवांश (D9)",
     "chartGocharTitle": "डी१ - लग्न कुंडली-गोचर",
@@ -428,6 +429,7 @@
     "houseTableNakLordHeader": "नक्षत्र स्वामी",
     "houseTableRashiHeader": "राशि (प्रारंभ)",
     "houseTableRashiLordHeader": "राशि स्वामी",
+    "houseTableSubLordHeader": "उप स्वामी",
     "houseDataUnavailable": "भाव संधि डेटा अनुपलब्ध।",
     "planetaryPositionsTitle": "जन्म ग्रह स्थिति (निरयन)",
     "planetTableHeaderPlanet": "ग्रह",
@@ -872,7 +874,13 @@
     "planet": "ग्रह",
     "position": "स्थिति",
     "state": "अवस्था",
+    "dignity": "गरिमा",
+    "balaadi": "बलादि",
+    "jagradadi": "जाग्रदादि",
+    "deeptaadi": "दीप्तादि",
     "speed": "गति",
+    "retrograde": "वक्री",
+    "combust": "अस्त",
     "nakPada": "नक्षत्र (पद)",
     "nakLord": "नक्षत्र स्वामी",
     "subLord": "उप स्वामी",
@@ -1187,7 +1195,11 @@
     "siderealPlanetaryPositionsTitle": "ग्रह स्थिति (निरयन)",
     "houseCuspsTitle": "भाव संधि (निरयन)",
     "bhavaChalitChartTitle": "निरयण भाव चलित चार्ट ({{year}})",
-    "kpSignificatorsTitle": "केपी सिग्निफिकेटर्स"
+    "kpSignificatorsTitle": "केपी सिग्निफिकेटर्स",
+    "kpSignificatorsUnavailable": "केपी सिग्निफिकेटर डेटा अनुपलब्ध है।",
+    "upbsTitle": "अनकंडीशनल प्लैनेटरी बेनिफिसेंस स्कोर (UPBS)",
+    "upbsDataMissing": "इस ग्रह के लिए UPBS डेटा उपलब्ध नहीं है।",
+    "upbsDataUnavailable": "इस वर्षफल चार्ट के लिए UPBS डेटा उपलब्ध नहीं है। इसका आम तौर पर मतलब है कि आवश्यक चार्ट विवरण पूरी तरह से गणना या वापस नहीं किए गए थे।"
   },
   "zodiacCircleChart": {
     "placeholder": "चार्ट के लिए जन्म ग्रह डेटा अनुपलब्ध है।",
@@ -1410,7 +1422,9 @@
     "passwordsDoNotMatch": "पासवर्ड मेल नहीं खाते"
   },
   "common": {
-    "login": "लॉगिन"
+    "login": "लॉगिन",
+    "yes": "हाँ",
+    "no": "नहीं"
   },
 
   "weekdays": {

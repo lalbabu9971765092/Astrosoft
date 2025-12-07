@@ -1,0 +1,212 @@
+@media print {
+  body {
+    font-size: 11pt; /* Increase base font size for the entire report */
+  }
+  .planets-table {
+    font-size: 0.9em; /* Adjusted relative to the new body font size */
+  }
+  .planets-table .subsub-col,
+  .planets-table .nak-deg-col {
+    display: none;
+  }
+  /* Ensure charts and other larger elements scale appropriately */
+  .varshphal-chart-wrapper .diamond-chart-container,
+  .gochar-column-chart .zodiac-circle-chart-container {
+    zoom: 0.8; /* Reduce size of large charts to fit print area better */
+    -moz-transform: scale(0.8);
+    -moz-transform-origin: 0 0;
+  }
+  /* Adjust other report sections if needed */
+  .report-section {
+    margin-bottom: 10pt;
+  }
+  h1 { font-size: 18pt; }
+  h2 { font-size: 16pt; }
+  h3 { font-size: 14pt; }
+  h4 { font-size: 12pt; }
+  p, table, li { font-size: 11pt; }
+  .results-table th, .results-table td {
+    padding: 3pt 5pt; /* Adjust padding for tables */
+  }
+
+    /* --- General Table Wrapper --- */
+    .table-wrapper {
+        border: 1px solid #ddd;
+        border-radius: 4px; /* Add slight rounding */
+        margin-top: 5pt; /* Space above the table */
+        overflow: hidden; /* Hide overflow on the wrapper for consistent border */
+    }
+
+    /* --- General Results Table Styling --- */
+    .results-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8em; /* Slightly smaller font for table content */
+        page-break-inside: auto; /* Allow table to break across pages if needed */
+    }
+
+    .results-table th,
+    .results-table td {
+        border: 1px solid #e0e0e0; /* Lighter border */
+        padding: 4pt 6pt;
+        text-align: left;
+        vertical-align: middle;
+        word-wrap: break-word; /* Allow text to wrap */
+        white-space: normal; /* Override nowrap for print */
+    }
+
+    .results-table thead th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+
+    .results-table tbody tr:nth-child(even) {
+        background-color: #fdfdfd;
+    }
+
+    /* --- Specific Table Styles for Print --- */
+
+    .aspect-table th, .aspect-table td {
+        text-align: center;
+        width: 6%; /* Distribute width for planet columns */
+        padding: 3pt;
+    }
+    .aspect-table th:first-child, /* Row header */
+    .aspect-table td:first-child {
+        text-align: left;
+        width: 16%; /* More width for the planet name */
+        font-weight: bold;
+    }
+    .aspect-table .has-aspect {
+        background-color: #e6e6e6; /* Light grey for print to indicate presence */
+        color: #333;
+        font-weight: bold;
+        text-align: center;
+    }
+
+
+    .friendship-table {
+        table-layout: fixed; /* Fix column widths for better print layout */
+    }
+    .friendship-table th, .friendship-table td {
+        text-align: center;
+        width: 7%; /* Distribute widths */
+        padding: 3pt;
+    }
+    .friendship-table th:first-child, /* Row header */
+    .friendship-table td:first-child {
+        text-align: left;
+        width: 15%; /* More width for the planet name */
+        font-weight: bold;
+    }
+    /* Print-friendly friendship colors (grayscale or simplified) */
+    .friendship-best-friend, .friendship-friend {
+        background-color: #eafaea; /* Very light green */
+    }
+    .friendship-enemy, .friendship-bitter-enemy {
+        background-color: #ffeeee; /* Very light red */
+    }
+    .friendship-neutral {
+        background-color: #f5f5f5; /* Light grey */
+    }
+
+
+    .shadbala-table th {
+        text-align: right; /* Right-align numerical data */
+        width: 10%; /* Distribute widths */
+        padding: 4pt 6pt;
+    }
+    .shadbala-table td {
+        text-align: right; /* Right-align numerical data */
+        width: 10%; /* Distribute widths */
+        padding: 4pt 6pt;
+
+        /* Aggressive overrides for debugging 0.00 issue */
+        color: black !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        text-shadow: none !important;
+        text-indent: 0 !important;
+        white-space: normal !important; /* Ensure text is not hidden by nowrap */
+        font-size: 0.8em !important; /* Ensure a visible font size */
+    }
+    .shadbala-table th:first-child, /* Planet column header */
+    .shadbala-table td:first-child { /* Planet column cells */
+        text-align: left;
+        font-weight: bold;
+        width: 18%; /* More width for planet name */
+    }
+    .shadbala-table th:last-child, /* Rank header */
+    .shadbala-table td:last-child { /* Rank cells */
+        text-align: center;
+        font-weight: bold;
+        width: 8%;
+    }
+
+    .shadbala-minimums {
+        font-size: 0.75em;
+        margin-top: 5pt;
+        padding: 5pt;
+        background-color: #f0f0f0; /* Light grey background for print */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        page-break-inside: avoid; /* Keep minimums with the table if possible */
+    }
+    .shadbala-minimums ul {
+        margin: 3pt 0 0 15pt;
+        padding: 0;
+    }
+    .shadbala-minimums li {
+        margin-bottom: 2pt;
+    }
+    .shadbala-note {
+        font-size: 0.75em;
+        color: #555;
+        margin-top: 3pt;
+        margin-bottom: 0;
+    }
+
+    /* --- UPBS Specific Styles for Print --- */
+    .upbs-table th,
+    .upbs-table td {
+        text-align: right; /* Align scores to the right */
+        width: 8%; /* Adjust min-width for score columns */
+        padding: 4pt 5pt;
+    }
+
+    .upbs-table th:first-child,
+    .upbs-table td:first-child {
+        text-align: left; /* Planet name to the left */
+        font-weight: bold;
+        width: 14%;
+    }
+
+    .upbs-table td:last-child {
+        text-align: left; /* Interpretation to the left */
+        width: 16%;
+    }
+
+    .upbs-legend {
+        font-size: 0.75em;
+        background-color: #f0f0f0; /* Light grey background for print */
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8pt;
+        margin-top: 10pt;
+        line-height: 1.4;
+        page-break-inside: avoid; /* Keep legend with the table if possible */
+    }
+    .upbs-legend h4 {
+        margin-top: 0;
+        margin-bottom: 5pt;
+        color: #333;
+    }
+    .upbs-legend ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    .upbs-legend li {
+        margin-bottom: 3pt;
+    }
+}

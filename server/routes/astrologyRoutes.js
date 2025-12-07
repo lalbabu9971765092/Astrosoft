@@ -17,11 +17,12 @@ import {
     calculatePlanetaryPositions, calculateVimshottariBalance, calculateVimshottariDashas,
     calculateNavamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
     calculateMoolDosha, calculatePlanetStates, calculateAspects,
-    NATURAL_FRIENDSHIP, FRIENDSHIP_PLANETS_ORDER, calculateTemporalFriendshipForPlanet,
+    PLANETARY_RELATIONS, FRIENDSHIP_PLANETS_ORDER, calculateTemporalFriendshipForPlanet,
     getResultingFriendship, calculateShadbala, calculateBhinnaAshtakavarga,
     calculateSarvaAshtakavarga, ASHTAKAVARGA_PLANETS, calculateSolarReturnJulianDay,
     calculateMuntha, calculateYearLord, calculateMuddaDasha, RASHIS,
-    getNumberBasedAscendantDegree, getSubLordDetails, getSubSubLordDetails, NAKSHATRA_SPAN, calculateKpSignificators, getHouseOfPlanet
+    getNumberBasedAscendantDegree, getSubLordDetails, getSubSubLordDetails, NAKSHATRA_SPAN, calculateKpSignificators, getHouseOfPlanet,
+    calculateUPBS
 } from '../utils/index.js'; // Adjust path if your index is elsewhere or import directly
 import { calculatePanchang } from '../utils/panchangUtils.js';
 import { calculateHousesAndAscendant } from '../utils/coreUtils.js';
@@ -196,12 +197,17 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             const meanRashiDetails = getRashiDetails(meanDeg);
             const meanCharan = calculateNakshatraPada(meanDeg);
             const startRashiDetails = getRashiDetails(startDeg);
+            const startNakDetails = getNakshatraDetails(startDeg); // Ensure nakshatra details are captured for the start of the cusp
+            const startSubLordDetails = getSubLordDetails(startDeg); // Calculate sub lord for the cusp start
             housesData.push({
                 house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
                 mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
                 mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
                 start_rashi: startRashiDetails.name,
                 start_rashi_lord: startRashiDetails.lord,
+                start_nakshatra: startNakDetails.name, 
+                start_nakshatra_lord: startNakDetails.lord,
+                start_sub_lord: startSubLordDetails.lord, // Add the sub lord to the house data
             });
         }
 
@@ -247,13 +253,22 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const planetStateData = calculatePlanetStates(siderealPositions);
 
         const temporalFriendshipData = {}; const resultingFriendshipData = {};
-        const naturalFriendshipMatrix = NATURAL_FRIENDSHIP; const friendshipOrder = FRIENDSHIP_PLANETS_ORDER;
+        const naturalFriendshipMatrix = PLANETARY_RELATIONS; const friendshipOrder = FRIENDSHIP_PLANETS_ORDER;
         for (const planet of friendshipOrder) {
             temporalFriendshipData[planet] = calculateTemporalFriendshipForPlanet(planet, siderealPositions);
             resultingFriendshipData[planet] = {}; const naturalRow = naturalFriendshipMatrix[planet]; const temporalRow = temporalFriendshipData[planet];
             for (const otherPlanet of friendshipOrder) {
                 if (planet === otherPlanet) { resultingFriendshipData[planet][otherPlanet] = '-'; continue; }
-                const naturalIdx = friendshipOrder.indexOf(otherPlanet); const naturalStatus = naturalRow && naturalIdx !== -1 ? naturalRow[naturalIdx] : 'N/A';
+                let naturalStatus;
+                if (naturalRow.friends.includes(otherPlanet)) {
+                    naturalStatus = 'F';
+                } else if (naturalRow.enemies.includes(otherPlanet)) {
+                    naturalStatus = 'E';
+                } else if (naturalRow.neutrals.includes(otherPlanet)) {
+                    naturalStatus = 'N';
+                } else {
+                    naturalStatus = 'N/A'; // Fallback, should ideally not be reached if PLANETARY_RELATIONS covers all cases
+                }
                 const temporalStatus = temporalRow ? temporalRow[otherPlanet] : 'N/A';
                 resultingFriendshipData[planet][otherPlanet] = getResultingFriendship(naturalStatus, temporalStatus);
             }
@@ -275,6 +290,32 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
                 planetHousePlacements[planetName] = getHouseOfPlanet(planetData.longitude, siderealCuspStartDegrees);
             }
         });
+
+        // --- Prepare data for UPBS calculation ---
+        const unifiedChartData = {
+            planetaryPositions: planetaryPositions, // Contains sidereal with avasthas
+            planetHousePlacements: planetHousePlacements, // From Nirayana Bhav Chalit
+            planetDetails: {
+                aspects: {
+                    directAspects: directAspects,
+                    reverseAspects: reverseAspects
+                },
+                states: planetStateData // D1 dignity (calculatePlanetStates result)
+            },
+            shadbala: shadbalaData,
+            d9_planets: d9_planets, // For Navamsa strength
+            ascendant: {
+                sidereal_dms: convertToDMS(siderealAscendantDeg),
+                siderealAscendantDeg: siderealAscendantDeg // Raw degree, for getRashiDetails in FBS
+            },
+            houses: housesData // For house lordship in FBS (start_rashi_lord)
+        };
+
+        // --- Calculate UPBS for each planet ---
+        const upbsScores = {};
+        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+            upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
+        }
 
         // --- Assemble Response Payload ---
          const responsePayload = {
@@ -298,10 +339,10 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             planetaryPositions, // Contains both tropical and sidereal
             planetHousePlacements: planetHousePlacements, // Add this line for Bhava Chalit
             sunMoonTimes: {
-                sunrise: sunMoonTimes.sunrise || "N/A",
-                sunset: sunMoonTimes.sunset || "N/A",
-                moonrise: sunMoonTimes.moonrise || "N/A",
-                moonset: sunMoonTimes.moonset || "N/A"
+                sunrise: sunMoonTimes.sunrise === null ? "N/A" : sunMoonTimes.sunrise,
+                sunset: sunMoonTimes.sunset === null ? "N/A" : sunMoonTimes.sunset,
+                moonrise: sunMoonTimes.moonrise === null ? "N/A" : sunMoonTimes.moonrise,
+                moonset: sunMoonTimes.moonset === null ? "N/A" : sunMoonTimes.moonset
             },
             dashaBalance: {
                 lord: dashaBalance.lord,
@@ -324,7 +365,8 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
                 naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder },
                 temporalFriendship: temporalFriendshipData,
                 resultingFriendship: resultingFriendshipData,
-                shadbala: shadbalaData
+                shadbala: shadbalaData,
+                upbsScores: upbsScores // <--- ADD THIS
             },
             ashtakavarga: ashtakavargaResult,
         };
@@ -409,12 +451,17 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
             const meanRashiDetails = getRashiDetails(meanDeg);
             const meanCharan = calculateNakshatraPada(meanDeg);
             const startRashiDetails = getRashiDetails(startDeg);
+            const startNakDetails = getNakshatraDetails(startDeg); // Define startNakDetails
+            const startSubLordDetails = getSubLordDetails(startDeg); // Calculate sub lord for the cusp start
             housesData.push({
                 house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
                 mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
                 mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
                 start_rashi: startRashiDetails.name,
                 start_rashi_lord: startRashiDetails.lord,
+                start_nakshatra: startNakDetails.name, // Ensure nakshatra details are captured for the start of the cusp
+                start_nakshatra_lord: startNakDetails.lord,
+                start_sub_lord: startSubLordDetails.lord, // Add the sub lord to the house data
             });
         }
 
@@ -456,13 +503,22 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
         const planetStateData = calculatePlanetStates(siderealPositions);
 
         const temporalFriendshipData = {}; const resultingFriendshipData = {};
-        const naturalFriendshipMatrix = NATURAL_FRIENDSHIP; const friendshipOrder = FRIENDSHIP_PLANETS_ORDER;
+        const naturalFriendshipMatrix = PLANETARY_RELATIONS; const friendshipOrder = FRIENDSHIP_PLANETS_ORDER;
         for (const planet of friendshipOrder) {
             temporalFriendshipData[planet] = calculateTemporalFriendshipForPlanet(planet, siderealPositions);
             resultingFriendshipData[planet] = {}; const naturalRow = naturalFriendshipMatrix[planet]; const temporalRow = temporalFriendshipData[planet];
             for (const otherPlanet of friendshipOrder) {
                 if (planet === otherPlanet) { resultingFriendshipData[planet][otherPlanet] = '-'; continue; }
-                const naturalIdx = friendshipOrder.indexOf(otherPlanet); const naturalStatus = naturalRow && naturalIdx !== -1 ? naturalRow[naturalIdx] : 'N/A';
+                let naturalStatus;
+                if (naturalRow.friends.includes(otherPlanet)) {
+                    naturalStatus = 'F';
+                } else if (naturalRow.enemies.includes(otherPlanet)) {
+                    naturalStatus = 'E';
+                } else if (naturalRow.neutrals.includes(otherPlanet)) {
+                    naturalStatus = 'N';
+                } else {
+                    naturalStatus = 'N/A'; // Fallback, should ideally not be reached if PLANETARY_RELATIONS covers all cases
+                }
                 const temporalStatus = temporalRow ? temporalRow[otherPlanet] : 'N/A';
                 resultingFriendshipData[planet][otherPlanet] = getResultingFriendship(naturalStatus, temporalStatus);
             }
@@ -483,6 +539,32 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
             }
         });
 
+        // --- Prepare data for UPBS calculation ---
+        const unifiedChartData = {
+            planetaryPositions: planetaryPositions, // Contains sidereal with avasthas
+            planetHousePlacements: planetHousePlacements, // From Nirayana Bhav Chalit
+            planetDetails: {
+                aspects: {
+                    directAspects: directAspects,
+                    reverseAspects: reverseAspects
+                },
+                states: planetStateData // D1 dignity (calculatePlanetStates result)
+            },
+            shadbala: shadbalaData,
+            d9_planets: d9_planets, // For Navamsa strength
+            ascendant: {
+                sidereal_dms: convertToDMS(siderealAscendantDeg),
+                siderealAscendantDeg: siderealAscendantDeg // Raw degree, for getRashiDetails in FBS
+            },
+            houses: housesData // For house lordship in FBS (start_rashi_lord)
+        };
+
+        // --- Calculate UPBS for each planet ---
+        const upbsScores = {};
+        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+            upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
+        }
+
          const responsePayload = {
             inputParameters: { date: date, latitude: latNum, longitude: lonNum, placeName: placeName || '', utcDate: utcDate.toISOString(), julianDayUT: julianDayUT, ayanamsa: ayanamsa, timezoneOffsetHours: timezoneOffsetHours },
             ascendant: {
@@ -491,7 +573,7 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
                 nakshatra: ascendantNakDetails.name,
                 nakLord: ascendantNakDetails.lord,
                 rashi: ascendantRashiDetails.name,
-                rashiLord: ascendantRashiDetails.lord,
+                rashiLord: ascendantRashiDetails.lord, // Corrected typo here
                 pada: ascendantPada,
                 padaAlphabet: ascendantPadaAlphabet, // Add the alphabet here
                 subLord: ascendantSubLordDetails.lord,
@@ -504,10 +586,10 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
             planetaryPositions,
             planetHousePlacements: planetHousePlacements,
             sunMoonTimes: {
-                sunrise: sunMoonTimes.sunrise || "N/A",
-                sunset: sunMoonTimes.sunset || "N/A",
-                moonrise: sunMoonTimes.moonrise || "N/A",
-                moonset: sunMoonTimes.moonset || "N/A"
+                sunrise: sunMoonTimes.sunrise === null ? "N/A" : sunMoonTimes.sunrise,
+                sunset: sunMoonTimes.sunset === null ? "N/A" : sunMoonTimes.sunset,
+                moonrise: sunMoonTimes.moonrise === null ? "N/A" : sunMoonTimes.moonrise,
+                moonset: sunMoonTimes.moonset === null ? "N/A" : sunMoonTimes.moonset
             },
             dashaBalance: {
                 lord: dashaBalance.lord,
@@ -532,7 +614,8 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
                 naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder },
                 temporalFriendship: temporalFriendshipData,
                 resultingFriendship: resultingFriendshipData,
-                shadbala: shadbalaData
+                shadbala: shadbalaData,
+                upbsScores: upbsScores // <--- ADD THIS
             },
             ashtakavarga: ashtakavargaResult,
         };
@@ -964,10 +1047,50 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
             }
         });
 
+        const srPlanetStateData = calculatePlanetStates(srPlanetaryPositions.sidereal);
+
+        // --- Prepare data for UPBS calculation ---
+        const unifiedChartData = {
+            planetaryPositions: srPlanetaryPositions, // Contains sidereal with avasthas
+            planetHousePlacements: srPlanetHousePlacements, // From Nirayana Bhav Chalit
+            planetDetails: {
+                aspects: {
+                    directAspects: srAspects.directAspects,
+                    reverseAspects: srAspects.reverseAspects
+                },
+                states: srPlanetStateData // D1 dignity (calculatePlanetStates result)
+            },
+            // The following are derived from the natal chart or assumed for Varshphal
+            // Shadbala, d9_planets, ascendant, houses for Varshphal are specific to SR chart
+            shadbala: {}, // Varshphal shadbala not yet implemented or passed
+            d9_planets: {}, // Varshphal navamsa not yet implemented or passed
+            ascendant: {
+                sidereal_dms: convertToDMS(srSiderealAscDeg),
+                siderealAscendantDeg: srSiderealAscDeg // Raw degree, for getRashiDetails in FBS
+            },
+            houses: srHousesData // For house lordship in FBS (start_rashi_lord)
+        };
+
+        // --- Calculate UPBS for each planet ---
+        const upbsScores = {};
+        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+            upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
+        }
+
         // --- Assemble Response Payload ---
         const responsePayload = {
             inputDetails: { natalDate, natalLatitude: latNum, natalLongitude: lonNum, natalPlaceName: natalPlaceName || '', varshphalYear, solarReturnUTC: solarReturnUTCDate.toISOString(), solarReturnJD_UT, natalTzOffset },
-            varshphalChart: { ascendant: srAscendantData, houses: srHousesData, planetaryPositions: srPlanetaryPositions, planetHousePlacements: srPlanetHousePlacements },
+            varshphalChart: { 
+                ascendant: srAscendantData, 
+                houses: srHousesData, 
+                planetaryPositions: srPlanetaryPositions, 
+                planetHousePlacements: srPlanetHousePlacements,
+                planetDetails: {
+                    states: srPlanetStateData,
+                    aspects: srAspects,
+                    upbsScores: upbsScores
+                }
+            },
             muntha: munthaData,
             yearLord: yearLord,
             muddaDasha: muddaDashaPeriods,
@@ -1097,9 +1220,49 @@ router.post('/calculate-varshphal/rotated', rotatedVarshphalValidation, async (r
             }
         });
 
+        const srPlanetStateData = calculatePlanetStates(srPlanetaryPositions.sidereal);
+
+        // --- Prepare data for UPBS calculation ---
+        const unifiedChartData = {
+            planetaryPositions: srPlanetaryPositions, // Contains sidereal with avasthas
+            planetHousePlacements: srPlanetHousePlacements, // From Nirayana Bhav Chalit
+            planetDetails: {
+                aspects: {
+                    directAspects: srAspects.directAspects,
+                    reverseAspects: srAspects.reverseAspects
+                },
+                states: srPlanetStateData // D1 dignity (calculatePlanetStates result)
+            },
+            // The following are derived from the natal chart or assumed for Varshphal
+            // Shadbala, d9_planets, ascendant, houses for Varshphal are specific to SR chart
+            shadbala: {}, // Varshphal shadbala not yet implemented or passed
+            d9_planets: {}, // Varshphal navamsa not yet implemented or passed
+            ascendant: {
+                sidereal_dms: convertToDMS(srSiderealAscDeg),
+                siderealAscendantDeg: srSiderealAscDeg // Raw degree, for getRashiDetails in FBS
+            },
+            houses: srHousesData // For house lordship in FBS (start_rashi_lord)
+        };
+
+        // --- Calculate UPBS for each planet ---
+        const upbsScores = {};
+        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+            upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
+        }
+
         const responsePayload = {
             inputDetails: { natalDate, natalLatitude: latNum, natalLongitude: lonNum, natalPlaceName: natalPlaceName || '', varshphalYear, solarReturnUTC: solarReturnUTCDate.toISOString(), solarReturnJD_UT, natalTzOffset },
-            varshphalChart: { ascendant: srAscendantData, houses: srHousesData, planetaryPositions: srPlanetaryPositions, planetHousePlacements: srPlanetHousePlacements },
+            varshphalChart: { 
+                ascendant: srAscendantData, 
+                houses: srHousesData, 
+                planetaryPositions: srPlanetaryPositions, 
+                planetHousePlacements: srPlanetHousePlacements,
+                planetDetails: {
+                    states: srPlanetStateData,
+                    aspects: srAspects,
+                    upbsScores: upbsScores
+                }
+            },
             muntha: munthaData,
             yearLord: yearLord,
             muddaDasha: muddaDashaPeriods,

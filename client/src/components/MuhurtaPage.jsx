@@ -338,7 +338,7 @@ const MuhurtaPage = () => {
                                     const sortedItems = [...items].sort((a, b) => moment(a.start).diff(moment(b.start)));
 
                                                                                     return sortedItems.map((m, index) => {
-                                                                                        console.log("Item name:", m.name);
+                                                                                        
                                                                                         let translatedName = m.name;
                                         let translatedDescription;
 

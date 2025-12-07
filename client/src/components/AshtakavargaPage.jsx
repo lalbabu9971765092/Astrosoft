@@ -184,13 +184,16 @@ const AshtakavargaPage = () => {
                     {/* --- SAV Section: Use Diamond Chart --- */}
                     <div className="result-section sav-section">
                         {hasSarvaData ? (
-                            <DiamondChart
-                                title={t('ashtakavargaPage.savTitle')} // Pass translated title
-                                size={400} // Keep SAV chart larger
-                                houses={displayNatalResult.houses} // Pass houses data
-                                scores={sarvaData} // Pass the SAV scores array to the 'scores' prop
-                                // Do not pass 'planets' prop here
-                            />
+                            <div>
+                                <h3 className="chart-title">{t('ashtakavargaPage.savTitle')}</h3>
+                                <DiamondChart
+                                    title={t('ashtakavargaPage.savTitle')} // Pass translated title
+                                    size={400} // Keep SAV chart larger
+                                    houses={displayNatalResult.houses} // Pass houses data
+                                    scores={sarvaData} // Pass the SAV scores array to the 'scores' prop
+                                    // Do not pass 'planets' prop here
+                                />
+                            </div>
                         ) : (
                             <p className="info-text">{t('ashtakavargaPage.savUnavailable')}</p>
                         )}
@@ -221,15 +224,17 @@ const AshtakavargaPage = () => {
                                     const isValidScoreArray = Array.isArray(bavScoresArray);
                         
                                     return (
-                                        <DiamondChart
-                                            key={`bav-chart-${planetName}`}
-                                            title={chartTitle}
-                                            size={300} // Make BAV charts smaller
-                                            houses={displayNatalResult.houses}
-                                            // *** FIX: Pass the 'bavScoresArray' if it's valid, otherwise null ***
-                                            scores={isValidScoreArray ? bavScoresArray : null}
-                                            // Do not pass 'planets' prop
-                                        />
+                                        <div key={`bav-chart-container-${planetName}`}>
+                                            <h4 className="chart-title">{chartTitle}</h4>
+                                            <DiamondChart
+                                                title={chartTitle}
+                                                size={300} // Make BAV charts smaller
+                                                houses={displayNatalResult.houses}
+                                                // *** FIX: Pass the 'bavScoresArray' if it's valid, otherwise null ***
+                                                scores={isValidScoreArray ? bavScoresArray : null}
+                                                // Do not pass 'planets' prop
+                                            />
+                                        </div>
                                     );
                                 })}
                             </div>

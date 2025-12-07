@@ -19,10 +19,7 @@ const formatDateTime = (dateTimeString, t) => {
     try {
         const date = new Date(dateTimeString);
         if (isNaN(date.getTime())) return t ? t('utils.invalidDate', 'Invalid Date') : 'Invalid Date';
-        return date.toLocaleString(undefined, {
-            year: 'numeric', month: 'numeric', day: 'numeric',
-            hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true
-        });
+        return date.toLocaleString('en-GB');
     } catch (e) {
         console.error("Error formatting date:", e);
         return dateTimeString;
@@ -57,6 +54,7 @@ const PlanetDetailsPage = () => {
         aspects: true,
         friendship: true,
         shadbala: true,
+        upbs: true, // <--- ADDED
     });
 
     const toggleSection = (section) => {
@@ -134,6 +132,7 @@ const PlanetDetailsPage = () => {
     const aspectData = displayResult?.planetDetails?.aspects;
     const friendshipData = displayResult?.planetDetails?.resultingFriendship;
     const shadbalaData = displayResult?.planetDetails?.shadbala;
+    const upbsScores = displayResult?.planetDetails?.upbsScores;
 
     // Memoized Mean Cusp Degrees
     const meanCuspDegrees = useMemo(() => {
@@ -171,6 +170,16 @@ const PlanetDetailsPage = () => {
         return ranks;
     }, [shadbalaData]);
 
+    // Helper function to interpret UPBS score
+    const interpretUPBS = (score) => {
+        if (score >= 12) return t('upbsInterpretation.highlyBenefic');
+        if (score >= 5) return t('upbsInterpretation.benefic');
+        if (score >= 0) return t('upbsInterpretation.mildBenefic');
+        if (score >= -4) return t('upbsInterpretation.mildMalefic');
+        if (score >= -10) return t('upbsInterpretation.malefic');
+        return t('upbsInterpretation.highlyMalefic'); // Score -11 to -20
+    };
+
 
     // --- Loading / Error States ---
     const isLoading = isInitialLoading || isLoadingRectification;
@@ -196,6 +205,7 @@ const PlanetDetailsPage = () => {
     const hasAspectData = aspectData && Object.keys(aspectData).length > 0;
     const hasFriendshipData = friendshipData && Object.keys(friendshipData).length > 0;
     const hasShadbalaData = shadbalaData && typeof shadbalaData === 'object' && Object.keys(shadbalaData).length > 0;
+    const hasUPBSData = upbsScores && typeof upbsScores === 'object' && Object.keys(upbsScores).length > 0;
 
 
     return (
@@ -396,6 +406,88 @@ const PlanetDetailsPage = () => {
                     </div>
                 ) : (
                     <p className="result-text">{t('planetDetailsPage.shadbalaDataUnavailable')}</p>
+                )}
+                </div>
+            </div>
+
+            {/* UPBS Table */}
+            <div className="result-section">
+                <div className="section-header" onClick={() => toggleSection('upbs')}>
+                    <h3 className="result-sub-title">{t('planetDetailsPage.upbsTitle')}</h3>
+                    <button className="toggle-button">{openSections.upbs ? '−' : '+'}</button>
+                </div>
+                <div className={`section-content ${openSections.upbs ? '' : 'collapsed'}`}>
+                {hasUPBSData ? (
+                    <>
+                        <div className="table-wrapper upbs-table-wrapper">
+                            <table className="results-table upbs-table">
+                                <thead>
+                                    <tr>
+                                        <th>{t('upbsTableHeaders.planet')}</th>
+                                        <th>{t('upbsBreakdownShort.NBS')}</th>
+                                        <th>{t('upbsBreakdownShort.FBS')}</th>
+                                        <th>{t('upbsBreakdownShort.PDS')}</th>
+                                        <th>{t('upbsBreakdownShort.SS')}</th>
+                                        <th>{t('upbsBreakdownShort.CRS')}</th>
+                                        <th>{t('upbsBreakdownShort.HPS')}</th>
+                                        <th>{t('upbsBreakdownShort.ARS')}</th>
+                                        <th>{t('upbsBreakdownShort.NLM')}</th>
+                                        <th>{t('upbsBreakdownShort.ASC')}</th>
+                                        <th>{t('upbsTableHeaders.totalScoreShort')}</th>
+                                        <th>{t('upbsTableHeaders.interpretationShort')}</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {CORE_VEDIC_PLANETS.map((planet) => {
+                                        const planetUPBS = upbsScores[planet];
+                                        if (!planetUPBS || isNaN(planetUPBS.total)) {
+                                            return (
+                                                <tr key={`upbs-${planet}`}>
+                                                    <td>{t(`planets.${planet}`, { defaultValue: planet })}</td>
+                                                    <td colSpan="11">{t('planetDetailsPage.upbsDataMissing')}</td>
+                                                </tr>
+                                            );
+                                        }
+                                        const interpretation = interpretUPBS(planetUPBS.total);
+                                        return (
+                                            <tr key={`upbs-${planet}`}>
+                                                <td>{t(`planets.${planet}`, { defaultValue: planet })}</td>
+                                                <td>{planetUPBS.breakdown.NBS.toFixed(2)}</td>
+                                                <td>{planetUPBS.breakdown.FBS.toFixed(2)}</td>
+                                                <td>{planetUPBS.breakdown.PDS.toFixed(2)}</td>
+                                                <td>{planetUPBS.breakdown.SS.toFixed(2)}</td>
+                                                <td>{planetUPBS.breakdown.CRS.toFixed(2)}</td>
+                                                <td>{planetUPBS.breakdown.HPS.toFixed(2)}</td>
+                                                <td>{planetUPBS.breakdown.ARS.toFixed(2)}</td>
+                                                <td>{planetUPBS.breakdown.NLM.toFixed(2)}</td>
+                                                <td>{planetUPBS.breakdown.ASC.toFixed(2)}</td>
+                                                <td><strong>{planetUPBS.total.toFixed(2)}</strong></td>
+                                                <td>{interpretation}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="upbs-legend">
+                            <h4>{t('upbsLegend.title')}</h4>
+                            <ul>
+                                <li><strong>{t('upbsBreakdownShort.NBS')}</strong>: {t('upbsBreakdown.NBS')}</li>
+                                <li><strong>{t('upbsBreakdownShort.FBS')}</strong>: {t('upbsBreakdown.FBS')}</li>
+                                <li><strong>{t('upbsBreakdownShort.PDS')}</strong>: {t('upbsBreakdown.PDS')}</li>
+                                <li><strong>{t('upbsBreakdownShort.SS')}</strong>: {t('upbsBreakdown.SS')}</li>
+                                <li><strong>{t('upbsBreakdownShort.CRS')}</strong>: {t('upbsBreakdown.CRS')}</li>
+                                <li><strong>{t('upbsBreakdownShort.HPS')}</strong>: {t('upbsBreakdown.HPS')}</li>
+                                <li><strong>{t('upbsBreakdownShort.ARS')}</strong>: {t('upbsBreakdown.ARS')}</li>
+                                <li><strong>{t('upbsBreakdownShort.NLM')}</strong>: {t('upbsBreakdown.NLM')}</li>
+                                <li><strong>{t('upbsBreakdownShort.ASC')}</strong>: {t('upbsBreakdown.ASC')}</li>
+                                <li><strong>{t('upbsTableHeaders.totalScoreShort')}</strong>: {t('upbsTableHeaders.totalScore')}</li>
+                                <li><strong>{t('upbsTableHeaders.interpretationShort')}</strong>: {t('upbsTableHeaders.interpretation')}</li>
+                            </ul>
+                        </div>
+                    </>
+                ) : (
+                    <p className="result-text">{t('planetDetailsPage.upbsDataUnavailable')}</p>
                 )}
                 </div>
             </div>

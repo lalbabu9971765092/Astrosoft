@@ -1,6 +1,6 @@
 // utils/strengthUtils.js
 import logger from './logger.js';
-import { FRIENDSHIP_PLANETS_ORDER, NATURAL_FRIENDSHIP, ASHTAKAVARGA_PLANETS, RASHI_LORDS, RASHI_SPAN } from './constants.js';
+import { FRIENDSHIP_PLANETS_ORDER, PLANETARY_RELATIONS, ASHTAKAVARGA_PLANETS, RASHI_LORDS, RASHI_SPAN } from './constants.js';
 import { normalizeAngle, convertDMSToDegrees } from './coreUtils.js';
 import { getRashiDetails, getHouseOfPlanet, calculatePlanetStates } from './planetaryUtils.js';
 

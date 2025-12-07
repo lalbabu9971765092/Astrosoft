@@ -266,11 +266,11 @@ const AstrologyForm = () => {
                     if (isNaN(dateObjWithSeconds.getTime())) {
                         return t('utils.invalidDate', 'Invalid Date');
                     }
-                    return dateObjWithSeconds.toLocaleString(i18n.language);
+                    return dateObjWithSeconds.toLocaleString('en-GB');
                 }
                 return t('utils.invalidDate', 'Invalid Date');
             }
-            return dateObj.toLocaleString(i18n.language);
+            return dateObj.toLocaleString('en-GB');
         } catch (e) {
             const match = localIsoString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
             if (match) {
@@ -282,7 +282,7 @@ const AstrologyForm = () => {
             }
             return t('utils.invalidDate', 'Invalid Date');
         }
-    }, [t, i18n.language]);
+    }, [t]);
     // --- Render Helper for Gochar Details (Column 3) - REVISED TRANSLATIONS ---
     const renderGocharDetails = () => {
         if (isLoadingGochar) return <div className="loader small-loader" aria-label={t('astrologyForm.loadingTransit')}></div>;
@@ -772,6 +772,7 @@ const AstrologyForm = () => {
                                             <th>{t('astrologyForm.houseTableMeanCuspHeader')}</th><th>{t('astrologyForm.houseTableNakHeader')}</th>
                                             <th>{t('astrologyForm.houseTablePadaHeader')}</th><th>{t('astrologyForm.houseTableNakLordHeader')}</th>
                                             <th>{t('astrologyForm.houseTableRashiHeader')}</th><th>{t('astrologyForm.houseTableRashiLordHeader')}</th>
+                                            <th>{t('astrologyForm.houseTableSubLordHeader')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -796,6 +797,7 @@ const AstrologyForm = () => {
                                                    <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                    <td>{t(`planets.${house.start_sub_lord}`, { defaultValue: house.start_sub_lord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                 </tr>
                                             );
                                         })}</tbody>
@@ -878,6 +880,7 @@ const AstrologyForm = () => {
                                                 <th>{t('astrologyForm.houseTableMeanCuspHeader')}</th><th>{t('astrologyForm.houseTableNakHeader')}</th>
                                                 <th>{t('astrologyForm.houseTablePadaHeader')}</th><th>{t('astrologyForm.houseTableNakLordHeader')}</th>
                                                 <th>{t('astrologyForm.houseTableRashiHeader')}</th><th>{t('astrologyForm.houseTableRashiLordHeader')}</th>
+                                                <th>{t('astrologyForm.houseTableSubLordHeader')}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -902,6 +905,7 @@ const AstrologyForm = () => {
                                                         <td>{t(`planets.${nakshatraLord}`, { defaultValue: nakshatraLord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`rashis.${rashi}`, { defaultValue: rashi ?? t('utils.notAvailable', 'N/A') })}</td>
                                                         <td>{t(`planets.${rashiLord}`, { defaultValue: rashiLord ?? t('utils.notAvailable', 'N/A') })}</td>
+                                                        <td>{t(`planets.${house.start_sub_lord}`, { defaultValue: house.start_sub_lord ?? t('utils.notAvailable', 'N/A') })}</td>
                                                     </tr>
                                                 );
                                             })}</tbody>

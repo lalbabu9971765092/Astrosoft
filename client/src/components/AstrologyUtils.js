@@ -392,7 +392,7 @@ export const NAKSHATRA_LORDS = {
   "Bharani": "Venus", "Purva Phalguni": "Venus", "Purva Ashadha": "Venus",
   "Krittika": "Sun", "Uttara Phalguni": "Sun", "Uttara Ashadha": "Sun",
   "Rohini": "Moon", "Hasta": "Moon", "Shravana": "Moon",
-  "Mrigashira": "Mars", "Chitra": "Mars", "Dhanishta": "Mars",
+  "Mrigashira": "Mars", "Chitra": "Mars", "Dhanishtha": "Mars",
   "Ardra": "Rahu", "Swati": "Rahu", "Shatabhisha": "Rahu",
   "Punarvasu": "Jupiter", "Vishakha": "Jupiter", "Purva Bhadrapada": "Jupiter",
   "Pushya": "Saturn", "Anuradha": "Saturn", "Uttara Bhadrapada": "Saturn",

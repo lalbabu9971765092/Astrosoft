@@ -397,14 +397,9 @@ export function calculateMuddaDasha(solarReturnJD_UT, latitude, longitude) {
         }
 
         // Determine the starting Mudda lord based on the Vims lord
-        // If Vims lord is Ketu, Mudda Dasha starts with Venus (next in sequence)
         let muddaLord = vimsLord;
-        if (muddaLord === "Ketu") {
-            // Find Venus in VIMS_DASHA_SEQUENCE and use that as the starting point
-            const ketuIndex = VIMS_DASHA_SEQUENCE.indexOf("Ketu");
-            const venusIndex = (ketuIndex + 1) % VIMS_DASHA_SEQUENCE.length; // Venus is next after Ketu
-            muddaLord = VIMS_DASHA_SEQUENCE[venusIndex]; // This will be "Venus"
-        }
+        // The MUDDA_DASHA_SEQUENCE now includes Ketu, so no special handling is needed here.
+        // If vimsLord is Ketu, muddaLord remains Ketu, and its index will be correctly found.
         let muddaStartIndex = MUDDA_DASHA_SEQUENCE.indexOf(muddaLord);
 
         // Alternative: Find the weekday lord of SR start? Rules vary.

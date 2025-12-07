@@ -393,6 +393,8 @@
     "loadingRectifiedData": "Loading rectified data...",
     "rectificationErrorPrefix": "Rectification Error",
     "chartD1Title": "D1 - Lagna Chart",
+    "chartNirayanTitle": "Nirayan Chart",
+    "chartNirayanTitle": "Nirayan Chart",
     "chartBhavaTitle": "Nirayan Bhav Chalit",
     "chartD9Title": "Navamsha (D9)",
     "chartGocharTitle": "D1- Transit",
@@ -411,6 +413,7 @@
     "houseTableNakLordHeader": "Nak Lord",
     "houseTableRashiHeader": "Rashi (Start)",
     "houseTableRashiLordHeader": "Rashi Lord",
+    "houseTableSubLordHeader": "Sub Lord",
     "houseDataUnavailable": "House cusp data unavailable.",
     "planetaryPositionsTitle": "Birth Planetary Positions (Sidereal)",
     "planetTableHeaderPlanet": "Planet",
@@ -854,13 +857,65 @@
     "shadbalaMinimumsTitle": "Minimum Shadbala Requirements (Rupas):",
     "shadbalaNotePrefix": "Note:",
     "invalidAdjustedDateError": "Invalid adjusted date: {{error}}",
-    "fetchRectifiedDataFailed": "Failed to fetch rectified data."
+    "fetchRectifiedDataFailed": "Failed to fetch rectified data.",
+    "upbsTitle": "Unconditional Planetary Beneficence Score (UPBS)",
+    "upbsDataUnavailable": "UPBS data unavailable.",
+    "upbsDataMissing": "Data Missing"
+  },
+  "upbsTableHeaders": {
+    "planet": "Planet",
+    "totalScore": "Total Score",
+    "interpretation": "Interpretation",
+    "details": "Details",
+    "breakdown": "Breakdown",
+    "totalScoreShort": "Total",
+    "interpretationShort": "Interp."
+  },
+  "upbsInterpretation": {
+    "highlyBenefic": "Highly Benefic",
+    "benefic": "Benefic",
+    "mildBenefic": "Mild Benefic",
+    "mildMalefic": "Mild Malefic",
+    "malefic": "Malefic",
+    "highlyMalefic": "Highly Malefic"
+  },
+  "upbsBreakdown": {
+    "NBS": "Natural Beneficence Score (NBS)",
+    "FBS": "Functional Beneficence Score (FBS)",
+    "PDS": "Planetary Dignity Score (PDS)",
+    "SS": "Strength Score (SS)",
+    "CRS": "Combustion & Retrograde Score (CRS)",
+    "HPS": "House Placement Score (HPS)",
+    "ARS": "Aspect Received Score (ARS)",
+    "NLM": "Nakshatra-Lord Modifier (NLM)",
+    "ASC": "Association Score (ASC)"
+  },
+ 
+  "upbsBreakdownShort": {
+    "NBS": "NBS",
+    "FBS": "FBS",
+    "PDS": "PDS",
+    "SS": "SS",
+    "CRS": "CRS",
+    "HPS": "HPS",
+    "ARS": "ARS",
+    "NLM": "NLM",
+    "ASC": "ASC"
+  },
+  "upbsLegend": {
+    "title": "UPBS Breakdown:"
   },
   "planetTableHeaders": {
     "planet": "Planet",
     "position": "Position",
     "state": "State",
+    "dignity": "Dignity",
+    "balaadi": "Balaadi",
+    "jagradadi": "Jagradadi",
+    "deeptaadi": "Deeptaadi",
     "speed": "Speed",
+    "retrograde": "Retrograde",
+    "combust": "Combust",
     "nakPada": "Nak (Pada)",
     "nakLord": "Nak Lord",
     "subLord": "Sub Lord",
@@ -1187,7 +1242,10 @@
     "kpSignificatorsTitle": "KP Significators",
     "inputBlockTitle": "Input Details",
     "inputSummaryTitle": "Input Summary",
-    "kpSignificatorsUnavailable": "KP Significator data unavailable."
+    "kpSignificatorsUnavailable": "KP Significator data unavailable.",
+    "upbsTitle": "Uncommon Planetary Beneficence Score (UPBS)",
+    "upbsDataMissing": "UPBS data not available for this planet.",
+    "upbsDataUnavailable": "UPBS data is not available for this Varshphal Chart. This typically means the necessary chart details were not fully calculated or returned."
   },
   "common": {
     "planet": "Planet",
@@ -1391,7 +1449,8 @@
     "Neutral": "Neutral",
     "Enemy": "Enemy",
     "Bitter Enemy": "Bitter Enemy",
-    "Unknown": "Unknown"
+    "Unknown": "Unknown",
+    "N/A": "N/A"
   },
   "doshaReasons": {
     "planetInHouseFrom": "{{0}} in house {{1}} from {{2}}",

@@ -70,26 +70,26 @@ export const VIMS_DASHA_SEQUENCE = [
     "Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"
 ];
 
-// Natural Friendship Matrix (N - Neutral, F - Friend, E - Enemy)
-// Rows: Planet, Columns: Relationship to others in FRIENDSHIP_PLANETS_ORDER
-export const NATURAL_FRIENDSHIP = {
-    Sun:     ['-', 'F', 'F', 'F', 'F', 'E', 'E'], // Sun: -, Moon, Mars, Merc, Jup, Ven, Sat
-    Moon:    ['F', '-', 'N', 'F', 'N', 'N', 'N'], // Moon: Sun, -, Mars, Merc, Jup, Ven, Sat
-    Mars:    ['F', 'F', '-', 'E', 'F', 'N', 'E'], // Mars: Sun, Moon, -, Merc, Jup, Ven, Sat
-    Mercury: ['E', 'E', 'E', '-', 'N', 'F', 'F'], // Merc: Sun, Moon, Mars, -, Jup, Ven, Sat
-    Jupiter: ['F', 'F', 'F', 'E', '-', 'E', 'E'], // Jup: Sun, Moon, Mars, Merc, -, Ven, Sat
-    Venus:   ['E', 'E', 'N', 'F', 'N', '-', 'F'], // Ven: Sun, Moon, Mars, Merc, Jup, -, Sat
-    Saturn:  ['E', 'E', 'E', 'F', 'N', 'F', '-']  // Sat: Sun, Moon, Mars, Merc, Jup, Ven, -
+export const PLANETARY_RELATIONS = {
+    Sun: { friends: ["Moon", "Mars", "Jupiter"], enemies: ["Venus", "Saturn", "Rahu"], neutrals: ["Mercury", "Ketu"] },
+    Moon: { friends: ["Sun", "Mercury"], enemies: [], neutrals: ["Mars", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"] },
+    Mars: { friends: ["Sun", "Moon", "Jupiter"], enemies: ["Mercury", "Venus", "Saturn"], neutrals: [] },
+    Mercury: { friends: ["Sun", "Venus"], enemies: ["Moon"], neutrals: ["Mars", "Jupiter", "Saturn"] },
+    Jupiter: { friends: ["Moon", "Mars", "Sun"], enemies: ["Mercury", "Saturn", "Venus"], neutrals: [] },
+    Venus: { friends: ["Mercury", "Saturn", "Rahu"], enemies: ["Sun", "Moon"], neutrals: ["Mars", "Jupiter"] },
+    Saturn: { friends: ["Mercury", "Venus"], enemies: ["Sun", "Moon", "Mars"], neutrals: ["Jupiter"] },
+    Rahu: { friends: ["Mercury", "Venus", "Saturn"], enemies: ["Sun", "Moon", "Mars"], neutrals: ["Jupiter", "Ketu"] },
+    Ketu: { friends: ["Rahu", "Venus", "Saturn"], enemies: ["Sun", "Moon", "Mercury", "Jupiter"], neutrals: ["Mars"] }
 };
 
 // Weekday Lords (0 = Sunday, 6 = Saturday)
 export const WEEKDAY_LORDS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
 
-// Mudda Dasha sequence and years (Vimshottari sequence excluding Ketu, maintaining relative order)
-export const MUDDA_DASHA_SEQUENCE = ["Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"];
-export const MUDDA_DASHA_YEARS = { Venus: 20, Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16, Saturn: 19, Mercury: 17 };
-// Sum of MUDDA_DASHA_YEARS (20+6+10+7+18+16+19+17 = 113)
-export const MUDDA_TOTAL_YEARS = 113;
+// Mudda Dasha sequence and years (Vimshottari sequence)
+export const MUDDA_DASHA_SEQUENCE = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"];
+export const MUDDA_DASHA_YEARS = { Ketu: 7, Venus: 20, Sun: 6, Moon: 10, Mars: 7, Rahu: 18, Jupiter: 16, Saturn: 19, Mercury: 17 };
+// Sum of MUDDA_DASHA_YEARS = 120
+export const MUDDA_TOTAL_YEARS = 120;
 
 // KP Sublord details (Calculated spans in decimal degrees)
 // Source: Based on standard KP Vimshottari proportions. Accuracy depends on source verification.

@@ -64,10 +64,11 @@
 
 /* --- SAV Section Styles --- */
 .sav-section {
-  display: flex;          /* Use flexbox */
-  justify-content: center; /* Center child horizontally */
-  align-items: center;    /* Center child vertically (optional) */
+  text-align: center; /* Center block-level children (h3, div containing chart) */
   margin-bottom: 30px;    /* Keep existing margin */
+}
+.sav-section h3 {
+    text-align: center; /* Ensure h3 itself is centered */
 }
 
 /* Optional: Ensure the SAV chart container doesn't take full width if not needed */
@@ -138,13 +139,10 @@
 }
 
 /* Adjust title size for smaller BAV charts */
-.bav-chart-grid .chart-title {
-  font-size: 0.95em; /* Slightly larger title for bigger charts */
-  margin-bottom: 5px;
-  white-space: nowrap; /* Prevent title from wrapping */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%; /* Title max width matches container */
+.chart-title {
+    text-align: center;
+    margin-top: 10px; /* Space above title */
+    margin-bottom: 5px; /* Space below title */
 }
 
 /* Responsive adjustment: Switch to 2 columns on smaller screens */

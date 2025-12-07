@@ -48,7 +48,7 @@ function AppWrapper() {
 
   // --- Function to perform main calculation ---
   const performCalculation = async (params) => {
-    console.log("Performing main calculation with:", params);
+    
     setIsLoading(true);
     setError(null);
     setMainResult(null); // Clear previous result
@@ -60,7 +60,7 @@ function AppWrapper() {
     try {
       const response = await api.post('/calculate', params);
       setMainResult(response.data);
-      console.log("Main calculation successful:", response.data);
+      
     } catch (err) {
       console.error("Main calculation error:", err.response?.data || err.message || err);
       const backendError = err.response?.data?.error || err.response?.data?.message;

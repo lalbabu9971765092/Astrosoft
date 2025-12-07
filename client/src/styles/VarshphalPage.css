@@ -23,7 +23,7 @@
 }
 
 /* Reuse form-row, input-group styles from PrashnaPage.css if applicable */
-.varshphal-controls .form-row {
+.varshphal-page .form-row {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
@@ -32,7 +32,7 @@
     justify-content: center; /* Center content */
 }
 
-.varshphal-controls .input-group {
+.varshphal-page .input-group {
     flex: 1; /* Allow groups to grow */
     min-width: 150px; /* Prevent excessive shrinking */
     display: flex;
@@ -40,13 +40,13 @@
     align-items: center; /* Center label/input */
 }
 
-.varshphal-controls .input-group label {
+.varshphal-page .input-group label {
     margin-bottom: 5px;
     font-weight: bold;
     font-size: 0.9em;
 }
 
-.varshphal-controls .input-group input[type="number"] {
+.varshphal-page .input-group input[type="number"] {
     padding: 8px 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -65,7 +65,7 @@
     /* Styles for the results container */
 }
 
-.result-section {
+.varshphal-page .result-section {
     background-color: #fff;
     padding: 15px;
     margin-bottom: 20px; /* Increased spacing */
@@ -73,7 +73,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     border: 1px solid #eee; /* Added subtle border */
 }
-.input-summary {
+.varshphal-page .input-summary {
     font-style: italic;
     color: #555;
     background-color: #eef;
@@ -82,7 +82,7 @@
     line-height: 1.4;
 }
 
-.result-sub-title {
+.varshphal-page .result-sub-title {
     margin-top: 0;
     margin-bottom: 15px;
     border-bottom: 1px solid #eee;
@@ -91,16 +91,59 @@
     font-size: 1.15em; /* Slightly larger */
 }
 
+/* Wrapper for tables to enable horizontal scrolling if content overflows */
+.varshphal-page .table-wrapper {
+    max-height: 500px; /* Increased max-height slightly */
+    overflow-x: auto; /* Enable horizontal scroll */
+    overflow-y: auto; /* Enable vertical scroll */
+    border: 1px solid #ddd;
+    border-radius: 4px; /* Add slight rounding */
+    margin-top: 10px; /* Space above the table */
+}
+
+/* --- General Results Table Styling --- */
+.varshphal-page .results-table {
+    width: 100%;
+    min-width: 600px; /* Ensure table has a minimum width before scrolling */
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+
+.varshphal-page .results-table th,
+.varshphal-page .results-table td {
+    border: 1px solid #e0e0e0; /* Lighter border */
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap; /* Prevent wrapping by default, rely on scroll */
+}
+
+.varshphal-page .results-table thead th {
+    background-color: #f8f9fa;
+    position: sticky; /* Keep header visible on scroll */
+    top: 0;
+    z-index: 1;
+    font-weight: bold; /* Ensure header is bold */
+}
+
+.varshphal-page .results-table tbody tr:nth-child(even) {
+    background-color: #fdfdfd;
+}
+
+.varshphal-page .results-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
 /* Styles for tables within results columns */
-.results-column table {
+.varshphal-page .results-column table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
     table-layout: fixed; /* Ensures columns are equally sized */
 }
 
-.results-column th,
-.results-column td {
+.varshphal-page .results-column th,
+.varshphal-page .results-column td {
     border: 1px solid #ddd;
     padding: 8px; /* Ensure adequate padding */
     text-align: left;
@@ -108,20 +151,20 @@
     white-space: normal; /* Allow text to wrap naturally */
 }
 
-.results-column th {
+.varshphal-page .results-column th {
     background-color: #f2f2f2;
     font-weight: bold;
 }
 
-/* Wrapper for tables to enable horizontal scrolling if content overflows */
-.result-section.planetary-positions,
-.result-section.house-cusps,
-.result-section.kp-significators,
-.result-section.mudda-dasha {
+.varshphal-page .result-section.planetary-positions,
+.varshphal-page .result-section.house-cusps,
+.varshphal-page .result-section.kp-significators,
+.varshphal-page .result-section.mudda-dasha,
+.varshphal-page .result-section.upbs-table { /* Added upbs-table */
     overflow-x: auto; /* Enable horizontal scrolling for tables */
 }
 
-.varshphal-chart-wrapper {
+.varshphal-page .varshphal-chart-wrapper {
     display: flex;
     justify-content: center; /* Center the chart */
     align-items: center; /* Center vertically */
@@ -129,32 +172,30 @@
     height: 400px; /* Fixed height for the chart container */
     margin: 0 auto 20px auto; /* Center horizontally and add bottom margin */
     overflow: hidden; /* Hide overflowing content */
-    /* Optional: Add a border or background to visualize the container */
-    /* border: 1px dashed blue; */
 }
 
-.varshphal-details h4 { /* Style for the "Key Details" heading */
+.varshphal-page .varshphal-details h4 { /* Style for the "Key Details" heading */
     margin-top: 0;
     margin-bottom: 10px;
     font-size: 1.05em;
     color: #444;
 }
-.varshphal-details p {
+.varshphal-page .varshphal-details p {
     margin: 8px 0; /* Increased spacing */
     line-height: 1.5;
 }
-.varshphal-details strong {
+.varshphal-page .varshphal-details strong {
     margin-right: 5px;
 }
 
 /* Reuse loader, error-text, info-text styles */
-.loader {
+.varshphal-page .loader {
     text-align: center;
     padding: 20px;
     font-style: italic;
     color: #666;
 }
-.error-text {
+.varshphal-page .error-text {
     color: #dc3545;
     font-weight: bold;
     background-color: #f8d7da;
@@ -164,29 +205,100 @@
     margin-top: 10px;
     text-align: center;
 }
-.info-text {
+.varshphal-page .info-text {
     color: grey;
     text-align: center;
     padding: 15px;
 }
 
 /* Two-column layout using CSS Grid */
-.two-column-layout {
+.varshphal-page .two-column-layout {
     display: grid;
     /* Creates 2 columns if space allows (min 350px each), otherwise 1 column */
     grid-template-columns: 1fr 1fr; /* Ensure both columns take equal fractions of available space */
     gap: 25px; /* Increased gap */
 }
 
-.results-column {
+.varshphal-page .results-column {
     /* Styles for individual columns */
-    /* No flex properties needed when using grid like this */
 }
 
+/* --- UPBS Specific Styles --- */
+.varshphal-page .upbs-table th,
+.varshphal-page .upbs-table td {
+    text-align: right; /* Align scores to the right */
+    min-width: 50px; /* Adjust min-width for score columns */
+}
+
+.varshphal-page .upbs-table th:first-child,
+.varshphal-page .upbs-table td:first-child {
+    text-align: left; /* Planet name to the left */
+    font-weight: bold;
+    min-width: 80px;
+}
+
+.varshphal-page .upbs-table td:last-child {
+    text-align: left; /* Interpretation to the left */
+    min-width: 120px;
+}
+
+.varshphal-page .upbs-legend {
+    font-size: 0.85em;
+    background-color: #f0f8ff; /* Light blue background */
+    border: 1px solid #b0e0e6;
+    border-radius: 4px;
+    padding: 10px;
+    margin-top: 20px;
+    line-height: 1.6;
+}
+
+.varshphal-page .upbs-legend h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.varshphal-page .upbs-legend ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.varshphal-page .upbs-legend li {
+    margin-bottom: 5px;
+}
+
+
 /* Media query for very small screens if needed */
-@media (max-width: 400px) {
-    .two-column-layout {
+@media (max-width: 768px) {
+    .varshphal-page .two-column-layout {
         /* Ensure single column even if minmax allows two */
         grid-template-columns: 1fr;
+    }
+    .varshphal-page .results-table {
+        font-size: 0.85em; /* Slightly smaller font on mobile */
+        min-width: 0; /* Remove min-width, rely on scrolling */
+    }
+
+    .varshphal-page .results-table th,
+    .varshphal-page .results-table td {
+        padding: 4px 5px; /* Reduce padding */
+        white-space: nowrap; /* Force nowrap and scrolling */
+    }
+
+    .varshphal-page .upbs-table th,
+    .varshphal-page .upbs-table td {
+        min-width: 40px; /* Further reduce min-width for scores */
+    }
+    .varshphal-page .upbs-table th:first-child,
+    .varshphal-page .varshphal-page .upbs-table td:first-child {
+        min-width: 70px;
+    }
+    .varshphal-page .upbs-table td:last-child {
+        min-width: 100px;
+    }
+
+    .varshphal-page .result-sub-title {
+        font-size: 1em; /* Slightly smaller sub-titles */
     }
 }

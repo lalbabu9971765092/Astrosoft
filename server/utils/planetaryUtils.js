@@ -3,7 +3,7 @@
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
 import { NAKSHATRAS, NAKSHATRA_SPAN, RASHIS, RASHI_LORDS, RASHI_SPAN, VARJYAM_START_FRACTION,
-    PLANET_ORDER, SUBLORD_DATA, VIMS_DASHA_SEQUENCE, VIMS_DASHA_YEARS, NAKSHATRA_PADA_ALPHABETS
+    PLANET_ORDER, SUBLORD_DATA, VIMS_DASHA_SEQUENCE, VIMS_DASHA_YEARS, NAKSHATRA_PADA_ALPHABETS, PLANETARY_RELATIONS
 } from './constants.js';
 import { normalizeAngle, convertToDMS, calculateAyanamsa, getJulianDateUT } from './coreUtils.js';
 import moment from 'moment-timezone';
@@ -378,6 +378,15 @@ export function calculatePlanetaryPositions(julianDayUT) {
         if (!results.sidereal.Moon) {
             logger.error(`Moon data is missing from sidereal results after calculatePlanetaryPositions for JD ${julianDayUT}.`);
         }
+
+        const sunLongitude = results.sidereal.Sun.longitude;
+        const avasthas = calculateAvasthas(results.sidereal, sunLongitude);
+
+        for (const planetName in results.sidereal) {
+            if (avasthas[planetName]) {
+                results.sidereal[planetName].avasthas = avasthas[planetName];
+            }
+        }
        
 
         return results;
@@ -541,6 +550,103 @@ export function calculateAspects(siderealPositions) { // Removed siderealCuspSta
 
 
 /**
+ * Calculates various planetary states (Avasthas).
+ * @param {object} siderealPositions - Object containing sidereal positions { Sun: { longitude, rashi, ... }, ... }.
+ * @param {number} sunLongitude - The sidereal longitude of the Sun.
+ * @returns {object} Object mapping planet names to their calculated states.
+ */
+export function calculateAvasthas(siderealPositions, sunLongitude) {
+    const avasthas = {};
+
+    const combustionOrbs = {
+        Moon: 12,
+        Mercury: 14,
+        Venus: 10,
+        Mars: 17,
+        Jupiter: 11,
+        Saturn: 15
+    };
+
+    const planetStates = calculatePlanetStates(siderealPositions);
+
+    for (const planetName in siderealPositions) {
+        const planetData = siderealPositions[planetName];
+        if (!planetData || !planetData.rashi || planetData.rashi === "N/A") {
+            avasthas[planetName] = {
+                isRetrograde: false,
+                isCombust: false,
+                dignity: "Unknown",
+                balaadi: "Unknown",
+                jagradadi: "Unknown",
+                deeptaadi: "Unknown"
+            };
+            continue;
+        }
+
+        const isRetrograde = planetData.speedLongitude < 0;
+
+        let isCombust = false;
+        if (planetName !== 'Sun' && planetName !== 'Rahu' && planetName !== 'Ketu' && combustionOrbs[planetName]) {
+            const diff = Math.abs(normalizeAngle(planetData.longitude - sunLongitude));
+            if (diff < combustionOrbs[planetName] || diff > 360 - combustionOrbs[planetName]) {
+                isCombust = true;
+            }
+        }
+
+        const dignity = planetStates[planetName];
+
+        const longitudeInRashi = normalizeAngle(planetData.longitude) % 30;
+        const rashiIndex = getRashiDetails(planetData.longitude).index;
+        let balaadi = 'Unknown';
+        if (rashiIndex % 2 === 0) { // Odd signs
+            if (longitudeInRashi < 6) balaadi = 'Bala';
+            else if (longitudeInRashi < 12) balaadi = 'Kumara';
+            else if (longitudeInRashi < 18) balaadi = 'Yuva';
+            else if (longitudeInRashi < 24) balaadi = 'Vriddha';
+            else balaadi = 'Mrita';
+        } else { // Even signs
+            if (longitudeInRashi < 6) balaadi = 'Mrita';
+            else if (longitudeInRashi < 12) balaadi = 'Vriddha';
+            else if (longitudeInRashi < 18) balaadi = 'Yuva';
+            else if (longitudeInRashi < 24) balaadi = 'Kumara';
+            else balaadi = 'Bala';
+        }
+
+        let jagradadi = 'Shayana';
+        if (dignity === 'Own Sign' || dignity === 'Moolatrikona' || dignity === 'Exalted') {
+            jagradadi = 'Jagrata';
+        } else if (dignity === 'Friend') {
+            jagradadi = 'Swapna';
+        }
+        
+        let deeptaadi = 'Unknown';
+        if (isCombust) {
+            deeptaadi = 'Vikala';
+        } else {
+            switch (dignity) {
+                case 'Exalted': deeptaadi = 'Deepta'; break;
+                case 'Moolatrikona': deeptaadi = 'Swastha'; break;
+                case 'Own Sign': deeptaadi = 'Pramudita'; break;
+                case 'Friend': deeptaadi = 'Shanta'; break;
+                case 'Neutral': deeptaadi = 'Deena'; break;
+                case 'Enemy': deeptaadi = 'Dukḥita'; break;
+                case 'Debilitated': deeptaadi = 'Khala'; break;
+            }
+        }
+
+        avasthas[planetName] = {
+            isRetrograde,
+            isCombust,
+            dignity,
+            balaadi,
+            jagradadi,
+            deeptaadi
+        };
+    }
+    return avasthas;
+}
+
+/**
  * Calculates basic planetary states (e.g., exaltation, debilitation, own sign, moolatrikona).
  * @param {object} siderealPositions - Object containing sidereal positions { Sun: { longitude, rashi, ... }, ... }.
  * @returns {object} Object mapping planet names to their calculated state string.
@@ -580,6 +686,14 @@ export function calculatePlanetStates(siderealPositions) {
         else if (rules.own.includes(rashi)) {
              if (rashi === rules.moolatrikona) state = "Moolatrikona";
              else state = "Own Sign";
+        } else {
+            const rashiLord = RASHI_LORDS[RASHIS.indexOf(rashi)];
+            const relations = PLANETARY_RELATIONS[planetName];
+            if (relations) {
+                if (relations.friends.includes(rashiLord)) state = 'Friend';
+                else if (relations.enemies.includes(rashiLord)) state = 'Enemy';
+                else if (relations.neutrals.includes(rashiLord)) state = 'Neutral';
+            }
         }
 
         states[planetName] = state;

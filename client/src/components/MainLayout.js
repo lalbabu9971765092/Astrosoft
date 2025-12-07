@@ -71,9 +71,9 @@ const MainLayout = () => {
                 </div>
             </div>
 
-            <div style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.8em', fontWeight: 'bold', color: '#3498db', textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
+            <div className="prepared-by-text" style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.8em', fontWeight: 'bold', color: '#3498db', textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
                 {t('sharedLayout.preparedBy')}
-            </div>
+.            </div>
 
             <main className="main-content">
                 <Outlet />

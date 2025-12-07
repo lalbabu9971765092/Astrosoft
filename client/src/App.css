@@ -216,3 +216,31 @@
   color: var(--color-red);
   font-weight: bold;
 }
+
+@media print {
+
+  .main-nav,
+
+  .nav-button,
+
+  div[style*="justify-content: flex-end"],
+
+  .prepared-by-text {
+
+    display: none !important;
+
+  }
+
+
+
+  .main-content {
+
+    max-width: 100%;
+
+    margin: 0;
+
+    padding: 0;
+
+  }
+
+}

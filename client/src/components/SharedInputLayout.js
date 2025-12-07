@@ -16,6 +16,7 @@ import {
 } from './AstrologyUtils';
 import api from './api';
 import TimeAdjustmentTool from './TimeAdjustmentTool';
+import PrintableReport from './PrintableReport';
 
 const SharedInputLayout = () => {
     const { t } = useTranslation();
@@ -50,7 +51,7 @@ const SharedInputLayout = () => {
     const [transitResult, setTransitResult] = useState(null);
     const [isCalculatingTransit, setIsCalculatingTransit] = useState(false);
     const [transitError, setTransitError] = useState(null);
-
+    const [isPrinting, setIsPrinting] = useState(false);
 
     const fetchSavedCharts = useCallback(async () => {
         try {
@@ -289,7 +290,7 @@ const SharedInputLayout = () => {
 
         const { formattedDate } = dateTimeValidation;
         const { latitude, longitude } = coordsValidation;
-        const currentInputParams = { date: formattedDate, latitude, longitude, placeName: placeName };
+        const currentInputParams = { date: formattedDate, latitude, longitude, placeName: placeName, name: name, gender: gender };
 
         try {
             const [mainResponse, kpResponse] = await Promise.all([
@@ -325,7 +326,7 @@ const SharedInputLayout = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [date, coords, placeName, t, calculationInputParams]);
+    }, [date, coords, placeName, t, calculationInputParams, name, gender]);
 
     const handleUpdateTransit = useCallback(async (e, newTransitDate = null) => {
         if (e) e.preventDefault();
@@ -382,6 +383,8 @@ const SharedInputLayout = () => {
 
         handleCalculateAll(null, newDateTimeString);
     }, [handleCalculateAll]);
+
+
 
     const handleGocharTimeChange = useCallback((newDateTimeString) => {
         setAdjustedGocharDateTimeString(newDateTimeString);
@@ -591,18 +594,32 @@ const SharedInputLayout = () => {
             </div>
 
             <div className="content-area">
-                <Outlet context={{
-                    mainResult, kpResult, isLoading, error, calculationInputParams,
-                    adjustedBirthDateTimeString, handleBirthTimeChange,
-                    adjustedGocharDateTimeString, handleGocharTimeChange,
-                    locationForGocharTool, currentName: name, currentGender: gender,
-                    currentDate: date, currentCoords: coords, currentPlaceName: placeName,
-                    isGeocoding, isFetchingLocation, transitDateTime, transitResult,
-                    isCalculatingTransit, transitError, transitPlaceName: displayedTransitPlaceName
-                 }} />
+                {isPrinting ? (
+                    <PrintableReport
+                        calculationInputParams={calculationInputParams}
+                        varshphalYear={new Date().getFullYear()}
+                        setIsPrinting={setIsPrinting}
+                    />
+                ) : (
+                    <>
+                        <button onClick={() => setIsPrinting(true)} style={{ marginLeft: '5px' }} className="nav-button" disabled={!calculationInputParams}>
+                            Print
+                        </button>
+                        <Outlet context={{
+                            mainResult, kpResult, isLoading, error, calculationInputParams,
+                            adjustedBirthDateTimeString, handleBirthTimeChange,
+                            adjustedGocharDateTimeString, handleGocharTimeChange,
+                            locationForGocharTool, currentName: name, currentGender: gender,
+                            currentDate: date, currentCoords: coords, currentPlaceName: placeName,
+                            isGeocoding, isFetchingLocation, transitDateTime, transitResult,
+                            isCalculatingTransit, transitError, transitPlaceName: displayedTransitPlaceName
+                         }} />
+                    </>
+                )}
             </div>
         </div>
     );
-};
+}
+
 
 export default SharedInputLayout;
