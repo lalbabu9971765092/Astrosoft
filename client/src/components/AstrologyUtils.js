@@ -791,10 +791,35 @@ export const createChartHousesFromAscendant = (ascendantDms, t) => {
 
     const housesArray = [];
     for (let i = 0; i < 12; i++) {
+        const house_number = i + 1;
         const currentRashiIndex = (ascendantRashiIndex + i) % 12;
-        const rashiStartDeg = currentRashiIndex * 30;
+        const rashiStartDeg = currentRashiIndex * RASHI_SPAN; // Start of the Rashi is the start of the house
+
+        const rashiEndDeg = normalizeAngle(rashiStartDeg + RASHI_SPAN); // End of the Rashi/house
+        const rashiMeanDeg = normalizeAngle(rashiStartDeg + RASHI_SPAN / 2); // Mean of the Rashi/house
+
+        const start_rashi_name = RASHIS[currentRashiIndex];
+        const start_rashi_lord = getRashiLord(start_rashi_name, t);
+
+        const start_nakshatra_name = calculateNakshatra(rashiStartDeg, t);
+        const start_nakshatra_lord = getNakshatraLord(start_nakshatra_name, t);
+        
+        // For D9 houses, we are generating sign-based houses.
+        // There isn't a direct "sub-lord" for a house cusp in this simplified generation.
+        // It would typically come from more detailed calculations. Set to null for now.
+        const start_sub_lord = t('utils.notAvailable', 'N/A'); // Not calculated client-side
+
         housesArray.push({
-            start_dms: convertToDMS(rashiStartDeg, t)
+            house_number: house_number,
+            start_dms: convertToDMS(rashiStartDeg, t),
+            mean_dms: convertToDMS(rashiMeanDeg, t),
+            end_dms: convertToDMS(rashiEndDeg, t),
+            start_rashi: start_rashi_name,
+            start_rashi_lord: start_rashi_lord,
+            start_nakshatra: start_nakshatra_name,
+            start_nakshatra_lord: start_nakshatra_lord,
+            start_sub_lord: start_sub_lord,
+            // You might add other properties if needed for display, like pada
         });
     }
     return housesArray;

@@ -15,14 +15,14 @@ import {
     convertDMSToDegrees, getNakshatraPadaAlphabet,
     calculateMidpoint, calculateSunMoonTimes, calculateBadhakDetails, calculateLongevityFactors, calculateHouseBasedLongevity,
     calculatePlanetaryPositions, calculateVimshottariBalance, calculateVimshottariDashas,
-    calculateNavamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
+    calculateNavamsaLongitude, calculateHoraLongitude, calculateDrekkanaLongitude, calculateSaptamsaLongitude, calculateDwadasamsaLongitude, calculateTrimsamsaLongitude, calculateShashtiamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
     calculateMoolDosha, calculatePlanetStates, calculateAspects,
     PLANETARY_RELATIONS, FRIENDSHIP_PLANETS_ORDER, calculateTemporalFriendshipForPlanet,
     getResultingFriendship, calculateShadbala, calculateBhinnaAshtakavarga,
     calculateSarvaAshtakavarga, ASHTAKAVARGA_PLANETS, calculateSolarReturnJulianDay,
     calculateMuntha, calculateYearLord, calculateMuddaDasha, RASHIS,
-    getNumberBasedAscendantDegree, getSubLordDetails, getSubSubLordDetails, NAKSHATRA_SPAN, calculateKpSignificators, getHouseOfPlanet,
-    calculateUPBS
+    getNumberBasedAscendantDegree, getSubLordDetails, getSubSubLordDetails, NAKSHATRA_SPAN, RASHI_SPAN, calculateKpSignificators, getHouseOfPlanet,
+    calculateUPBS, calculateAllBirthChartYogas
 } from '../utils/index.js'; // Adjust path if your index is elsewhere or import directly
 import { calculatePanchang } from '../utils/panchangUtils.js';
 import { calculateHousesAndAscendant } from '../utils/coreUtils.js';
@@ -66,7 +66,8 @@ function handleRouteError(res, error, routeName, inputData = {}) {
 const baseChartValidation = [
     body('date').isISO8601().withMessage('Invalid date format. Expected ISO8601 (YYYY-MM-DDTHH:MM:SS).'),
     body('latitude').isFloat({ min: -90, max: 90 }).toFloat().withMessage('Latitude must be a number between -90 and 90.'),
-    body('longitude').isFloat({ min: -180, max: 180 }).toFloat().withMessage('Longitude must be a number between -180 and 180.')
+    body('longitude').isFloat({ min: -180, max: 180 }).toFloat().withMessage('Longitude must be a number between -180 and 180.'),
+    body('lang').optional().isIn(['en', 'hi']).withMessage('Language must be "en" or "hi".')
 ];
 
 const rotatedChartValidation = [
@@ -116,6 +117,92 @@ const deleteChartValidation = [
     param('id').isMongoId().withMessage('Invalid Chart ID format.')
 ];
 
+// Helper function to calculate planets and houses for a given divisional chart
+const calculateDivisionalChartData = (siderealPositions, siderealAscendantDeg, divisionalCalculationFunction) => {
+    const divisional_planets = {};
+    PLANET_ORDER.forEach(planetName => {
+        const siderealData = siderealPositions[planetName];
+        if (siderealData && typeof siderealData.longitude === 'number' && !isNaN(siderealData.longitude)) {
+            try {
+                const divisionalLongitude = divisionalCalculationFunction(siderealData.longitude);
+                const divisionalNakDetails = getNakshatraDetails(divisionalLongitude);
+                const divisionalRashiDetails = getRashiDetails(divisionalLongitude);
+                const divisionalPada = calculateNakshatraPada(divisionalLongitude);
+                const divisionalSubLordDetails = getSubLordDetails(divisionalLongitude);
+                const divisionalPositionWithinNakshatra = divisionalLongitude - (divisionalNakDetails.index * NAKSHATRA_SPAN);
+                const divisionalSubSubLordDetails = getSubSubLordDetails(divisionalPositionWithinNakshatra, divisionalSubLordDetails);
+
+                divisional_planets[planetName] = {
+                    longitude: divisionalLongitude,
+                    dms: convertToDMS(divisionalLongitude),
+                    nakshatra: divisionalNakDetails.name,
+                    nakLord: divisionalNakDetails.lord,
+                    rashi: divisionalRashiDetails.name,
+                    rashiLord: divisionalRashiDetails.lord,
+                    pada: divisionalPada,
+                    subLord: divisionalSubLordDetails.lord,
+                    subSubLord: divisionalSubSubLordDetails.lord,
+                    // Inherit avasthas from D1 for now, or calculate if specific logic exists
+                    avasthas: siderealData.avasthas ? { ...siderealData.avasthas } : { dignity: 'N/A', balaadi: 'N/A', jagradadi: 'N/A', deeptaadi: 'N/A', speedLongitude: 'N/A', isRetrograde: false, isCombust: false },
+                };
+            } catch (divisionalError) {
+                logger.warn(`Divisional calculation (${divisionalCalculationFunction.name}) failed for ${planetName}: ${divisionalError.message}`);
+                divisional_planets[planetName] = {
+                    dms: "Error",
+                    avasthas: { dignity: 'N/A', balaadi: 'N/A', jagradadi: 'N/A', deeptaadi: 'N/A', speedLongitude: 'N/A', isRetrograde: false, isCombust: false }
+                };
+            }
+        } else if (PLANET_ORDER.includes(planetName)) {
+            divisional_planets[planetName] = {
+                dms: "N/A",
+                avasthas: { dignity: 'N/A', balaadi: 'N/A', jagradadi: 'N/A', deeptaadi: 'N/A', speedLongitude: 'N/A', isRetrograde: false, isCombust: false }
+            };
+        }
+    });
+
+    let divisionalAscendantDms = "N/A";
+    let divisionalAscendantDeg;
+    const divisionalHouses = [];
+
+    try {
+        divisionalAscendantDeg = divisionalCalculationFunction(siderealAscendantDeg);
+        divisionalAscendantDms = convertToDMS(divisionalAscendantDeg);
+
+        const ascendantRashiName = getRashiDetails(divisionalAscendantDeg).name;
+        const ascendantRashiIndex = RASHIS.indexOf(ascendantRashiName);
+
+        if (ascendantRashiIndex !== -1) {
+            for (let i = 0; i < 12; i++) {
+                const house_number = i + 1;
+                const currentRashiIndex = (ascendantRashiIndex + i) % 12;
+                const rashiStartDeg = currentRashiIndex * RASHI_SPAN;
+
+                const rashiEndDeg = normalizeAngle(rashiStartDeg + RASHI_SPAN);
+                const rashiMeanDeg = normalizeAngle(rashiStartDeg + RASHI_SPAN / 2);
+
+                const start_rashi_details = getRashiDetails(rashiStartDeg);
+                const start_nakshatra_details = getNakshatraDetails(rashiStartDeg);
+                const start_sub_lord_details = getSubLordDetails(rashiStartDeg);
+
+                divisionalHouses.push({
+                    house_number: house_number,
+                    start_dms: convertToDMS(rashiStartDeg),
+                    mean_dms: convertToDMS(rashiMeanDeg),
+                    end_dms: convertToDMS(rashiEndDeg),
+                    start_rashi: start_rashi_details.name,
+                    start_rashi_lord: start_rashi_details.lord,
+                    start_nakshatra: start_nakshatra_details.name,
+                    start_nakshatra_lord: start_nakshatra_details.lord,
+                    start_sub_lord: start_sub_lord_details.lord,
+                });
+            }
+        }
+    } catch (ascError) {
+        logger.warn(`Divisional Ascendant calculation (${divisionalCalculationFunction.name}) failed: ${ascError.message}`);
+    }
+    return { divisional_planets, divisionalHouses, divisional_ascendant_dms: divisionalAscendantDms };
+};
+
 // --- Route: Calculate Astrology Details ---
 router.post('/calculate', baseChartValidation, async (req, res) => { // Added async
     const errors = validationResult(req);
@@ -125,7 +212,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
 
     try {
         // Destructure validated data
-        const { date, latitude, longitude, placeName } = req.body;
+        const { date, latitude, longitude, placeName, lang } = req.body;
         const latNum = latitude; // Already parsed to float by validator
         const lonNum = longitude; // Already parsed to float by validator
 
@@ -201,6 +288,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             const startSubLordDetails = getSubLordDetails(startDeg); // Calculate sub lord for the cusp start
             housesData.push({
                 house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
+                start_deg: startDeg, // ADDED: Numerical degree for house cusp start
                 mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
                 mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
                 start_rashi: startRashiDetails.name,
@@ -220,33 +308,29 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
         const dashaBalance = calculateVimshottariBalance(siderealPositions['Moon']?.longitude); // Throws on error
         const dashaPeriods = calculateVimshottariDashas(utcDate, dashaBalance); // Throws on error
 
-        const d9_planets = {};
-        const planetsToCalculate = PLANET_ORDER || Object.keys(siderealPositions);
-        planetsToCalculate.forEach(planetName => {
-            const siderealData = siderealPositions[planetName];
-            if (siderealData && typeof siderealData.longitude === 'number' && !isNaN(siderealData.longitude)) {
-                try {
-                    const d9Longitude = calculateNavamsaLongitude(siderealData.longitude);
-                    const d9NakDetails = getNakshatraDetails(d9Longitude);
-                    const d9RashiDetails = getRashiDetails(d9Longitude);
-                    d9_planets[planetName] = { longitude: d9Longitude, dms: convertToDMS(d9Longitude), nakshatra: d9NakDetails.name, nakLord: d9NakDetails.lord, rashi: d9RashiDetails.name, rashiLord: d9RashiDetails.lord, pada: calculateNakshatraPada(d9Longitude) };
-                } catch (d9Error) {
-                     logger.warn(`D9 calculation failed for ${planetName}: ${d9Error.message}`);
-                     d9_planets[planetName] = { dms: "Error" };
-                }
-            } else if (PLANET_ORDER.includes(planetName)) {
-                 d9_planets[planetName] = { dms: "N/A" };
-            }
-        });
-        let d9AscendantDms = "Error";
-        try {
-            const d9AscendantDeg = calculateNavamsaLongitude(siderealAscendantDeg);
-            d9AscendantDms = convertToDMS(d9AscendantDeg);
-        } catch(d9AscError) {
-             logger.warn(`D9 Ascendant calculation failed: ${d9AscError.message}`);
-        }
+        // D9 (Navamsa) Calculations
+        const { divisional_planets: d9_planets, divisionalHouses: d9_houses, divisional_ascendant_dms: d9_ascendant_dms } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateNavamsaLongitude);
 
+        // D2 (Hora) Calculations
+        const { divisional_planets: d2_planets, divisionalHouses: d2_houses, divisional_ascendant_dms: d2_ascendant_dms } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateHoraLongitude);
+
+        // D3 (Drekkana) Calculations
+        const { divisional_planets: d3_planets, divisionalHouses: d3_houses, divisional_ascendant_dms: d3_ascendant_dms } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateDrekkanaLongitude);
+
+        // D7 (Saptamsa) Calculations
+        const { divisional_planets: d7_planets, divisionalHouses: d7_houses, divisional_ascendant_dms: d7_ascendant_dms } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateSaptamsaLongitude);
+
+        // D12 (Dwadasamsa) Calculations
+        const { divisional_planets: d12_planets, divisionalHouses: d12_houses, divisional_ascendant_dms: d12_ascendant_dms } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateDwadasamsaLongitude);
+
+        // D30 (Trimsamsa) Calculations
+        const { divisional_planets: d30_planets, divisionalHouses: d30_houses, divisional_ascendant_dms: d30_ascendant_dms } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateTrimsamsaLongitude);
+
+        // D60 (Shashtiamsa) Calculations
+        const { divisional_planets: d60_planets, divisionalHouses: d60_houses, divisional_ascendant_dms: d60_ascendant_dms } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateShashtiamsaLongitude);
+        
         const mangalDoshaResult = calculateMangalDosha(siderealPositions, siderealCuspStartDegrees, siderealAscendantDeg);
+
         const kaalsarpaDoshaResult = calculateKaalsarpaDosha(siderealPositions);
         const moolDoshaResult = await calculateMoolDosha(date, latNum, lonNum, siderealPositions, sunriseMoment, nextSunriseMoment);
         const { directAspects, reverseAspects } = calculateAspects(siderealPositions, siderealCuspStartDegrees);
@@ -317,6 +401,8 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
         }
 
+        const allBirthChartYogas = calculateAllBirthChartYogas(siderealPositions, housesData, lang);
+
         // --- Assemble Response Payload ---
          const responsePayload = {
             inputParameters: { date: date, latitude: latNum, longitude: lonNum, placeName: placeName || '', utcDate: utcDate.toISOString(), julianDayUT: julianDayUT, ayanamsa: ayanamsa, timezoneOffsetHours: timezoneOffsetHours }, // Added placeName, offset
@@ -351,9 +437,28 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             },
             dashaPeriods: dashaPeriods,
             d9_planets: d9_planets,
-            d9_ascendant_dms: d9AscendantDms,
+            d9_ascendant_dms: d9_ascendant_dms,
+            d9_houses: d9_houses,
+            d2_planets: d2_planets,
+            d2_ascendant_dms: d2_ascendant_dms,
+            d2_houses: d2_houses,
+            d3_planets: d3_planets,
+            d3_ascendant_dms: d3_ascendant_dms,
+            d3_houses: d3_houses,
+            d7_planets: d7_planets,
+            d7_ascendant_dms: d7_ascendant_dms,
+            d7_houses: d7_houses,
+            d12_planets: d12_planets,
+            d12_ascendant_dms: d12_ascendant_dms,
+            d12_houses: d12_houses,
+            d30_planets: d30_planets,
+            d30_ascendant_dms: d30_ascendant_dms,
+            d30_houses: d30_houses,
+            d60_planets: d60_planets,
+            d60_ascendant_dms: d60_ascendant_dms,
+            d60_houses: d60_houses,
             panchang: detailedPanchang, // Includes Masa, Samvat etc. from calculatePanchang
-                       doshas: {
+            doshas: {
                 mangal: mangalDoshaResult,
                 kaalsarpa: kaalsarpaDoshaResult,
                 mool: moolDoshaResult
@@ -369,6 +474,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
                 upbsScores: upbsScores // <--- ADD THIS
             },
             ashtakavarga: ashtakavargaResult,
+            yogas: allBirthChartYogas,
         };
         
         res.json(responsePayload);
@@ -376,6 +482,66 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
     } catch (error) {
         // Use the centralized error handler
         handleRouteError(res, error, '/calculate', req.body);
+    }
+});
+
+// --- Route: Calculate Birth Chart Yogas ---
+router.post('/yogas', baseChartValidation, async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const { date, latitude, longitude, lang } = req.body;
+        const latNum = latitude;
+        const lonNum = longitude;
+
+        const { julianDayUT, utcDate } = getJulianDateUT(date, latNum, lonNum);
+
+        if (julianDayUT === null) {
+            throw new Error('Failed to calculate Julian Day UT.');
+        }
+
+        const ayanamsa = calculateAyanamsa(julianDayUT);
+        if (isNaN(ayanamsa)) {
+             throw new Error(`Failed to calculate Ayanamsa for JD ${julianDayUT}`);
+        }
+
+        const { tropicalAscendant, tropicalCusps } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
+        if (tropicalCusps === null) {
+             throw new Error(`Failed to calculate House Cusps for JD ${julianDayUT}, Lat ${latNum}, Lon ${lonNum}`);
+        }
+
+        const siderealAscendantDeg = normalizeAngle(tropicalAscendant - ayanamsa);
+        const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
+
+        const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
+        const siderealPositions = planetaryPositions.sidereal;
+
+        const housesData = [];
+        for (let i = 0; i < 12; i++) {
+            const houseNumber = i + 1;
+            const startDeg = siderealCuspStartDegrees[i];
+            const endDeg = siderealCuspStartDegrees[(i + 1) % 12];
+            const meanDeg = calculateMidpoint(startDeg, endDeg);
+            const startRashiDetails = getRashiDetails(startDeg);
+            housesData.push({
+                house_number: houseNumber,
+                start_deg: startDeg,
+                mean_deg: meanDeg,
+                end_deg: endDeg,
+                start_rashi: startRashiDetails.name,
+                start_rashi_lord: startRashiDetails.lord,
+            });
+        }
+
+        const allYogas = calculateAllBirthChartYogas(siderealPositions, housesData, lang);
+
+        res.json({ yogas: allYogas });
+
+    } catch (error) {
+        handleRouteError(res, error, '/yogas', req.body);
     }
 });
 
@@ -626,9 +792,6 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
         handleRouteError(res, error, '/calculate/rotated', req.body);
     }
 });
-
-// --- Other Routes (Save, Get, Delete Charts, Prashna, Varshphal) ---
-// ... (Keep the rest of your routes as they were, ensuring they also use handleRouteError and correct variable names) ...
 
 // --- Route: Save Birth Chart Data ---
 router.post('/charts', protect, saveChartValidation, async (req, res) => {
@@ -931,6 +1094,7 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
 
     try {
         const { natalDate, natalLatitude, natalLongitude, varshphalYear, natalPlaceName } = req.body; // Added natalPlaceName
+        logger.info(`Calculating Varshphal for year: ${varshphalYear}`);
         const latNum = natalLatitude; // Already parsed
         const lonNum = natalLongitude; // Already parsed
 
@@ -981,7 +1145,8 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
             sidereal_dms: convertToDMS(srSiderealAscDeg),
             nakshatra: srAscNakDetails.name, nakLord: srAscNakDetails.lord,
             rashi: srAscRashiDetails.name, rashiLord: srAscRashiDetails.lord,
-            pada: srAscPada
+            pada: srAscPada,
+            signIndex: srAscRashiDetails.index
         };
 
         // Populate SR House details
@@ -1015,28 +1180,18 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         const ageAtVarshphalStart = varshphalYear - birthYear;
         const munthaResult = calculateMuntha(natalAscendantSignIndex, ageAtVarshphalStart);
         const munthaSignName = RASHIS[munthaResult.signIndex] || 'N/A';
-        let munthaHouse = null;
-        // Find the house where the Muntha sign falls in the SR chart
-        for(let i=0; i<12; i++) {
-            // Check the Rashi of the *start* of the house cusp in the SR chart
-            const houseStartDeg = srSiderealCuspStartDegrees[i];
-            const houseRashiIndex = getRashiDetails(houseStartDeg).index;
-            if (houseRashiIndex === munthaResult.signIndex) {
-                munthaHouse = i + 1;
-                break;
-            }
-        }
+        const munthaDegree = munthaResult.signIndex * 30; // Approximating to the start of the sign
+        const munthaHouse = getHouseOfPlanet(munthaDegree, srSiderealCuspStartDegrees);
         const munthaData = { sign: munthaSignName, signIndex: munthaResult.signIndex, house: munthaHouse };
 
         // --- Step 5: Calculate Year Lord ---
         const solarReturnWeekDay = solarReturnUTCDate.getUTCDay();
-        const yearLord = calculateYearLord(solarReturnWeekDay, natalAscendantLord, srAscendantLord);
 
-        // --- Step 6: Calculate Mudda Dasha ---
-        const muddaDashaPeriods = calculateMuddaDasha(solarReturnJD_UT, latNum, lonNum); // Pass lat/lon
+        // Calculate D9 for Varshphal chart
+        const { divisional_planets: d9_planets, divisionalHouses: d9_houses, divisional_ascendant_dms: d9_ascendant_dms } = calculateDivisionalChartData(srPlanetaryPositions.sidereal, srSiderealAscDeg, calculateNavamsaLongitude);
 
-        // Calculate KP Significators for Varshphal Chart
-        const kpSignificators = calculateKpSignificators(srPlanetaryPositions.sidereal, srSiderealCuspStartDegrees, srAspects);
+        // Calculate Shadbala for Varshphal chart
+        const srShadbala = calculateShadbala(srPlanetaryPositions.sidereal, srHousesData, srAspects.directAspects, { sunrise: solarReturnUTCDate, sunset: solarReturnUTCDate }, solarReturnUTCDate);
 
         // Calculate planet house placements for Bhava Chalit chart
         const srPlanetHousePlacements = {};
@@ -1060,10 +1215,8 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
                 },
                 states: srPlanetStateData // D1 dignity (calculatePlanetStates result)
             },
-            // The following are derived from the natal chart or assumed for Varshphal
-            // Shadbala, d9_planets, ascendant, houses for Varshphal are specific to SR chart
-            shadbala: {}, // Varshphal shadbala not yet implemented or passed
-            d9_planets: {}, // Varshphal navamsa not yet implemented or passed
+            shadbala: srShadbala,
+            d9_planets: d9_planets,
             ascendant: {
                 sidereal_dms: convertToDMS(srSiderealAscDeg),
                 siderealAscendantDeg: srSiderealAscDeg // Raw degree, for getRashiDetails in FBS
@@ -1077,20 +1230,33 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
             upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
         }
 
+        const varshphalChart = {
+            ascendant: srAscendantData,
+            houses: srHousesData,
+            planetaryPositions: srPlanetaryPositions,
+            planetHousePlacements: srPlanetHousePlacements,
+            planetDetails: {
+                states: srPlanetStateData,
+                aspects: srAspects,
+                upbsScores: upbsScores
+            },
+            d9_planets: d9_planets,
+            shadbala: srShadbala,
+            muntha: munthaData
+        };
+
+        const yearLord = calculateYearLord(varshphalChart, natalAscendantLord, solarReturnWeekDay);
+
+        // --- Step 6: Calculate Mudda Dasha ---
+        const muddaDashaPeriods = calculateMuddaDasha(solarReturnJD_UT, latNum, lonNum); // Pass lat/lon
+
+        // Calculate KP Significators for Varshphal Chart
+        const kpSignificators = calculateKpSignificators(srPlanetaryPositions.sidereal, srSiderealCuspStartDegrees, srAspects);
+
         // --- Assemble Response Payload ---
         const responsePayload = {
             inputDetails: { natalDate, natalLatitude: latNum, natalLongitude: lonNum, natalPlaceName: natalPlaceName || '', varshphalYear, solarReturnUTC: solarReturnUTCDate.toISOString(), solarReturnJD_UT, natalTzOffset },
-            varshphalChart: { 
-                ascendant: srAscendantData, 
-                houses: srHousesData, 
-                planetaryPositions: srPlanetaryPositions, 
-                planetHousePlacements: srPlanetHousePlacements,
-                planetDetails: {
-                    states: srPlanetStateData,
-                    aspects: srAspects,
-                    upbsScores: upbsScores
-                }
-            },
+            varshphalChart: varshphalChart,
             muntha: munthaData,
             yearLord: yearLord,
             muddaDasha: muddaDashaPeriods,

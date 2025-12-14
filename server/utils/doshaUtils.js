@@ -125,7 +125,7 @@ export function calculateMangalDosha(siderealPositions, siderealCuspStartDegrees
         if (result.cancellation.length > 0) {
             // Decide if cancellation fully negates the dosha. Often it just reduces intensity.
             // For simplicity here, we'll keep 'present' as true but list cancellations.
-            // result.present = false; // Uncomment if cancellation means dosha is fully nullified
+            result.present = false; // Uncomment if cancellation means dosha is fully nullified
         }
     }
 

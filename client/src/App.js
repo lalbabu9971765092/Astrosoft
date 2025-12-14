@@ -14,6 +14,7 @@ import VarshphalPage from './components/VarshphalPage';
 import RemediesPage from './components/RemediesPage';
 import MuhurtaPage from './components/MuhurtaPage';
 import MonthlyYogasPage from './components/MonthlyYogasPage';
+import DivisionalChartsPage from './components/DivisionalChartsPage';
 import SavedChartsPage from './components/SavedChartsPage';
 import LoginScreen from './components/LoginScreen';
 import RegisterScreen from './components/RegisterScreen';
@@ -23,6 +24,7 @@ import PrivateRoute from './components/PrivateRoute';
 import api from './components/api'; // Assuming api setup for context
 import MainLayout from './components/MainLayout';
 import MinimalLayout from './components/MinimalLayout';
+import PredictionPage from './components/PredictionPage'; // Import PredictionPage
 
 // Import the hook and context
 
@@ -102,11 +104,14 @@ function AppWrapper() {
                         <Route path="varshphal" element={<VarshphalPage />} />
                         <Route path="muhurta" element={<MuhurtaPage />} />
                         <Route path="festivals" element={<FestivalsPage />} />
+                        <Route path="yogas" element={<PredictionPage />} /> {/* New PredictionPage Route */}
+                        <Route path="/divisional-charts" element={<DivisionalChartsPage />} />
                     </Route>
                     <Route path="/prashna-time" element={<PrashnaTimeLocationPage />} />
                     <Route path="/prashna-number" element={<PrashnaNumberPage />} />
                     <Route path="/remedies" element={<RemediesPage />} />
                     <Route path="/monthly-yogas" element={<MonthlyYogasPage />} />
+                   
                 </Route>
             </Route>
             <Route element={<MinimalLayout />}>

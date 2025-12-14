@@ -4,6 +4,7 @@
 // export { default as logger } from './logger.js';
 
 export * from './constants.js';
+export * from './birthChartYogaUtils.js';
 export { normalizeAngle, convertToDMS, convertDMSToDegrees, getJulianDateUT, calculateAyanamsa, calculateMidpoint, calculateHousesAndAscendant, calculateWholeSignHouses } from './coreUtils.js';
 export * from './planetaryUtils.js';
 export * from './dashaUtils.js';

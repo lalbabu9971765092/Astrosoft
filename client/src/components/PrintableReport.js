@@ -1,5 +1,5 @@
 // client/src/components/PrintableReport.js
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import api from './api';
 import DiamondChart from './DiamondChart';
 import CustomDetailedPlanetTable from './CustomDetailedPlanetTable'; // Changed import
@@ -135,33 +135,6 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
         return ranks;
     }, [displayResult?.planetDetails?.shadbala]);
 
-
-
-    // --- Derived state for current Dasha ---
-    const findCurrentDasha = useCallback((dashaPeriods, targetDate) => {
-        if (!dashaPeriods) return null;
-        const transitTime = new Date(targetDate);
-
-        const findPeriod = (periods, level, parentLord) => {
-            return periods.find(p => {
-                const start = new Date(p.start);
-                const end = new Date(p.end);
-                const isParentMatch = (level === 1) || (level === 2 && p.mahaLord === parentLord) || (level === 3 && p.antarLord === parentLord);
-                return p.level === level && isParentMatch && transitTime >= start && transitTime <= end;
-            });
-        };
-
-        const mahaDasha = findPeriod(dashaPeriods, 1);
-        if (mahaDasha) {
-            const antarDasha = findPeriod(dashaPeriods, 2, mahaDasha.lord);
-            if (antarDasha) {
-                const pratyantarDasha = findPeriod(dashaPeriods, 3, antarDasha.lord);
-                return { mahaDasha, antarDasha, pratyantarDasha };
-            }
-            return { mahaDasha, antarDasha: null, pratyantarDasha: null };
-        }
-        return null;
-    }, []);
 
     useEffect(() => {
         const fetchPrintData = async () => {

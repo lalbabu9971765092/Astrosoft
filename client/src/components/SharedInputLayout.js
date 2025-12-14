@@ -19,7 +19,7 @@ import TimeAdjustmentTool from './TimeAdjustmentTool';
 import PrintableReport from './PrintableReport';
 
 const SharedInputLayout = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     // --- State ---
     const [date, setDate] = useState('');
@@ -290,7 +290,7 @@ const SharedInputLayout = () => {
 
         const { formattedDate } = dateTimeValidation;
         const { latitude, longitude } = coordsValidation;
-        const currentInputParams = { date: formattedDate, latitude, longitude, placeName: placeName, name: name, gender: gender };
+        const currentInputParams = { date: formattedDate, latitude, longitude, placeName: placeName, name: name, gender: gender, lang: i18n.language };
 
         try {
             const [mainResponse, kpResponse] = await Promise.all([
@@ -326,7 +326,7 @@ const SharedInputLayout = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [date, coords, placeName, t, calculationInputParams, name, gender]);
+    }, [date, coords, placeName, t, calculationInputParams, name, gender, i18n.language]);
 
     const handleUpdateTransit = useCallback(async (e, newTransitDate = null) => {
         if (e) e.preventDefault();

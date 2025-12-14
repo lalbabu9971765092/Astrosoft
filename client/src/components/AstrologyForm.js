@@ -91,6 +91,7 @@ const AstrologyForm = () => {
         dashaBalance: true,
         doshas: true,
         longevityFactors: true,
+        birthChartYogas: true,
         panchanga: true,
         lordships: true,
         charts: true,
@@ -513,9 +514,22 @@ const AstrologyForm = () => {
                         )}
                     </div>
                 </div>
-                
-
-                {/* Doshas */}
+                {/* Birth Chart Yogas */}
+                {displayResult.yogas && displayResult.yogas.length > 0 && (
+                    <div className="result-section">
+                        <div className="section-header" onClick={() => toggleSection('birthChartYogas')}>
+                            <h3 className="result-sub-title">{t('astrologyForm.birthChartYogasTitle', 'Birth Chart Yogas')}</h3>
+                            <button className="toggle-button">{openSections.birthChartYogas ? '−' : '+'}</button>
+                        </div>
+                        <div className={`section-content ${openSections.birthChartYogas ? '' : 'collapsed'}`}>
+                            <ul className="yoga-names-list">
+                                {displayResult.yogas.map((yoga, index) => (
+                                    <li key={index}>{yoga.name}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                )}
                 {/* Doshas */}
                 <div className="result-section dosha-details">
                     <div className="section-header" onClick={() => toggleSection('doshas')}>

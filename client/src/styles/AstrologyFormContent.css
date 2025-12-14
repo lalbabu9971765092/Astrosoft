@@ -1,271 +1,65 @@
-/* src/styles/AstrologyFormContent.css */
+/* client/src/styles/AstrologyFormContent.css */
 
 .astrology-form-content {
     display: flex;
     flex-wrap: wrap;
+    justify-content: space-between;
     gap: 20px;
-    padding: 20px;
-    justify-content: center; /* Center columns in the container */
-}
-
-.results-column {
-    flex: 1 1 300px; /* Flex-grow, flex-shrink, flex-basis */
-    min-width: 300px; /* Minimum width before wrapping */
-    background-color: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     padding: 20px;
     box-sizing: border-box;
 }
 
-.results-column.left-column {
-    flex: 1;
+.results-column {
+    flex: 1 1 auto;
+    min-width: 300px; /* Adjust as needed */
+    background-color: var(--card-background-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-small);
+    padding: 15px;
+    box-sizing: border-box;
 }
 
-.results-column.right-column {
-    flex: 2;
+/* Enforce a 1:2 left:right layout on wider screens */
+@media (min-width: 1000px) {
+    .astrology-form-content { flex-wrap: nowrap; }
+    .results-column.left-column { flex: 1 1 33%; max-width: 33%; }
+    .results-column.right-column { flex: 2 1 67%; max-width: 67%; }
 }
 
 .column-title {
+    color: var(--primary-color);
     text-align: center;
-    color: #333;
-    font-size: 1.5em;
-    margin-top: 0;
     margin-bottom: 20px;
-    border-bottom: 2px solid #eee;
+    font-size: 1.6em;
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: 10px;
 }
 
 .result-section {
-    margin-bottom: 20px;
-}
-
-.result-sub-title {
-    color: #555;
-    font-size: 1.2em;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.result-text {
-    color: #444;
-    font-size: 0.95em;
-    line-height: 1.6;
-    margin: 5px 0;
-}
-
-.result-text strong {
-    color: #333;
-}
-
-/* --- Charts Grid --- */
-.charts-grid-2x2 {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, auto);
-    gap: 15px; /* Space between charts */
-    margin-bottom: 20px;
-}
-
-.chart-cell {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    padding: 10px;
-    min-height: 280px; /* Ensure cells have a minimum height */
-}
-
-.chart-placeholder {
-    color: #888;
-    font-style: italic;
-    text-align: center;
-}
-
-/* --- Tables --- */
-.table-wrapper {
-    overflow-x: auto;
-    max-height: 400px; /* Limit table height and make it scrollable */
-}
-
-.results-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9em;
-}
-
-.results-table th, .results-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    white-space: nowrap;
-}
-
-.results-table th {
-    background-color: #f7f7f7;
-    font-weight: 600;
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
-.results-table tbody tr:nth-child(even) {
-    background-color: #fdfdfd;
-}
-
-.results-table tbody tr:hover {
-    background-color: #f1f1f1;
-}
-
-/* --- Specific Sections --- */
-.input-summary p {
-    margin: 8px 0;
-}
-
-.input-summary {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    border: 1px solid #eee;
-}
-
-.dasha-balance p {
-    font-size: 1em;
-}
-
-.dosha-details .result-text {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.dosha-status {
-    font-weight: bold;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.85em;
-}
-
-.dosha-absent {
-    background-color: #e8f5e9; /* Light green */
-    color: #2e7d32;
-}
-
-.dosha-present {
-    background-color: #ffebee; /* Light red */
-    color: #c62828;
-}
-
-.dosha-na, .dosha-error {
-    background-color: #f5f5f5; /* Light grey */
-    color: #555;
-}
-
-/* --- Gochar Details --- */
-.gochar-details-content .result-section {
-    padding: 10px;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
     margin-bottom: 15px;
-}
-
-.gochar-details-content .result-sub-title {
-    font-size: 1.1em;
-    border-bottom: none;
-    margin-bottom: 8px;
-}
-
-/* --- Loading / Error / Placeholder States --- */
-.loading-overlay, .error-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(255, 255, 255, 0.8);
-    font-size: 1.5em;
-    z-index: 1000;
-}
-
-.error-overlay {
-    color: #c62828;
-}
-
-.placeholder-message {
-    text-align: center;
-    padding: 50px;
-    color: #666;
-    font-size: 1.2em;
-    width: 100%;
-}
-
-.loader.small-loader {
-    text-align: center;
-    padding: 10px;
-}
-
-.error-text.small-error {
-    color: #c62828;
-    font-size: 0.9em;
-    text-align: center;
-}
-
-.info-text {
-    color: #555;
-    font-style: italic;
-    text-align: center;
-    padding: 15px;
-}
-
-/* --- Responsive Adjustments --- */
-@media (max-width: 1200px) {
-    .results-column {
-        max-width: 100%; /* Allow columns to take full width on smaller screens */
-    }
-}
-
-@media (max-width: 768px) {
-    .astrology-form-content {
-        flex-direction: column;
-        padding: 10px;
-    }
-
-    .results-column {
-        padding: 15px;
-    }
-
-    .charts-grid-2x2 {
-        grid-template-columns: 1fr; /* Stack charts vertically */
-    }
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    overflow: hidden;
 }
 
 .section-header {
+    background-color: var(--header-background-color);
+    padding: 10px 15px;
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: var(--header-bg-color);
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .section-header:hover {
-    background-color: var(--header-bg-hover-color);
+    background-color: var(--header-hover-background-color);
 }
 
-.section-header h3 {
+.result-sub-title {
     margin: 0;
     color: var(--header-text-color);
-    font-size: 1.4em;
+    font-size: 1.1em;
     font-weight: 600;
 }
 
@@ -273,25 +67,281 @@
     background: none;
     border: none;
     color: var(--header-text-color);
-    font-size: 1.2em;
+    font-size: 1.5em;
     cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 0;
+    line-height: 1;
 }
 
 .section-content {
-    max-height: 1000px; /* Arbitrarily large value */
-    overflow-y: auto;
-    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    padding: 10px 15px;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    max-height: 500px; /* Arbitrary large number */
     opacity: 1;
 }
 
 .section-content.collapsed {
     max-height: 0;
-    opacity: 0;
     padding-top: 0;
     padding-bottom: 0;
+    opacity: 0;
     overflow: hidden;
+}
+
+.result-text {
+    margin: 5px 0;
+    font-size: 0.95em;
+    line-height: 1.4;
+    color: var(--text-color);
+}
+
+.result-text strong {
+    color: var(--secondary-color);
+}
+
+.input-summary {
+    background-color: var(--summary-background-color);
+    border-color: var(--summary-border-color);
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.input-summary .result-sub-title {
+    color: var(--summary-text-color);
+    font-size: 1.2em;
+    border-bottom: 1px dashed var(--summary-border-color);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.input-summary p {
+    font-size: 0.9em;
+    margin: 3px 0;
+}
+
+.input-summary strong {
+    color: var(--summary-label-color);
+}
+
+
+/* Specific styles for the current Dasha display */
+.current-dasha-display {
+    border: 1px solid var(--accent-color);
+    background-color: var(--accent-background-color);
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+}
+
+.current-dasha-display h4 {
+    color: var(--accent-color);
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px dashed var(--accent-color);
+    padding-bottom: 5px;
+}
+
+.current-dasha-display p {
+    margin: 3px 0;
+    font-size: 0.9em;
+}
+
+.current-dasha-display strong {
+    color: var(--accent-strong-color);
+}
+
+
+.error-text {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+.loader {
+    text-align: center;
+    padding: 20px;
+    font-size: 1.2em;
+    color: var(--secondary-color);
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5em;
+    z-index: 10;
+}
+
+.error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5em;
+    z-index: 10;
+}
+
+/* Styles for tables within the results columns */
+.table-wrapper {
+    overflow-x: auto;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    font-size: 0.85em;
+    line-height: 1.3;
+    background-color: var(--background-color); /* Use a lighter background for tables */
+}
+
+.results-table th,
+.results-table td {
+    padding: 8px 10px;
+    border: 1px solid var(--table-border-color);
+    text-align: left;
+    vertical-align: top;
+    color: var(--text-color);
+}
+
+.results-table thead th {
+    background-color: var(--table-header-background);
+    color: var(--table-header-text);
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.results-table tbody tr:nth-child(even) {
+    background-color: var(--table-even-row-background);
+}
+
+.results-table tbody tr:hover {
+    background-color: var(--table-hover-background);
+}
+
+.small-table {
+    font-size: 0.75em; /* Smaller font for dense tables */
+}
+
+.lordships-section .lordship-column {
+    padding: 5px 0;
+}
+
+.lordships-section h4 {
+    color: var(--secondary-color);
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 1em;
+}
+
+.lordships-section p {
+    margin: 2px 0;
+}
+
+.lordships-section p strong {
+    color: var(--secondary-color-dark);
+}
+
+.planet-table-headers {
+    font-size: 0.9em;
+}
+
+
+/* Specific styles for the charts container */
+.charts-container-vertical {
+    display: flex;
+    flex-wrap: wrap; /* Allows charts to wrap in smaller screens */
+    gap: 10px;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.chart-cell {
+    flex: 1 1 calc(50% - 10px); /* Two charts per row with gap */
+    min-width: 250px; /* Minimum width for a chart cell */
+    box-sizing: border-box;
+    text-align: center;
+    background-color: var(--chart-background);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: var(--shadow-small);
+}
+
+.chart-cell .chart-title {
+    font-size: 1.1em;
+    color: var(--chart-title-color);
+    margin-bottom: 10px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.chart-placeholder {
+    height: 250px; /* Or a fixed height, depending on chart size */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--placeholder-background);
+    color: var(--placeholder-text);
+    border-radius: 4px;
+    font-style: italic;
+}
+
+/* Adjustments for responsiveness */
+@media (max-width: 1200px) {
+    .results-column {
+        max-width: 100%; /* Stack columns on medium screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .astrology-form-content {
+        padding: 10px;
+    }
+
+    .results-column {
+        min-width: unset;
+        width: 100%; /* Full width on small screens */
+        padding: 10px;
+    }
+
+    .charts-container-vertical {
+        flex-direction: column; /* Stack charts vertically on small screens */
+    }
+
+    .chart-cell {
+        flex: 1 1 100%; /* Each chart takes full width */
+    }
+}
+
+
+/* Specific styles for the Yoga Names List */
+.yoga-names-list {
+    list-style-type: disc; /* Or 'none' if preferred */
+    padding-left: 20px;
+    margin: 0;
+    color: var(--text-color);
+}
+
+.yoga-names-list li {
+    margin-bottom: 5px;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+.yoga-names-list li:last-child {
+    margin-bottom: 0;
 }

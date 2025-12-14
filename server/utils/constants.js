@@ -44,6 +44,26 @@ export const RASHI_LORDS = [
     "Venus", "Mars", "Jupiter", "Saturn", "Saturn", "Jupiter"
 ];
 
+export const PLANET_EXALTATION_SIGN = {
+    Sun: "Aries",
+    Moon: "Taurus",
+    Mars: "Capricorn",
+    Mercury: "Virgo",
+    Jupiter: "Cancer",
+    Venus: "Pisces",
+    Saturn: "Libra",
+};
+
+export const PLANET_DEBILITATION_SIGN = {
+    Sun: "Libra",
+    Moon: "Scorpio",
+    Mars: "Cancer",
+    Mercury: "Pisces",
+    Jupiter: "Capricorn",
+    Venus: "Virgo",
+    Saturn: "Aries",
+};
+
 // Order for calculations and display
 export const PLANET_ORDER = [
     "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu",
@@ -428,6 +448,32 @@ export const NAKSHATRA_PADA_ALPHABETS = {
     "Purva Bhadrapada": ["Se", "So", "Da", "Di"],
     "Uttara Bhadrapada": ["Du", "Tha", "Jha", "Na"],
     "Revati": ["De", "Do", "Cha", "Chi"]
+};
+
+export const ASPECTS = [
+    { type: 'Conjunction', angle: 0, orb: 8 },
+    { type: 'Sextile', angle: 60, orb: 6 },
+    { type: "Square", angle: 90, orb: 8 },
+    { type: "Trine", angle: 120, orb: 8 },
+    { type: "Opposition", angle: 180, orb: 8 }
+];
+
+export const TAJIKA_ASPECT_SCORES = {
+    'Conjunction': 10,
+    'Sextile': 8,
+    'Square': 5,
+    'Trine': 12,
+    'Opposition': 2
+};
+
+export const PLANETARY_FRIENDSHIPS = {
+    'Sun': { 'Sun': 'Neutral', 'Moon': 'Friend', 'Mars': 'Friend', 'Mercury': 'Neutral', 'Jupiter': 'Friend', 'Venus': 'Enemy', 'Saturn': 'Enemy' },
+    'Moon': { 'Sun': 'Friend', 'Moon': 'Neutral', 'Mars': 'Neutral', 'Mercury': 'Friend', 'Jupiter': 'Neutral', 'Venus': 'Neutral', 'Saturn': 'Neutral' },
+    'Mars': { 'Sun': 'Friend', 'Moon': 'Friend', 'Mars': 'Neutral', 'Mercury': 'Enemy', 'Jupiter': 'Friend', 'Venus': 'Neutral', 'Saturn': 'Enemy' },
+    'Mercury': { 'Sun': 'Friend', 'Moon': 'Enemy', 'Mars': 'Neutral', 'Mercury': 'Neutral', 'Jupiter': 'Neutral', 'Venus': 'Friend', 'Saturn': 'Friend' },
+    'Jupiter': { 'Sun': 'Friend', 'Moon': 'Friend', 'Mars': 'Friend', 'Mercury': 'Enemy', 'Jupiter': 'Neutral', 'Venus': 'Enemy', 'Saturn': 'Neutral' },
+    'Venus': { 'Sun': 'Enemy', 'Moon': 'Enemy', 'Mars': 'Neutral', 'Mercury': 'Friend', 'Jupiter': 'Neutral', 'Venus': 'Neutral', 'Saturn': 'Friend' },
+    'Saturn': { 'Sun': 'Enemy', 'Moon': 'Enemy', 'Mars': 'Enemy', 'Mercury': 'Friend', 'Jupiter': 'Neutral', 'Venus': 'Friend', 'Saturn': 'Neutral' }
 };
 
 export const DISHA_SHOOL_DIRECTIONS = {

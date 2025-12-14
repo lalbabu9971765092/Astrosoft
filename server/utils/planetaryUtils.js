@@ -1,4 +1,3 @@
-
 // utils/planetaryUtils.js
 import swisseph from 'swisseph-v2';
 import logger from './logger.js';
@@ -282,10 +281,22 @@ export function calculatePlanetaryPositions(julianDayUT) {
                 let siderealSuccess = false;
                 if (siderealCalc && typeof siderealCalc === 'object' && typeof siderealCalc.longitude === 'number' && !isNaN(siderealCalc.longitude)) {
                 const siderealLongitude = normalizeAngle(siderealCalc.longitude);
+                let speedLongitude = typeof siderealCalc.longitudeSpeed === 'number' && !isNaN(siderealCalc.longitudeSpeed) ? siderealCalc.longitudeSpeed : 0;
+                let isRetrograde = speedLongitude < 0; 
+                
+                // Explicitly set Rahu and Ketu as retrograde, and not combust
+                if (planetName === 'Rahu' || planetName === 'Ketu') {
+                    isRetrograde = true; 
+                    // Ensure Rahu's speed is always negative for astrological interpretation
+                    if (planetName === 'Rahu' && speedLongitude >= 0) { // Check for non-negative speed
+                        speedLongitude = -Math.abs(speedLongitude); // Make sure it's explicitly negative
+                    }
+                }
+                
                 const nakDetails = getNakshatraDetails(siderealLongitude);
                 const rashiDetails = getRashiDetails(siderealLongitude);
                 const pada = calculateNakshatraPada(siderealLongitude);
-                const padaAlphabet = getNakshatraPadaAlphabet(nakDetails.name, pada); // Get the alphabet
+                const padaAlphabet = getNakshatraPadaAlphabet(nakDetails.name, pada); 
                 const subLordDetails = getSubLordDetails(siderealLongitude);
                 const positionWithinNakshatra = siderealLongitude - (nakDetails.index * NAKSHATRA_SPAN);
                 const subSubLordDetails = getSubSubLordDetails(positionWithinNakshatra, subLordDetails);
@@ -294,7 +305,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
                     longitude: siderealLongitude,
                     latitude: siderealCalc.latitude,
                     distance: siderealCalc.distance,
-                    speedLongitude: siderealCalc.longitudeSpeed,
+                    speedLongitude: speedLongitude,
                     speedLatitude: siderealCalc.latitudeSpeed,
                     speedDistance: siderealCalc.distanceSpeed,
                     dms: convertToDMS(siderealLongitude),
@@ -303,9 +314,11 @@ export function calculatePlanetaryPositions(julianDayUT) {
                     nakshatra: nakDetails.name,
                     nakLord: nakDetails.lord,
                     pada: pada,
-                    padaAlphabet: padaAlphabet, // Add the alphabet here
+                    padaAlphabet: padaAlphabet,
                     subLord: subLordDetails.lord,
                     subSubLord: subSubLordDetails.lord,
+                    isRetrograde: isRetrograde, 
+                    isCombust: false, // Rahu/Ketu cannot be combust, others determined later in calculateAvasthas
                 };
                 siderealSuccess = true;
             } else {
@@ -317,7 +330,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
                     longitude: tropicalCalc.longitude,
                     latitude: tropicalCalc.latitude,
                     distance: tropicalCalc.distance,
-                    speedLongitude: tropicalCalc.longitudeSpeed,
+                    speedLongitude: typeof tropicalCalc.longitudeSpeed === 'number' && !isNaN(tropicalCalc.longitudeSpeed) ? tropicalCalc.longitudeSpeed : 0,
                     speedLatitude: tropicalCalc.latitudeSpeed,
                     speedDistance: tropicalCalc.distanceSpeed,
                 };
@@ -331,7 +344,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
         }
 
         const rahuData = results.sidereal.Rahu;
-        if (rahuData && typeof rahuData.longitude === 'number' && !isNaN(rahuData.longitude)) {
+        if (rahuData && typeof rahuData.longitude === 'number' && !isNaN(rahuData.longitude) && typeof rahuData.speedLongitude === 'number' && !isNaN(rahuData.speedLongitude)) {
             const ketuLongitude = normalizeAngle(rahuData.longitude + 180);
             const ketuNakDetails = getNakshatraDetails(ketuLongitude);
             const ketuRashiDetails = getRashiDetails(ketuLongitude);
@@ -348,10 +361,10 @@ export function calculatePlanetaryPositions(julianDayUT) {
             results.sidereal.Ketu = {
                 longitude: ketuLongitude,
                 latitude: -rahuData.latitude,
-                distance: rahuData.distance,
-                speedLongitude: rahuData.speedLongitude,
-                speedLatitude: -rahuData.latitudeSpeed,
-                speedDistance: rahuData.speedDistance,
+                distance: rahuData.distance, // Using Rahu's distance
+                speedLongitude: rahuData.speedLongitude, // Ketu's speed is the same as Rahu's (both retrograde)
+                speedLatitude: -rahuData.speedLatitude, // Ketu's latitude speed is opposite
+                speedDistance: rahuData.distanceSpeed, // Using Rahu's distance speed
                 dms: convertToDMS(ketuLongitude),
                 rashi: ketuRashiDetails.name,
                 rashiLord: ketuRashiDetails.lord,
@@ -360,19 +373,25 @@ export function calculatePlanetaryPositions(julianDayUT) {
                 pada: ketuPada,
                 subLord: ketuSubLordDetails.lord,
                 subSubLord: ketuSubSubLordDetails.lord,
+                isRetrograde: true, // Ketu is always retrograde astrologically
+                isCombust: false, // Ketu cannot be combust
             };
             results.tropical.Ketu = {
                  longitude: tropicalKetuLon,
                  latitude: -results.tropical.Rahu?.latitude,
-                 distance: results.tropical.Rahu?.distance,
-                 speedLongitude: results.tropical.Rahu?.speedLongitude,
-                 speedLatitude: -results.tropical.Rahu?.speedLatitude,
+                 distance: results.tropical.Rahu?.distance, // Using Rahu's distance
+                 speedLongitude: typeof results.tropical.Rahu?.speedLongitude === 'number' && !isNaN(results.tropical.Rahu?.speedLongitude) ? -results.tropical.Rahu?.speedLongitude : 0, // Ketu's speed opposite to Rahu's
+                 speedLatitude: -results.tropical.Rahu?.latitudeSpeed,
                  speedDistance: results.tropical.Rahu?.speedDistance,
             };
         } else {
             logger.warn(`Rahu data missing or invalid, cannot calculate Ketu for JD ${julianDayUT}`);
-            results.sidereal.Ketu = { longitude: NaN, dms: "N/A", rashi: "N/A", nakshatra: "N/A", subLord: "N/A", subSubLord: "N/A" };
-            results.tropical.Ketu = { longitude: NaN };
+            results.sidereal.Ketu = { 
+                longitude: NaN, latitude: NaN, distance: NaN, speedLongitude: 0, speedLatitude: NaN, speedDistance: NaN, dms: "N/A", rashi: "N/A", rashiLord: "N/A", nakshatra: "N/A", nakLord: "N/A", pada: NaN, subLord: "N/A", subSubLord: "N/A", isRetrograde: true, isCombust: false
+            };
+            results.tropical.Ketu = { 
+                longitude: NaN, latitude: NaN, distance: NaN, speedLongitude: 0, speedLatitude: NaN, speedDistance: NaN
+            };
         }
 
         if (!results.sidereal.Moon) {
@@ -640,7 +659,9 @@ export function calculateAvasthas(siderealPositions, sunLongitude) {
             dignity,
             balaadi,
             jagradadi,
-            deeptaadi
+            deeptaadi,
+            // Add speedLongitude to avasthas, ensuring it's always a number or 0
+            speedLongitude: typeof planetData.speedLongitude === 'number' ? planetData.speedLongitude : 0 
         };
     }
     return avasthas;
@@ -1284,7 +1305,7 @@ export async function findNextNakshatraChange(startTime, latitude, longitude) {
                 currentMoment,
                 latitude,
                 longitude,
-                startNakshatraIndex,
+                targetNakshatraIndex,
                 'exit',
                 10,
                 currentMoment.toISOString()
@@ -1363,4 +1384,267 @@ export async function calculateVarjyam(dateString, latitude, longitude, sunrise,
         logger.error(`Error calculating Varjyam: ${error.message}`, { stack: error.stack });
         return null;
     }
+}
+
+
+/**
+ * Calculates the Hora (D2) longitude for a given sidereal longitude.
+ * Each rashi is divided into two horas (15 degrees each).
+ * For odd signs, first hora is Sun's (Leo), second is Moon's (Cancer).
+ * For even signs, first hora is Moon's (Cancer), second is Sun's (Leo).
+ * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * @returns {number} The Hora longitude in decimal degrees [0, 360), or NaN if invalid input.
+ */
+export function calculateHoraLongitude(siderealLongitude) {
+    const normalizedLng = normalizeAngle(siderealLongitude);
+    if (isNaN(normalizedLng)) {
+        return NaN;
+    }
+
+    const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN); // RASHI_SPAN is 30 degrees
+    const positionInRashi = normalizedLng % RASHI_SPAN; // Position within the current Rashi (0-30)
+
+    let horaSignIndex; // 0 for Aries, 1 for Taurus, ..., 11 for Pisces
+    let positionInHoraSegment;
+
+    if (rashiIndex % 2 === 0) { // Odd signs (Aries, Gemini, Leo, etc.)
+        if (positionInRashi < 15) { // First Hora (Sun)
+            horaSignIndex = 4; // Leo (Sun's sign)
+            positionInHoraSegment = positionInRashi;
+        } else { // Second Hora (Moon)
+            horaSignIndex = 3; // Cancer (Moon's sign)
+            positionInHoraSegment = positionInRashi - 15;
+        }
+    } else { // Even signs (Taurus, Cancer, Virgo, etc.)
+        if (positionInRashi < 15) { // First Hora (Moon)
+            horaSignIndex = 3; // Cancer (Moon's sign)
+            positionInHoraSegment = positionInRashi;
+        } else { // Second Hora (Sun)
+            horaSignIndex = 4; // Leo (Sun's sign)
+            positionInHoraSegment = positionInRashi - 15;
+        }
+    }
+
+    const horaLongitude = (horaSignIndex * RASHI_SPAN) + positionInHoraSegment;
+    return normalizeAngle(horaLongitude);
+}
+
+/**
+ * Calculates the Drekkana (D3) longitude for a given sidereal longitude.
+ * Each rashi is divided into three drekkanas (10 degrees each).
+ * 1st drekkana is ruled by the rashi lord.
+ * 2nd drekkana is ruled by the 5th rashi lord from the current.
+ * 3rd drekkana is ruled by the 9th rashi lord from the current.
+ * The planet's longitude within the drekkana is added to the start of the drekkana sign.
+ * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * @returns {number} The Drekkana longitude in decimal degrees [0, 360), or NaN if invalid input.
+ */
+export function calculateDrekkanaLongitude(siderealLongitude) {
+    const normalizedLng = normalizeAngle(siderealLongitude);
+    if (isNaN(normalizedLng)) {
+        return NaN;
+    }
+
+    const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN); // RASHI_SPAN is 30 degrees
+    const positionInRashi = normalizedLng % RASHI_SPAN; // Position within the current Rashi (0-30)
+
+    let drekkanaSignIndex;
+    let positionInDrekkanaSegment;
+
+    if (positionInRashi < 10) { // First Drekkana (0-10 degrees)
+        drekkanaSignIndex = rashiIndex;
+        positionInDrekkanaSegment = positionInRashi;
+    } else if (positionInRashi < 20) { // Second Drekkana (10-20 degrees)
+        drekkanaSignIndex = (rashiIndex + 4) % 12; // 5th sign from current (0-indexed: +4)
+        positionInDrekkanaSegment = positionInRashi - 10;
+    } else { // Third Drekkana (20-30 degrees)
+        drekkanaSignIndex = (rashiIndex + 8) % 12; // 9th sign from current (0-indexed: +8)
+        positionInDrekkanaSegment = positionInRashi - 20;
+    }
+
+    const drekkanaLongitude = (drekkanaSignIndex * RASHI_SPAN) + positionInDrekkanaSegment;
+    return normalizeAngle(drekkanaLongitude);
+}
+
+
+/**
+ * Calculates the Saptamsa (D7) longitude for a given sidereal longitude.
+ * Each rashi is divided into 7 saptamsas (approx 4.2857 degrees each).
+ * For odd signs, counting starts from the sign itself.
+ * For even signs, counting starts from the 7th sign (opposite) from the current sign.
+ * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * @returns {number} The Saptamsa longitude in decimal degrees [0, 360), or NaN if invalid input.
+ */
+export function calculateSaptamsaLongitude(siderealLongitude) {
+    const normalizedLng = normalizeAngle(siderealLongitude);
+    if (isNaN(normalizedLng)) {
+        return NaN;
+    }
+
+    const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN);
+    const positionInRashi = normalizedLng % RASHI_SPAN;
+
+    const saptamsaSpan = RASHI_SPAN / 7; // Approximately 4.2857 degrees
+
+    let startingSignIndex;
+    if (rashiIndex % 2 === 0) { // Odd signs (Aries, Gemini, Leo, etc. - indices 0, 2, 4, 6, 8, 10)
+        startingSignIndex = rashiIndex;
+    } else { // Even signs (Taurus, Cancer, Virgo, etc. - indices 1, 3, 5, 7, 9, 11)
+        startingSignIndex = (rashiIndex + 6) % 12; // 7th sign from the current
+    }
+
+    const saptamsaIndexInRashi = Math.floor(positionInRashi / saptamsaSpan);
+    const saptamsaSignIndex = (startingSignIndex + saptamsaIndexInRashi) % 12;
+
+    const positionInSaptamsaSegment = positionInRashi % saptamsaSpan;
+    const positionInSaptamsaSign = (positionInSaptamsaSegment / saptamsaSpan) * RASHI_SPAN; // Scale to 30 degrees for the Rashi
+
+    const saptamsaLongitude = (saptamsaSignIndex * RASHI_SPAN) + positionInSaptamsaSign;
+    return normalizeAngle(saptamsaLongitude);
+}
+
+/**
+ * Calculates the Dwadasamsa (D12) longitude for a given sidereal longitude.
+ * Each rashi is divided into 12 dwadasamsas (2.5 degrees each).
+ * Counting starts from the sign itself.
+ * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * @returns {number} The Dwadasamsa longitude in decimal degrees [0, 360), or NaN if invalid input.
+ */
+export function calculateDwadasamsaLongitude(siderealLongitude) {
+    const normalizedLng = normalizeAngle(siderealLongitude);
+    if (isNaN(normalizedLng)) {
+        return NaN;
+    }
+
+    const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN);
+    const positionInRashi = normalizedLng % RASHI_SPAN;
+
+    const dwadasamsaSpan = RASHI_SPAN / 12; // 2.5 degrees
+
+    const dwadasamsaIndexInRashi = Math.floor(positionInRashi / dwadasamsaSpan);
+    const dwadasamsaSignIndex = (rashiIndex + dwadasamsaIndexInRashi) % 12;
+
+    const positionInDwadasamsaSegment = positionInRashi % dwadasamsaSpan;
+    const positionInDwadasamsaSign = (positionInDwadasamsaSegment / dwadasamsaSpan) * RASHI_SPAN;
+
+    const dwadasamsaLongitude = (dwadasamsaSignIndex * RASHI_SPAN) + positionInDwadasamsaSign;
+    return normalizeAngle(dwadasamsaLongitude);
+}
+
+/**
+ * Calculates the Trimsamsa (D30) longitude for a given sidereal longitude.
+ * This divisional chart uses unequal divisions based on odd/even signs and specific planetary rulerships.
+ * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * @returns {number} The Trimsamsa longitude in decimal degrees [0, 360), or NaN if invalid input.
+ */
+export function calculateTrimsamsaLongitude(siderealLongitude) {
+    const normalizedLng = normalizeAngle(siderealLongitude);
+    if (isNaN(normalizedLng)) {
+        return NaN;
+    }
+
+    const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN);
+    const positionInRashi = normalizedLng % RASHI_SPAN; // Position within the current Rashi (0-30)
+
+    let trimsamsaSignIndex; // The Rashi index where the planet falls in D30
+    let segmentStartDegree;
+    let segmentEndDegree;
+    let rulingPlanetSignIndex; // Index of the sign ruled by the planet governing the trimsamsa
+
+    const oddSigns = [0, 2, 4, 6, 8, 10]; // Aries, Gemini, Leo, Libra, Sagittarius, Aquarius
+    const evenSigns = [1, 3, 5, 7, 9, 11]; // Taurus, Cancer, Virgo, Scorpio, Capricorn, Pisces
+
+    if (oddSigns.includes(rashiIndex)) {
+        if (positionInRashi >= 0 && positionInRashi < 5) { // 0-5 degrees (Mars)
+            rulingPlanetSignIndex = 0; // Aries (ruled by Mars)
+            segmentStartDegree = 0;
+            segmentEndDegree = 5;
+        } else if (positionInRashi >= 5 && positionInRashi < 10) { // 5-10 degrees (Saturn)
+            rulingPlanetSignIndex = 10; // Aquarius (ruled by Saturn)
+            segmentStartDegree = 5;
+            segmentEndDegree = 10;
+        } else if (positionInRashi >= 10 && positionInRashi < 18) { // 10-18 degrees (Jupiter)
+            rulingPlanetSignIndex = 8; // Sagittarius (ruled by Jupiter)
+            segmentStartDegree = 10;
+            segmentEndDegree = 18;
+        } else if (positionInRashi >= 18 && positionInRashi < 25) { // 18-25 degrees (Mercury)
+            rulingPlanetSignIndex = 2; // Gemini (ruled by Mercury)
+            segmentStartDegree = 18;
+            segmentEndDegree = 25;
+        } else { // 25-30 degrees (Venus)
+            rulingPlanetSignIndex = 6; // Libra (ruled by Venus)
+            segmentStartDegree = 25;
+            segmentEndDegree = 30;
+        }
+    } else if (evenSigns.includes(rashiIndex)) {
+        if (positionInRashi >= 0 && positionInRashi < 5) { // 0-5 degrees (Venus)
+            rulingPlanetSignIndex = 6; // Libra (ruled by Venus)
+            segmentStartDegree = 0;
+            segmentEndDegree = 5;
+        } else if (positionInRashi >= 5 && positionInRashi < 12) { // 5-12 degrees (Mercury)
+            rulingPlanetSignIndex = 5; // Virgo (ruled by Mercury)
+            segmentStartDegree = 5;
+            segmentEndDegree = 12;
+        } else if (positionInRashi >= 12 && positionInRashi < 20) { // 12-20 degrees (Jupiter)
+            rulingPlanetSignIndex = 11; // Pisces (ruled by Jupiter)
+            segmentStartDegree = 12;
+            segmentEndDegree = 20;
+        } else if (positionInRashi >= 20 && positionInRashi < 25) { // 20-25 degrees (Saturn)
+            rulingPlanetSignIndex = 9; // Capricorn (ruled by Saturn)
+            segmentStartDegree = 20;
+            segmentEndDegree = 25;
+        } else { // 25-30 degrees (Mars)
+            rulingPlanetSignIndex = 7; // Scorpio (ruled by Mars)
+            segmentStartDegree = 25;
+            segmentEndDegree = 30;
+        }
+    } else {
+        return NaN; // Should not happen with normalizeAngle and rashiIndex calculation
+    }
+
+    // Calculate position within the ruling sign (0-30 degrees)
+    const positionWithinSegment = positionInRashi - segmentStartDegree;
+    const segmentLength = segmentEndDegree - segmentStartDegree;
+    const positionInRulingSign = (positionWithinSegment / segmentLength) * RASHI_SPAN;
+
+    trimsamsaSignIndex = rulingPlanetSignIndex;
+
+    const trimsamsaLongitude = (trimsamsaSignIndex * RASHI_SPAN) + positionInRulingSign;
+    return normalizeAngle(trimsamsaLongitude);
+}
+
+/**
+ * Calculates the Shashtiamsa (D60) longitude for a given sidereal longitude.
+ * Each rashi is divided into 60 shashtiamsas (0.5 degrees each).
+ * For odd signs, counting starts from the sign itself.
+ * For even signs, counting starts from the 9th sign from the current sign.
+ * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * @returns {number} The Shashtiamsa longitude in decimal degrees [0, 360), or NaN if invalid input.
+ */
+export function calculateShashtiamsaLongitude(siderealLongitude) {
+    const normalizedLng = normalizeAngle(siderealLongitude);
+    if (isNaN(normalizedLng)) {
+        return NaN;
+    }
+
+    const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN);
+    const positionInRashi = normalizedLng % RASHI_SPAN; // Position within the current Rashi (0-30)
+
+    const shashtiamsaSpan = RASHI_SPAN / 60; // 0.5 degrees
+
+    let startingSignIndex;
+    if (rashiIndex % 2 === 0) { // Odd signs
+        startingSignIndex = rashiIndex;
+    } else { // Even signs
+        startingSignIndex = (rashiIndex + 8) % 12; // 9th sign from the current
+    }
+
+    const shashtiamsaIndexInRashi = Math.floor(positionInRashi / shashtiamsaSpan);
+    const shashtiamsaSignIndex = (startingSignIndex + shashtiamsaIndexInRashi) % 12;
+
+    const positionInShashtiamsaSegment = positionInRashi % shashtiamsaSpan;
+    const positionInShashtiamsaSign = (positionInShashtiamsaSegment / shashtiamsaSpan) * RASHI_SPAN;
+
+    const shashtiamsaLongitude = (shashtiamsaSignIndex * RASHI_SPAN) + positionInShashtiamsaSign;
+    return normalizeAngle(shashtiamsaLongitude);
 }

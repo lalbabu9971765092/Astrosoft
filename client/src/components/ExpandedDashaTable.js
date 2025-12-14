@@ -115,7 +115,6 @@ const ExpandedDashaTable = ({ dashaPeriods }) => {
                                     {/* Antardasha Rows (Level 2) - Always render */}
                                     {hasMdSubPeriods && mahaDasha.subPeriods.map((antarDasha) => {
                                         const adKey = generateKey(antarDasha, 'AD');
-                                        const hasAdSubPeriods = Array.isArray(antarDasha.subPeriods) && antarDasha.subPeriods.length > 0;
 
                                         return (
                                             <React.Fragment key={adKey}>

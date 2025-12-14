@@ -74,17 +74,26 @@ const DetailedPlanetTable = ({ planets, houses, planetDetails }) => {
                         const subLordKey = planetData.subLord;
                         const subSubLordKey = planetData.subSubLord;
                         const rashiLordKey = planetData.rashiLord;
-                        const speed = planetData.speedLongitude?.toFixed(4);
+                        const speed = planetData.avasthas?.speedLongitude?.toFixed(4);
                         const avasthas = planetData.avasthas;
+
+                        const translateAvastha = (key) => {
+                            if (!key) return t('utils.notAvailable', 'N/A');
+                            const primary = t(`avasthas.${key}`, { defaultValue: '' });
+                            if (primary && primary !== `avasthas.${key}` && primary !== '') return primary;
+                            const extra = t(`avasthas_extra.${key}`, { defaultValue: '' });
+                            if (extra && extra !== `avasthas_extra.${key}` && extra !== '') return extra;
+                            return key;
+                        };
 
                         return (
                             <tr key={body}>
                                 <td>{t(`planets.${body}`, { defaultValue: body })}</td>
                                 <td>{planetData.dms ?? t('utils.notAvailable', 'N/A')}</td>
-                                <td>{avasthas?.dignity ?? t('utils.notAvailable', 'N/A')}</td>
-                                <td>{avasthas?.balaadi ?? t('utils.notAvailable', 'N/A')}</td>
-                                <td>{avasthas?.jagradadi ?? t('utils.notAvailable', 'N/A')}</td>
-                                <td>{avasthas?.deeptaadi ?? t('utils.notAvailable', 'N/A')}</td>
+                                <td>{t(`planetStates.${avasthas?.dignity}`, { defaultValue: avasthas?.dignity ?? t('utils.notAvailable', 'N/A') })}</td>
+                                <td>{translateAvastha(avasthas?.balaadi)}</td>
+                                <td>{translateAvastha(avasthas?.jagradadi)}</td>
+                                <td>{translateAvastha(avasthas?.deeptaadi)}</td>
                                 <td>{speed ?? t('utils.notAvailable', 'N/A')}</td>
                                 <td>{avasthas?.isRetrograde ? t('common.yes', 'Yes') : t('common.no', 'No')}</td>
                                 <td>{avasthas?.isCombust ? t('common.yes', 'Yes') : t('common.no', 'No')}</td>
