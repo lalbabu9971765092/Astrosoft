@@ -1,4 +1,8 @@
 // server/utils/predictionTextGenerator.js
+import logger from './logger.js';
+logger.info("--- LOADING UPDATED predictionTextGenerator.js ---");
+import { getHouseOfPlanet } from './planetaryUtils.js';
+import { convertDMSToDegrees } from './coreUtils.js';
 
 const houseThemes_en = {
     1: 'self, identity, health', 2: 'finance, possessions, speech', 3: 'siblings, communication, short trips',
@@ -40,6 +44,187 @@ const rashiNames_hi = {
     Aquarius: "कुंभ", 
     Pisces: "मीन"
 };
+
+const planetInHouse_en = {
+    Sun: [
+        "Sun in the 1st house amplifies your sense of self, bestowing leadership, vitality, and a strong desire for recognition. You have a commanding presence but should be mindful of ego.",
+        "Sun in the 2nd house ties your identity to wealth, family heritage, and values. You may have a powerful voice and focus on accumulating significant assets.",
+        "Sun in the 3rd house grants courage, a powerful will, and authority in communication. You express yourself with confidence and may excel in marketing, writing, or performance.",
+        "Sun in the 4th house places your focus on home, family, and emotional foundations. You may take a leading role in domestic life and seek a prominent home environment.",
+        "Sun in the 5th house brings creativity, intelligence, and a dramatic flair. You shine in areas of romance, performance, and leadership, with a strong connection to children.",
+        "Sun in the 6th house indicates a drive to lead in your daily work and service. You take pride in overcoming challenges and can be a powerful figure in healthcare or administration.",
+        "Sun in the 7th house places your ego and identity in partnerships. You seek a prominent partner and may define yourself through your relationships, for better or worse.",
+        "Sun in the 8th house gives a powerful interest in mysteries, psychology, and joint resources. Your life path involves deep transformations and dealing with hidden power dynamics.",
+        "Sun in the 9th house aligns your identity with higher beliefs, wisdom, and dharma. You are a natural teacher or guide, and your father or gurus may be significant figures.",
+        "Sun in the 10th house is a powerful placement for career and public recognition. You are a natural leader, destined for a visible role in your profession and society.",
+        "Sun in the 11th house indicates that your identity is connected to your social network, goals, and gains. You can become a leader within a large organization or group of friends.",
+        "Sun in the 12th house directs your energy towards spirituality, introspection, and foreign lands. Your path may involve service in institutions or finding your identity in solitude."
+    ],
+    Moon: [
+        "Moon in the 1st house makes your personality deeply emotional, intuitive, and receptive. Your identity is fluid, and you are highly sensitive to your environment and others' moods.",
+        "Moon in the 2nd house links your emotional security to financial stability and family values. Your income may fluctuate, and you find comfort in nurturing your possessions.",
+        "Moon in the 3rd house creates a mind that is curious, communicative, and changeable. Your thoughts are deeply tied to your feelings, making you an imaginative writer or speaker.",
+        "Moon in the 4th house (its own house) is extremely strong for emotional happiness. Your well-being is deeply connected to your home, mother, and a sense of belonging.",
+        "Moon in the 5th house makes you emotionally creative and romantic. You have a nurturing connection with children and find emotional fulfillment through creative self-expression.",
+        "Moon in the 6th house ties your emotions to your work and daily routines. You may have a nurturing approach to service but can be prone to worry about health and conflicts.",
+        "Moon in the 7th house seeks emotional fulfillment through partnerships. Your happiness depends greatly on the harmony and connection you feel with your significant other.",
+        "Moon in the 8th house gives a mind that is deep, intuitive, and drawn to mysteries. You experience profound emotional transformations and have a natural psychic ability.",
+        "Moon in the 9th house connects your emotions to your beliefs, higher learning, and travel. You find emotional peace through philosophy, spirituality, and exploring different cultures.",
+        "Moon in the 10th house places your emotions in the public eye. Your career may be related to the public, caregiving, or food, and your reputation is subject to ups and downs.",
+        "Moon in the 11th house finds emotional satisfaction through friendships, social networks, and achieving goals. You are nurtured by your community and group involvements.",
+        "Moon in the 12th house creates a highly imaginative, intuitive, and compassionate mind. You need periods of solitude to recharge and may feel a deep connection to spiritual or otherworldly realms."
+    ],
+    Mars: [
+        "Mars in the 1st house gives an assertive, energetic, and courageous persona. You are a natural go-getter, but must watch for impulsiveness and a tendency to be accident-prone.",
+        "Mars in the 2nd house brings drive and conflict to finances and speech. You are aggressive in earning money, but may also have financial disputes or use harsh words.",
+        "Mars in the 3rd house grants immense courage, initiative, and a direct communication style. You are a powerful advocate for your ideas, though can be argumentative.",
+        "Mars in the 4th house can create conflict and arguments within the home and with family. It indicates a need to channel your energy into productive domestic projects.",
+        "Mars in the 5th house provides a passionate and competitive drive in creativity, sports, and romance. You pursue your hobbies and love interests with great energy.",
+        "Mars in the 6th house is excellent for overcoming enemies and obstacles. You are a formidable competitor and a tireless worker, but must guard against inflammation and injuries.",
+        "Mars in the 7th house brings a passionate but potentially argumentative energy to partnerships. You are attracted to assertive partners, but power struggles are common.",
+        "Mars in the 8th house indicates a strong drive to investigate secrets and a risk-taking nature with joint finances. This can indicate sudden events and a need for careful energy management.",
+        "Mars in the 9th house shows a drive to fight for your beliefs. You may argue with teachers or about philosophy, but you are a passionate advocate for what you hold as truth.",
+        "Mars in the 10th house provides immense ambition and drive in your career. You are a natural commander and excel in fields requiring courage and technical skill, like engineering or surgery.",
+        "Mars in the 11th house directs your energy toward achieving goals and networking. You are proactive in your social circle and can be a leader among friends, though competition can arise.",
+        "Mars in the 12th house can create hidden enemies or direct your energy inwards, leading to frustration. It is best channeled through spiritual discipline, research, or service."
+    ],
+    Mercury: [
+        "Mercury in the 1st house makes you highly intelligent, communicative, and adaptable. Your identity is tied to your intellect, and you present yourself in a youthful, curious manner.",
+        "Mercury in the 2nd house grants intelligence in financial matters and a skillful, often humorous or versatile, manner of speech. Your mind is focused on accumulating resources and data.",
+        "Mercury in the 3rd house (its own house) is excellent for communication, writing, and learning. You have a quick, logical mind and excel in media, marketing, or short-distance travel.",
+        "Mercury in the 4th house focuses your intelligence on domestic matters. You may enjoy learning at home, have a family business, or be constantly thinking about real estate and family.",
+        "Mercury in the 5th house gives a playful, creative, and intelligent mind. You excel at games of skill, intellectual hobbies, and communicating with children.",
+        "Mercury in the 6th house applies your analytical skills to problems, health, and work. You are a detail-oriented worker and an excellent troubleshooter, but may worry excessively.",
+        "Mercury in the 7th house seeks an intelligent and communicative partner. Dialogue and mental connection are crucial for you in all one-on-one relationships.",
+        "Mercury in the 8th house creates a mind drawn to research, investigation, and uncovering secrets. You have a natural talent for psychology, astrology, or investigative journalism.",
+        "Mercury in the 9th house makes you a student of higher knowledge. You love to learn and communicate about philosophy, law, religion, and long-distance travel.",
+        "Mercury in the 10th house uses communication as a primary tool in your career. You may have multiple jobs or a profession in media, writing, teaching, or consulting.",
+        "Mercury in the 11th house grants a wide social network and intelligence in achieving goals. You connect with many different people and excel at group communication.",
+        "Mercury in the 12th house gives a mind that is intuitive, imaginative, and focused on behind-the-scenes research or spiritual topics. You think deeply about hidden things."
+    ],
+    Jupiter: [
+        "Jupiter in the 1st house brings optimism, wisdom, and good fortune to your personality. You are seen as a person of high principles, and you naturally attract opportunities.",
+        "Jupiter in the 2nd house is excellent for wealth and finance. It indicates a path of abundance, a generous nature, and wisdom in handling resources.",
+        "Jupiter in the 3rd house expands your communication and courage. You are an optimistic and inspiring speaker or writer, with good relationships with siblings.",
+        "Jupiter in the 4th house (a strong placement) blesses you with a happy home life, a large property, and strong support from your mother. It indicates deep inner peace.",
+        "Jupiter in the 5th house is a blessing for children, creativity, and good fortune through investments or speculation. Your intelligence is broad and your creativity is expansive.",
+        "Jupiter in the 6th house helps in overcoming conflicts and health issues with wisdom. You are generous in your service and can be a great teacher or counselor in your work.",
+        "Jupiter in the 7th house promises a wise, fortunate, and principled partner. Your relationships are a source of growth and expansion in your life.",
+        "Jupiter in the 8th house can bring wealth through inheritance or partners, and gives a deep, philosophical interest in life's mysteries and longevity.",
+        "Jupiter in the 9th house (its own house) is extremely powerful for fortune, higher wisdom, and dharma. You are a born teacher, philosopher, or guide, blessed by luck.",
+        "Jupiter in the 10th house grants great success, ethics, and wisdom in your career. You can attain a high position as a consultant, teacher, or leader in your field.",
+        "Jupiter in the 11th house is one of the best placements for gains and fulfillment of desires. You have a wide network of powerful and helpful friends.",
+        "Jupiter in the 12th house provides divine protection and a deep interest in spirituality, meditation, and charity. You find wisdom in solitude and letting go."
+    ],
+    Venus: [
+        "Venus in the 1st house blesses you with charm, grace, and a love for beauty and harmony. You are naturally attractive, diplomatic, and have a pleasant demeanor.",
+        "Venus in the 2nd house is excellent for wealth, giving a love for luxury items, fine food, and a beautiful speaking voice. You attract money easily through your charm.",
+        "Venus in the 3rd house makes your communication style artistic and pleasant. You have a talent for creative writing, poetry, or design and enjoy harmonious sibling relationships.",
+        "Venus in the 4th house indicates a beautiful home, a love of comfort, and a happy domestic life. You may own luxury vehicles and have a strong, loving bond with your mother.",
+        "Venus in the 5th house grants creativity, romance, and artistic talent. You are highly charismatic and find great joy in love affairs, the arts, and entertainment.",
+        "Venus in the 6th house can bring harmony to the workplace, but also indicates that health issues may arise from overindulgence. You may serve others through art or design.",
+        "Venus in the 7th house (its own house) is a strong indicator of a beautiful, charming, and devoted partner. Your marriage is central to your happiness and social life.",
+        "Venus in the 8th house can bring wealth through marriage or inheritance, but also indicates intense, secret relationships. It gives a strong magnetism and allure.",
+        "Venus in the 9th house shows a love for philosophy, art, and the beauty in different cultures. Your beliefs are centered on harmony, and you may find a partner from a foreign land.",
+        "Venus in the 10th house grants success in careers related to arts, entertainment, beauty, or diplomacy. You have a charming public image and are well-liked.",
+        "Venus in the 11th house brings gains and friendships through your charm and social grace. You have a network of artistic and affluent friends who help you achieve your goals.",
+        "Venus in the 12th house finds love and beauty in seclusion, spirituality, and imagination. It can indicate hidden relationships or a love for luxurious comforts in private."
+    ],
+    Saturn: [
+        "Saturn in the 1st house adds seriousness, discipline, and responsibility to your personality. You may feel burdensome responsibilities from a young age but develop great endurance.",
+        "Saturn in the 2nd house can restrict finances and family wealth, demanding hard work and savings over time. It gives a serious, practical, and sometimes melancholic speech.",
+        "Saturn in the 3rd house can create challenges with siblings or communication. However, it gives immense perseverance and discipline in any skill you set your mind to master.",
+        "Saturn in the 4th house may indicate a restrictive or emotionally cool home environment. It builds security slowly over time through discipline and hard work.",
+        "Saturn in the 5th house can delay or bring a serious approach to children, romance, and creativity. Your creative pursuits are structured and may manifest later in life.",
+        "Saturn in the 6th house is a powerful placement for overcoming enemies through persistence. It shows a diligent worker but can indicate chronic health issues that require discipline.",
+        "Saturn in the 7th house can delay marriage or bring a mature, older, or very responsible partner. It demands commitment, structure, and patience in relationships.",
+        "Saturn in the 8th house is a strong placement for longevity. It can bring inheritances through long, patient waiting, and gives a deep, serious interest in research and metaphysics.",
+        "Saturn in the 9th house creates a structured, traditional, and sometimes rigid belief system. You take philosophy and higher learning seriously, but may question your teachers.",
+        "Saturn in the 10th house (a strong placement) brings success and high status through slow, steady, and disciplined hard work. You build a lasting career and reputation over time.",
+        "Saturn in the 11th house can make fulfillment of desires a slow process. Friendships are few but long-lasting. Gains come through persistence and established networks.",
+        "Saturn in the 12th house indicates a solitary, disciplined spiritual path. It is excellent for meditation and behind-the-scenes work but can indicate feelings of isolation."
+    ],
+    Rahu: [
+        "Rahu in the 1st house creates a powerful, ambitious, and unconventional personality. You have an insatiable desire for recognition and may feel like an outsider seeking to prove yourself.",
+        "Rahu in the 2nd house gives a huge desire for wealth and accumulating possessions. It can bring wealth from unconventional sources, but also a tendency towards untruthful speech.",
+        "Rahu in the 3rd house grants extreme courage and a powerful, persuasive communication style. You may excel in media, technology, or marketing, but can be manipulative.",
+        "Rahu in the 4th house can create restlessness regarding home and emotional peace. There may be foreign elements in your home life or a feeling of never being truly settled.",
+        "Rahu in the 5th house brings an obsessive drive for creativity, romance, and speculation. It can grant fame through entertainment but also unorthodox approaches to children.",
+        "Rahu in the 6th house provides an uncanny ability to overcome enemies and solve complex problems with unconventional methods. It can give success in technology or healing.",
+        "Rahu in the 7th house creates a strong desire for partnership, often with someone from a different background or culture. Relationships are a major focus and can be unconventional.",
+        "Rahu in the 8th house gives a powerful and obsessive interest in secrets, metaphysics, and sudden wealth. It can bring unexpected gains and losses and a talent for research.",
+        "Rahu in the 9th house creates unconventional beliefs and a questioning attitude towards traditional dharma and teachers. It can lead to great success in foreign lands.",
+        "Rahu in the 10th house is a powerful driver for career ambition and fame. You are not afraid to break the rules to achieve high status and can rise quickly in your profession.",
+        "Rahu in the 11th house is an excellent placement for massive gains and achieving desires through technology and large networks. You have influential and unconventional friends.",
+        "Rahu in the 12th house directs its obsessive energy towards spirituality, foreign lands, or hidden matters. It can give powerful intuitive insights or lead to secret dealings and expenses."
+    ],
+    Ketu: [
+        "Ketu in the 1st house creates a detached, introspective, and spiritually-inclined personality. You may feel a sense of rootlessness or question your own identity, leading to a spiritual search.",
+        "Ketu in the 2nd house can create a detached attitude towards wealth and family. It may lead to financial uncertainty or a lack of focus on material accumulation.",
+        "Ketu in the 3rd house brings an intuitive and non-linear communication style. You may lack interest in conventional media but have powerful psychic or symbolic insights.",
+        "Ketu in the 4th house can indicate a detached or unsettled feeling about your home and roots. It promotes a search for a spiritual 'home' rather than a physical one.",
+        "Ketu in the 5th house creates a detached and critical view of romance, creativity, and children. You may have highly intuitive intelligence but struggle with conventional creative expression.",
+        "Ketu in the 6th house provides a powerful ability to intuitively diagnose and solve problems or diseases. However, it can also indicate strange, hard-to-diagnose health issues.",
+        "Ketu in the 7th house brings a spiritual, detached, or critical approach to partnership. You may feel a karmic connection to your partner but also a sense of dissatisfaction.",
+        "Ketu in the 8th house is a powerful placement for deep mystical and occult research. You have a natural ability to see through illusions and understand deep metaphysical truths.",
+        "Ketu in the 9th house indicates a questioning of traditional beliefs and a search for a more direct, intuitive spiritual truth. It shows past life mastery of philosophy.",
+        "Ketu in the 10th house creates a career path that is unconventional, spiritual, or involves research. You are detached from the ambitions of status and fame.",
+        "Ketu in the 11th house gives a detached view of social networks and material gains. Your friendships may be few or unusual, and your goals are often not materialistic.",
+        "Ketu in the 12th house is the significator for liberation (Moksha) and is extremely powerful here. It grants profound intuitive insight, meditative ability, and spiritual detachment."
+    ]
+};
+const planetInHouse_hi = { /* Placeholder for Hindi translations */ };
+
+function getOrdinal(n) {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+function generateLordshipText(lordOfHouse, placementHouse, lordPlanet, lang = 'en') {
+    const houseThemes = lang === 'hi' ? houseThemes_hi : houseThemes_en;
+    const planetNames = lang === 'hi' ? planetNames_hi : { Sun: 'Sun', Moon: 'Moon', Mars: 'Mars', Mercury: 'Mercury', Jupiter: 'Jupiter', Venus: 'Venus', Saturn: 'Saturn' };
+
+    const themes1 = houseThemes[lordOfHouse];
+    const themes2 = houseThemes[placementHouse];
+    const lord = planetNames[lordPlanet] || lordPlanet;
+    const lordOfOrdinal = getOrdinal(lordOfHouse);
+    const placementOrdinal = getOrdinal(placementHouse);
+
+    const TRIKONA = [1, 5, 9];
+    const KENDRA = [1, 4, 7, 10];
+    const DUSTHANA = [6, 8, 12];
+    const UPACHAYA = [3, 6, 10, 11];
+
+    // Case 1: Lord in its own house
+    if (lordOfHouse === placementHouse) {
+        return `The lord of the ${lordOfOrdinal} house, ${lord}, is in its own house. This powerfully strengthens the matters of this house (${themes1}), making them a central and self-sufficient theme in your life. You have natural control and command over this area.`;
+    }
+
+    // Case 2: Raja Yoga (Lord of Kendra in Trikona or vice-versa)
+    if ((KENDRA.includes(lordOfHouse) && TRIKONA.includes(placementHouse)) || (TRIKONA.includes(lordOfHouse) && KENDRA.includes(placementHouse))) {
+        return `This forms a powerful Raja Yoga, a combination for success and status. The lord of the ${lordOfOrdinal} house (${themes1}) connecting with the ${placementOrdinal} house (${themes2}) indicates that your fortune and actions are linked, promising significant achievements by applying your efforts in a righteous way.`;
+    }
+    
+    // Case 3: Viparita Raja Yoga (Lords of Dusthanas in other Dusthanas)
+    if (DUSTHANA.includes(lordOfHouse) && DUSTHANA.includes(placementHouse)) {
+        return `This can form a Viparita Raja Yoga. The lord of a challenging house (${lordOfOrdinal} - ${themes1}) moving to another challenging house (${placementOrdinal} - ${themes2}) indicates that you may gain unexpectedly from difficult situations. It can bring sudden positive shifts after periods of initial struggle or loss.`;
+    }
+
+    // Case 4: Lord of a good house in a Dusthana
+    if ((KENDRA.includes(lordOfHouse) || TRIKONA.includes(lordOfHouse)) && DUSTHANA.includes(placementHouse)) {
+        return `The positive energies of your ${lordOfOrdinal} house (${themes1}) are being channeled into the challenging ${placementOrdinal} house (${themes2}). This suggests that your personal identity, fortune, or actions may be tested or spent in dealing with conflicts, hidden matters, or overcoming obstacles.`;
+    }
+
+    // Case 5: Lord of a Dusthana in a good house
+    if (DUSTHANA.includes(lordOfHouse) && (KENDRA.includes(placementHouse) || TRIKONA.includes(placementHouse))) {
+        return `The challenging themes of your ${lordOfOrdinal} house (${themes1}) are brought into a key area of your life, the ${placementOrdinal} house (${themes2}). This suggests that matters of conflict, health, or loss may directly impact your personal identity, home, or fortune, requiring conscious management.`;
+    }
+
+    // Default generic (but improved) case
+    return `The lord of your ${lordOfOrdinal} house (governing ${themes1}), which is ${lord}, is placed in your ${placementOrdinal} house. This creates a powerful link, suggesting your path to fulfilling matters of your ${lordOfOrdinal} house is deeply connected with activities related to ${themes2}.`;
+}
+
 
 export const nakshatraTraitsLong_en = {
     Ashwini: "Ashwini grants vitality, speed, boldness, and a youthful spirit. You excel at initiating tasks and may have natural healing or rescue abilities. Your instinct is fast and intuitive.",
@@ -103,127 +288,164 @@ export const nakshatraTraitsLong_hi = {
 };
 
 
+// Helper function to provide a qualitative description of strength
+function getStrengthDescription(strength, lang = 'en') {
+    if (lang === 'hi') {
+        if (strength >= 90) return `असाधारण रूप से मजबूत है, जो आपके भाग्य पर एक प्रमुख और स्पष्ट प्रभाव डालता है।`;
+        if (strength >= 70) return `काफी मजबूत है, जो बताता है कि जीवन की घटनाओं में इसका एक शक्तिशाली और सीधा कहना है।`;
+        if (strength >= 50) return `मध्यम रूप से मजबूत है, जो आपके मार्ग को आकार देने की एक उल्लेखनीय लेकिन संतुलित क्षमता का सुझाव देता है।`;
+        if (strength >= 30) return `का प्रभाव मध्यम लेकिन कभी-कभी असंगत होता है, जिसकी क्षमता को सक्रिय करने के लिए सचेत प्रयास की आवश्यकता होती है।`;
+        return `की ताकत कुछ कम है, यह सुझाव देता है कि यद्यपि यह एक पृष्ठभूमि विषय निर्धारित करता है, इसका प्रभाव सूक्ष्म हो सकता है या अन्य ग्रहों के समर्थन पर निर्भर हो सकता है।`;
+    }
+    // English default
+    if (strength >= 90) return `is exceptionally strong, giving it a dominant and clear-cut influence over your destiny.`;
+    if (strength >= 70) return `is significantly strong, indicating it has a powerful and direct say in your life's events.`;
+    if (strength >= 50) return `is moderately strong, suggesting a noticeable but balanced capacity to shape your path.`;
+    if (strength >= 30) return `has a moderate but sometimes inconsistent influence, requiring conscious effort to activate its potential.`;
+    return `is somewhat less pronounced in strength, suggesting that while it sets a background theme, its influence may be subtle or dependent on support from other planets.`;
+}
+
+// Helper function to interpret the Lagna Lord's placement
+function getLagnaLordInterpretation(lord, house, lang = 'en') {
+    const planetNature_en = { Sun: 'authoritative', Moon: 'receptive', Mars: 'assertive', Mercury: 'intellectual', Jupiter: 'expansive', Venus: 'harmonious', Saturn: 'disciplined', Rahu: 'ambitious', Ketu: 'detached' };
+    const planetNature_hi = { Sun: 'आधिकारिक', Moon: 'ग्रहणशील', Mars: 'मुखर', Mercury: 'बौद्धिक', Jupiter: 'विस्तृत', Venus: 'सामंजस्यपूर्ण', Saturn: 'अनुशासित', Rahu: 'महत्वाकांक्षी', Ketu: 'अनासक्त' };
+    
+    const themes = lang === 'hi' ? houseThemes_hi : houseThemes_en;
+    const natures = lang === 'hi' ? planetNature_hi : planetNature_en;
+    const lordTranslated = lang === 'hi' ? (planetNames_hi[lord] || lord) : lord;
+
+    if (lang === 'hi') {
+        return `चूंकि आपका लग्न ${natures[lord] || ''} ${lordTranslated} द्वारा निर्देशित है, इसका ${house}वें घर में स्थान आपकी मुख्य जीवन ऊर्जा को ${themes[house] || ''} के विषयों की ओर निर्देशित करता है।`;
+    }
+    // English default
+    return `As your ascendant is guided by the ${natures[lord] || ''} ${lord}, its placement in the ${house}th house directs your core life energy towards themes of ${themes[house] || ''}.`;
+}
+
 // ---------------------------------------------------------
 //  FULL COMBINED PREDICTION GENERATOR (Lagna, Rashi, Nakshatra)
 // ---------------------------------------------------------
 
-export function getCombinedPredictionLong(lagna, rashi, nakshatra, lang = 'en') {
-    // Inlined functions getLagnaTraitsLong and getRashiTraitsLong to ensure scope
+export function getCombinedPredictionLong(lagna, rashi, nakshatra, additionalData, lang = 'en') {
+    const { lagnaLord, lagnaLordNatalHouse, lagnaLordStrength, atmakaraka, atmakarakaStrength, planetaryPositions, houses } = additionalData || {};
+    
     const lagnaTraits_en = {
-        Aries: "As an Aries Lagna native, you approach life with a fiery temperament, strong initiative, and a pioneering instinct. You naturally push forward into new experiences, rarely waiting for others to show the way. Challenges excite you rather than discourage you, and you thrive in situations requiring courage, quick decision-making, and bold action. Your personality radiates confidence and straightforwardness, though you may occasionally struggle with impatience or impulsive reactions.",
-        Taurus: "With Taurus rising, stability, perseverance, and practicality form the foundation of your personality. You prefer to build life step by step, valuing security, comfort, and tangible progress. Your temperament is generally calm, grounded, and determined, though once you decide something, you rarely change your mind. You are naturally drawn toward beauty, resources, and long-lasting structures, and you exude a steady aura that others often find dependable.",
-        Gemini: "Gemini Lagna blesses you with a flexible, curious, and talkative personality. Mental stimulation drives you, and you constantly seek new ideas, connections, and perspectives. You adapt quickly to changing situations, learn fast, and enjoy sharing knowledge with others. Though sometimes scattered or overthinking, your intellectual agility and communication skills are your greatest strengths.",
-        Cancer: "Cancer Lagna gives you a nurturing, intuitive, and emotionally aware outer personality. You are deeply sensitive to your environment and the needs of others, often acting as a natural protector or caretaker. Family, roots, and personal security matter greatly to you. Though you may withdraw during emotional turbulence, you possess incredible inner strength and empathy.",
-        Leo: "Leo Lagna brings a charismatic, expressive, and confident presence. You naturally gravitate toward leadership roles and appreciate recognition for your efforts. Your personality radiates warmth, creativity, and strong willpower. Though pride can sometimes overshadow flexibility, your generous heart and desire to uplift others make you a powerful and inspiring individual.",
-        Virgo: "With Virgo rising, you move through life with precision, logic, discipline, and an analytical mindset. You observe details others overlook, and you strive for improvement in everything you do. Practical, intelligent, and health-conscious, you prefer structure and tend to be self-critical when things don’t align with your high standards.",
-        Libra: "Libra Lagna gives you a graceful, balanced, and diplomatic personality. You naturally seek harmony in relationships and environments, and you excel at mediation, fairness, and aesthetic appreciation. You dislike conflict and conflict and are gifted at understanding both sides of a situation, though indecision can arise when choices seem equally appealing.",
-        Scorpio: "Scorpio Lagna creates a powerful, intense, secretive, and deeply insightful personality. Your presence is magnetic, and your emotional depth is unmatched. You rarely reveal your true thoughts easily and possess strong resilience in crisis. Transformative experiences shape your life, giving you extraordinary strength and the ability to rise from challenges.",
-        Sagittarius: "Sagittarius rising gives you an optimistic, adventurous, and knowledge-seeking personality. You value freedom, higher learning, and exploring broader perspectives—whether through travel, philosophy, or personal growth. Your spirit is open and enthusiastic, though you may struggle with restlessness or bluntness.",
-        Capricorn: "Capricorn Lagna makes you disciplined, realistic, hardworking, and focused on long-term achievement. You approach life with seriousness and responsibility, and you mature faster than others. Though emotionally reserved at times, your ability to persevere through difficulties and build a stable future is exceptional.",
-        Aquarius: "With Aquarius rising, your personality blends originality, intelligence, independence, and humanitarian concern. You think in unconventional ways and often detach emotionally to analyze situations objectively. Innovation, reform, and progressive ideas shape your worldview, and you value freedom above all.",
-        Pisces: "Pisces Lagna gives you a gentle, imaginative, intuitive, and spiritually inclined personality. You perceive the world through emotion and symbolism rather than logic alone. Compassion and creativity flow naturally through you, though boundaries may become blurred when you absorb others’ feelings too deeply."
+        Aries: "Being an Aries ascendant, your worldview is shaped by action and courage. You are a natural leader, always ready to take the first step and inspire others. Your energy is infectious, though it can sometimes lead to haste. You prefer to deal with issues directly and honestly, and your path in life involves learning to balance your powerful drive with patience and consideration for others.",
+        Taurus: "As a Taurus ascendant, you are grounded and methodical in your approach to life. You seek to create a world of comfort and beauty around you, and you have a natural talent for managing resources. Your determination is a great asset, but it can sometimes manifest as stubbornness.",
+        Gemini: "Gemini Lagna blesses you with a flexible, curious, and talkative personality. Mental stimulation drives you, and you constantly seek new ideas, connections, and perspectives. You adapt quickly to changing situations and enjoy sharing knowledge.",
+        Cancer: "Cancer Lagna gives you a nurturing, intuitive, and emotionally aware outer personality. You are deeply sensitive to your environment and the needs of others, often acting as a natural protector or caretaker. Family, roots, and personal security matter greatly to you.",
+        Leo: "Leo Lagna brings a charismatic, expressive, and confident presence. You naturally gravitate toward leadership roles and appreciate recognition for your efforts. Your personality radiates warmth, creativity, and strong willpower.",
+        Virgo: "With Virgo rising, you move through life with precision, logic, and an analytical mindset. You observe details others overlook and strive for improvement in everything you do. Practical and health-conscious, you prefer structure and order.",
+        Libra: "Libra Lagna gives you a graceful, balanced, and diplomatic personality. You naturally seek harmony in relationships and environments, excelling at mediation and fairness. You dislike conflict and are gifted at seeing both sides of a situation.",
+        Scorpio: "Scorpio Lagna creates a powerful, intense, and deeply insightful personality. Your presence is magnetic, and your emotional depth is unmatched. You rarely reveal your true thoughts easily and possess strong resilience in crisis.",
+        Sagittarius: "Sagittarius rising gives you an optimistic, adventurous, and knowledge-seeking personality. You value freedom and exploring broader perspectives—whether through travel, philosophy, or personal growth.",
+        Capricorn: "Capricorn Lagna makes you disciplined, realistic, and focused on long-term achievement. You approach life with seriousness and responsibility, and your ability to persevere through difficulties is exceptional.",
+        Aquarius: "With Aquarius rising, your personality blends originality, intelligence, and humanitarian concern. You think in unconventional ways and often detach emotionally to analyze situations objectively.",
+        Pisces: "Pisces Lagna gives you a gentle, imaginative, and intuitive personality. You perceive the world through emotion and symbolism. Compassion and creativity flow naturally through you."
     };
-
-    const lagnaTraits_hi = {
-        Aries: "मेष लग्न के जातक के तौर पर, आप जीवन में जोशीले स्वभाव, मज़बूत पहल और अग्रणी प्रवृत्ति के साथ आगे बढ़ते हैं। आप स्वाभाविक रूप से नए अनुभवों की ओर बढ़ते हैं, शायद ही कभी दूसरों का रास्ता दिखाने का इंतज़ार करते हैं। चुनौतियाँ आपको हतोत्साहित करने के बजाय उत्साहित करती हैं, और आप ऐसे हालात में कामयाब होते हैं जिनमें हिम्मत, तेज़ी से फ़ैसले लेने और साहसिक कार्रवाई की ज़रूरत होती है। आपकी पर्सनैलिटी में आत्मविश्वास और साफ़गोई झलकती है, हालाँकि कभी-कभी आपको अधीरता या जल्दबाज़ी वाली प्रतिक्रियाओं से जूझना पड़ सकता है।",
-        Taurus: "वृषभ लग्न के साथ, स्थिरता, दृढ़ता और व्यावहारिकता आपकी पर्सनैलिटी की नींव बनाते हैं। आप जीवन को कदम-दर-कदम बनाना पसंद करते हैं, सुरक्षा, आराम और ठोस प्रगति को महत्व देते हैं। आपका स्वभाव आम तौर पर शांत, ज़मीन से जुड़ा और दृढ़ होता है, हालाँकि एक बार जब आप कुछ तय कर लेते हैं, तो शायद ही कभी अपना मन बदलते हैं। आप स्वाभाविक रूप से सुंदरता, संसाधनों और लंबे समय तक चलने वाली चीज़ों की ओर आकर्षित होते हैं, और आपमें एक स्थिर आभा होती है जिसे दूसरे अक्सर भरोसेमंद पाते हैं।",
-        Gemini: "मिथुन लग्न आपको एक लचीली, जिज्ञासु और बातूनी पर्सनैलिटी देता है। मानसिक उत्तेजना आपको प्रेरित करती है, और आप लगातार नए विचारों, कनेक्शनों और दृष्टिकोणों की तलाश में रहते हैं। आप बदलती परिस्थितियों में तेज़ी से ढल जाते हैं, जल्दी सीखते हैं, और दूसरों के साथ ज्ञान साझा करने का आनंद लेते हैं। हालाँकि कभी-कभी बिखरे हुए या ज़्यादा सोचने वाले होते हैं, आपकी बौद्धिक चपलता और संचार कौशल आपकी सबसे बड़ी ताकत हैं।",
-        Cancer: "कर्क लग्न आपको एक पालन-पोषण करने वाली, सहज और भावनात्मक रूप से जागरूक बाहरी पर्सनैलिटी देता है। आप अपने आस-पास के माहौल और दूसरों की ज़रूरतों के प्रति बहुत संवेदनशील होते हैं, अक्सर एक स्वाभाविक रक्षक या देखभाल करने वाले के रूप में काम करते हैं। परिवार, जड़ें और व्यक्तिगत सुरक्षा आपके लिए बहुत मायने रखती है। हालाँकि आप भावनात्मक उथल-पुथल के दौरान पीछे हट सकते हैं, आपमें अविश्वसनीय आंतरिक शक्ति और सहानुभूति होती है।",
-        Leo: "सिंह लग्न एक करिश्माई, अभिव्यंजक और आत्मविश्वासी उपस्थिति लाता है। आप स्वाभाविक रूप से नेतृत्व की भूमिकाओं की ओर आकर्षित होते हैं और अपने प्रयासों के लिए पहचान की सराहना करते हैं। आपकी पर्सनैलिटी में गर्मजोशी, रचनात्मकता और मज़बूत इच्छाशक्ति झलकती है। हालाँकि कभी-कभी घमंड लचीलेपन पर हावी हो सकता है, आपका उदार दिल और दूसरों को ऊपर उठाने की इच्छा आपको एक शक्तिशाली और प्रेरणादायक व्यक्ति बनाती है।",
-        Virgo: "कन्या लग्न के साथ, आप जीवन में सटीकता, तर्क, अनुशासन और विश्लेषणात्मक सोच के साथ आगे बढ़ते हैं। आप उन विवरणों पर ध्यान देते हैं जिन्हें दूसरे नज़रअंदाज़ कर देते हैं, और आप जो कुछ भी करते हैं उसमें सुधार के लिए प्रयास करते हैं। व्यावहारिक, बुद्धिमान और स्वास्थ्य के प्रति जागरूक, आप संरचना पसंद करते हैं और जब चीजें आपके उच्च मानकों के अनुरूप नहीं होती हैं तो आप आत्म-आलोचनात्मक हो जाते हैं।",
-        Libra: "तुला लग्न आपको एक सुंदर, संतुलित और कूटनीतिक पर्सनैलिटी देता है। आप स्वाभाविक रूप से रिश्तों और माहौल में सद्भाव चाहते हैं, और आप मध्यस्थता में माहिर होते हैं, निष्पक्षता और सौंदर्य की सराहना। आपको टकराव पसंद नहीं है और आप किसी भी स्थिति के दोनों पक्षों को समझने में माहिर हैं, हालांकि जब विकल्प समान रूप से आकर्षक लगते हैं तो अनिर्णय की स्थिति पैदा हो सकती है।",
-        Scorpio: "वृश्चिक लग्न एक शक्तिशाली, तीव्र, रहस्यमयी और गहरी समझ वाली पर्सनैलिटी बनाता है। आपकी उपस्थिति चुंबकीय है, और आपकी भावनात्मक गहराई बेजोड़ है। आप शायद ही कभी अपने सच्चे विचार आसानी से प्रकट करते हैं और संकट में मजबूत लचीलापन रखते हैं। परिवर्तनकारी अनुभव आपके जीवन को आकार देते हैं, जिससे आपको असाधारण शक्ति और चुनौतियों से उबरने की क्षमता मिलती है।",
-        Sagittarius: "धनु लग्न आपको एक आशावादी, साहसी और ज्ञान की तलाश करने वाली पर्सनैलिटी देता है। आप स्वतंत्रता, उच्च शिक्षा और व्यापक दृष्टिकोणों की खोज को महत्व देते हैं - चाहे वह यात्रा, दर्शन या व्यक्तिगत विकास के माध्यम से हो। आपकी भावना खुली और उत्साही है, हालांकि आप बेचैनी या स्पष्टवादिता से जूझ सकते है।",
-        Capricorn: "मकर लग्न आपको अनुशासित, यथार्थवादी, मेहनती और दीर्घकालिक उपलब्धि पर केंद्रित बनाता है। आप जीवन को गंभीरता और जिम्मेदारी से देखते हैं, और आप दूसरों की तुलना में तेजी से परिपक्व होते हैं। हालांकि कभी-कभी भावनात्मक रूप से आरक्षित रहते हैं, लेकिन कठिनाइयों से जूझने और एक स्थिर भविष्य बनाने की आपकी क्षमता असाधारण है।",
-        Aquarius: "कुंभ लग्न के साथ, आपकी पर्सनैलिटी में मौलिकता, बुद्धिमत्ता, स्वतंत्रता और मानवीय चिंता का मिश्रण होता है। आप अपरंपरागत तरीकों से सोचते हैं और स्थितियों का निष्पक्ष रूप से विश्लेषण करने के लिए अक्सर भावनात्मक रूप से अलग हो जाते हैं। नवाचार, सुधार और प्रगतिशील विचार आपके विश्वदृश्यों को आकार देते हैं, और आप स्वतंत्रता को सबसे ऊपर महत्व देते हैं।",
-        Pisces: "मीन राशि में चंद्रमा गहरी संवेदनशीलता, करुणा, कल्पना और मानसिक ग्रहणशीलता देता है। आप भावनाओं को गहराई से महसूस करते हैं और दूसरों के मूड के साथ बहुत आसानी से घुल-मिल सकते हैं।"
-    };
-
     const rashiTraits_en = {
-        Aries: "With Aries Moon, your emotional responses are quick, passionate, and honest. You dislike emotional stagnation and prefer direct communication of feelings. Though you may become impatient or reactive, your emotional courage helps you face challenges head-on.",
-        Taurus: "A Taurus Moon gives you a calm, steady emotional nature. You seek peace, predictability, and long-term comfort. Sudden emotional changes unsettle you, and you prefer relationships that feel secure and consistent.",
-        Gemini: "Moon in Gemini makes your emotions tied to intellect and communication. You express feelings through words rather than intensity, and your mind rarely rests. Curiosity and adaptability shape your emotional world, though restlessness can challenge stability.",
-        Cancer: "With Moon in Cancer, you experience emotions deeply and intuitively. Family bonds, memory, and home strongly influence your emotional wellbeing. You nurture others naturally but are sensitive to criticism or abandonment.",
-        Leo: "Leo Moon gives you a dramatic, warm, expressive emotional nature. You feel happiest when appreciated or admired and seek emotional connection that validates your inner dignity and pride.",
-        Virgo: "Moon in Virgo makes your emotions analytical, thoughtful, and practical. You seek order, clarity, and meaningful service. Emotional expression may be restrained, but your care shows through helpful actions.",
-        Libra: "Moon in Libra gives you a need for balance, harmony, and fairness in emotional life. You dislike conflict and seek relationships that feel cooperative, aesthetically pleasant, and mentally aligned.",
-        Scorpio: "Scorpio Moon creates powerful, intense, transformative emotions. You experience loyalty deeply and form strong attachments. Emotional betrayal or secrets can trigger profound internal reactions.",
-        Sagittarius: "Moon in Sagittarius brings optimism, enthusiasm, and the need for freedom. You dislike emotional confinement and thrive on honesty, open communication, and intellectual stimulation.",
-        Capricorn: "Capricorn Moon gives emotional discipline and restraint. You express feelings carefully, preferring control and stability over spontaneity. Responsibility shapes your emotional identity.",
-        Aquarius: "Moon in Aquarius gives you a detached, intellectualized emotional style. You value logic over sentiment and prefer friendships, ideas, and causes that align with your principles.",
-        Pisces: "Pisces Moon gives deep sensitivity, compassion, imagination, and psychic receptivity. You feel emotions profoundly and may merge too easily with others’ moods."
+        Aries: "With Aries Moon, your emotional responses are quick, passionate, and honest. You dislike emotional stagnation and prefer direct communication of feelings.",
+        Taurus: "A Taurus Moon gives you a calm, steady emotional nature. You seek peace, predictability, and long-term comfort. Sudden emotional changes unsettle you.",
+        Gemini: "Moon in Gemini makes your emotions tied to intellect and communication. You express feelings through words, and your mind rarely rests. Curiosity shapes your emotional world.",
+        Cancer: "With Moon in Cancer, you experience emotions deeply and intuitively. Family bonds, memory, and home strongly influence your emotional wellbeing.",
+        Leo: "Leo Moon gives you a dramatic, warm, and expressive emotional nature. You feel happiest when appreciated or admired and seek emotional connection that validates your inner dignity.",
+        Virgo: "Moon in Virgo makes your emotions analytical and practical. You seek order and clarity, and your care shows through helpful actions rather than overt displays.",
+        Libra: "Moon in Libra gives you a need for balance and harmony in your emotional life. You dislike conflict and seek cooperative and mentally aligned relationships.",
+        Scorpio: "Scorpio Moon creates powerful, intense, and transformative emotions. You experience loyalty deeply and form strong attachments. Emotional betrayal can trigger profound internal reactions.",
+        Sagittarius: "Moon in Sagittarius brings optimism and a need for freedom. You dislike emotional confinement and thrive on honesty and open communication.",
+        Capricorn: "Capricorn Moon gives emotional discipline and restraint. You express feelings carefully, preferring control and stability over spontaneity.",
+        Aquarius: "Moon in Aquarius gives you a detached, intellectualized emotional style. You value logic over sentiment and prefer friendships and ideas that align with your principles.",
+        Pisces: "Pisces Moon gives deep sensitivity, compassion, and psychic receptivity. You feel emotions profoundly and may merge too easily with others’ moods."
+    };
+    const nakshatraTraits = nakshatraTraitsLong_en;
+
+    const p = {
+        yourChartCombines: "Your chart combines the qualities of your", lagna: "Lagna", rashi: "Rashi", and: "and", nakshatra: "Nakshatra", creatingProfile: ", creating a deeply layered personality profile.",
+        asALagnaAscendant: "As a", outerBehavior: "ascendant, your outer behavior, approach to life, and first instincts are shaped by the following tendencies:",
+        emotionallyAndMentally: "Emotionally and mentally, your Moon sign in", influencesHowYou: "influences how you process experiences, form bonds, and respond to your inner world. This gives you the following emotional nature:",
+        atADeeperKarmic: "At a deeper karmic and spiritual level, your birth in the", infusesYourInstincts: "Nakshatra infuses your instincts, subconscious drives, and soul journey with the following qualities:",
+        whenTheseThree: "When these three forces blend, they create a unique harmony between your external personality, your internal emotional life, and your spiritual foundation. This combination reveals how you behave in the world, how you feel within, and what your soul seeks across your life path. This integrated pattern shapes your natural strengths, challenges, relationships, decisions, and long-term destiny."
     };
 
-    const rashiTraits_hi = {
-        Aries: "मेष राशि में चंद्रमा होने पर, आपकी भावनात्मक प्रतिक्रियाएँ तेज़, जोशीली और ईमानदार होती हैं। आपको भावनात्मक ठहराव पसंद नहीं है और आप भावनाओं का सीधा संचार पसंद करते हैं। हालाँकि आप अधीर या प्रतिक्रियाशील हो सकते हैं, आपका भावनात्मक साहस आपको चुनौतियों का सामना करने में मदद करता है।",
-        Taurus: "वृषभ राशि में चंद्रमा आपको शांत, स्थिर भावनात्मक स्वभाव देता है। आप शांति, पूर्वानुमान और लंबे समय तक आराम चाहते हैं। अचानक भावनात्मक बदलाव आपको परेशान करते हैं, और आप ऐसे रिश्ते पसंद करते हैं जो सुरक्षित और सुसंगत महसूस हों।",
-        Gemini: "मिथुन राशि में चंद्रमा आपकी भावनाओं को बुद्धि और संचार से जोड़ता है। आप भावनाओं को तीव्रता के बजाय शब्दों के माध्यम से व्यक्त करते हैं, और आपका मन शायद ही कभी आराम करता है। जिज्ञासा और अनुकूलनशीलता आपकी भावनात्मक दुनिया को आकार देती है, हालाँकि बेचैनी स्थिरता को चुनौती दे सकती है।",
-        Cancer: "कर्क राशि में चंद्रमा होने पर, आप भावनाओं को गहराई से और सहज रूप से अनुभव करते हैं। पारिवारिक बंधन, यादें और घर आपके भावनात्मक कल्याण को बहुत प्रभावित करते हैं। आप स्वाभाविक रूप से दूसरों का पोषण करते हैं लेकिन आलोचना या परित्याग के प्रति संवेदनशील होते हैं।",
-        Leo: "सिंह राशि में चंद्रमा आपको एक नाटकीय, गर्म, अभिव्यंजक भावनात्मक स्वभाव देता है। जब आपकी सराहना या प्रशंसा की जाती है तो आप सबसे ज़्यादा खुश महसूस करते हैं और ऐसे भावनात्मक संबंध चाहते हैं जो आपकी आंतरिक गरिमा और गौरव को मान्य करें।",
-        Virgo: "कन्या राशि में चंद्रमा आपकी भावनाओं को विश्लेषणात्मक, विचारशील और व्यावहारिक बनाता है। आप व्यवस्था, स्पष्टता और सार्थक सेवा चाहते हैं। भावनात्मक अभिव्यक्ति संयमित हो सकती है, लेकिन आपकी देखभाल मददगार कार्यों से दिखती है।",
-        Libra: "तुला राशि में चंद्रमा आपको भावनात्मक जीवन में संतुलन, सद्भाव और निष्पक्षता की आवश्यकता देता है। आपको संघर्ष पसंद नहीं है और आप ऐसे रिश्ते चाहते हैं जो सहयोगात्मक, सौंदर्य की दृष्टि से सुखद और मानसिक रूप से संरेखित हों।",
-        Scorpio: "वृश्चिक राशि में चंद्रमा शक्तिशाली, तीव्र, रहस्यमयी और गहरी समझ वाली पर्सनैलिटी बनाता है। आपकी उपस्थिति चुंबकीय है, और आपकी भावनात्मक गहराई बेजोड़ है। आप शायद ही कभी अपने सच्चे विचार आसानी से प्रकट करते हैं और संकट में मजबूत लचीलापन रखते हैं। परिवर्तनकारी अनुभव आपके जीवन को आकार देते हैं, जिससे आपको असाधारण शक्ति और चुनौतियों से उबरने की क्षमता मिलती है।",
-        Sagittarius: "धनु राशि में चंद्रमा आशावाद, उत्साह और स्वतंत्रता की आवश्यकता लाता है। आपको भावनात्मक बंधन पसंद नहीं है और आप ईमानदारी, खुले संचार और बौद्धिक उत्तेजना पर पनपते हैं।",
-        Capricorn: "मकर राशि में चंद्रमा भावनात्मक अनुशासन और संयम देता है। आप भावनाओं को सावधानी से व्यक्त करते हैं, सहजता के बजाय नियंत्रण और स्थिरता को प्राथमिकता देते हैं। ज़िम्मेदारी आपकी भावनात्मक पहचान को आकार देती है।",
-        Aquarius: "कुंभ राशि में चंद्रमा आपको एक अलग, बौद्धिक भावनात्मक शैली देता है। आप भावना से ज़्यादा तर्क को महत्व देते हैं और ऐसी दोस्ती, विचार और कारण पसंद करते हैं जो आपके सिद्धांतों के अनुरूप हों।",
-        Pisces: "मीन राशि में चंद्रमा गहरी संवेदनशीलता, करुणा, कल्पना और मानसिक ग्रहणशीलता देता है। आप भावनाओं को गहराई से महसूस करते हैं और दूसरों के मूड के साथ बहुत आसानी से घुल-मिल सकते हैं।"
-    };
+    let lagnaText = lagnaTraits_en[lagna] || "";
+    let rashiText = rashiTraits_en[rashi] || "";
+    const nakshatraText = nakshatraTraits[nakshatra] || "";
 
-    const nakshatraTraits = lang === 'hi' ? nakshatraTraitsLong_hi : nakshatraTraitsLong_en;
+    const cuspDegrees = houses ? houses.map(h => convertDMSToDegrees(h.start_dms)) : [];
 
-    const L = (lang === 'hi' ? lagnaTraits_hi[lagna] : lagnaTraits_en[lagna]) || "";
-    const R = (lang === 'hi' ? rashiTraits_hi[rashi] : rashiTraits_en[rashi]) || "";
-    const N = nakshatraTraits[nakshatra] || "";
+    // --- Synthesize Lagna Lord into Lagna Paragraph ---
+    if (lagnaLord && lagnaLordNatalHouse && cuspDegrees.length > 0) {
+        const houseTheme = houseThemes_en[lagnaLordNatalHouse];
+        lagnaText += ` This core identity finds its primary expression in the ${getOrdinal(lagnaLordNatalHouse)} house, channeling your life's path toward matters of ${houseTheme}.`;
+    }
 
-    // Define language-specific phrases for the template
-    const generalPhrases = {
-        en: {
-            yourChartCombines: "Your chart combines the qualities of your",
-            lagna: "Lagna",
-            rashi: "Rashi",
-            nakshatra: "Nakshatra",
-            and: "and",
-            creatingProfile: ", creating a deeply layered personality profile.",
-            asALagnaAscendant: "As a",
-            outerBehavior: "ascendant, your outer behavior, approach to life, and first instincts are shaped by the following tendencies:",
-            emotionallyAndMentally: "Emotionally and mentally, your Moon sign in",
-            influencesHowYou: "influences how you process experiences, form bonds, and respond to your inner world. This gives you the following emotional nature:",
-            atADeeperKarmic: "At a deeper karmic and spiritual level, your birth in the",
-            infusesYourInstincts: "Nakshatra infuses your instincts, subconscious drives, and soul journey with the following qualities:",
-            whenTheseThree: "When these three forces blend, they create a unique harmony between your external personality, your internal emotional life, and your spiritual foundation. This combination reveals how you behave in the world, how you feel within, and what your soul seeks across your life path. This integrated pattern shapes your natural strengths, challenges, relationships, decisions, and long-term destiny.",
-        },
-        hi: {
-            yourChartCombines: "आपकी कुंडली आपके",
-            lagna: "लग्न",
-            rashi: "राशि",
-            nakshatra: "नक्षत्र",
-            and: "और",
-            creatingProfile: " के गुणों को जोड़ती है, जिससे एक गहरा, बहुस्तरीय व्यक्तित्व प्रोफ़ाइल बनता है।",
-            asALagnaAscendant: "एक",
-            outerBehavior: "लग्न के जातक के रूप में, आपका बाहरी व्यवहार, जीवन के प्रति दृष्टिकोण, और पहली प्रवृत्तियां निम्नलिखित झुकावों से आकार लेती हैं:",
-            emotionallyAndMentally: "भावनात्मक और मानसिक रूप से, आपकी चंद्र राशि",
-            influencesHowYou: "में यह प्रभावित करती है कि आप अनुभवों को कैसे संसाधित करते हैं, बंधन कैसे बनाते हैं, और अपनी आंतरिक दुनिया पर कैसे प्रतिक्रिया करते हैं। यह आपको निम्नलिखित भावनात्मक प्रकृति देता है:",
-            atADeeperKarmic: "गहरे कर्मिक और आध्यात्मिक स्तर पर, आपका जन्म",
-            infusesYourInstincts: "नक्षत्र में आपकी प्रवृत्तियों, अवचेतन इच्छाओं और आत्मा की यात्रा को निम्नलिखित गुणों से भर देता है:",
-            whenTheseThree: "जब ये तीनों शक्तियां मिलती हैं, तो वे आपके बाहरी व्यक्तित्व, आपके आंतरिक भावनात्मक जीवन और आपकी आध्यात्मिक नींव के बीच एक अनूठा सामंजस्य बनाती हैं। यह संयोजन बताता है कि आप दुनिया में कैसे व्यवहार करते हैं, आप भीतर से कैसा महसूस करते हैं, और आपकी आत्मा अपने जीवन पथ पर क्या खोजती है। यह एकीकृत पैटर्न आपकी प्राकृतिक शक्तियों, चुनौतियों, रिश्तों, निर्णयों और दीर्घकालिक नियति को आकार देता है।",
+    // --- Synthesize Moon's House Placement into Rashi Paragraph ---
+    const moonData = planetaryPositions?.Moon;
+    if (moonData && typeof moonData.longitude === 'number' && cuspDegrees.length > 0) {
+        const moonHouse = getHouseOfPlanet(moonData.longitude, cuspDegrees);
+        if (moonHouse) {
+            const houseTheme = houseThemes_en[moonHouse];
+            rashiText += ` This emotional nature is most actively focused on the ${getOrdinal(moonHouse)} house, suggesting you seek emotional fulfillment and security in matters related to ${houseTheme}.`;
         }
-    };
+    }
 
-    const p = generalPhrases[lang];
+    // --- Assemble the final report ---
+    let result = `
+${p.yourChartCombines} ${lagna} ${p.lagna}, ${rashi} ${p.rashi}, ${p.and} ${nakshatra} ${p.nakshatra}${p.creatingProfile} 
+${p.asALagnaAscendant} ${lagna} ${p.outerBehavior} ${lagnaText}
 
-    const translatedLagnaGeneral = (lang === 'hi' ? rashiNames_hi[lagna] : lagna) || lagna; // Translate Lagna name
-    const translatedRashiGeneral = (lang === 'hi' ? rashiNames_hi[rashi] : rashi) || rashi; // Translate Rashi name
-    const translatedNakshatraGeneral = (lang === 'hi' ? nakshatraTraitsLong_hi[nakshatra] : nakshatra) || nakshatra; // Translate Nakshatra name
+${p.emotionallyAndMentally} ${rashi} ${p.influencesHowYou} ${rashiText}
 
-    return `
-${p.yourChartCombines} ${translatedLagnaGeneral} ${p.lagna}, ${translatedRashiGeneral} ${p.rashi}, ${p.and} ${translatedNakshatraGeneral} ${p.nakshatra}${p.creatingProfile} 
-${p.asALagnaAscendant} ${translatedLagnaGeneral} ${p.outerBehavior} ${L} 
-${p.emotionallyAndMentally} ${translatedRashiGeneral} ${p.influencesHowYou} ${R} 
-${p.atADeeperKarmic} ${translatedNakshatraGeneral} ${p.infusesYourInstincts} ${N} 
-${p.whenTheseThree}
-`.trim();
+${p.atADeeperKarmic} ${nakshatra} ${p.infusesYourInstincts} ${nakshatraText}
+`;
+
+    if (lagnaLord && lagnaLordNatalHouse && lagnaLordStrength !== undefined) {
+        const interpretation = getLagnaLordInterpretation(lagnaLord, lagnaLordNatalHouse, lang);
+        const strengthDescription = getStrengthDescription(lagnaLordStrength, lang);
+        result += `\n\nYour Lagna Lord, ${lagnaLord}, is a key planet for your life path. ${interpretation} Its strength of ${lagnaLordStrength.toFixed(2)}% shows that it ${strengthDescription}`;
+    }
+
+    if (atmakaraka && atmakarakaStrength !== undefined) {
+        const atmakarakaTranslated = lang === 'hi' ? planetNames_hi[atmakaraka] : atmakaraka;
+        const strengthDescription = getStrengthDescription(atmakarakaStrength, lang);
+        result += `\n\n${atmakarakaTranslated} as your Atmakaraka (Soul Significator) reveals your deepest desires. Its strength of ${atmakarakaStrength.toFixed(2)}% indicates that it ${strengthDescription}`;
+    }
+
+    if (planetaryPositions && houses) {
+        result += `\n\n### Planetary Placements Analysis\nThis section details the influence of each planet based on the house it occupies.`;
+        const planetOrder = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
+        planetOrder.forEach(planet => {
+            const planetData = planetaryPositions[planet];
+            if (planetData && typeof planetData.longitude === 'number') {
+                const house = getHouseOfPlanet(planetData.longitude, cuspDegrees);
+                if (house) {
+                    const interpretation = (lang === 'hi' ? (planetInHouse_hi[planet]?.[house - 1]) : (planetInHouse_en[planet]?.[house - 1]));
+                    if (interpretation) {
+                         result += `\n\n*   **${planet} in House ${house}:** ${interpretation}`;
+                    }
+                }
+            }
+        });
+
+        result += `\n\n### House Lordship Analysis\nThis section analyzes how the different areas of your life are connected by examining the placement of house lords.`;
+        for (let i = 1; i <= 12; i++) {
+            const houseData = houses[i - 1];
+            const lord = houseData?.start_rashi_lord;
+            if (lord) {
+                const lordData = planetaryPositions[lord];
+                if (lordData && typeof lordData.longitude === 'number') {
+                    const placementHouse = getHouseOfPlanet(lordData.longitude, cuspDegrees);
+                    if (placementHouse) {
+                        result += `\n\n*   **Lord of House ${i} in House ${placementHouse}:** ${generateLordshipText(i, placementHouse, lord, lang)}`;
+                    }
+                }
+            }
+        }
+    }
+    
+    result += `\n\n${p.whenTheseThree}`;
+
+    return result.trim();
 }
-
 // ---------------------------------------------------------
 //  VARSHAPHAL (ANNUAL) PREDICTION GENERATOR
 // ---------------------------------------------------------
@@ -245,8 +467,8 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             munthaHouseFocus: (house) => `This brings your personal efforts and attention squarely onto the themes of this house: **${houseThemes_en[house]}**. `,
             ascendantFocus: `\n\nThe annual chart's ascendant is **{ascendantRashi}**, ruled by **{ascendantRashiLord}**. This influences your outlook, bringing a focus on **${houseThemes_en[1]}** to your personal expression and approach this year. `,
             strengthAndInfluence: `\n\n#### Planetary Strengths and Key Influences\n`,
-            strongestPlanetUPBS: (planet) => `The planet with the highest overall strength (UPBS) this year is **{planet}**. This planet will have a significant and often decisive influence on the year's events. Its placement and the houses it rules will be areas of major activity.`,
-            strongestPlanetShadbala: (planet) => `Based on Shadbala (six-fold strength), the strongest planet is **{planet}**, indicating its capacity to deliver powerful results, whether positive or negative. `,
+            strongestPlanetUPBS: (planet) => `The planet with the highest overall strength (UPBS) this year is **${planet}**. This planet will have a significant and often decisive influence on the year's events. Its placement and the houses it rules will be areas of major activity.`,
+            strongestPlanetShadbala: (planet) => `Based on Shadbala (six-fold strength), the strongest planet is **${planet}**, indicating its capacity to deliver powerful results, whether positive or negative. `,
             detailedAnalysis: "\n\n--- \n\n### Detailed Analysis\n",
             yearLordDignity: (dignity) => `The Year Lord, {yearLord}, is in a state of **${dignity}**, which affects its ability to deliver results. `,
             munthaLordInteraction: (relation) => `The lord of the Muntha sign has a **${relation}** relationship with the Year Lord, suggesting how your personal efforts will align with the year's broader themes. `,
@@ -254,7 +476,7 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             dashaPeriod: (lord, start, end) => `- **${lord} period:** from ${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}\n`,
             kpSection: "\n\n#### KP Significators Insights\n",
             kpCuspSignificators: (cusp, sigs) => `**Cusp ${cusp} (${houseThemes_en[cusp]}):** Significators are ${sigs}. This indicates that matters of this house will be influenced by these planets. `,
-            kpPlanetSignificators: (planet, sigs) => `**{planet}:** Signifies houses ${sigs}. This planet will be instrumental in events related to these houses. `,
+            kpPlanetSignificators: (planet, sigs) => `**${planet}:** Signifies houses ${sigs}. This planet will be instrumental in events related to these houses. `,
             conclusion: `\n\n#### Summary and Advice\n`,
             simpleConclusion: (yearLord, yearLordHouse, munthaHouse) => `Overall, this year requires you to integrate the ambitious energy of your Year Lord with the personal focus of your Muntha. To make the most of this year, focus on activities related to **${houseThemes_en[yearLordHouse]}** while ensuring they also serve your personal development in the area of **${houseThemes_en[munthaHouse]}**. Your strongest planet, {strongestPlanet}, will provide the key to unlocking the year's potential. `,
             detailedConclusion: (translatedYearLord, translatedMunthaSign, translatedAscendantRashi) => `This year is a complex tapestry woven from the themes of your Year Lord (${translatedYearLord}), the personal focus of the Muntha in ${translatedMunthaSign} (house ${muntha?.house}), and the outlook of the annual ascendant (${translatedAscendantRashi}). Your success depends on navigating the specific planetary periods (Mudda Dasha) effectively. Pay close attention to the strongest planets, as they hold the key to unlocking opportunities and managing challenges. Your primary focus should be on harmonizing the energies of the houses highlighted by the Year Lord and the Muntha. `
@@ -269,8 +491,8 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             munthaHouseFocus: (house) => `यह आपके व्यक्तिगत प्रयासों और ध्यान को सीधे इस घर के विषयों पर लाता है: **${houseThemes_hi[house]}**। `,
             ascendantFocus: `\n\nवार्षिक चार्ट का लग्न **{ascendantRashi}** है, जिसका स्वामी **{ascendantRashiLord}** है। यह आपके दृष्टिकोण को प्रभावित करता है, इस वर्ष आपकी व्यक्तिगत अभिव्यक्ति और दृष्टिकोण पर **${houseThemes_hi[1]}** के विषयों पर ध्यान केंद्रित करता है। `,
             strengthAndInfluence: `\n\n#### ग्रहों की शक्ति और मुख्य प्रभाव\n`,
-            strongestPlanetUPBS: (planet) => `इस वर्ष समग्र शक्ति (UPBS) में सबसे मजबूत ग्रह **{planet}** है। इस ग्रह का वर्ष की घटनाओं पर एक महत्वपूर्ण और अक्सर निर्णायक प्रभाव पड़ेगा। इसकी स्थिति और इसके द्वारा शासित घर प्रमुख गतिविधि के क्षेत्र होंगे।`,
-            strongestPlanetShadbala: (planet) => `षडबल (छह गुना शक्ति) के आधार पर, सबसे मजबूत ग्रह **{planet}** है, जो सकारात्मक या नकारात्मक दोनों तरह के शक्तिशाली परिणाम देने की अपनी क्षमता को दर्शाता है।`,
+            strongestPlanetUPBS: (planet) => `इस वर्ष समग्र शक्ति (UPBS) में सबसे मजबूत ग्रह **${planet}** है। इस ग्रह का वर्ष की घटनाओं पर एक महत्वपूर्ण और अक्सर निर्णायक प्रभाव पड़ेगा। इसकी स्थिति और इसके द्वारा शासित घर प्रमुख गतिविधि के क्षेत्र होंगे।`,
+            strongestPlanetShadbala: (planet) => `षडबल (छह गुना शक्ति) के आधार पर, सबसे मजबूत ग्रह **${planet}** है, जो सकारात्मक या नकारात्मक दोनों तरह के शक्तिशाली परिणाम देने की अपनी क्षमता को दर्शाता है।`,
             detailedAnalysis: "\n\n--- \n\n### विस्तृत विश्लेषण\n",
             yearLordDignity: (dignity) => `वर्ष का स्वामी, {yearLord}, **${dignity}** की स्थिति में है, जो परिणाम देने की उसकी क्षमता को प्रभावित करता है। `,
             munthaLordInteraction: (relation) => `मुंथा राशि के स्वामी का वर्ष के स्वामी के साथ **${relation}** संबंध है, जो बताता है कि आपके व्यक्तिगत प्रयास वर्ष के व्यापक विषयों के साथ कैसे संरेखित होंगे। `,
@@ -278,7 +500,7 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             dashaPeriod: (lord, start, end) => `- **${lord} अवधि:** ${new Date(start).toLocaleDateString()} से ${new Date(end).toLocaleDateString()} तक\n`,
             kpSection: "\n\n#### केपी सिग्निफिकेटर्स अंतर्दृष्टि\n",
             kpCuspSignificators: (cusp, sigs) => `**भाव ${cusp} (${houseThemes_hi[cusp]}):** सिग्निफिकेटर्स ${sigs} हैं। यह इंगित करता है कि इस भाव के मामले इन ग्रहों से प्रभावित होंगे। `,
-            kpPlanetSignificators: (planet, sigs) => `**{planet}:** भावों ${sigs} को दर्शाता है। यह ग्रह इन भावों से संबंधित घटनाओं में महत्वपूर्ण होगा। `,
+            kpPlanetSignificators: (planet, sigs) => `**${planet}:** भावों ${sigs} को दर्शाता है। यह ग्रह इन भावों से संबंधित घटनाओं में महत्वपूर्ण होगा। `,
             conclusion: `\n\n#### सारांश और सलाह\n`,
             simpleConclusion: (yearLord, yearLordHouse, munthaHouse) => `कुल मिलाकर, इस वर्ष आपको अपने वर्ष के स्वामी की महत्वाकांक्षी ऊर्जा को अपने मुंथा के व्यक्तिगत ध्यान के साथ एकीकृत करने की आवश्यकता है। इस वर्ष का अधिकतम लाभ उठाने के लिए, **${houseThemes_hi[yearLordHouse]}** से संबंधित गतिविधियों पर ध्यान केंद्रित करें, यह सुनिश्चित करते हुए कि वे **${houseThemes_hi[munthaHouse]}** के क्षेत्र में आपके व्यक्तिगत विकास की भी सेवा करते हैं। आपका सबसे मजबूत ग्रह, {strongestPlanet}, वर्ष की क्षमता को अनलॉक करने की कुंजी प्रदान करेगा।`,
             detailedConclusion: (translatedYearLord, translatedMunthaSign, translatedAscendantRashi) => `यह वर्ष आपके वर्ष के स्वामी (${translatedYearLord}), मुंथा के व्यक्तिगत ध्यान (${translatedMunthaSign} में) (भाव ${muntha?.house}), और वार्षिक लग्न (${translatedAscendantRashi}) के विषयों से बुना हुआ एक जटिल ताना-बाना है। आपकी सफलता विशिष्ट ग्रहों की अवधि ( मुद्रा दशा) को प्रभावी ढंग से नेविगेट करने पर निर्भर करती है। सबसे मजबूत ग्रहों पर पूरा ध्यान दें, क्योंकि वे अवसरों को अनलॉक करने और चुनौतियों का प्रबंधन करने की कुंजी रखते हैं। आपका प्राथमिक ध्यान वर्ष के स्वामी और मुंथा द्वारा उजागर किए गए भावों की ऊर्जाओं को सुसंगत बनाने पर होना चाहिए।`

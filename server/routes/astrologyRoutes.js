@@ -358,8 +358,17 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             }
         }
 
-        // Pass necessary data to Shadbala
-        const shadbalaData = calculateShadbala(siderealPositions, housesData, directAspects, sunMoonTimes, utcDate);
+                const divisionalPositions = {
+            D1: siderealPositions,
+            D2: d2_planets,
+            D3: d3_planets,
+            D7: d7_planets,
+            D9: d9_planets,
+            D12: d12_planets,
+            D30: d30_planets,
+            D60: d60_planets
+        };
+        const shadbalaData = calculateShadbala(siderealPositions, housesData, directAspects, sunMoonTimes, utcDate, divisionalPositions);
 
         const bhinnaAshtakavargaData = {};
         ASHTAKAVARGA_PLANETS.forEach(planetName => { bhinnaAshtakavargaData[planetName] = calculateBhinnaAshtakavarga(planetName, siderealPositions, siderealAscendantDeg); });
@@ -1187,11 +1196,29 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         // --- Step 5: Calculate Year Lord ---
         const solarReturnWeekDay = solarReturnUTCDate.getUTCDay();
 
-        // Calculate D9 for Varshphal chart
+        // Calculate D-charts for Varshphal chart
         const { divisional_planets: d9_planets, divisionalHouses: d9_houses, divisional_ascendant_dms: d9_ascendant_dms } = calculateDivisionalChartData(srPlanetaryPositions.sidereal, srSiderealAscDeg, calculateNavamsaLongitude);
+        const { divisional_planets: d2_planets } = calculateDivisionalChartData(srPlanetaryPositions.sidereal, srSiderealAscDeg, calculateHoraLongitude);
+        const { divisional_planets: d3_planets } = calculateDivisionalChartData(srPlanetaryPositions.sidereal, srSiderealAscDeg, calculateDrekkanaLongitude);
+        const { divisional_planets: d7_planets } = calculateDivisionalChartData(srPlanetaryPositions.sidereal, srSiderealAscDeg, calculateSaptamsaLongitude);
+        const { divisional_planets: d12_planets } = calculateDivisionalChartData(srPlanetaryPositions.sidereal, srSiderealAscDeg, calculateDwadasamsaLongitude);
+        const { divisional_planets: d30_planets } = calculateDivisionalChartData(srPlanetaryPositions.sidereal, srSiderealAscDeg, calculateTrimsamsaLongitude);
+        const { divisional_planets: d60_planets } = calculateDivisionalChartData(srPlanetaryPositions.sidereal, srSiderealAscDeg, calculateShashtiamsaLongitude);
+        
+        // Assemble divisional positions for Varshphal Shadbala
+        const srDivisionalPositions = {
+            D1: srPlanetaryPositions.sidereal,
+            D2: d2_planets,
+            D3: d3_planets,
+            D7: d7_planets,
+            D9: d9_planets,
+            D12: d12_planets,
+            D30: d30_planets,
+            D60: d60_planets
+        };
 
         // Calculate Shadbala for Varshphal chart
-        const srShadbala = calculateShadbala(srPlanetaryPositions.sidereal, srHousesData, srAspects.directAspects, { sunrise: solarReturnUTCDate, sunset: solarReturnUTCDate }, solarReturnUTCDate);
+        const srShadbala = calculateShadbala(srPlanetaryPositions.sidereal, srHousesData, srAspects.directAspects, { sunrise: solarReturnUTCDate, sunset: solarReturnUTCDate }, solarReturnUTCDate, srDivisionalPositions);
 
         // Calculate planet house placements for Bhava Chalit chart
         const srPlanetHousePlacements = {};

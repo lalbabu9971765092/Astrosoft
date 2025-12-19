@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import api from './api';
@@ -8,100 +7,174 @@ import '../styles/PredictionPage.css';
 const PredictionPage = () => {
     const { t, i18n } = useTranslation();
     const { mainResult, calculationInputParams, adjustedGocharDateTimeString, adjustedBirthDateTimeString } = useOutletContext() || {};
+    
+    // Existing states for original predictions
     const [yogas, setYogas] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-
-    // --- State for General Prediction ---
     const [generalPrediction, setGeneralPrediction] = useState("");
-    // --- State for Dasha Prediction ---
     const [dashaPredictionText, setDashaPredictionText] = useState("");
     const [isLoadingDashaPrediction, setIsLoadingDashaPrediction] = useState(false);
     const [dashaPredictionError, setDashaPredictionError] = useState(null);
-    // --- State for Varshphal-based Prediction ---
     const [varshphalPrediction, setVarshphalPrediction] = useState("");
     const [isLoadingVarshphal, setIsLoadingVarshphal] = useState(false);
     const [varshphalError, setVarshphalError] = useState(null);
     const [varshphalYear, setVarshphalYear] = useState(new Date().getFullYear());
     const [varshphalStyle, setVarshphalStyle] = useState('detailed');
 
+    // New states for Holistic Prediction
+    const [holisticPrediction, setHolisticPrediction] = useState(null);
+    const [isLoadingHolisticPrediction, setIsLoadingHolisticPrediction] = useState(false);
+    const [holisticPredictionError, setHolisticPredictionError] = useState(null);
+
 
     useEffect(() => {
-        const fetchDashaPrediction = async (mahadasha, bhukti, antar, lang) => {
+        // fetchDashaPrediction is a utility that's self-contained.
+        const fetchDashaPrediction = async (mahadasha, bhukti, antar) => { // lang is now available from outer scope
             setIsLoadingDashaPrediction(true);
             setDashaPredictionError(null);
             try {
                 const response = await api.get('/predictions/dasha', {
-                    params: { mahadasha, bhukti, antar, lang }
+                    params: { mahadasha, bhukti, antar, lang: i18n.language } // Use i18n.language directly
                 });
                 setDashaPredictionText(response.data.prediction);
             } catch (err) {
                 console.error("Error fetching Dasha prediction:", err.response?.data || err.message || err);
-                setDashaPredictionError(t('predictionPage.dashaPredictionFetchError', 'Failed to fetch Dasha prediction.'));
+                setDashaPredictionError(t('predictionPage.dashaPredictionError', 'Failed to fetch Dasha prediction.'));
                 setDashaPredictionText("");
             } finally {
                 setIsLoadingDashaPrediction(false);
             }
         };
 
-        // Ensure both mainResult and calculationInputParams are available
-        // mainResult is needed for ascendant, moon rashi/nakshatra, and dashaPeriods
-        // calculationInputParams is needed for date, lat, lon for yoga API call
-        if (mainResult && calculationInputParams && calculationInputParams.date) {
-            const lang = i18n.language;
-            const fetchYogaAndPredictions = async () => {
-                setIsLoading(true);
-                setError(null);
-                try {
-                    // Fetch Yogas (using original input params)
-                    const payload = {
-                        date: calculationInputParams.date,
-                        latitude: calculationInputParams.latitude,
-                        longitude: calculationInputParams.longitude,
-                        lang: lang,
-                    };
-                    const response = await api.post('/yogas', payload);
-                    setYogas(response.data.yogas || []);
+        const fetchYogaAndPredictions = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                const payload = {
+                    date: calculationInputParams.date,
+                    latitude: calculationInputParams.latitude,
+                    longitude: calculationInputParams.longitude,
+                    lang: i18n.language, // Use i18n.language directly
+                };
+                const response = await api.post('/yogas', payload);
+                setYogas(response.data.yogas || []);
 
-                    // Generate General Prediction (via API call)
-                    const ascendantRashi = mainResult.ascendant?.rashi;
-                    const moonRashi = mainResult.planetaryPositions?.sidereal?.Moon?.rashi;
-                    const moonNakshatra = mainResult.planetaryPositions?.sidereal?.Moon?.nakshatra;
-                    
-                    if (ascendantRashi && moonRashi && moonNakshatra) {
-                        try {
-                            const predictionResponse = await api.get('/predictions', {
-                                params: {
-                                    lagnaRashi: ascendantRashi,
-                                    moonRashi: moonRashi,
-                                    moonNakshatra: moonNakshatra,
-                                    lang: lang, // Pass the current language
-                                }
-                            });
-                            setGeneralPrediction(predictionResponse.data.prediction || t('predictionPage.noGeneralPrediction', 'No specific general prediction found for this combination.'));
-                        } catch (predErr) {
-                            console.error("Error fetching general prediction:", predErr.response?.data || predErr.message || predErr);
-                            setGeneralPrediction(t('predictionPage.predictionFetchError', 'Error fetching general prediction.'));
-                        }
-                    } else {
-                        setGeneralPrediction(t('predictionPage.insufficientDataForGeneralPrediction', 'Insufficient data to generate general prediction (Ascendant Rashi, Moon Rashi, or Moon Nakshatra missing).'));
+                const ascendantRashi = mainResult.ascendant?.rashi;
+                const moonRashi = mainResult.planetaryPositions?.sidereal?.Moon?.rashi;
+                const moonNakshatra = mainResult.planetaryPositions?.sidereal?.Moon?.nakshatra;
+                
+                if (ascendantRashi && moonRashi && moonNakshatra) {
+                    try {
+                        const predictionResponse = await api.get('/predictions', {
+                            params: {
+                                lagnaRashi: ascendantRashi,
+                                moonRashi: moonRashi,
+                                moonNakshatra: moonNakshatra,
+                                lang: i18n.language, // Use i18n.language directly
+                            }
+                        });
+                        setGeneralPrediction(predictionResponse.data.prediction || t('predictionPage.noGeneralPrediction', 'No specific general prediction found for this combination.'));
+                    } catch (predErr) {
+                        console.error("Error fetching general prediction:", predErr.response?.data || predErr.message || predErr);
+                        setGeneralPrediction(t('predictionPage.predictionFetchError', 'Error fetching general prediction.'));
                     }
-
-                } catch (error) { // Changed 'err' to 'error'
-                    const errorMessage = error.response?.data?.error || error.message || 'An unknown error occurred.';
-                    setError(errorMessage);
-                    console.error("Error fetching yogas and predictions:", errorMessage);
-                    setYogas([]); // Clear yogas on error
-                    setGeneralPrediction(""); // Clear prediction on error
-                } finally {
-                    setIsLoading(false);
+                } else {
+                    setGeneralPrediction(t('predictionPage.insufficientDataForGeneralPrediction', 'Insufficient data for general prediction.'));
                 }
-            };
-            fetchYogaAndPredictions();
 
-            // --- Fetch Dasha Prediction ---
+            } catch (error) {
+                const errorMessage = error.response?.data?.error || error.message || 'An unknown error occurred.';
+                setError(errorMessage);
+                console.error("Error fetching yogas and predictions:", errorMessage);
+                setYogas([]);
+                setGeneralPrediction("");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+
+        const fetchVarshphalPrediction = async (yearValue = varshphalYear) => { // yearValue is parameter for selected year
+            setIsLoadingVarshphal(true);
+            setVarshphalError(null);
+            setVarshphalPrediction("");
+            try {
+                const natalDate = adjustedBirthDateTimeString || calculationInputParams.date;
+                const payload = {
+                    natalDate,
+                    natalLatitude: calculationInputParams.latitude,
+                    natalLongitude: calculationInputParams.longitude,
+                    varshphalYear: yearValue, // Use yearValue
+                };
+                const varResp = await api.post('/calculate-varshphal', payload);
+                const varData = varResp.data;
+                const varChart = varData.varshphalChart;
+                if (varChart && varChart.ascendant && varChart.planetaryPositions && varChart.planetaryPositions.sidereal) {
+                    try {
+                        const varshphalPayload = {
+                            varshphalChart: varChart,
+                            muntha: varData.muntha,
+                            yearLord: varData.yearLord,
+                            muddaDasha: varData.muddaDasha,
+                            kpSignificators: varData.kpSignificators,
+                            lang: i18n.language, // Use i18n.language directly
+                            style: varshphalStyle,
+                            varshphalYear: yearValue, // Use yearValue
+                        };
+                        const predResp = await api.post('/predictions/varshaphal', varshphalPayload);
+                        setVarshphalPrediction(predResp.data.prediction || '');
+                    } catch (predErr) {
+                        console.error('Error fetching varshphal prediction:', predErr.response?.data || predErr.message || predErr);
+                        setVarshphalError(t('predictionPage.varshphalPredictionError', 'Failed to fetch Varshphal-based prediction.'));
+                    }
+                } else {
+                    setVarshphalError(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
+                }
+            } catch (err) {
+                console.error('Error calculating varshphal:', err.response?.data || err.message || err);
+                setVarshphalError(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
+            } finally {
+                setIsLoadingVarshphal(false);
+            }
+        };
+
+        // --- Fetch Holistic Prediction ---
+        const fetchHolisticPrediction = async () => { // lang is now available from outer scope
+            if (!calculationInputParams?.date || !calculationInputParams?.latitude || !calculationInputParams?.longitude) {
+                setHolisticPrediction(null);
+                return;
+            }
+
+            setIsLoadingHolisticPrediction(true);
+            setHolisticPredictionError(null);
+            try {
+                const payload = {
+                    birthDate: adjustedBirthDateTimeString || calculationInputParams.date,
+                    latitude: calculationInputParams.latitude,
+                    longitude: calculationInputParams.longitude,
+                    transitDate: adjustedGocharDateTimeString, // Optional, can be null
+                    lang: i18n.language, // Use i18n.language directly
+                };
+                const response = await api.post('/predictions/holistic', payload);
+                setHolisticPrediction(response.data); // Assuming response.data is the full prediction object
+            } catch (err) {
+                console.error("Error fetching holistic prediction:", err.response?.data || err.message || err);
+                setHolisticPredictionError(t('predictionPage.holisticPredictionError', 'Failed to fetch holistic prediction.'));
+                setHolisticPrediction(null);
+            } finally {
+                setIsLoadingHolisticPrediction(false);
+            }
+        };
+
+
+        if (mainResult && calculationInputParams && calculationInputParams.date) {
+            fetchYogaAndPredictions(); // Call here
+            fetchVarshphalPrediction(varshphalYear); // Call here
+            fetchHolisticPrediction(); // Call here
+
             if (mainResult.dashaPeriods) {
-                const transitTime = adjustedGocharDateTimeString ? new Date(adjustedGocharDateTimeString) : new Date(); // Use adjustedGocharDateTimeString
+                const transitTime = adjustedGocharDateTimeString ? new Date(adjustedGocharDateTimeString) : new Date();
                 const findCurrentPeriod = (periods, level) => {
                     return periods.find(p => {
                         const start = new Date(p.start);
@@ -117,18 +190,15 @@ const PredictionPage = () => {
                     if (antarDasha) {
                         const pratyantardashas = mainResult.dashaPeriods.filter(p => p.level === 3 && p.mahaLord === mahaDasha.lord && p.antarLord === antarDasha.lord);
                         const pratyantarDasha = findCurrentPeriod(pratyantardashas, 3);
-                        // Only fetch if all 3 levels are available, otherwise simplify
                         if (pratyantarDasha && mahaDasha.lord && antarDasha.lord && pratyantarDasha.lord) {
-                            fetchDashaPrediction(mahaDasha.lord, antarDasha.lord, pratyantarDasha.lord, lang);
+                            fetchDashaPrediction(mahaDasha.lord, antarDasha.lord, pratyantarDasha.lord);
                         } else if (antarDasha && mahaDasha.lord && antarDasha.lord) {
-                            // If Pratyantar not found, use Antardasha for Antar for prediction
-                            fetchDashaPrediction(mahaDasha.lord, antarDasha.lord, antarDasha.lord, lang);
+                            fetchDashaPrediction(mahaDasha.lord, antarDasha.lord, antarDasha.lord);
                         } else if (mahaDasha && mahaDasha.lord) {
-                            // If only Mahadasha, use Mahadasha for Bhukti and Antar for prediction
-                            fetchDashaPrediction(mahaDasha.lord, mahaDasha.lord, mahaDasha.lord, lang);
+                            fetchDashaPrediction(mahaDasha.lord, mahaDasha.lord, mahaDasha.lord);
                         }
                     } else if (mahaDasha && mahaDasha.lord) {
-                        fetchDashaPrediction(mahaDasha.lord, mahaDasha.lord, mahaDasha.lord, lang);
+                        fetchDashaPrediction(mahaDasha.lord, mahaDasha.lord, mahaDasha.lord);
                     }
                 } else {
                     setDashaPredictionText(t('predictionPage.noCurrentDasha', 'No current Dasha period found.'));
@@ -136,74 +206,32 @@ const PredictionPage = () => {
             } else {
                 setDashaPredictionText("");
             }
-
-                            // --- Fetch Varshphal and Varshphal-based prediction (server-side) ---
-                            const fetchVarshphalPrediction = async (year = varshphalYear) => {
-                                setIsLoadingVarshphal(true);
-                                setVarshphalError(null);
-                                setVarshphalPrediction("");
-                                try {
-                                    const natalDate = adjustedBirthDateTimeString || calculationInputParams.date; // prefer rectified birth time
-                                    const payload = {
-                                        natalDate,
-                                        natalLatitude: calculationInputParams.latitude,
-                                        natalLongitude: calculationInputParams.longitude,
-                                        varshphalYear: year,
-                                    };
-                                    const varResp = await api.post('/calculate-varshphal', payload);
-                                    const varData = varResp.data;
-                                    const varChart = varData.varshphalChart;
-                                    if (varChart && varChart.ascendant && varChart.planetaryPositions && varChart.planetaryPositions.sidereal) {
-                                        try {
-                                            const varshphalPayload = {
-                                                varshphalChart: varChart,
-                                                muntha: varData.muntha,
-                                                yearLord: varData.yearLord,
-                                                muddaDasha: varData.muddaDasha,
-                                                kpSignificators: varData.kpSignificators,
-                                                lang: lang,
-                                                style: varshphalStyle,
-                                                varshphalYear: year,
-                                            };
-                                            const predResp = await api.post('/predictions/varshaphal', varshphalPayload);
-                                            setVarshphalPrediction(predResp.data.prediction || '');
-                                        } catch (predErr) {
-                                            console.error('Error fetching varshphal prediction:', predErr.response?.data || predErr.message || predErr);
-                                            setVarshphalError(t('predictionPage.varshphalPredictionFetchError', 'Failed to fetch Varshphal-based prediction.'));
-                                        }
-                                    } else {
-                                        setVarshphalError(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
-                                    }
-                                } catch (err) {
-                                    console.error('Error calculating varshphal:', err.response?.data || err.message || err);
-                                    setVarshphalError(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
-                                } finally {
-                                    setIsLoadingVarshphal(false);
-                                }
-                            };
-
-                            // Fetch initial varshphal prediction for the chosen year
-                            fetchVarshphalPrediction(varshphalYear);
-
         } else {
+            // Clear all predictions and states if no main data
             setYogas([]);
             setGeneralPrediction("");
-            setDashaPredictionText(""); // Clear dasha prediction too
+            setDashaPredictionText("");
+            setVarshphalPrediction("");
+            setHolisticPrediction(null); // Clear holistic prediction if no main data
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mainResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language, t]); // Added mainResult to dependency array
+    }, [mainResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language, t, varshphalYear, varshphalStyle, adjustedBirthDateTimeString]);
+
 
     const renderContent = () => {
         if (!calculationInputParams?.date) {
             return <p className="info-text">{t('predictionPage.calculateFirst', 'Please calculate a chart first to see the predictions.')}</p>;
         }
 
-        if (isLoading) {
+        // Combine loading states
+        const overallLoading = isLoading || isLoadingHolisticPrediction || isLoadingDashaPrediction || isLoadingVarshphal;
+        if (overallLoading) {
             return <div className="loader">{t('predictionPage.loading', 'Loading Predictions...')}</div>;
         }
 
-        if (error) {
-            return <div className="error-text">{t('predictionPage.error', 'Could not load predictions: {{error}}', { error })}</div>;
+        // Combine error states
+        const overallError = error || holisticPredictionError || dashaPredictionError || varshphalError;
+        if (overallError) {
+            return <div className="error-text">{t('predictionPage.error', 'Could not load predictions: {{error}}', { error: overallError })}</div>;
         }
 
         return (
@@ -282,15 +310,29 @@ const PredictionPage = () => {
                                             const varResp = await api.post('/calculate-varshphal', payload);
                                             const varData = varResp.data;
                                             const varChart = varData.varshphalChart;
-                                            if (varChart) {
-                                                const varshphalPayload = { varshphalChart: varChart, muntha: varData.muntha, yearLord: varData.yearLord, muddaDasha: varData.muddaDasha, kpSignificators: varData.kpSignificators, lang: i18n.language, style: varshphalStyle, varshphalYear };
-                                                const predResp = await api.post('/predictions/varshaphal', varshphalPayload);
-                                                setVarshphalPrediction(predResp.data.prediction || '');
+                                            if (varChart && varChart.ascendant && varChart.planetaryPositions && varChart.planetaryPositions.sidereal) {
+                                                try {
+                                                    const varshphalPayload = {
+                                                        varshphalChart: varChart,
+                                                        muntha: varData.muntha,
+                                                        yearLord: varData.yearLord,
+                                                        muddaDasha: varData.muddaDasha,
+                                                        kpSignificators: varData.kpSignificators,
+                                                        lang: i18n.language, // Use i18n.language directly
+                                                        style: varshphalStyle,
+                                                        varshphalYear: varshphalYear, // Changed 'year' to 'varshphalYear'
+                                                    };
+                                                    const predResp = await api.post('/predictions/varshaphal', varshphalPayload);
+                                                    setVarshphalPrediction(predResp.data.prediction || '');
+                                                } catch (predErr) {
+                                                    console.error('Error fetching varshphal prediction:', predErr.response?.data || predErr.message || predErr);
+                                                    setVarshphalError(t('predictionPage.varshphalPredictionError', 'Failed to fetch Varshphal-based prediction.'));
+                                                }
                                             } else {
                                                 setVarshphalError(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
                                             }
                                         } catch (err) {
-                                            console.error('Error recalculating varshphal:', err.response?.data || err.message || err);
+                                            console.error('Error calculating varshphal:', err.response?.data || err.message || err);
                                             setVarshphalError(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
                                         } finally {
                                             setIsLoadingVarshphal(false);
@@ -306,6 +348,22 @@ const PredictionPage = () => {
                             <div className="error-text small-error">{varshphalError}</div>
                         ) : (
                             <p className="varshphal-prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{varshphalPrediction}</p>
+                        )}
+                    </div>
+                )}
+
+                {/* Holistic Prediction Section */}
+                {holisticPrediction && (
+                    <div className="holistic-prediction-section" style={{ marginTop: '2rem', borderTop: '1px solid #ccc', paddingTop: '1rem' }}>
+                        <h3 className="holistic-prediction-title">{t('predictionPage.holisticPredictionTitle', 'Holistic Prediction Report')}</h3>
+                        {isLoadingHolisticPrediction ? (
+                            <div className="loader small-loader">{t('predictionPage.loadingHolisticPrediction', 'Loading Holistic Prediction...')}</div>
+                        ) : holisticPredictionError ? (
+                            <div className="error-text small-error">{holisticPredictionError}</div>
+                        ) : holisticPrediction.error ? (
+                            <div className="error-text">{holisticPrediction.error}</div>
+                        ) : (
+                            <p className="holistic-prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{holisticPrediction.summary}</p>
                         )}
                     </div>
                 )}

@@ -19,7 +19,7 @@ import kpSignificatorRoutes from './routes/kpSignificatorRoutes.js';
 import generalRoutes from './routes/generalRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import predictionRoutes from './routes/predictionRoutes.js'; // Import predictionRoutes
-
+import holisticPredictionRoutes from './routes/holisticPredictionRoutes.js';
 const app = express();
 
 // --- ES Module __dirname and __filename equivalents ---
@@ -113,7 +113,7 @@ app.use('/api/kp-significators', kpSignificatorRoutes);
 app.use('/api/general', generalRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/predictions', predictionRoutes); // Mount predictionRoutes
-
+app.use('/api/predictions/holistic', holisticPredictionRoutes);
 app.set('trust proxy', 1);
 // --- Basic Root Route (Optional Health Check) ---
 app.get('/', (req, res) => {

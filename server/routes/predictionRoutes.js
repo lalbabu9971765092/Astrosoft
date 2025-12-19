@@ -1,7 +1,7 @@
 import express from 'express';
 import { query, validationResult } from 'express-validator';
 import logger from '../utils/logger.js';
-import { getCombinedPredictionLong, getVarshphalPrediction } from '../utils/predictionTextGenerator.js'; // Import the general prediction generator
+import * as predictionTextGenerator from '../utils/predictionTextGenerator.js'; // Import the general prediction generator
 import { getDashaPrediction } from '../utils/dashaPredictionGenerator.js'; // Import the Dasha prediction generator
 
 // --- Helper Function for Error Handling ---
@@ -57,7 +57,7 @@ router.route('/').get(generalPredictionValidation, async (req, res) => {
     try {
         const { lagnaRashi, moonRashi, moonNakshatra, lang } = req.query; // Destructure lang
         // Generate prediction directly using the utility function
-        const predictionText = getCombinedPredictionLong(lagnaRashi, moonRashi, moonNakshatra, lang); // Pass lang
+        const predictionText = predictionTextGenerator.getCombinedPredictionLong(lagnaRashi, moonRashi, moonNakshatra, lang); // Pass lang
         
         if (!predictionText) {
             return res.status(404).json({ error: "No prediction found for the given combination." });
@@ -96,7 +96,7 @@ router.route('/varshaphal').post(async (req, res) => {
             return res.status(400).json({ error: 'varshphalChart payload is required.' });
         }
 
-        const predictionText = getVarshphalPrediction({ varshphalChart, muntha, yearLord, muddaDasha, kpSignificators, style, varshphalYear }, lang || 'en');
+        const predictionText = predictionTextGenerator.getVarshphalPrediction({ varshphalChart, muntha, yearLord, muddaDasha, kpSignificators, style, varshphalYear }, lang || 'en');
         if (!predictionText) return res.status(404).json({ error: 'No varshaphal prediction could be generated.' });
         res.json({ prediction: predictionText });
     } catch (error) {
@@ -105,4 +105,3 @@ router.route('/varshaphal').post(async (req, res) => {
 });
 
 export default router;
-

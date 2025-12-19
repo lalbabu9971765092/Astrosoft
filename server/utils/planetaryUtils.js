@@ -261,8 +261,8 @@ export function calculatePlanetaryPositions(julianDayUT) {
         // Initialize all planets in sidereal and tropical results to prevent undefined errors
         for (const planetId of planetsToCalc) {
             const planetName = planetMap[planetId];
-            results.sidereal[planetName] = { longitude: NaN, latitude: NaN, distance: NaN, speedLongitude: NaN, speedLatitude: NaN, speedDistance: NaN, dms: "N/A", rashi: "N/A", rashiLord: "N/A", nakshatra: "N/A", nakLord: "N/A", pada: NaN, subLord: "N/A", subSubLord: "N/A" };
-            results.tropical[planetName] = { longitude: NaN, latitude: NaN, distance: NaN, speedLongitude: NaN, speedLatitude: NaN, speedDistance: NaN };
+            results.sidereal[planetName] = { longitude: NaN, latitude: NaN, distance: NaN, speedLongitude: NaN, speedLatitude: NaN, speedDistance: NaN, declination: NaN, dms: "N/A", rashi: "N/A", rashiLord: "N/A", nakshatra: "N/A", nakLord: "N/A", pada: NaN, subLord: "N/A", subSubLord: "N/A" };
+            results.tropical[planetName] = { longitude: NaN, latitude: NaN, distance: NaN, speedLongitude: NaN, speedLatitude: NaN, speedDistance: NaN, declination: NaN };
         }
 
         try {
@@ -308,6 +308,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
                     speedLongitude: speedLongitude,
                     speedLatitude: siderealCalc.latitudeSpeed,
                     speedDistance: siderealCalc.distanceSpeed,
+                    declination: siderealCalc.declination,
                     dms: convertToDMS(siderealLongitude),
                     rashi: rashiDetails.name,
                     rashiLord: rashiDetails.lord,
@@ -333,6 +334,7 @@ export function calculatePlanetaryPositions(julianDayUT) {
                     speedLongitude: typeof tropicalCalc.longitudeSpeed === 'number' && !isNaN(tropicalCalc.longitudeSpeed) ? tropicalCalc.longitudeSpeed : 0,
                     speedLatitude: tropicalCalc.latitudeSpeed,
                     speedDistance: tropicalCalc.distanceSpeed,
+                    declination: tropicalCalc.declination,
                 };
             } else {
                 logger.error(`Failed to calculate tropical position for ${planetName} (ID: ${planetId}) at JD ${julianDayUT}. Result: ${JSON.stringify(tropicalCalc)}`);
@@ -1305,8 +1307,8 @@ export async function findNextNakshatraChange(startTime, latitude, longitude) {
                 currentMoment,
                 latitude,
                 longitude,
-                targetNakshatraIndex,
-                'exit',
+                startNakshatraIndex,
+                'exit', 
                 10,
                 currentMoment.toISOString()
             );
@@ -1439,6 +1441,7 @@ export function calculateHoraLongitude(siderealLongitude) {
  * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
  * @returns {number} The Drekkana longitude in decimal degrees [0, 360), or NaN if invalid input.
  */
+
 export function calculateDrekkanaLongitude(siderealLongitude) {
     const normalizedLng = normalizeAngle(siderealLongitude);
     if (isNaN(normalizedLng)) {
@@ -1647,4 +1650,27 @@ export function calculateShashtiamsaLongitude(siderealLongitude) {
 
     const shashtiamsaLongitude = (shashtiamsaSignIndex * RASHI_SPAN) + positionInShashtiamsaSign;
     return normalizeAngle(shashtiamsaLongitude);
+}
+
+/**
+ * Calculates the Atmakaraka (significator of the soul) based on planetary longitudes.
+ * The planet with the highest longitude within its sign (excluding Ketu) is the Atmakaraka.
+ * @param {object} siderealPositions - Object containing sidereal positions for planets.
+ * @returns {string|null} The name of the Atmakaraka planet, or null if not found.
+ */
+export function calculateAtmakaraka(siderealPositions) {
+  let atmakaraka = { planet: null, degreeInSign: -1 };
+  const planetsToConsider = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu']; // As per Jaimini system
+
+  for (const planetName of planetsToConsider) {
+    const planetData = siderealPositions[planetName];
+    if (planetData && typeof planetData.longitude === 'number' && !isNaN(planetData.longitude)) {
+      const degreeInSign = planetData.longitude % 30; // Longitude within the sign
+      if (degreeInSign > atmakaraka.degreeInSign) {
+        atmakaraka.planet = planetName;
+        atmakaraka.degreeInSign = degreeInSign;
+      }
+    }
+  }
+  return atmakaraka.planet;
 }

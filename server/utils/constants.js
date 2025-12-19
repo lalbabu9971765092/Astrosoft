@@ -54,6 +54,16 @@ export const PLANET_EXALTATION_SIGN = {
     Saturn: "Libra",
 };
 
+export const PLANET_EXALTATION_POINTS = {
+    Sun: 10, // Aries 10
+    Moon: 33, // Taurus 3
+    Mars: 298, // Capricorn 28
+    Mercury: 165, // Virgo 15
+    Jupiter: 95, // Cancer 5
+    Venus: 357, // Pisces 27
+    Saturn: 200, // Libra 20
+};
+
 export const PLANET_DEBILITATION_SIGN = {
     Sun: "Libra",
     Moon: "Scorpio",
@@ -503,5 +513,25 @@ export const VARJYAM_START_FRACTION = {
     "Swati": 0.2333, "Vishakha": 0.2333, "Anuradha": 0.1667, "Jyeshtha": 0.2333, "Mula": 0.3333,
     "Purva Ashadha": 0.4, "Uttara Ashadha": 0.3333, "Shravana": 0.1667, "Dhanishtha": 0.1667,
     "Shatabhisha": 0.3, "Purva Bhadrapada": 0.2667, "Uttara Bhadrapada": 0.4, "Revati": 0.8
+};
+
+export const PLANET_AVERAGE_SPEED = {
+    Sun: 0.9856,   // degrees per day
+    Moon: 13.176,  // degrees per day
+    Mars: 0.524,   // degrees per day
+    Mercury: 1.0,  // degrees per day (average, highly variable)
+    Jupiter: 0.083, // degrees per day
+    Venus: 1.62,   // degrees per day
+    Saturn: 0.033  // degrees per day
+};
+
+export const SHADBALA_REQUIRED_RUPAS = {
+    Sun: 390,
+    Moon: 360,
+    Mars: 300,
+    Mercury: 420,
+    Jupiter: 390,
+    Venus: 330,
+    Saturn: 300
 };
 
