@@ -138,3 +138,122 @@ export function calculateGuruPushyaYoga(dayOfWeek, nakshatraName, nakshatraStart
         return null;
     }
 }
+/**
+ * Calculates Ravi Pushya Yoga for a given date and location.
+ * Ravi Pushya Yoga occurs when Pushya Nakshatra falls on a Sunday.
+ * @param {string} dayOfWeek - The day of the week (e.g., "Sunday").
+ * @param {string} nakshatraName - The name of the Nakshatra.
+ * @param {string} nakshatraStartTime - The start time of the Nakshatra.
+ * @param {string} nakshatraEndTime - The end time of the Nakshatra.
+ * @returns {Object|null} Ravi Pushya Yoga details or null if not present.
+ */
+export function calculateRaviPushyaYoga(dayOfWeek, nakshatraName, nakshatraStartTime, nakshatraEndTime) {
+    try {
+        if (dayOfWeek === "Sunday" && nakshatraName === "Pushya") {
+            return {
+                name: "raviPushya",
+                start: nakshatraStartTime,
+                end: nakshatraEndTime,
+                type: "auspicious",
+                description: `Highly auspicious Ravi Pushya Yoga formed by Pushya Nakshatra on a Sunday.`
+            };
+        }
+        return null;
+    } catch (error) {
+        logger.error(`Error calculating Ravi Pushya Yoga: ${error.message}`, { stack: error.stack });
+        return null;
+    }
+}
+
+/**
+ * Calculates Dwipushkar Yoga.
+ * Occurs on Bhadra Tithis (2, 7, 12) falling on Sunday, Tuesday, or Saturday,
+ * combined with a "double" nakshatra (Mrigashira, Chitra, Dhanishtha).
+ * Any event's result is doubled.
+ */
+export function calculateDwipushkarYoga(dayOfWeek, tithi, nakshatraName, startTime, endTime) {
+    const bhadraTithis = [2, 7, 12];
+    const applicableDays = ["Sunday", "Tuesday", "Saturday"];
+    const doubleNakshatras = ["Mrigashira", "Chitra", "Dhanishtha"];
+
+    if (applicableDays.includes(dayOfWeek) && bhadraTithis.includes(tithi) && doubleNakshatras.includes(nakshatraName)) {
+        return {
+            name: "dwipushkarYoga",
+            start: startTime,
+            end: endTime,
+            type: "special",
+            description: `Dwipushkar Yoga: Event results may repeat twice. Formed by Tithi ${tithi}, ${nakshatraName} Nakshatra on a ${dayOfWeek}.`
+        };
+    }
+    return null;
+}
+
+/**
+ * Calculates Tripushkar Yoga.
+ * Occurs on Bhadra Tithis (2, 7, 12) falling on Sunday, Tuesday, or Saturday,
+ * combined with a "triple" nakshatra.
+ * Any event's result is tripled.
+ */
+export function calculateTripushkarYoga(dayOfWeek, tithi, nakshatraName, startTime, endTime) {
+    const bhadraTithis = [2, 7, 12];
+    const applicableDays = ["Sunday", "Tuesday", "Saturday"];
+    const tripleNakshatras = ["Krittika", "Punarvasu", "Purva Phalguni", "Uttara Ashadha", "Purva Bhadrapada", "Vishakha"];
+
+    if (applicableDays.includes(dayOfWeek) && bhadraTithis.includes(tithi) && tripleNakshatras.includes(nakshatraName)) {
+        return {
+            name: "tripushkarYoga",
+            start: startTime,
+            end: endTime,
+            type: "special",
+            description: `Tripushkar Yoga: Event results may repeat three times. Formed by Tithi ${tithi}, ${nakshatraName} Nakshatra on a ${dayOfWeek}.`
+        };
+    }
+    return null;
+}
+
+/**
+ * Calculates Ravi Yoga.
+ * An auspicious yoga based on the nakshatra distance from Sun to Moon.
+ */
+export function calculateRaviYoga(sunNakshatraIndex, moonNakshatraIndex, startTime, endTime) {
+    const diff = (moonNakshatraIndex - sunNakshatraIndex + 27) % 27 + 1;
+    const raviYogaCounts = [4, 6, 9, 10, 13, 20];
+
+    if (raviYogaCounts.includes(diff)) {
+        return {
+            name: "raviYoga",
+            start: startTime,
+            end: endTime,
+            type: "auspicious",
+            description: `Auspicious Ravi Yoga is active.`
+        };
+    }
+    return null;
+}
+
+/**
+ * Calculates Dagdha Yoga.
+ * An inauspicious yoga formed by certain weekday and tithi combinations.
+ */
+export function calculateDagdhaYoga(dayOfWeek, tithi, startTime, endTime) {
+    const dagdhaRules = {
+        Sunday: [12],
+        Monday: [11],
+        Tuesday: [5],
+        Wednesday: [3],
+        Thursday: [6],
+        Friday: [8],
+        Saturday: [9]
+    };
+
+    if (dagdhaRules[dayOfWeek]?.includes(tithi)) {
+        return {
+            name: "dagdhaYoga",
+            start: startTime,
+            end: endTime,
+            type: "inauspicious",
+            description: `Inauspicious Dagdha Yoga (Burnt Yoga) formed by Tithi ${tithi} on a ${dayOfWeek}. Avoid important work.`
+        };
+    }
+    return null;
+}

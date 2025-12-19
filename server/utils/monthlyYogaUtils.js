@@ -2,9 +2,9 @@
 import moment from 'moment-timezone';
 import { getJulianDateUT } from './coreUtils.js';
 import { calculatePlanetaryPositions, getNakshatraDetails, findNextNakshatraChange } from './planetaryUtils.js';
-import { calculateSarvarthSiddhaYoga, calculateAmritSiddhiYoga, calculateVishaYoga } from './yogaUtils.js';
+import { calculateSarvarthSiddhaYoga, calculateAmritSiddhiYoga, calculateVishaYoga, calculateGuruPushyaYoga, calculateRaviPushyaYoga, calculateTripushkarYoga, calculateDwipushkarYoga, calculateDagdhaYoga, calculateRaviYoga } from './yogaUtils.js';
 import logger from './logger.js';
-import { calculateSunMoonTimes } from './panchangUtils.js';
+import { calculateSunMoonTimes, calculatePanchang } from './panchangUtils.js';
 
 export async function calculateYogasForMonth(year, month, latitude, longitude) {
     const yogas = [];
@@ -37,8 +37,13 @@ export async function calculateYogasForMonth(year, month, latitude, longitude) {
             }
 
             const planetaryPositions = await calculatePlanetaryPositions(julianDayUT);
+            const panchang = await calculatePanchang(currentMoment.toDate(), latitude, longitude, planetaryPositions);
+            
             const moonLongitude = planetaryPositions.sidereal.Moon.longitude;
+            const sunLongitude = planetaryPositions.sidereal.Sun.longitude;
             const currentNakshatra = getNakshatraDetails(moonLongitude);
+            const sunNakshatra = getNakshatraDetails(sunLongitude);
+            const currentTithi = panchang.Tithi.index;
 
             const nextChangeTimeStr = await findNextNakshatraChange(currentMoment.toISOString(), latitude, longitude);
             const nextChangeMoment = nextChangeTimeStr ? moment(nextChangeTimeStr) : astrologicalDayEnd;
@@ -53,35 +58,29 @@ export async function calculateYogasForMonth(year, month, latitude, longitude) {
                 }
                 continue;
             }
+            
+            // --- Call All Yoga Functions Explicitly ---
+            const yogaChecks = [
+                calculateSarvarthSiddhaYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString()),
+                calculateAmritSiddhiYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString()),
+                calculateVishaYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString()),
+                calculateGuruPushyaYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString()),
+                calculateRaviPushyaYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString()),
+                calculateDwipushkarYoga(dayOfWeek, currentTithi, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString()),
+                calculateTripushkarYoga(dayOfWeek, currentTithi, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString()),
+                calculateDagdhaYoga(dayOfWeek, currentTithi, periodStart.toISOString(), periodEnd.toISOString()),
+                calculateRaviYoga(sunNakshatra.index, currentNakshatra.index, periodStart.toISOString(), periodEnd.toISOString())
+            ];
 
-            const sarvarthSiddhaYoga = calculateSarvarthSiddhaYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString());
-            if (sarvarthSiddhaYoga) {
-                yogas.push({
-                    date: astrologicalDayStart.format('YYYY-MM-DD'),
-                    day: dayOfWeek,
-                    nakshatra: currentNakshatra.name,
-                    ...sarvarthSiddhaYoga
-                });
-            }
-
-            const amritSiddhiYoga = calculateAmritSiddhiYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString());
-            if (amritSiddhiYoga) {
-                yogas.push({
-                    date: astrologicalDayStart.format('YYYY-MM-DD'),
-                    day: dayOfWeek,
-                    nakshatra: currentNakshatra.name,
-                    ...amritSiddhiYoga
-                });
-            }
-
-            const vishaYoga = calculateVishaYoga(dayOfWeek, currentNakshatra.name, periodStart.toISOString(), periodEnd.toISOString());
-            if (vishaYoga) {
-                yogas.push({
-                    date: astrologicalDayStart.format('YYYY-MM-DD'),
-                    day: dayOfWeek,
-                    nakshatra: currentNakshatra.name,
-                    ...vishaYoga
-                });
+            for (const yogaResult of yogaChecks) {
+                if (yogaResult) {
+                    yogas.push({
+                        date: astrologicalDayStart.format('YYYY-MM-DD'),
+                        day: dayOfWeek,
+                        nakshatra: currentNakshatra.name,
+                        ...yogaResult
+                    });
+                }
             }
 
             currentMoment = periodEnd.clone();
@@ -92,12 +91,11 @@ export async function calculateYogasForMonth(year, month, latitude, longitude) {
     }
 
     // Remove duplicate yogas
-        const uniqueYogas = yogas.filter((yoga, index, self) =>
+    const uniqueYogas = yogas.filter((yoga, index, self) =>
         index === self.findIndex((y) => (
             y.name === yoga.name && y.start === yoga.start && y.end === yoga.end
         ))
     );
-
 
     return uniqueYogas;
 }
