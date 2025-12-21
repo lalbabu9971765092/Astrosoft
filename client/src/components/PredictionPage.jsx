@@ -100,6 +100,7 @@ const PredictionPage = () => {
                 longitude: calculationInputParams.longitude,
                 transitDate: adjustedGocharDateTimeString,
                 lang: i18n.language,
+                houseSystem: "whole_sign",
             };
             const response = await api.post('/predictions/holistic', payload);
             setHolisticPrediction(response.data);
@@ -165,7 +166,7 @@ const PredictionPage = () => {
             setVarshphalPrediction("");
             setHolisticPrediction(null);
         }
-    }, [mainResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language, t, varshphalYear, varshphalStyle, adjustedBirthDateTimeString, fetchDashaPrediction, fetchHolisticPrediction, fetchVarshphalPrediction]);
+    }, [mainResult, calculationInputParams, adjustedGocharDateTimeString,holisticPrediction, i18n.language, t, varshphalYear, varshphalStyle, adjustedBirthDateTimeString, fetchDashaPrediction, fetchHolisticPrediction, fetchVarshphalPrediction]);
 
 
     const renderContent = () => {

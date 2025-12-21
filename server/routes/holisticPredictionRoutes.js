@@ -17,7 +17,7 @@ import {
     calculateUPBS, calculateAllBirthChartYogas
 } from '../utils/index.js';
 import { calculatePanchang } from '../utils/panchangUtils.js';
-import { calculateHousesAndAscendant } from '../utils/coreUtils.js';
+import { calculateHousesAndAscendant, calculateWholeSignHouses } from '../utils/coreUtils.js';
 import predictionEngine from '../utils/predictionEngine.js'; // Ensure predictionEngine is imported
 
 const router = express.Router();
@@ -45,7 +45,8 @@ const holisticPredictionValidation = [
     body('transitDate').optional().isISO8601().withMessage('Invalid transitDate format. Expected ISO8601 (YYYY-MM-DDTHH:MM:SS).'),
     body('latitude').isFloat({ min: -90, max: 90 }).toFloat().withMessage('Latitude must be a number between -90 and 90.'),
     body('longitude').isFloat({ min: -180, max: 180 }).toFloat().withMessage('Longitude must be a number between -180 and 180.'),
-    body('lang').optional().isIn(['en', 'hi']).withMessage('Language must be "en" or "hi".')
+    body('lang').optional().isIn(['en', 'hi']).withMessage('Language must be "en" or "hi".'),
+    body('houseSystem').optional().isIn(['placidus', 'whole_sign']).withMessage('House system must be "placidus" or "whole_sign".')
 ];
 
 // Helper function for divisional chart calculations (copied from astrologyRoutes)
@@ -142,7 +143,7 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
     }
 
     try {
-        const { birthDate, transitDate, latitude, longitude, placeName, lang } = req.body;
+        const { birthDate, transitDate, latitude, longitude, placeName, lang, houseSystem = 'placidus' } = req.body;
         const latNum = latitude;
         const lonNum = longitude;
 
@@ -162,13 +163,27 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             throw new Error(`Failed to calculate Ayanamsa for JD ${julianDayUT}`);
         }
 
-        const { tropicalAscendant, tropicalCusps } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
-        if (tropicalCusps === null) {
-            throw new Error(`Failed to calculate House Cusps for JD ${julianDayUT}, Lat ${latNum}, Lon ${lonNum}`);
+        // --- Conditional House System Calculation ---
+        let tropicalAscendant, siderealCuspStartDegrees;
+
+        if (houseSystem === 'whole_sign') {
+            // For Whole Sign, we only need the Ascendant degree to determine the signs.
+            // We still call calculateHousesAndAscendant to get the accurate tropical ascendant degree.
+            const { tropicalAscendant: asc } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
+            if (asc === null) throw new Error(`Failed to calculate Ascendant for JD ${julianDayUT}`);
+            tropicalAscendant = asc;
+            const siderealAscendant = normalizeAngle(tropicalAscendant - ayanamsa);
+            siderealCuspStartDegrees = calculateWholeSignHouses(siderealAscendant);
+        } else { // Default to Placidus
+            const { tropicalAscendant: asc, tropicalCusps } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
+            if (tropicalCusps === null) {
+                throw new Error(`Failed to calculate Placidus House Cusps for JD ${julianDayUT}, Lat ${latNum}, Lon ${lonNum}`);
+            }
+            tropicalAscendant = asc;
+            siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
         }
 
         const siderealAscendantDeg = normalizeAngle(tropicalAscendant - ayanamsa);
-        const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
         const ascendantNakDetails = getNakshatraDetails(siderealAscendantDeg);
         const ascendantRashiDetails = getRashiDetails(siderealAscendantDeg);
         const ascendantPada = calculateNakshatraPada(siderealAscendantDeg);
