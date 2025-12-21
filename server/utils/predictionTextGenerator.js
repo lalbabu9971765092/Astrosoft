@@ -56,8 +56,8 @@ const nakshatraNames_hi = {
     Pushya: "पुष्य",
     Ashlesha: "आश्लेषा",
     Magha: "मघा",
-    PurvaPhalguni: "पूर्वा फाल्गुनी",
-    UttaraPhalguni: "उत्तरा फाल्गुनी",
+    "Purva Phalguni": "पूर्वा फाल्गुनी", // Corrected name with space
+    "Uttara Phalguni": "उत्तरा फाल्गुनी", // Corrected name with space
     Hasta: "हस्त",
     Chitra: "चित्रा",
     Swati: "स्वाति",
@@ -65,13 +65,13 @@ const nakshatraNames_hi = {
     Anuradha: "अनुराधा",
     Jyeshtha: "ज्येष्ठा",
     Mula: "मूल",
-    PurvaAshadha: "पूर्वाषाढ़ा",
-    UttaraAshadha: "उत्तराषाढ़ा",
+    "Purva Ashadha": "पूर्वाषाढ़ा", // Corrected name with space
+    "Uttara Ashadha": "उत्तराषाढ़ा", // Corrected name with space
     Shravana: "श्रवण",
-    Dhanishta: "धनिष्ठा",
+    Dhanishtha: "धनिष्ठा",
     Shatabhisha: "शतभिषा",
-    PurvaBhadrapada: "पूर्व भाद्रपद",
-    UttaraBhadrapada: "उत्तर भाद्रपद",
+    "Purva Bhadrapada": "पूर्व भाद्रपद", // Corrected name with space
+    "Uttara Bhadrapada": "उत्तर भाद्रपद", // Corrected name with space
     Revati: "रेवती"
 };
 
@@ -630,8 +630,9 @@ export function getCombinedPredictionLong(lagna, rashi, nakshatra, additionalDat
     }
 
     // --- Assemble the final report ---
+    const displayedNakshatra = lang === 'hi' ? (nakshatraNames_hi[nakshatra] || nakshatra) : nakshatra; // Defensive fallback
     let result = `
-${p.yourChartCombines} ${lang === 'hi' ? rashiNames_hi[lagna] : lagna} ${p.lagna}, ${lang === 'hi' ? rashiNames_hi[rashi] : rashi} ${p.rashi}, ${p.and} ${lang === 'hi' ? nakshatraTraits_hi[nakshatra] : nakshatra} ${p.nakshatra}${p.creatingProfile} 
+${p.yourChartCombines} ${lang === 'hi' ? rashiNames_hi[lagna] : lagna} ${p.lagna}, ${lang === 'hi' ? rashiNames_hi[rashi] : rashi} ${p.rashi}, ${p.and} ${displayedNakshatra} ${p.nakshatra}${p.creatingProfile} 
 ${p.asALagnaAscendant} ${lang === 'hi' ? rashiNames_hi[lagna] : lagna} ${p.outerBehavior} ${lagnaText}
 
 ${p.emotionallyAndMentally} ${lang === 'hi' ? rashiNames_hi[rashi] : rashi} ${p.influencesHowYou} ${rashiText}

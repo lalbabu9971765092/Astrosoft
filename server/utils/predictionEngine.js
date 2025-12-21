@@ -574,10 +574,11 @@ PredictionEngine.generateHolisticPrediction = async (chartData, lang = 'en') => 
   );
   const lagnaLordStrength = planetaryPowers[lagnaLord] || 0;
 
+  const moonNakshatraName = chartData.planetaryPositions.sidereal.Moon.nakshatra || (lang === 'hi' ? 'अज्ञात' : 'Unknown');
   const overallReport = getCombinedPredictionLong(
     chartData.ascendant.rashi,
     chartData.planetaryPositions.sidereal.Moon.rashi,
-    chartData.planetaryPositions.sidereal.Moon.nakshatra,
+    moonNakshatraName, // Pass the defensively handled name
     {
       lagnaLord: lagnaLord,
       lagnaLordNatalHouse: lagnaLordNatalHouse,
