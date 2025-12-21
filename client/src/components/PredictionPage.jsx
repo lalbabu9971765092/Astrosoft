@@ -100,7 +100,7 @@ const PredictionPage = () => {
                 longitude: calculationInputParams.longitude,
                 transitDate: adjustedGocharDateTimeString,
                 lang: i18n.language,
-                houseSystem: "whole_sign",
+                houseSystem: "placidus",
             };
             const response = await api.post('/predictions/holistic', payload);
             setHolisticPrediction(response.data);
