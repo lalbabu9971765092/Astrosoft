@@ -3,7 +3,7 @@ import { RASHI_LORDS, PLANET_DEBILITATION_SIGN, RASHIS, PLANET_EXALTATION_SIGN }
 import { getHouseOfPlanet, getRashiDetails } from './planetaryUtils.js';
 import { YOGA_DEFINITIONS_EN, YOGA_DEFINITIONS_HI } from './YOGA_DEFINITIONS.js';
 
-const PLANET_NAMES_HI = {
+export const PLANET_NAMES_HI = {
     Sun: 'सूर्य',
     Moon: 'चंद्रमा',
     Mars: 'मंगल',
@@ -12,10 +12,14 @@ const PLANET_NAMES_HI = {
     Venus: 'शुक्र',
     Saturn: 'शनि',
     Rahu: 'राहु',
-    Ketu: 'केतु'
+    Ketu: 'केतु',
+    Uranus: 'यूरेनस',
+    Neptune: 'नेपच्यून',
+    Pluto: 'प्लूटो',
+    UNKNOWN: 'अज्ञात'
 };
 
-const getPlanetName = (planet, lang) => {
+export const getPlanetName = (planet, lang) => {
     if (lang === 'hi') {
         return PLANET_NAMES_HI[planet] || planet;
     }

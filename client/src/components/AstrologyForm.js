@@ -150,7 +150,8 @@ const AstrologyForm = () => {
                     date: dateForApi,
                     latitude: calculationInputParams.latitude,
                     longitude: calculationInputParams.longitude,
-                    placeName: calculationInputParams.placeName
+                    placeName: calculationInputParams.placeName,
+                    lang: i18n.language
                 };
                 const response = await api.post('/calculate', payload);
                 setRectifiedResult(response.data);
@@ -181,7 +182,8 @@ const AstrologyForm = () => {
                         date: dateForApi,
                         latitude: locationForGocharTool.lat,
                         longitude: locationForGocharTool.lon,
-                        placeName: transitPlaceName
+                        placeName: transitPlaceName,
+                        lang: i18n.language
                     });
                     setGocharData(response.data);
                 } catch (err) {

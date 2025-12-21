@@ -31,13 +31,6 @@ function handleRouteError(res, error, routeName, inputData = {}) {
 
 const router = express.Router();
 
-// Validation for general prediction query parameters
-const generalPredictionValidation = [
-    query('lagnaRashi').notEmpty().withMessage('Lagna Rashi is required.'),
-    query('moonRashi').notEmpty().withMessage('Moon Rashi is required.'),
-    query('moonNakshatra').notEmpty().withMessage('Moon Nakshatra is required.'),
-    query('lang').optional().isIn(['en', 'hi']).withMessage('Language must be "en" or "hi".'), // Add lang validation
-];
 
 // Validation for dasha prediction query parameters
 const dashaPredictionValidation = [
@@ -46,27 +39,6 @@ const dashaPredictionValidation = [
     query('antar').notEmpty().withMessage('Antar lord is required.'),
     query('lang').optional().isIn(['en', 'hi']).withMessage('Language must be "en" or "hi".'),
 ];
-
-// Route for general predictions (Lagna, Moon Rashi, Moon Nakshatra)
-router.route('/').get(generalPredictionValidation, async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
-    try {
-        const { lagnaRashi, moonRashi, moonNakshatra, lang } = req.query; // Destructure lang
-        // Generate prediction directly using the utility function
-        const predictionText = predictionTextGenerator.getCombinedPredictionLong(lagnaRashi, moonRashi, moonNakshatra, lang); // Pass lang
-        
-        if (!predictionText) {
-            return res.status(404).json({ error: "No prediction found for the given combination." });
-        }
-        res.json({ prediction: predictionText });
-    } catch (error) {
-        handleRouteError(res, error, 'GET /api/predictions');
-    }
-});
 
 // New route for Dasha predictions
 router.route('/dasha').get(dashaPredictionValidation, async (req, res) => {

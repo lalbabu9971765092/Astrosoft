@@ -210,7 +210,24 @@
     "loadingDashaPrediction": "Loading Dasha Prediction...",
     "dashaPredictionFetchError": "Failed to fetch Dasha prediction.",
     "noCurrentDasha": "No current Dasha period found.",
-    "langCode": "en"
+    "langCode": "en",
+    "dashaLordsTitle": "Dasha Lords in Chart",
+    "lifeAreasTitle": "Life Areas Summary",
+    "eventTimelineTitle": "Event Timeline (Transits)",
+    "varshphalPredictionTitle": "Varshphal-based Prediction",
+    "varshphalYear": "Year",
+    "style": "Style",
+    "styleSimple": "Simple",
+    "styleDetailed": "Detailed",
+    "recalculate": "Recalculate",
+    "inHouse": "in {{houseNumber}}th house"
+  },
+  "lifeAreas": {
+    "career": "Career",
+    "wealth": "Wealth",
+    "marriage": "Marriage",
+    "health": "Health",
+    "spirituality": "Spirituality"
   },
   "muhurtaPage": {
     "pageTitle": "Daily Muhurta, Choghadiya, Hora & Lagna",
@@ -328,7 +345,12 @@
     "preparedBy": "Developer and Astrologer: Rabindra Mohan Jha",
     "birthDetails": {
       "currentLocationDefault": "Current Location"
-    }
+    },
+    "birthDetailsTitle": "Birth Details",
+    "transitDetailsTitle": "Transit Details",
+    "transitDateTimeLabel": "Transit Time",
+    "transitPlaceLabel": "Transit Place",
+    "updateTransitButton": "Update Transit"
   },
   "ashtakavargaPage": {
     "title": "Ashtakavarga",
@@ -416,7 +438,6 @@
     "loadingRectifiedData": "Loading rectified data...",
     "rectificationErrorPrefix": "Rectification Error",
     "chartD1Title": "D1 - Lagna Chart",
-    "chartNirayanTitle": "Nirayan Chart",
     "chartNirayanTitle": "Nirayan Chart",
     "chartBhavaTitle": "Nirayan Bhav Chalit",
     "chartD2Title": "D2 - Hora Chart",

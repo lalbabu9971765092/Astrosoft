@@ -232,7 +232,7 @@ const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent, significato
 KpSignificatorGrid.propTypes = {
     significatorDetailsMap: PropTypes.instanceOf(Map).isRequired,
     selectedEvent: PropTypes.string.isRequired, // Can be empty string ''
-    significatorPlanet: PropTypes.string.isRequired,
+    significatorPlanet: PropTypes.string,
 };
 
 export default KpSignificatorGrid;

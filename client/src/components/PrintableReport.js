@@ -158,6 +158,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                     latitude: calculationInputParams.latitude,
                     longitude: calculationInputParams.longitude,
                     placeName: calculationInputParams.placeName,
+                    lang: i18n.language
                 };
 
                 const [mainResponse, kpResponse, varshphalResponse, transitResponse] = await Promise.all([

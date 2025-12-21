@@ -494,66 +494,6 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
     }
 });
 
-// --- Route: Calculate Birth Chart Yogas ---
-router.post('/yogas', baseChartValidation, async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
-    try {
-        const { date, latitude, longitude, lang } = req.body;
-        const latNum = latitude;
-        const lonNum = longitude;
-
-        const { julianDayUT, utcDate } = getJulianDateUT(date, latNum, lonNum);
-
-        if (julianDayUT === null) {
-            throw new Error('Failed to calculate Julian Day UT.');
-        }
-
-        const ayanamsa = calculateAyanamsa(julianDayUT);
-        if (isNaN(ayanamsa)) {
-             throw new Error(`Failed to calculate Ayanamsa for JD ${julianDayUT}`);
-        }
-
-        const { tropicalAscendant, tropicalCusps } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
-        if (tropicalCusps === null) {
-             throw new Error(`Failed to calculate House Cusps for JD ${julianDayUT}, Lat ${latNum}, Lon ${lonNum}`);
-        }
-
-        const siderealAscendantDeg = normalizeAngle(tropicalAscendant - ayanamsa);
-        const siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
-
-        const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
-        const siderealPositions = planetaryPositions.sidereal;
-
-        const housesData = [];
-        for (let i = 0; i < 12; i++) {
-            const houseNumber = i + 1;
-            const startDeg = siderealCuspStartDegrees[i];
-            const endDeg = siderealCuspStartDegrees[(i + 1) % 12];
-            const meanDeg = calculateMidpoint(startDeg, endDeg);
-            const startRashiDetails = getRashiDetails(startDeg);
-            housesData.push({
-                house_number: houseNumber,
-                start_deg: startDeg,
-                mean_deg: meanDeg,
-                end_deg: endDeg,
-                start_rashi: startRashiDetails.name,
-                start_rashi_lord: startRashiDetails.lord,
-            });
-        }
-
-        const allYogas = calculateAllBirthChartYogas(siderealPositions, housesData, lang);
-
-        res.json({ yogas: allYogas });
-
-    } catch (error) {
-        handleRouteError(res, error, '/yogas', req.body);
-    }
-});
-
 router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { // Added async
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

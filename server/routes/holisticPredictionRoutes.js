@@ -281,7 +281,7 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             ashtakavarga: ashtakavargaResult,
         };
 
-        const holisticPrediction = await predictionEngine.generateHolisticPrediction(chartDataForPrediction);
+        const holisticPrediction = await predictionEngine.generateHolisticPrediction(chartDataForPrediction, lang);
 
         res.json(holisticPrediction);
 
