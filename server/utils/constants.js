@@ -76,8 +76,7 @@ export const PLANET_DEBILITATION_SIGN = {
 
 // Order for calculations and display
 export const PLANET_ORDER = [
-    "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu",
-    "Uranus", "Neptune", "Pluto"
+    "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"
 ];
 
 // Order specifically for friendship calculations

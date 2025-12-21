@@ -35,6 +35,10 @@ export function getNakshatraDetails(siderealLongitude) {
 
     if (nakshatraIndex >= 0 && nakshatraIndex < NAKSHATRAS.length) {
         const nak = NAKSHATRAS[nakshatraIndex];
+        if (!nak || !nak.name || !nak.lord) { // Defensive check
+            logger.error(`Malformed Nakshatra data at index ${nakshatraIndex} in NAKSHATRAS array.`);
+            return { name: "Unknown", lord: "N/A", index: -1 };
+        }
         return { name: nak.name, lord: nak.lord, index: nakshatraIndex };
     } else {
         logger.warn(`Could not determine Nakshatra for longitude: ${siderealLongitude} (Normalized: ${normalizedLng}, Index: ${nakshatraIndex}). NAKSHATRAS.length: ${NAKSHATRAS.length}`);
