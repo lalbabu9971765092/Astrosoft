@@ -30,7 +30,7 @@
 
 .App {
   /* Optional: Add padding if nav becomes fixed */
-  /* padding-top: 70px; */
+  padding-top: 70px; 
 }
 
 /* --- Navigation Styles --- */
@@ -39,11 +39,10 @@
   padding: 10px 0;
   margin-bottom: 20px; /* Space below the nav */
   border-bottom: 1px solid #ccc; /* Subtle border */
-  position: relative; /* Needed for absolute positioning of mobile menu */
-  /* Consider making it sticky or fixed if desired */
-  /* position: sticky; */
-  /* top: 0; */
-  /* z-index: 1000; */
+  position: fixed; /* Make the navbar fixed */
+  top: 0; /* Position at the top */
+  width: 100%; /* Take full width */
+  z-index: 1000; /* Ensure it stays above other content */
 }
 
 /* Container inside nav for better flex control */

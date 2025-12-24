@@ -298,6 +298,9 @@ export function calculatePlanetaryPositions(julianDayUT) {
                 }
                 
                 const nakDetails = getNakshatraDetails(siderealLongitude);
+                if (nakDetails.lord === "N/A" || nakDetails.name === "Unknown" || nakDetails.name === "Invalid Longitude") {
+                    logger.warn(`getNakshatraDetails returned N/A for ${planetName} (siderealLongitude: ${siderealLongitude}). Details: ${JSON.stringify(nakDetails)}`);
+                }
                 const rashiDetails = getRashiDetails(siderealLongitude);
                 const pada = calculateNakshatraPada(siderealLongitude);
                 const padaAlphabet = getNakshatraPadaAlphabet(nakDetails.name, pada); 

@@ -189,7 +189,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
         };
 
         fetchPrintData();
-    }, [calculationInputParams, varshphalYear]);
+    }, [calculationInputParams, varshphalYear, i18n.language]);
 
     useEffect(() => {
         if (!isLoading && !mainError && !kpError && !varshphalError && !transitError && mainResult && kpResult && varshphalResult && transitResult) {
@@ -334,7 +334,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                             {birthNakshatra?.start && birthNakshatra?.end && ` (${formatPanchangTime(birthNakshatra.start, t, i18n)} - ${formatPanchangTime(birthNakshatra.end, t, i18n)})`}
                         </p>
                         <p>
-                            {t('astrologyForm.yogaLabel')} {t(`yogas.${birthYogaKey}.name`, { defaultValue: birthYogaKey ?? t('utils.notAvailable', 'N/A') })}
+                            {t('astrologyForm.yogaLabel')} {t(`yogas.${birthYogaKey}_name`, { defaultValue: birthYogaKey ?? t('utils.notAvailable', 'N/A') })}
                             {birthPanchang?.Yoga?.start && birthPanchang?.Yoga?.end && ` (${formatPanchangTime(birthPanchang.Yoga.start, t, i18n)} - ${formatPanchangTime(birthPanchang.Yoga.end, t, i18n)})`}
                         </p>
                         <p>
@@ -794,7 +794,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                                 {transitResult.panchang?.Nakshatra?.start && transitResult.panchang?.Nakshatra?.end && ` (${formatPanchangTime(transitResult.panchang.Nakshatra.start, t, i18n)} - ${formatPanchangTime(transitResult.panchang.Nakshatra.end, t, i18n)})`}
                             </p>
                             <p>
-                                {t('astrologyForm.yogaLabel')} {t(`yogas.${transitResult.panchang?.Yoga?.name_en_IN}.name`, { defaultValue: transitResult.panchang?.Yoga?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}
+                                {t('astrologyForm.yogaLabel')} {t(`yogas.${transitResult.panchang?.Yoga?.name_en_IN}_name`, { defaultValue: transitResult.panchang?.Yoga?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}
                                 {transitResult.panchang?.Yoga?.start && transitResult.panchang?.Yoga?.end && ` (${formatPanchangTime(transitResult.panchang.Yoga.start, t, i18n)} - ${formatPanchangTime(transitResult.panchang.Yoga.end, t, i18n)})`}
                             </p>
                             <p>

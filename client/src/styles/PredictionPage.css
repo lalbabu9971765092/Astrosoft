@@ -1,162 +1,169 @@
 .prediction-page-container {
     padding: 20px;
-    font-family: 'Roboto', sans-serif;
-    color: var(--text-color);
+    background-color: #f0f2f5;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 .result-title {
-    color: var(--primary-color);
+    color: #1a237e;
     text-align: center;
     margin-bottom: 30px;
+    font-size: 2em;
+    font-weight: 600;
 }
 
 .info-text, .error-text, .loader {
     text-align: center;
-    margin-top: 20px;
+    margin: 40px auto;
     font-size: 1.1em;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 600px;
 }
 
 .error-text {
-    color: var(--danger-color);
+    color: #c62828;
+    background-color: #ffcdd2;
+    border: 1px solid #c62828;
 }
 
 .loader {
-    color: var(--secondary-color);
+    color: #555;
 }
 
-/* General Prediction Section */
-.general-prediction-section {
-    background-color: var(--card-background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.general-prediction-title {
-    color: var(--primary-color);
-    font-size: 1.5em;
-    text-align: center;
-    margin-top: 0;
+.prediction-section {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
     margin-bottom: 15px;
-    border-bottom: 2px solid var(--primary-color);
-    padding-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.3s ease;
 }
 
-.general-prediction-text {
-    font-size: 1.1em;
-    line-height: 1.6;
-    color: var(--text-color);
-    text-align: justify;
+.prediction-section:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Dasha Prediction Section */
-.dasha-prediction-section {
-    background-color: var(--card-background-color);
-    border: 1px solid var(--secondary-color);
-    border-radius: 8px;
-    padding: 20px;
-    margin-top: 25px; /* Add some margin from the yoga table */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+.prediction-title {
+    color: #1a237e;
+    font-size: 1.3em;
+    font-weight: 600;
+    margin: 0;
+    padding: 18px 25px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+    background-color: #fff;
+    border-bottom: 1px solid transparent; /* Placeholder for transition */
+    border-radius: 12px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.dasha-prediction-title {
-    color: var(--secondary-color);
-    font-size: 1.5em;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 15px;
-    border-bottom: 2px solid var(--secondary-color);
-    padding-bottom: 10px;
+.prediction-icon {
+    margin-right: 15px;
+    font-size: 1.2em;
 }
 
-.dasha-prediction-text {
-    font-size: 1.1em;
-    line-height: 1.6;
-    color: var(--text-color);
-    text-align: justify;
+.accordion-icon {
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+}
+
+.accordion-icon.open {
+    transform: rotate(180deg);
+}
+
+.prediction-content {
+    padding: 20px 25px;
+    border-top: 1px solid #e8eaf6;
+    animation: fadeIn 0.5s ease;
+    line-height: 1.7;
+    color: #333;
+}
+
+/* Hide content when section is collapsed */
+.prediction-section .prediction-content {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 
-/* Yoga Table Container */
-.yoga-table-container {
-    overflow-x: auto; /* Allows table to scroll horizontally on small screens */
-    margin-top: 20px;
-}
-
-.yoga-table-title {
-    color: var(--primary-color);
-    font-size: 1.5em;
-    text-align: center;
-    margin-bottom: 15px;
-    border-bottom: 2px solid var(--primary-color);
-    padding-bottom: 10px;
-}
-
-
-.yoga-table {
+/* Table Styles */
+.yoga-table, .kp-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 0 auto;
-    background-color: var(--card-background-color);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
 }
 
-.yoga-table th,
-.yoga-table td {
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
+.yoga-table th, .yoga-table td,
+.kp-table th, .kp-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
     text-align: left;
     vertical-align: top;
 }
 
-.yoga-table thead th {
-    background-color: var(--table-header-background);
-    color: var(--table-header-text);
-    font-weight: bold;
+.yoga-table thead th, .kp-table thead th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9em;
     text-transform: uppercase;
+}
+
+.yoga-table tbody tr:hover, .kp-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.kp-cusp-significators, .kp-planet-significators {
+    margin-top: 20px;
+}
+.kp-cusp-significators h4, .kp-planet-significators h4 {
+    font-size: 1.2em;
+    color: #3f51b5;
+    margin: 0 0 10px;
+}
+
+.hint-text {
+    font-size: 0.9em;
+    color: #666;
+    background-color: #fafafa;
+    padding: 15px 25px;
+    border-top: 1px solid #eee;
+    margin: 20px -25px -20px; /* Extend to card edges */
+}
+
+.kp-analysis-section {
+    padding-top: 20px;
+}
+
+.small-loader, .small-error {
+    text-align: center;
+    padding: 10px;
     font-size: 0.9em;
 }
 
-.yoga-table tbody tr:nth-child(even) {
-    background-color: var(--table-even-row-background);
+.dasha-analysis-container p {
+    margin: 0 0 15px;
 }
 
-.yoga-table tbody tr:hover {
-    background-color: var(--table-hover-background);
+.life-area-report {
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
 }
-
-.yoga-table td {
-    font-size: 0.95em;
-    line-height: 1.5;
+.life-area-report:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
 }
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .yoga-table thead {
-        display: none; /* Hide table headers on small screens */
-    }
-
-    .yoga-table, .yoga-table tbody, .yoga-table tr, .yoga-table td {
-        display: block;
-        width: 100%;
-    }
-
-    .yoga-table tr {
-        margin-bottom: 15px;
-        border: 1px solid var(--border-color);
-        box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-    }
-
-    .yoga-table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 15px;
-        width: calc(50% - 30px);
-        padding-right: 10px;
-        white-space: nowrap;
-        text-align: left;
-        font-weight: bold;
-    }
+.life-area-report h4 {
+    font-size: 1.2em;
+    color: #3f51b5;
+    margin-top: 0;
+    margin-bottom: 10px;
 }

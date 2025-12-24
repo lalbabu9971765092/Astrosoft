@@ -12,6 +12,13 @@ import { validateAndFormatDateTime } from './AstrologyUtils'; // Import validati
 
 // --- Constants ---
 const CURRENT_YEAR = new Date().getFullYear();
+const SIGNIFICATOR_GRID_ORDER = [
+    ['Ketu', 'Moon', 'Jupiter'],
+    ['Venus', 'Mars', 'Saturn'],
+    ['Sun', 'Rahu', 'Mercury']
+];
+const FLATTENED_GRID_ORDER = SIGNIFICATOR_GRID_ORDER.flat();
+
 
 // Helper to format date/time for display (handles potential errors)
 // Pass 't' for potential error/invalid messages
@@ -277,13 +284,65 @@ const VarshphalPage = () => {
       ]);
     
       const chartResult = rotatedVarshphalResult || varshphalResult;
-      const { varshphalChart, muntha, muddaDasha, yearLord, kpSignificators } = chartResult || {};
+      const { varshphalChart, muntha, muddaDasha, yearLord, kpSignificators: kpSignificatorsObject } = chartResult || {};
     
       const significatorDetailsMap = useMemo(() => {
-        if (!kpSignificators) return new Map();
-        // Filter out null/undefined items before mapping to prevent errors
-        return new Map(kpSignificators.filter(item => item).map(item => [item.name, item]));
-      }, [kpSignificators]);
+        const finalMap = new Map();
+        if (!kpSignificatorsObject?.detailedPlanets || !Array.isArray(kpSignificatorsObject.detailedPlanets) || kpSignificatorsObject.detailedPlanets.length === 0) {
+            return finalMap;
+        }
+
+        const intermediatePlanetData = new Map();
+        kpSignificatorsObject.detailedPlanets.forEach(planet => {
+            if (planet) {
+                intermediatePlanetData.set(planet.name, {
+                    name: planet.name,
+                    occupiedHouses: planet.occupiedHouses || [],
+                    ownedHouses: planet.ownedHouses || [],
+                    signLordOwnedHouses: planet.signLordOwnedHouses || [],
+                    aspectingOwnedHouses: planet.aspectingOwnedHouses || [],
+                    nakshatraLordName: planet.nakshatraLordName || 'N/A',
+                    nakshatraLordAllHouses: planet.nakshatraLordAllHouses || [],
+                    subLordName: planet.subLordName || 'N/A',
+                    subLordAllHouses: planet.subLordAllHouses || [],
+                    A: planet.A || [],
+                    B: planet.B || [],
+                    C: planet.C || [],
+                    D: planet.D || [],
+                });
+            }
+        });
+      
+        const getCombinedHousesForPlanet = (planetName) => {
+            const data = intermediatePlanetData.get(planetName);
+            if (!data) return [];
+            const allHouses = [
+                ...(data.occupiedHouses || []),
+                ...(data.ownedHouses || []),
+                ...(data.signLordOwnedHouses || []),
+                ...(data.aspectingOwnedHouses || [])
+            ];
+            return [...new Set(allHouses)].sort((a, b) => a - b);
+        };
+
+        FLATTENED_GRID_ORDER.forEach(planetName => {
+            const planetData = intermediatePlanetData.get(planetName);
+            if (!planetData) {
+                finalMap.set(planetName, { name: planetName, allHouses: [], nakshatraLordName: 'N/A', nakshatraLordAllHouses: [], subLordName: 'N/A', subLordAllHouses: [], score: 0, favourability: 'N/A', completeness: 'N/A' });
+                return;
+            }
+
+            const planetAllHouses = getCombinedHousesForPlanet(planetName);
+
+            finalMap.set(planetName, {
+                ...planetData,
+                allHouses: planetAllHouses,
+            });
+        });
+
+        return finalMap;
+    }, [kpSignificatorsObject]);
+
     
       const canRenderChart = varshphalChart?.houses && varshphalChart?.planetaryPositions?.sidereal;
       const canRenderBhavaChalit = canRenderChart && varshphalChart.planetHousePlacements;
@@ -470,7 +529,7 @@ const VarshphalPage = () => {
                   <button className="toggle-button">{openSections.kpSignificators ? '−' : '+'}</button>
                 </div>
                 {openSections.kpSignificators && <div className="result-section kp-significators">
-                  {chartResult?.kpSignificators ? (
+                  {kpSignificatorsObject?.detailedPlanets ? (
                     <KpSignificatorGrid significatorDetailsMap={significatorDetailsMap} selectedEvent="" />
                   ) : (
                     <p>

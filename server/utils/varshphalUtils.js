@@ -173,7 +173,7 @@ export function calculateYearLord(varshphalChart, natalAscendantLord, solarRetur
         { name: 'Tri-Rashi Lord', planet: triRashiLord }
     ];
 
-    logger.info('Year Lord Contenders:', contenders);
+    
 
         const planetsArray = Object.entries(varshphalChart.planetaryPositions.sidereal).map(([name, planetData]) => ({ name, ...planetData }));
     const aspectsReceived = calculateTajikaAspects(planetsArray);
@@ -184,7 +184,7 @@ export function calculateYearLord(varshphalChart, natalAscendantLord, solarRetur
 
     uniqueContenders.forEach(planet => {
         const strength = getPlanetStrength(planet, aspectsReceived);
-        logger.info(`Panchadhikari contender ${planet} has strength ${strength.toFixed(2)}`);
+       
         if (strength > maxStrength) {
             maxStrength = strength;
             bestContender = planet;
@@ -196,6 +196,6 @@ export function calculateYearLord(varshphalChart, natalAscendantLord, solarRetur
         return srAscendantLord || natalAscendantLord; // Fallback
     }
 
-    logger.info(`The calculated Year Lord is ${bestContender} with a strength of ${maxStrength.toFixed(2)}.`);
+   
     return bestContender;
 }

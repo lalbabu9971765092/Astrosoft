@@ -1,8 +1,9 @@
 // server/utils/predictionTextGenerator.js
 import logger from './logger.js';
-logger.info("--- LOADING UPDATED predictionTextGenerator.js ---");
+
 import { getHouseOfPlanet } from './planetaryUtils.js';
 import { convertDMSToDegrees } from './coreUtils.js';
+import { getPlanetName } from './birthChartYogaUtils.js';
 
 const houseThemes_en = {
     1: 'self, identity, health', 2: 'finance, possessions, speech', 3: 'siblings, communication, short trips',
@@ -68,7 +69,7 @@ const nakshatraNames_hi = {
     "Purva Ashadha": "पूर्वाषाढ़ा", // Corrected name with space
     "Uttara Ashadha": "उत्तराषाढ़ा", // Corrected name with space
     Shravana: "श्रवण",
-    Dhanishtha: "धनिष्ठा",
+    Dhanishta: "धनिष्ठा",
     Shatabhisha: "शतभिषा",
     "Purva Bhadrapada": "पूर्व भाद्रपद", // Corrected name with space
     "Uttara Bhadrapada": "उत्तर भाद्रपद", // Corrected name with space
@@ -275,64 +276,64 @@ const planetInHouse_hi = {
         "बारहवें घर में बृहस्पति दिव्य सुरक्षा और आध्यात्मिकता, ध्यान और दान में गहरी रुचि प्रदान करता है। आप एकांत और जाने देने में ज्ञान पाते हैं।"
     ],
     Venus: [
-        "पहले घर में शुक्र आपको आकर्षण, कृपा और सौंदर्य और सद्भाव के प्रति प्रेम का आशीर्वाद देता है। आप स्वाभाविक रूप से आकर्षक, राजनयिक हैं और आपका व्यवहार सुखद है।",
-        "दूसरे घर में शुक्र धन के लिए उत्कृष्ट है, जो लक्जरी वस्तुओं, बढ़िया भोजन और एक सुंदर बोलने वाली आवाज के लिए प्यार देता है। आप अपने आकर्षण के माध्यम से आसानी से पैसा आकर्षित करते हैं।",
-        "तीसरे घर में शुक्र आपकी संचार शैली को कलात्मक और सुखद बनाता है। आपके पास रचनात्मक लेखन, कविता या डिजाइन के लिए एक प्रतिभा है और सामंजस्यपूर्ण भाई-बहन संबंधों का आनंद लेते हैं।",
-        "चौथे घर में शुक्र एक सुंदर घर, आराम का प्यार और एक सुखी घरेलू जीवन को इंगित करता है। आपके पास लक्जरी वाहन हो सकते हैं और आपकी माँ के साथ एक मजबूत, प्रेमपूर्ण बंधन हो सकता है।",
-        "पांचवें घर में शुक्र रचनात्मकता, रोमांस और कलात्मक प्रतिभा प्रदान करता है। आप अत्यधिक करिश्माई हैं और प्रेम संबंधों, कलाओं और मनोरंजन में बहुत खुशी पाते हैं।",
-        "छठे घर में शुक्र कार्यस्थल पर सद्भाव ला सकता है, लेकिन यह भी इंगित करता है कि अधिक भोग से स्वास्थ्य समस्याएं उत्पन्न हो सकती हैं। आप कला या डिजाइन के माध्यम से दूसरों की सेवा कर सकते हैं।",
-        "सातवें घर में शुक्र (अपने ही घर में) एक सुंदर, आकर्षक और समर्पित साथी का एक मजबूत संकेतक है। आपका विवाह आपकी खुशी और सामाजिक जीवन का केंद्र है।",
-        "आठवें घर में शुक्र विवाह या विरासत के माध्यम से धन ला सकता है, लेकिन यह गहन, गुप्त संबंधों को भी इंगित करता है। यह एक मजबूत चुंबकत्व और आकर्षण देता है।",
-        "नौवें घर में शुक्र दर्शन, कला और विभिन्न संस्कृतियों में सुंदरता के प्रति प्रेम दिखाता है। आपके विश्वास सद्भाव पर केंद्रित हैं, और आपको किसी विदेशी भूमि से एक साथी मिल सकता है।",
-        "दसवें घर में शुक्र कला, मनोरंजन, सौंदर्य या कूटनीति से संबंधित करियर में सफलता प्रदान करता है। आपकी एक आकर्षक सार्वजनिक छवि है और आप अच्छी तरह से पसंद किए जाते हैं।",
-        "ग्यारहवें घर में शुक्र आपके आकर्षण और सामाजिक कृपा के माध्यम से लाभ और दोस्ती लाता है। आपके पास कलात्मक और संपन्न दोस्तों का एक नेटवर्क है जो आपके लक्ष्यों को प्राप्त करने में आपकी मदद करते हैं।",
-        "बारहवें घर में शुक्र एकांत, आध्यात्मिकता और कल्पना में प्रेम और सुंदरता पाता है। यह छिपे हुए रिश्तों या निजी में शानदार सुख-सुविधाओं के प्रति प्रेम का संकेत दे सकता है।"
+        "Venus in the 1st house blesses you with charm, grace, and a love for beauty and harmony. You are naturally attractive, diplomatic, and have a pleasant demeanor.",
+        "Venus in the 2nd house is excellent for wealth, giving a love for luxury items, fine food, and a beautiful speaking voice. You attract money easily through your charm.",
+        "Venus in the 3rd house makes your communication style artistic and pleasant. You have a talent for creative writing, poetry, or design and enjoy harmonious sibling relationships.",
+        "Venus in the 4th house indicates a beautiful home, a love of comfort, and a happy domestic life. You may own luxury vehicles and have a strong, loving bond with your mother.",
+        "Venus in the 5th house grants creativity, romance, and artistic talent. You are highly charismatic and find great joy in love affairs, the arts, and entertainment.",
+        "Venus in the 6th house can bring harmony to the workplace, but also indicates that health issues may arise from overindulgence. You may serve others through art or design.",
+        "Venus in the 7th house (its own house) is a strong indicator of a beautiful, charming, and devoted partner. Your marriage is central to your happiness and social life.",
+        "Venus in the 8th house can bring wealth through marriage or inheritance, but also indicates intense, secret relationships. It gives a strong magnetism and allure.",
+        "Venus in the 9th house shows a love for philosophy, art, and the beauty in different cultures. Your beliefs are centered on harmony, and you may find a partner from a foreign land.",
+        "Venus in the 10th house grants success in careers related to arts, entertainment, beauty, or diplomacy. You have a charming public image and are well-liked.",
+        "Venus in the 11th house brings gains and friendships through your charm and social grace. You have a network of artistic and affluent friends who help you achieve your goals.",
+        "Venus in the 12th house finds love and beauty in seclusion, spirituality, and imagination. It can indicate hidden relationships or a love for luxurious comforts in private."
     ],
     Saturn: [
-        "पहले घर में शनि आपके व्यक्तित्व में गंभीरता, अनुशासन और जिम्मेदारी जोड़ता है। आप कम उम्र से बोझिल जिम्मेदारियों को महसूस कर सकते हैं लेकिन महान सहनशक्ति विकसित करते हैं।",
-        "दूसरे घर में शनि वित्त और पारिवारिक धन को प्रतिबंधित कर सकता है, समय के साथ कड़ी मेहनत और बचत की मांग करता है। यह एक गंभीर, व्यावहारिक और कभी-कभी उदास भाषण देता है।",
-        "तीसरे घर में शनि भाई-बहनों या संचार के साथ चुनौतियां पैदा कर सकता है। हालांकि, यह किसी भी कौशल में immense दृढ़ता और अनुशासन देता है जिसे आप मास्टर करने के लिए अपना मन बनाते हैं।",
-        "चौथे घर में शनि एक प्रतिबंधात्मक या भावनात्मक रूप से शांत घरेलू वातावरण का संकेत दे सकता है। यह अनुशासन और कड़ी मेहनत के माध्यम से समय के साथ धीरे-धीरे सुरक्षा बनाता है।",
-        "पांचवें घर में शनि बच्चों, रोमांस और रचनात्मकता के प्रति देरी या एक गंभीर दृष्टिकोण ला सकता है। आपकी रचनात्मक गतिविधियाँ संरचित हैं और जीवन में बाद में प्रकट हो सकती हैं।",
-        "छठे घर में शनि दृढ़ता के माध्यम से दुश्मनों पर काबू पाने के लिए एक शक्तिशाली स्थान है। यह एक मेहनती कार्यकर्ता को दिखाता है लेकिन पुरानी स्वास्थ्य समस्याओं का संकेत दे सकता है जिनके लिए अनुशासन की आवश्यकता होती है।",
-        "सातवें घर में शनि विवाह में देरी कर सकता है या एक परिपक्व, बड़े या बहुत जिम्मेदार साथी को ला सकता है। यह रिश्तों में प्रतिबद्धता, संरचना और धैर्य की मांग करता है।",
-        "आठवें घर में शनि दीर्घायु के लिए एक मजबूत स्थान है। यह लंबे, धैर्यवान प्रतीक्षा के माध्यम से विरासत ला सकता है, और अनुसंधान और तत्वमीमांसा में गहरी, गंभीर रुचि देता है।",
-        "नौवें घर में शनि एक संरचित, पारंपरिक और कभी-कभी कठोर विश्वास प्रणाली बनाता है। आप दर्शन और उच्च शिक्षा को गंभीरता से लेते हैं, लेकिन अपने शिक्षकों से सवाल कर सकते हैं।",
-        "दसवें घर में शनि (एक मजबूत स्थान) धीमी, स्थिर और अनुशासित कड़ी मेहनत के माध्यम से सफलता और उच्च दर्जा लाता है। आप समय के साथ एक स्थायी करियर और प्रतिष्ठा का निर्माण करते हैं।",
-        "ग्यारहवें घर में शनि इच्छाओं की पूर्ति को एक धीमी प्रक्रिया बना सकता है। दोस्ती कम लेकिन लंबे समय तक चलने वाली होती है। लाभ दृढ़ता और स्थापित नेटवर्क के माध्यम से आते हैं।",
-        "बारहवें घर में शनि एक एकान्त, अनुशासित आध्यात्मिक पथ को इंगित करता है। यह ध्यान और परदे के पीछे के काम के लिए उत्कृष्ट है लेकिन अलगाव की भावनाओं का संकेत दे सकता है।"
+        "Saturn in the 1st house adds seriousness, discipline, and responsibility to your personality. You may feel burdensome responsibilities from a young age but develop great endurance.",
+        "Saturn in the 2nd house can restrict finances and family wealth, demanding hard work and savings over time. It gives a serious, practical, and sometimes melancholic speech.",
+        "Saturn in the 3rd house can create challenges with siblings or communication. However, it gives immense perseverance and discipline in any skill you set your mind to master.",
+        "Saturn in the 4th house may indicate a restrictive or emotionally cool home environment. It builds security slowly over time through discipline and hard work.",
+        "Saturn in the 5th house can delay or bring a serious approach to children, romance, and creativity. Your creative pursuits are structured and may manifest later in life.",
+        "Saturn in the 6th house is a powerful placement for overcoming enemies through persistence. It shows a diligent worker but can indicate chronic health issues that require discipline.",
+        "Saturn in the 7th house can delay marriage or bring a mature, older, or very responsible partner. It demands commitment, structure, and patience in relationships.",
+        "Saturn in the 8th house is a strong placement for longevity. It can bring inheritances through long, patient waiting, and gives a deep, serious interest in research and metaphysics.",
+        "Saturn in the 9th house creates a structured, traditional, and sometimes rigid belief system. You take philosophy and higher learning seriously, but may question your teachers.",
+        "Saturn in the 10th house (a strong placement) brings success and high status through slow, steady, and disciplined hard work. You build a lasting career and reputation over time.",
+        "Saturn in the 11th house can make fulfillment of desires a slow process. Friendships are few but long-lasting. Gains come through persistence and established networks.",
+        "Saturn in the 12th house indicates a solitary, disciplined spiritual path. It is excellent for meditation and behind-the-scenes work but can indicate feelings of isolation."
     ],
     Rahu: [
-        "पहले घर में राहु एक शक्तिशाली, महत्वाकांक्षी और अपरंपरागत व्यक्तित्व बनाता है। आपके पास मान्यता के लिए एक अतृप्त इच्छा है और आप खुद को साबित करने के लिए एक बाहरी व्यक्ति की तरह महसूस कर सकते हैं।",
-        "दूसरे घर में राहु धन और संपत्ति जमा करने की एक बड़ी इच्छा देता है। यह अपरंपरागत स्रोतों से धन ला सकता है, लेकिन असत्य भाषण की प्रवृत्ति भी।",
-        "तीसरे घर में राहु अत्यधिक साहस और एक शक्तिशाली, प्रेरक संचार शैली प्रदान करता है। आप मीडिया, प्रौद्योगिकी या विपणन में उत्कृष्टता प्राप्त कर सकते हैं, लेकिन जोड़ तोड़ कर सकते हैं।",
-        "चौथे घर में राहु घर और भावनात्मक शांति के बारे में बेचैनी पैदा कर सकता है। आपके घरेलू जीवन में विदेशी तत्व हो सकते हैं या कभी भी वास्तव में बसे हुए महसूस न करने की भावना हो सकती है।",
-        "पांचवें घर में राहु रचनात्मकता, रोमांस और अटकलों के लिए एक जुनूनी प्रेरणा लाता है। यह मनोरंजन के माध्यम से प्रसिद्धि प्रदान कर सकता है लेकिन बच्चों के लिए अपरंपरागत दृष्टिकोण भी।",
-        "छठे घर में राहु दुश्मनों पर काबू पाने और अपरंपरागत तरीकों से जटिल समस्याओं को हल करने की एक अलौकिक क्षमता प्रदान करता है। यह प्रौद्योगिकी या उपचार में सफलता दे सकता है।",
-        "सातवें घर में राहु साझेदारी के लिए एक मजबूत इच्छा पैदा करता है, अक्सर किसी भिन्न पृष्ठभूमि या संस्कृति के किसी व्यक्ति के साथ। रिश्ते एक प्रमुख ध्यान केंद्रित करते हैं और अपरंपरागत हो सकते हैं।",
-        "आठवें घर में राहु रहस्यों, तत्वमीमांसा और अचानक धन में एक शक्तिशाली और जुनूनी रुचि देता है। यह अप्रत्याशित लाभ और हानि और अनुसंधान के लिए एक प्रतिभा ला सकता है।",
-        "नौवें घर में राहु अपरंपरागत विश्वासों और पारंपरिक धर्म और शिक्षकों के प्रति एक सवाल करने वाला रवैया बनाता है। यह विदेशों में बड़ी सफलता दिला सकता है।",
-        "दसवें घर में राहु करियर की महत्वाकांक्षा और प्रसिद्धि के लिए एक शक्तिशाली चालक है। आप उच्च दर्जा प्राप्त करने के लिए नियमों को तोड़ने से नहीं डरते हैं और अपने पेशे में तेजी से बढ़ सकते हैं।",
-        "ग्यारहवें घर में राहु बड़े पैमाने पर लाभ और प्रौद्योगिकी और बड़े नेटवर्क के माध्यम से इच्छाओं को प्राप्त करने के लिए एक उत्कृष्ट स्थान है। आपके पास प्रभावशाली और अपरंपरागत दोस्त हैं।",
-        "बारहवें घर में राहु अपनी जुनूनी ऊर्जा को आध्यात्मिकता, विदेशों या छिपे हुए मामलों की ओर निर्देशित करता है। यह शक्तिशाली सहज अंतर्दृष्टि दे सकता है या गुप्त व्यवहार और खर्चों को जन्म दे सकता है।"
+        "Rahu in the 1st house creates a powerful, ambitious, and unconventional personality. You have an insatiable desire for recognition and may feel like an outsider seeking to prove yourself.",
+        "Rahu in the 2nd house gives a huge desire for wealth and accumulating possessions. It can bring wealth from unconventional sources, but also a tendency towards untruthful speech.",
+        "Rahu in the 3rd house grants extreme courage and a powerful, persuasive communication style. You may excel in media, technology, or marketing, but can be manipulative.",
+        "Rahu in the 4th house can create restlessness regarding home and emotional peace. There may be foreign elements in your home life or a feeling of never being truly settled.",
+        "Rahu in the 5th house brings an obsessive drive for creativity, romance, and speculation. It can grant fame through entertainment but also unorthodox approaches to children.",
+        "Rahu in the 6th house provides an uncanny ability to overcome enemies and solve complex problems with unconventional methods. It can give success in technology or healing.",
+        "Rahu in the 7th house creates a strong desire for partnership, often with someone from a different background or culture. Relationships are a major focus and can be unconventional.",
+        "Rahu in the 8th house gives a powerful and obsessive interest in secrets, metaphysics, and sudden wealth. It can bring unexpected gains and losses and a talent for research.",
+        "Rahu in the 9th house creates unconventional beliefs and a questioning attitude towards traditional dharma and teachers. It can lead to great success in foreign lands.",
+        "Rahu in the 10th house is a powerful driver for career ambition and fame. You are not afraid to break the rules to achieve high status and can rise quickly in your profession.",
+        "Rahu in the 11th house is an excellent placement for massive gains and achieving desires through technology and large networks. You have influential and unconventional friends.",
+        "Rahu in the 12th house directs its obsessive energy towards spirituality, foreign lands, or hidden matters. It can give powerful intuitive insights or lead to secret dealings and expenses."
     ],
     Ketu: [
-        "पहले घर में केतु एक अलग, आत्मनिरीक्षण और आध्यात्मिक रूप से इच्छुक व्यक्तित्व बनाता है। आप जड़हीनता की भावना महसूस कर सकते हैं या अपनी पहचान पर सवाल उठा सकते हैं, जिससे आध्यात्मिक खोज हो सकती है।",
-        "दूसरे घर में केतु धन और परिवार के प्रति एक अलग रवैया बना सकता है। यह वित्तीय अनिश्चितता या भौतिक संचय पर ध्यान की कमी का कारण बन सकता है।",
-        "तीसरे घर में केतु एक सहज और गैर-रेखीय संचार शैली लाता है। आपकी पारंपरिक मीडिया में कोई दिलचस्पी नहीं हो सकती है, लेकिन आपके पास शक्तिशाली मानसिक या प्रतीकात्मक अंतर्दृष्टि हो सकती है।",
-        "चौथे घर में केतु आपके घर और जड़ों के बारे में एक अलग या अस्थिर भावना का संकेत दे सकता है। यह भौतिक घर के बजाय एक आध्यात्मिक 'घर' की खोज को बढ़ावा देता है।",
-        "पांचवें घर में केतु रोमांस, रचनात्मकता और बच्चों के प्रति एक अलग और महत्वपूर्ण दृष्टिकोण बनाता है। आपके पास अत्यधिक सहज बुद्धि हो सकती है लेकिन पारंपरिक रचनात्मक अभिव्यक्ति के साथ संघर्ष कर सकते हैं।",
-        "छठे घर में केतु समस्याओं या बीमारियों का सहज रूप से निदान और समाधान करने की एक शक्तिशाली क्षमता प्रदान करता है। हालांकि, यह अजीब, कठिन-से-निदान स्वास्थ्य समस्याओं का भी संकेत दे सकता है।",
-        "सातवें घर में केतु साझेदारी के प्रति एक आध्यात्मिक, अलग या महत्वपूर्ण दृष्टिकोण लाता है। आप अपने साथी के साथ एक कर्म संबंध महसूस कर सकते हैं लेकिन असंतोष की भावना भी।",
-        "आठवें घर में केतु गहरे रहस्यमय और गुप्त अनुसंधान के लिए एक शक्तिशाली स्थान है। आपके पास भ्रम के माध्यम से देखने और गहरे आध्यात्मिक सत्य को समझने की एक प्राकृतिक क्षमता है।",
-        "नौवें घर में केतु पारंपरिक विश्वासों पर सवाल उठाने और एक अधिक प्रत्यक्ष, सहज आध्यात्मिक सत्य की खोज का संकेत देता है। यह दर्शन के पिछले जीवन की महारत को दर्शाता है।",
-        "दसवें घर में केतु एक ऐसा करियर पथ बनाता है जो अपरंपरागत, आध्यात्मिक या अनुसंधान से जुड़ा होता है। आप स्थिति और प्रसिद्धि की महत्वाकांक्षाओं से अलग हैं।",
-        "ग्यारहवें घर में केतु सामाजिक नेटवर्क और भौतिक लाभों के प्रति एक अलग दृष्टिकोण देता है। आपकी दोस्ती कम या असामान्य हो सकती है, और आपके लक्ष्य अक्सर भौतिकवादी नहीं होते हैं।",
-        "बारहवें घर में केतु मुक्ति (मोक्ष) का कारक है और यहाँ अत्यंत शक्तिशाली है। यह गहन सहज अंतर्दृष्टि, ध्यान क्षमता और आध्यात्मिक वैराग्य प्रदान करता है।"
+        "Ketu in the 1st house creates a detached, introspective, and spiritually-inclined personality. You may feel a sense of rootlessness or question your own identity, leading to a spiritual search.",
+        "Ketu in the 2nd house can create a detached attitude towards wealth and family. It may lead to financial uncertainty or a lack of focus on material accumulation.",
+        "Ketu in the 3rd house brings an intuitive and non-linear communication style. You may lack interest in conventional media but have powerful psychic or symbolic insights.",
+        "Ketu in the 4th house can indicate a detached or unsettled feeling about your home and roots. It promotes a search for a spiritual 'home' rather than a physical one.",
+        "Ketu in the 5th house creates a detached and critical view of romance, creativity, and children. You may have highly intuitive intelligence but struggle with conventional creative expression.",
+        "Ketu in the 6th house provides a powerful ability to intuitively diagnose and solve problems or diseases. However, it can also indicate strange, hard-to-diagnose health issues.",
+        "Ketu in the 7th house brings a spiritual, detached, or critical approach to partnership. You may feel a karmic connection to your partner but also a sense of dissatisfaction.",
+        "Ketu in the 8th house is a powerful placement for deep mystical and occult research. You have a natural ability to see through illusions and understand deep metaphysical truths.",
+        "Ketu in the 9th house indicates a questioning of traditional beliefs and a search for a more direct, intuitive spiritual truth. It shows past life mastery of philosophy.",
+        "Ketu in the 10th house creates a career path that is unconventional, spiritual, or involves research. You are detached from the ambitions of status and fame.",
+        "Ketu in the 11th house gives a detached view of social networks and material gains. Your friendships may be few or unusual, and your goals are often not materialistic.",
+        "Ketu in the 12th house is the significator for liberation (Moksha) and is extremely powerful here. It grants profound intuitive insight, meditative ability, and spiritual detachment."
     ]
 };
 
-function getOrdinal(n) {
+export function getOrdinal(n) {
     const s = ["th", "st", "nd", "rd"];
     const v = n % 100;
     return n + (s[(v - 20) % 10] || s[v] || s[0]);
@@ -435,7 +436,7 @@ export const nakshatraTraitsLong_en = {
     Jyeshtha: "Jyeshtha grants authority, seniority, protection, and sharp intelligence.",
     Mula: "Mula gives deep truth-seeking, intensity, philosophical depth, and transformative energy.",
     PurvaAshadha: "Purva Ashadha gives victory, confidence, persuasiveness, and idealistic motivation.",
-    UttaraAshadha: "Uttara Ashadha gives nobility, discipline, leadership ability, and long-term success.",
+    UttaraAshadha: "Uttara Ashadha gives nobility, discipline, leadership ability, and long-term success. You are committed to your principles and can achieve lasting victory through patient, persistent effort.",
     Shravana: "Shravana gives learning ability, listening skills, wisdom, and social respect.",
     Dhanishta: "Dhanishta grants rhythm, wealth potential, generosity, and leadership in groups.",
     Shatabhisha: "Shatabhisha grants healing ability, secrecy, research skills, and mystical insight.",
@@ -457,8 +458,8 @@ export const nakshatraTraitsLong_hi = {
     Pushya: "पुष्य पोषण, ज्ञान, जिम्मेदारी और आध्यात्मिक कृपा देता है। आप दूसरों का समर्थन करते हैं और अनुशासित पवित्रता को महत्व देते हैं।",
     Ashlesha: "आश्लेषा गहराई, अंतर्ज्ञान, मनोवैज्ञानिक अंतर्दृष्टि और सम्मोहक प्रभाव लाती है। आप छिपे हुए उद्देश्यों को समझते हैं।",
     Magha: "मघा पैतृक शक्ति, नेतृत्व, पहचान और शाही गरिमा प्रदान करती है। आपके व्यक्तित्व में अधिकार होता है।",
-    PurvaPhalguni: "पूर्वा फाल्गुनी रचनात्मकता, आकर्षण, विश्राम, आकर्षण और जीवन के सुखों का आनंद देती है।",
-    UttaraPhalguni: "उत्तरा फाल्गुनी ईमानदारी, विश्वसनीयता, अनुशासन और रिश्तों के प्रति कर्तव्य की एक मजबूत भावना देती है।",
+    "Purva Phalguni": "पूर्वा फाल्गुनी रचनात्मकता, आकर्षण, विश्राम, आकर्षण और जीवन के सुखों का आनंद देती है।",
+    "Uttara Phalguni": "उत्तरा फाल्गुनी ईमानदारी, विश्वसनीयता, अनुशासन और रिश्तों के प्रति कर्तव्य की एक मजबूत भावना देती है।",
     Hasta: "हस्त हस्त कौशल, नियंत्रण, चतुराई, संचार प्रतिभा और ईमानदारी देता है।",
     Chitra: "चित्रा कलात्मकता, डिजाइन की समझ, करिश्मा और मजबूत व्यक्तित्व प्रदान करती है।",
     Swati: "स्वाति स्वतंत्रता, अनुकूलनशीलता, आत्म-खोज और विचार और गति में स्वतंत्रता देती है।",
@@ -466,32 +467,54 @@ export const nakshatraTraitsLong_hi = {
     Anuradha: "अनुराधा भक्ति, मित्रता, वफादारी, अनुशासन और सहयोग देती है।",
     Jyeshtha: "ज्येष्ठा अधिकार, वरिष्ठता, सुरक्षा और तेज बुद्धि प्रदान करती है।",
     Mula: "मूल गहरा सत्य की खोज, तीव्रता, दार्शनिक गहराई और परिवर्तनकारी ऊर्जा।",
-    PurvaAshadha: "पूर्वाषाढ़ा विजय, आत्मविश्वास, प्रेरक क्षमता और आदर्शवादी प्रेरणा देता है।",
-    UttaraAshadha: "उत्तराषाढ़ा कुलीनता, अनुशासन, नेतृत्व क्षमता और दीर्घकालिक सफलता देता है।",
+    "Purva Ashadha": "पूर्वाषाढ़ा विजय, आत्मविश्वास, प्रेरक क्षमता और आदर्शवादी प्रेरणा देता है।",
+    "Uttara Ashadha": "उत्तराषाढ़ा कुलीनता, अनुशासन, नेतृत्व क्षमता और दीर्घकालिक सफलता देता है। आप अपने सिद्धांतों के प्रति प्रतिबद्ध हैं और धैर्यवान, निरंतर प्रयास के माध्यम से स्थायी जीत हासिल कर सकते हैं।",
     Shravana: "श्रवण सीखने की क्षमता, सुनने का कौशल, ज्ञान और सामाजिक सम्मान देता है।",
     Dhanishta: "धनिष्ठा लय, धन की संभावना, उदारता और समूहों में नेतृत्व प्रदान करता है।",
     Shatabhisha: "शतभिषा उपचार क्षमता, गोपनीयता, अनुसंधान कौशल और रहस्यमय अंतर्दृष्टि देता है।",
-    PurvaBhadrapada: "पूर्वाभाद्रपद तीव्रता, आध्यात्मिक आदर्शवाद, परिवर्तनकारी सोच और दृढ़ संकल्प देता है।",
-    UttaraBhadrapada: "उत्तराभाद्रपद शांति, धैर्य, आंतरिक ज्ञान और स्थिर भावनात्मक परिपक्वता देता है।",
+    "Purva Bhadrapada": "पूर्वाभाद्रपद तीव्रता, आध्यात्मिक आदर्शवाद, परिवर्तनकारी सोच और दृढ़ संकल्प देता है।",
+    "Uttara Bhadrapada": "उत्तराभाद्रपद शांति, धैर्य, आंतरिक ज्ञान और स्थिर भावनात्मक परिपक्वता देता है।",
     Revati: "रेवती करुणा, कोमलता, रचनात्मकता, सुरक्षा और आध्यात्मिक परिष्कार प्रदान करती है।" ,
     Unknown: "अज्ञात" // Added Unknown Nakshatra
 };
 
 
+// Helper function to provide a qualitative description of strength based on UPBS
+export function getUPBSDescription(score, lang = 'en') {
+    if (lang === 'hi') {
+        if (score >= 12) return `असाधारण रूप से शुभ और शक्तिशाली है, जो उत्कृष्ट परिणाम देने में सक्षम है।`;
+        if (score >= 5) return `शुभ और अच्छी तरह से स्थित है, जो जीवन में सकारात्मकता और आसानी का वादा करता है।`;
+        if (score >= 0) return `हल्का शुभ है, लेकिन इसके प्रभाव मिश्रित हो सकते हैं या अन्य ग्रहों के समर्थन पर निर्भर हो सकते हैं।`;
+        if (score >= -4) return `थोड़ा पीड़ित है, जो कुछ चुनौतियों या बाधाओं का संकेत देता है।`;
+        if (score >= -10) return `काफी पीड़ित है, और इसके क्षेत्रों में महत्वपूर्ण चुनौतियों का प्रबंधन करने के लिए सचेत प्रयास की आवश्यकता होगी।`;
+        return `गंभीर रूप से पीड़ित है, जो इसके संकेतकों से संबंधित क्षेत्रों में बड़े अवरोधों या कठिनाइयों का सुझाव देता है।`;
+    }
+    // English default
+    if (score >= 12) return `is exceptionally benefic and powerful, capable of delivering excellent results.`;
+    if (score >= 5) return `is benefic and well-disposed, promising positivity and ease in life.`;
+    if (score >= 0) return `is mildly benefic, but its effects may be mixed or dependent on the support of other planets.`;
+    if (score >= -4) return `is slightly afflicted, indicating some struggles or obstacles.`;
+    if (score >= -10) return `is significantly afflicted, and will require conscious effort to manage the challenges in its domains.`;
+    return `is severely afflicted, suggesting major blockages or difficulties in areas related to its significations.`;
+}
+
+
 // Helper function to provide a qualitative description of strength
 function getStrengthDescription(strength, lang = 'en') {
+    // This function now maps the UPBS score ranges to the old percentage-style descriptions for compatibility where needed.
+    // However, getUPBSDescription should be preferred for more nuanced text.
     if (lang === 'hi') {
-        if (strength >= 90) return `असाधारण रूप से मजबूत है, जो आपके भाग्य पर एक प्रमुख और स्पष्ट प्रभाव डालता है।`;
-        if (strength >= 70) return `काफी मजबूत है, जो बताता है कि जीवन की घटनाओं में इसका एक शक्तिशाली और सीधा कहना है।`;
-        if (strength >= 50) return `मध्यम रूप से मजबूत है, जो आपके मार्ग को आकार देने की एक उल्लेखनीय लेकिन संतुलित क्षमता का सुझाव देता है।`;
-        if (strength >= 30) return `का प्रभाव मध्यम लेकिन कभी-कभी असंगत होता है, जिसकी क्षमता को सक्रिय करने के लिए सचेत प्रयास की आवश्यकता होती है।`;
+        if (strength >= 12) return `असाधारण रूप से मजबूत है, जो आपके भाग्य पर एक प्रमुख और स्पष्ट प्रभाव डालता है।`;
+        if (strength >= 5) return `काफी मजबूत है, जो बताता है कि जीवन की घटनाओं में इसका एक शक्तिशाली और सीधा कहना है।`;
+        if (strength >= 0) return `मध्यम रूप से मजबूत है, जो आपके मार्ग को आकार देने की एक उल्लेखनीय लेकिन संतुलित क्षमता का सुझाव देता है।`;
+        if (strength >= -4) return `का प्रभाव मध्यम लेकिन कभी-कभी असंगत होता है, जिसकी क्षमता को सक्रिय करने के लिए सचेत प्रयास की आवश्यकता होती है।`;
         return `की ताकत कुछ कम है, यह सुझाव देता है कि यद्यपि यह एक पृष्ठभूमि विषय निर्धारित करता है, इसका प्रभाव सूक्ष्म हो सकता है या अन्य ग्रहों के समर्थन पर निर्भर हो सकता है।`;
     }
     // English default
-    if (strength >= 90) return `is exceptionally strong, giving it a dominant and clear-cut influence over your destiny.`;
-    if (strength >= 70) return `is significantly strong, indicating it has a powerful and direct say in your life's events.`;
-    if (strength >= 50) return `is moderately strong, suggesting a noticeable but balanced capacity to shape your path.`;
-    if (strength >= 30) return `has a moderate but sometimes inconsistent influence, requiring conscious effort to activate its potential.`;
+    if (strength >= 12) return `is exceptionally strong, giving it a dominant and clear-cut influence over your destiny.`;
+    if (strength >= 5) return `is significantly strong, indicating it has a powerful and direct say in your life's events.`;
+    if (strength >= 0) return `is moderately strong, suggesting a noticeable but balanced capacity to shape your path.`;
+    if (strength >= -4) return `has a moderate but sometimes inconsistent influence, requiring conscious effort to activate its potential.`;
     return `is somewhat less pronounced in strength, suggesting that while it sets a background theme, its influence may be subtle or dependent on support from other planets.`;
 }
 
@@ -516,7 +539,7 @@ function getLagnaLordInterpretation(lord, house, lang = 'en') {
 // ---------------------------------------------------------
 
 export function getCombinedPredictionLong(lagna, rashi, nakshatra, additionalData, lang = 'en') {
-    const { lagnaLord, lagnaLordNatalHouse, lagnaLordStrength, atmakaraka, atmakarakaStrength, planetaryPositions, houses } = additionalData || {};
+    const { lagnaLord, lagnaLordNatalHouse, planetaryPowers, atmakaraka, planetaryPositions, houses } = additionalData || {};
     
     const lagnaTraits_en = {
         Aries: "Being an Aries ascendant, your worldview is shaped by action and courage. You are a natural leader, always ready to take the first step and inspire others. Your energy is infectious, though it can sometimes lead to haste. You prefer to deal with issues directly and honestly, and your path in life involves learning to balance your powerful drive with patience and consideration for others.",
@@ -640,31 +663,44 @@ ${p.emotionallyAndMentally} ${lang === 'hi' ? rashiNames_hi[rashi] : rashi} ${p.
 ${p.atADeeperKarmic} ${nakshatra} ${p.infusesYourInstincts} ${nakshatraText}
 `;
 
-    if (lagnaLord && lagnaLordNatalHouse && lagnaLordStrength !== undefined) {
+    if (lagnaLord && lagnaLordNatalHouse && planetaryPowers?.[lagnaLord] !== undefined) {
+        const lagnaLordScore = planetaryPowers[lagnaLord];
         const interpretation = getLagnaLordInterpretation(lagnaLord, lagnaLordNatalHouse, lang);
-        const strengthDescription = getStrengthDescription(lagnaLordStrength, lang);
+        const strengthDescription = getUPBSDescription(lagnaLordScore, lang); // Use new UPBS description
         const translatedLagnaLord = lang === 'hi' ? planetNames_hi[lagnaLord] : lagnaLord;
         if (lang === 'hi') {
-            result += `\n\nआपके लग्न स्वामी, ${translatedLagnaLord}, आपके जीवन पथ के लिए एक प्रमुख ग्रह हैं। ${interpretation} इसकी ${lagnaLordStrength.toFixed(2)}% की ताकत दर्शाती है कि यह ${strengthDescription}`;
+            result += `
+
+आपके लग्न स्वामी, ${translatedLagnaLord}, आपके जीवन पथ के लिए एक प्रमुख ग्रह हैं। ${interpretation} इसका समग्र स्कोर (${lagnaLordScore.toFixed(2)}) है, और यह ${strengthDescription}`;
         } else {
-            result += `\n\nYour Lagna Lord, ${translatedLagnaLord}, is a key planet for your life path. ${interpretation} Its strength of ${lagnaLordStrength.toFixed(2)}% shows that it ${strengthDescription}`;
+            result += `
+
+Your Lagna Lord, ${translatedLagnaLord}, is a key planet for your life path. ${interpretation} Its overall score is ${lagnaLordScore.toFixed(2)}, and it ${strengthDescription}`;
         }
     }
 
-    if (atmakaraka && atmakarakaStrength !== undefined) {
+    if (atmakaraka && planetaryPowers?.[atmakaraka] !== undefined) {
+        const atmakarakaScore = planetaryPowers[atmakaraka];
         const atmakarakaTranslated = lang === 'hi' ? planetNames_hi[atmakaraka] : atmakaraka;
-        const strengthDescription = getStrengthDescription(atmakarakaStrength, lang);
+        const strengthDescription = getUPBSDescription(atmakarakaScore, lang); // Use new UPBS description
         if (lang === 'hi') {
-            result += `\n\n${atmakarakaTranslated} आपके आत्माकारक (आत्मा का कारक) के रूप में आपकी गहरी इच्छाओं को प्रकट करता है। इसकी ${atmakarakaStrength.toFixed(2)}% की ताकत दर्शाती है कि यह ${strengthDescription}`;
+            result += `
+
+${atmakarakaTranslated} आपके आत्माकारक (आत्मा का कारक) के रूप में आपकी गहरी इच्छाओं को प्रकट करता है। इसका समग्र स्कोर (${atmakarakaScore.toFixed(2)}) है, और यह ${strengthDescription}`;
         } else {
-            result += `\n\n${atmakarakaTranslated} as your Atmakaraka (Soul Significator) reveals your deepest desires. Its strength of ${atmakarakaStrength.toFixed(2)}% indicates that it ${strengthDescription}`;
+            result += `
+
+${atmakarakaTranslated} as your Atmakaraka (Soul Significator) reveals your deepest desires. Its overall score is ${atmakarakaScore.toFixed(2)}, and it ${strengthDescription}`;
         }
     }
 
     if (planetaryPositions && houses) {
         const placementsTitle = lang === 'hi' ? '### ग्रह स्थिति विश्लेषण' : '### Planetary Placements Analysis';
         const placementsIntro = lang === 'hi' ? 'यह खंड प्रत्येक ग्रह के प्रभाव का विवरण देता है जो उसके घर के आधार पर है।' : 'This section details the influence of each planet based on the house it occupies.';
-        result += `\n\n${placementsTitle}\n${placementsIntro}`;
+        result += `
+
+${placementsTitle}
+${placementsIntro}`;
         const planetOrder = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
         planetOrder.forEach(planet => {
             const planetData = planetaryPositions[planet];
@@ -674,7 +710,19 @@ ${p.atADeeperKarmic} ${nakshatra} ${p.infusesYourInstincts} ${nakshatraText}
                     const interpretation = (lang === 'hi' ? (planetInHouse_hi[planet]?.[house - 1]) : (planetInHouse_en[planet]?.[house - 1]));
                     const translatedPlanet = lang === 'hi' ? planetNames_hi[planet] : planet;
                     if (interpretation) {
-                         result += `\n\n*   **${translatedPlanet} ${lang === 'hi' ? `${house} वें घर में` : `in ${house}th house`}:** ${interpretation}`;
+                         result += `
+
+*   **${translatedPlanet} ${lang === 'hi' ? `${house} वें घर में` : `in ${house}th house`}:** ${interpretation}`;
+                         // Add UPBS description if available
+                         if (planetaryPowers?.[planet] !== undefined && ['Rahu', 'Ketu'].indexOf(planet) === -1) {
+                            const score = planetaryPowers[planet];
+                            const upbsText = getUPBSDescription(score, lang);
+                            if(lang === 'hi') {
+                                result += ` आपके चार्ट में इसकी समग्र स्थिति (${score.toFixed(2)}) है, और यह ${upbsText}`
+                            } else {
+                                result += ` Its overall condition in your chart is ${score.toFixed(2)}, and it ${upbsText}`;
+                            }
+                         }
                     }
                 }
             }
@@ -682,7 +730,10 @@ ${p.atADeeperKarmic} ${nakshatra} ${p.infusesYourInstincts} ${nakshatraText}
 
         const lordshipTitle = lang === 'hi' ? '### भाव स्वामी विश्लेषण' : '### House Lordship Analysis';
         const lordshipIntro = lang === 'hi' ? 'यह खंड विश्लेषण करता है कि भाव स्वामियों के स्थान की जांच करके आपके जीवन के विभिन्न क्षेत्र कैसे जुड़े हुए हैं।' : 'This section analyzes how the different areas of your life are connected by examining the placement of house lords.';
-        result += `\n\n${lordshipTitle}\n${lordshipIntro}`;
+        result += `
+
+${lordshipTitle}
+${lordshipIntro}`;
         for (let i = 1; i <= 12; i++) {
             const houseData = houses[i - 1];
             const lord = houseData?.start_rashi_lord;
@@ -692,14 +743,26 @@ ${p.atADeeperKarmic} ${nakshatra} ${p.infusesYourInstincts} ${nakshatraText}
                     const placementHouse = getHouseOfPlanet(lordData.longitude, cuspDegrees);
                     if (placementHouse) {
                         const houseText = lang === 'hi' ? `${i} वें घर का स्वामी ${placementHouse} वें घर में` : `Lord of House ${i} in House ${placementHouse}`;
-                        result += `\n\n*   **${houseText}:** ${generateLordshipText(i, placementHouse, lord, lang)}`;
+                        
+                        // Get lord's strength description
+                        let strengthText = '';
+                        if(planetaryPowers?.[lord] !== undefined) {
+                            const score = planetaryPowers[lord];
+                            strengthText = lang === 'hi' ? ` इस स्वामी की शक्ति (${score.toFixed(2)}) इंगित करती है कि यह ${getUPBSDescription(score, lang)}` : ` The strength of this lord (${score.toFixed(2)}) indicates that it ${getUPBSDescription(score, lang)}`;
+                        }
+
+                        result += `
+
+*   **${houseText}:** ${generateLordshipText(i, placementHouse, lord, lang)}${strengthText}`;
                     }
                 }
             }
         }
     }
     
-    result += `\n\n${p.whenTheseThree}`;
+    result += `
+
+${p.whenTheseThree}`;
 
     return result.trim();
 }
@@ -707,184 +770,462 @@ ${p.atADeeperKarmic} ${nakshatra} ${p.infusesYourInstincts} ${nakshatraText}
 //  VARSHAPHAL (ANNUAL) PREDICTION GENERATOR
 // ---------------------------------------------------------
 
+// ---------------------------------------------------------
+//  VARSHAPHAL (ANNUAL) PREDICTION GENERATOR
+// ---------------------------------------------------------
+
 export function getVarshphalPrediction(payload = {}, lang = 'en') {
-    const { varshphalChart = {}, muntha = null, yearLord = null, muddaDasha = [], kpSignificators, style = 'simple', varshphalYear = null } = payload;
-    const { ascendant, planetHousePlacements, planetDetails, shadbala } = varshphalChart || {};
+    const { varshphalChart = {}, muntha = null, yearLord = null, muddaDasha = [], varshphalYear = null } = payload;
+    const { ascendant, planetHousePlacements, planetDetails } = varshphalChart || {};
     const upbsScores = planetDetails?.upbsScores || {};
 
-    const P = {
+    const P_VARS = {
         en: {
-            predictionForYear: 
-`### Prediction for the Varshphal Year: {varshphalYear}\n\n`,
-            yearLordTheme: `The central theme for your year is shaped by the Year Lord (Varsheshwara), which is **{yearLord}**. `,
-            yearLordBenefic: `As a natural benefic, {yearLord} indicates a year focused on growth, opportunities, and positive developments. `,
-            yearLordMalefic: `As a natural malefic, {yearLord} points to a year of challenges, responsibilities, and hard work where discipline will be key. `,
-            yearLordPlacement: (house) => `Its placement in house ${house} directs this energy towards matters of **${houseThemes_en[house]}**. `,
-            munthaFocus: `\n\nYour personal focus for the year, represented by the Muntha, is in **{munthaSign}**, which falls in house **{munthaHouse}**. `,
-            munthaHouseFocus: (house) => `This brings your personal efforts and attention squarely onto the themes of this house: **${houseThemes_en[house]}**. `,
-            ascendantFocus: `\n\nThe annual chart's ascendant is **{ascendantRashi}**, ruled by **{ascendantRashiLord}**. This influences your outlook, bringing a focus on **${houseThemes_en[1]}** to your personal expression and approach this year. `,
-            strengthAndInfluence: `\n\n#### Planetary Strengths and Key Influences\n`,
-            strongestPlanetUPBS: (planet) => `The planet with the highest overall strength (UPBS) this year is **${planet}**. This planet will have a significant and often decisive influence on the year's events. Its placement and the houses it rules will be areas of major activity.`,
-            strongestPlanetShadbala: (planet) => `Based on Shadbala (six-fold strength), the strongest planet is **${planet}**, indicating its capacity to deliver powerful results, whether positive or negative. `,
-            detailedAnalysis: "\n\n--- \n\n### Detailed Analysis\n",
-            yearLordDignity: (dignity) => `The Year Lord, {yearLord}, is in a state of **${dignity}**, which affects its ability to deliver results. `,
-            munthaLordInteraction: (relation) => `The lord of the Muntha sign has a **${relation}** relationship with the Year Lord, suggesting how your personal efforts will align with the year's broader themes. `,
-            muddaDashaSection: "\n\n#### Mudda Dasha Periods\nYour year will unfold through the following planetary periods (Mudda Dasha), each bringing a specific focus:\n",
-            dashaPeriod: (lord, start, end) => `- **${lord} period:** from ${new Date(start).toLocaleDateString()} to ${new Date(end).toLocaleDateString()}\n`,
-            kpSection: "\n\n#### KP Significators Insights\n",
-            kpCuspSignificators: (cusp, sigs) => `**Cusp ${cusp} (${houseThemes_en[cusp]}):** Significators are ${sigs}. This indicates that matters of this house will be influenced by these planets. `,
-            kpPlanetSignificators: (planet, sigs) => `**${planet}:** Signifies houses ${sigs}. This planet will be instrumental in events related to these houses. `,
-            conclusion: `\n\n#### Summary and Advice\n`,
-            simpleConclusion: (yearLord, yearLordHouse, munthaHouse) => `Overall, this year requires you to integrate the ambitious energy of your Year Lord with the personal focus of your Muntha. To make the most of this year, focus on activities related to **${houseThemes_en[yearLordHouse]}** while ensuring they also serve your personal development in the area of **${houseThemes_en[munthaHouse]}**. Your strongest planet, {strongestPlanet}, will provide the key to unlocking the year's potential. `,
-            detailedConclusion: (translatedYearLord, translatedMunthaSign, translatedAscendantRashi) => `This year is a complex tapestry woven from the themes of your Year Lord (${translatedYearLord}), the personal focus of the Muntha in ${translatedMunthaSign} (house ${muntha?.house}), and the outlook of the annual ascendant (${translatedAscendantRashi}). Your success depends on navigating the specific planetary periods (Mudda Dasha) effectively. Pay close attention to the strongest planets, as they hold the key to unlocking opportunities and managing challenges. Your primary focus should be on harmonizing the energies of the houses highlighted by the Year Lord and the Muntha. `
+            predictionForYear: `### Prediction for the Varshphal Year: ${varshphalYear}\n\n`,
+            intro: `This year's chart offers a unique blueprint for the opportunities and challenges ahead. The primary influences are the Year Lord, the Muntha's placement, and the annual ascendant.`,
+            yearLord: (lord, house, theme) => `The overarching theme is set by the Year Lord, **${lord}**. Its placement in house **${house}** directs the year's primary energy towards matters of **${theme}**.`,
+            yearLordBenefic: (lord) => ` As a natural benefic, ${lord} suggests this theme will manifest through growth, learning, and opportunities.`,
+            yearLordMalefic: (lord) => ` As a natural malefic, ${lord} indicates this theme will involve discipline, overcoming obstacles, and hard-won results.`,
+            muntha: (sign, house, theme) => `Your personal focus and area of self-development, shown by the Muntha, falls in **${sign}** in house **${house}**. This pulls your attention towards **${theme}**.`,
+            ascendant: (sign, lord, theme) => `Finally, the annual ascendant in **${sign}** (ruled by **${lord}**) colors your personal outlook and how you project yourself, emphasizing themes of **${theme}** throughout the year.`,
+            synthesis: `\nThe interplay between these factors is key. You'll find the most success where you can apply your personal focus on {munthaTheme} to serve the year's broader theme of {yearLordTheme}, all while expressing yourself through the lens of {ascendantTheme}.`,
+            strengthHeader: `\n\n#### Key Planetary Influences\n`,
+            strongestPlanet: (planet, score) => `The most influential planet this year is **${planet}** (with a UPBS score of ${score.toFixed(2)}). Its themes of discipline, structure, and long-term planning will be a dominant force, demanding attention and rewarding thoroughness in the areas it influences.`,
+            muddaDashaHeader: `\n\n#### Timeline of the Year (Mudda Dasha)\nThe year's focus will shift according to these planetary sub-periods:\n`,
+            dashaPeriod: (lord, start, end, theme) => `*   **${lord} Period (${start.toLocaleDateString()} - ${end.toLocaleDateString()}):** A time to focus on ${theme}.\n`,
+            conclusionHeader: `\n\n#### Summary & Advice\n`,
+            conclusion: `This year is a complex tapestry woven from these interacting themes. Navigate the shifting priorities of the Mudda Dasha periods effectively, and pay close attention to **{strongestPlanet}**, as it holds the key to unlocking opportunities and managing challenges. Harmonizing the energies of the houses highlighted by the Year Lord and the Muntha will lead to the most fruitful outcomes.`
         },
         hi: {
-            predictionForYear: `### वर्षफल भविष्यवाणी: {varshphalYear}\n\n`,
-            yearLordTheme: `आपके वर्ष का केंद्रीय विषय वर्ष के स्वामी (वर्षेश्वर) द्वारा आकार दिया गया है, जो **{yearLord}** है। `,
-            yearLordBenefic: `एक नैसर्गिक शुभ ग्रह के रूप में, {yearLord} विकास, अवसरों और सकारात्मक विकास पर केंद्रित एक वर्ष का संकेत देता है। `,
-            yearLordMalefic: `एक नैसर्गिक पापी ग्रह के रूप में, {yearLord} चुनौतियों, जिम्मेदारियों और कड़ी मेहनत के एक वर्ष की ओर इशारा करता है जहाँ अनुशासन महत्वपूर्ण होगा। `,
-            yearLordPlacement: (house) => `इसका ${house}वें घर में स्थान इस ऊर्जा को **${houseThemes_hi[house]}** के मामलों की ओर निर्देशित करता है। `,
-            munthaFocus: `\n\nवर्ष के लिए आपका व्यक्तिगत ध्यान, मुंथा द्वारा दर्शाया गया है, **{munthaSign}** में है, जो **{munthaHouse}** वें घर में पड़ता है। `,
-            munthaHouseFocus: (house) => `यह आपके व्यक्तिगत प्रयासों और ध्यान को सीधे इस घर के विषयों पर लाता है: **${houseThemes_hi[house]}**। `,
-            ascendantFocus: `\n\nवार्षिक चार्ट का लग्न **{ascendantRashi}** है, जिसका स्वामी **{ascendantRashiLord}** है। यह आपके दृष्टिकोण को प्रभावित करता है, इस वर्ष आपकी व्यक्तिगत अभिव्यक्ति और दृष्टिकोण पर **${houseThemes_hi[1]}** के विषयों पर ध्यान केंद्रित करता है। `,
-            strengthAndInfluence: `\n\n#### ग्रहों की शक्ति और मुख्य प्रभाव\n`,
-            strongestPlanetUPBS: (planet) => `इस वर्ष समग्र शक्ति (UPBS) में सबसे मजबूत ग्रह **${planet}** है। इस ग्रह का वर्ष की घटनाओं पर एक महत्वपूर्ण और अक्सर निर्णायक प्रभाव पड़ेगा। इसकी स्थिति और इसके द्वारा शासित घर प्रमुख गतिविधि के क्षेत्र होंगे।`,
-            strongestPlanetShadbala: (planet) => `षडबल (छह गुना शक्ति) के आधार पर, सबसे मजबूत ग्रह **${planet}** है, जो सकारात्मक या नकारात्मक दोनों तरह के शक्तिशाली परिणाम देने की अपनी क्षमता को दर्शाता है।`,
-            detailedAnalysis: "\n\n--- \n\n### विस्तृत विश्लेषण\n",
-            yearLordDignity: (dignity) => `वर्ष का स्वामी, {yearLord}, **${dignity}** की स्थिति में है, जो परिणाम देने की उसकी क्षमता को प्रभावित करता है। `,
-            munthaLordInteraction: (relation) => `मुंथा राशि के स्वामी का वर्ष के स्वामी के साथ **${relation}** संबंध है, जो बताता है कि आपके व्यक्तिगत प्रयास वर्ष के व्यापक विषयों के साथ कैसे संरेखित होंगे। `,
-            muddaDashaSection: "\n\n#### मुद्रा दशा अवधि\nआपका वर्ष निम्नलिखित ग्रहों की अवधि (मुद्रा दशा) के माध्यम से सामने आएगा, प्रत्येक एक विशिष्ट ध्यान केंद्रित करेगा:\n",
-            dashaPeriod: (lord, start, end) => `- **${lord} अवधि:** ${new Date(start).toLocaleDateString()} से ${new Date(end).toLocaleDateString()} तक\n`,
-            kpSection: "\n\n#### केपी सिग्निफिकेटर्स अंतर्दृष्टि\n",
-            kpCuspSignificators: (cusp, sigs) => `**भाव ${cusp} (${houseThemes_hi[cusp]}):** सिग्निफिकेटर्स ${sigs} हैं। यह इंगित करता है कि इस भाव के मामले इन ग्रहों से प्रभावित होंगे। `,
-            kpPlanetSignificators: (planet, sigs) => `**${planet}:** भावों ${sigs} को दर्शाता है। यह ग्रह इन भावों से संबंधित घटनाओं में महत्वपूर्ण होगा। `,
-            conclusion: `\n\n#### सारांश और सलाह\n`,
-            simpleConclusion: (yearLord, yearLordHouse, munthaHouse) => `कुल मिलाकर, इस वर्ष आपको अपने वर्ष के स्वामी की महत्वाकांक्षी ऊर्जा को अपने मुंथा के व्यक्तिगत ध्यान के साथ एकीकृत करने की आवश्यकता है। इस वर्ष का अधिकतम लाभ उठाने के लिए, **${houseThemes_hi[yearLordHouse]}** से संबंधित गतिविधियों पर ध्यान केंद्रित करें, यह सुनिश्चित करते हुए कि वे **${houseThemes_hi[munthaHouse]}** के क्षेत्र में आपके व्यक्तिगत विकास की भी सेवा करते हैं। आपका सबसे मजबूत ग्रह, {strongestPlanet}, वर्ष की क्षमता को अनलॉक करने की कुंजी प्रदान करेगा।`,
-            detailedConclusion: (translatedYearLord, translatedMunthaSign, translatedAscendantRashi) => `यह वर्ष आपके वर्ष के स्वामी (${translatedYearLord}), मुंथा के व्यक्तिगत ध्यान (${translatedMunthaSign} में) (भाव ${muntha?.house}), और वार्षिक लग्न (${translatedAscendantRashi}) के विषयों से बुना हुआ एक जटिल ताना-बाना है। आपकी सफलता विशिष्ट ग्रहों की अवधि ( मुद्रा दशा) को प्रभावी ढंग से नेविगेट करने पर निर्भर करती है। सबसे मजबूत ग्रहों पर पूरा ध्यान दें, क्योंकि वे अवसरों को अनलॉक करने और चुनौतियों का प्रबंधन करने की कुंजी रखते हैं। आपका प्राथमिक ध्यान वर्ष के स्वामी और मुंथा द्वारा उजागर किए गए भावों की ऊर्जाओं को सुसंगत बनाने पर होना चाहिए।`
+            predictionForYear: `### वर्षफल भविष्यवाणी: ${varshphalYear}\n\n`,
+            intro: `इस वर्ष का चार्ट आने वाले अवसरों और चुनौतियों का एक अनूठा खाका प्रस्तुत करता है। मुख्य प्रभाव वर्ष के स्वामी (वर्षेश्वर), मुंथा की स्थिति और वार्षिक लग्न से आते हैं।`,
+            yearLord: (lord, house, theme) => `मुख्य विषय वर्ष के स्वामी, **${lord}**, द्वारा निर्धारित किया गया है। इसका **${house}**वें घर में होना वर्ष की प्राथमिक ऊर्जा को **${theme}** के मामलों की ओर निर्देशित करता है।`,
+            yearLordBenefic: (lord) => ` एक नैसर्गिक शुभ ग्रह के रूप में, ${lord} बताता है कि यह विषय विकास, सीखने और अवसरों के माध्यम से प्रकट होगा।`,
+            yearLordMalefic: (lord) => ` एक नैसर्गिक पापी ग्रह के रूप में, ${lord} इंगित करता है कि इस विषय में अनुशासन, बाधाओं पर काबू पाना और कड़ी मेहनत से जीते गए परिणाम शामिल होंगे।`,
+            muntha: (sign, house, theme) => `आपका व्यक्तिगत ध्यान और आत्म-विकास का क्षेत्र, जो मुंथा द्वारा दर्शाया गया है, **${house}**वें घर में **${sign}** में पड़ता है। यह आपका ध्यान **${theme}** की ओर खींचता है।`,
+            ascendant: (sign, lord, theme) => `अंत में, **${sign}** में वार्षिक लग्न (जिसका स्वामी **${lord}** है) आपके व्यक्तिगत दृष्टिकोण को रंग देता है, जो पूरे वर्ष आपकी अभिव्यक्ति में **${theme}** के विषयों पर जोर देता है।`,
+            synthesis: `\nइन कारकों के बीच की परस्पर क्रिया महत्वपूर्ण है। आप सबसे अधिक सफलता तब पाएंगे जब आप {yearLordTheme} के व्यापक विषय की सेवा के लिए {munthaTheme} पर अपने व्यक्तिगत ध्यान को लागू कर सकते हैं, और यह सब {ascendantTheme} के लेंस के माध्यम से खुद को व्यक्त करते हुए।`,
+            strengthHeader: `\n\n#### प्रमुख ग्रहों के प्रभाव\n`,
+            strongestPlanet: (planet, score) => `इस वर्ष सबसे प्रभावशाली ग्रह **${planet}** है (UPBS स्कोर ${score.toFixed(2)} के साथ)। इसके अनुशासन, संरचना और दीर्घकालिक योजना के विषय एक प्रमुख शक्ति होंगे, जो इसके द्वारा प्रभावित क्षेत्रों में ध्यान और संपूर्णता की मांग करेंगे।`,
+            muddaDashaHeader: `\n\n#### वर्ष की समयरेखा (मुद्दा दशा)\nवर्ष का ध्यान इन ग्रहों की उप-अवधियों के अनुसार बदल जाएगा:\n`,
+            dashaPeriod: (lord, start, end, theme) => `*   **${lord} की अवधि (${start.toLocaleDateString()} - ${end.toLocaleDateString()}):** ${theme} पर ध्यान केंद्रित करने का समय।\n`,
+            conclusionHeader: `\n\n#### सारांश और सलाह\n`,
+            conclusion: `यह वर्ष इन परस्पर क्रिया करने वाले विषयों से बुना हुआ एक जटिल ताना-बाना है। मुद्दा दशा की बदलती प्राथमिकताओं को प्रभावी ढंग से नेविगेट करें, और **{strongestPlanet}** पर पूरा ध्यान दें, क्योंकि यह अवसरों को अनलॉक करने और चुनौतियों का प्रबंधन करने की कुंजी रखता है। वर्ष के स्वामी और मुंथा द्वारा उजागर किए गए घरों की ऊर्जाओं का सामंजस्य सबसे फलदायी परिणाम देगा।`
         }
     };
-
-    const phrases = P[lang] || P['en']; // Default to English
-    const currentHouseThemes = lang === 'hi' ? houseThemes_hi : houseThemes_en;
-
-    // Translation of dynamic variables for Varshphal
-    const translatedYearLord = lang === 'hi' ? (planetNames_hi[yearLord] || yearLord) : yearLord;
-    const translatedMunthaSign = lang === 'hi' ? (rashiNames_hi[muntha?.sign] || muntha?.sign) : muntha?.sign;
-    const translatedAscendantRashi = lang === 'hi' ? (rashiNames_hi[ascendant?.rashi] || ascendant?.rashi) : ascendant?.rashi;
-    const translatedAscendantLord = lang === 'hi' ? (planetNames_hi[ascendant?.rashiLord] || ascendant?.rashiLord) : ascendant?.rashiLord;
     
-    // Determine strongest planet for UPBS (translated)
-    let strongestUPBS = '';
-    let translatedStrongestUPBS = '';
+    const phrases = P_VARS[lang] || P_VARS['en'];
+    const themes = lang === 'hi' ? houseThemes_hi : houseThemes_en;
+
+    const muddaThemes = {
+        en: { Sun: "authority, leadership, and self-expression", Moon: "emotions, home, and public connection", Mars: "energy, action, and conflict resolution", Mercury: "communication, intellect, and commerce", Jupiter: "wisdom, expansion, and opportunities", Venus: "relationships, creativity, and pleasure", Saturn: "discipline, responsibility, and long-term goals", Rahu: "ambition, unconventional thinking, and worldly desires", Ketu: "introspection, letting go, and spiritual insights" },
+        hi: { Sun: "अधिकार, नेतृत्व और आत्म-अभिव्यक्ति", Moon: "भावनाओं, घर और सार्वजनिक संबंध", Mars: "ऊर्जा, कार्रवाई और संघर्ष समाधान", Mercury: "संचार, बुद्धि और वाणिज्य", Jupiter: "ज्ञान, विस्तार और अवसर", Venus: "रिश्ते, रचनात्मकता और आनंद", Saturn: "अनुशासन, जिम्मेदारी और दीर्घकालिक लक्ष्य", Rahu: "महत्वाकांक्षा, अपरंपरागत सोच और सांसारिक इच्छाएं", Ketu: "आत्मनिरीक्षण, जाने देना और आध्यात्मिक अंतर्दृष्टि" }
+    };
+    
+    const muddaThemesLang = muddaThemes[lang] || muddaThemes['en'];
+
+    if (!ascendant || !muntha || !yearLord || !planetHousePlacements) {
+        return lang === 'hi' ? 'वर्षफल भविष्यवाणी के लिए अपर्याप्त डेटा।' : 'Insufficient data for Varshphal prediction.';
+    }
+
+    let parts = [phrases.predictionForYear, phrases.intro];
+
+    // 1. Year Lord
+    const yearLordHouse = planetHousePlacements[yearLord];
+    const yearLordTheme = themes[yearLordHouse] || '';
+    const translatedYearLord = getPlanetName(yearLord, lang);
+    parts.push(phrases.yearLord(translatedYearLord, yearLordHouse, yearLordTheme));
+    const isYearLordBenefic = ['Jupiter', 'Venus', 'Mercury', 'Moon'].includes(yearLord);
+    parts.push(isYearLordBenefic ? phrases.yearLordBenefic(translatedYearLord) : phrases.yearLordMalefic(translatedYearLord));
+
+    // 2. Muntha
+    const munthaTheme = themes[muntha.house] || '';
+    const translatedMunthaSign = lang === 'hi' ? rashiNames_hi[muntha.sign] : muntha.sign;
+    parts.push(phrases.muntha(translatedMunthaSign, muntha.house, munthaTheme));
+
+    // 3. Ascendant
+    const ascendantTheme = themes[1] || '';
+    const translatedAscRashi = lang === 'hi' ? rashiNames_hi[ascendant.rashi] : ascendant.rashi;
+    const translatedAscLord = getPlanetName(ascendant.rashiLord, lang);
+    parts.push(phrases.ascendant(translatedAscRashi, translatedAscLord, ascendantTheme));
+
+    // 4. Synthesis
+    parts.push(phrases.synthesis.replace('{munthaTheme}', `**${munthaTheme}**`).replace('{yearLordTheme}', `**${yearLordTheme}**`).replace('{ascendantTheme}', `**${ascendantTheme}**`));
+
+    // 5. Strongest Planet
+    let strongestPlanet = '';
+    let strongestPlanetScore = -Infinity;
     if (upbsScores && Object.keys(upbsScores).length > 0) {
-        strongestUPBS = Object.keys(upbsScores).reduce((a, b) => upbsScores[a] > upbsScores[b] ? a : b);
-        translatedStrongestUPBS = lang === 'hi' ? (planetNames_hi[strongestUPBS] || strongestUPBS) : strongestUPBS;
-    }
-
-    // Determine strongest planet for Shadbala (translated)
-    let strongestShadbala = '';
-    let translatedStrongestShadbala = '';
-    if (shadbala?.shadbalaRank && shadbala.shadbalaRank.length > 0) {
-        strongestShadbala = shadbala.shadbalaRank[0].planet;
-        translatedStrongestShadbala = lang === 'hi' ? (planetNames_hi[strongestShadbala] || strongestShadbala) : strongestShadbala;
-    }
-
-
-    if (style === 'simple') {
-        let parts = [];
-        parts.push(phrases.predictionForYear.replace('{varshphalYear}', varshphalYear));
-
-        if (yearLord) {
-            parts.push(phrases.yearLordTheme.replace('{yearLord}', translatedYearLord));
-            const planetTone = (planet) => ['Jupiter', 'Venus', 'Mercury', 'Moon'].includes(planet) ? 'benefic' : 'malefic';
-            parts.push(planetTone(yearLord) === 'benefic' ? phrases.yearLordBenefic.replace('{yearLord}', translatedYearLord) : phrases.yearLordMalefic.replace('{yearLord}', translatedYearLord));
-            if (planetHousePlacements?.[yearLord]) {
-                parts.push(phrases.yearLordPlacement(planetHousePlacements[yearLord]));
+        for (const [planet, data] of Object.entries(upbsScores)) {
+            if (data.total > strongestPlanetScore) {
+                strongestPlanetScore = data.total;
+                strongestPlanet = planet;
             }
         }
-        if (muntha) {
-            parts.push(phrases.munthaFocus.replace('{munthaSign}', translatedMunthaSign).replace('{munthaHouse}', muntha.house));
-            parts.push(phrases.munthaHouseFocus(muntha.house));
-        }
-        if (ascendant) {
-            parts.push(phrases.ascendantFocus.replace('{ascendantRashi}', translatedAscendantRashi).replace('{ascendantRashiLord}', translatedAscendantLord));
-        }
-        
-        if (upbsScores && Object.keys(upbsScores).length > 0) {
-            parts.push(phrases.strengthAndInfluence);
-            parts.push(phrases.strongestPlanetUPBS(translatedStrongestUPBS));
-        }
-
-        parts.push(phrases.conclusion);
-        if (planetHousePlacements?.[yearLord] && muntha) {
-            parts.push(phrases.simpleConclusion(translatedYearLord, planetHousePlacements[yearLord], muntha.house).replace('{strongestPlanet}', translatedStrongestUPBS));
-        }
-        return parts.join('');
     }
-
-    // --- Detailed Elaboration ---
-    let parts = [];
-    parts.push(phrases.predictionForYear.replace('{varshphalYear}', varshphalYear));
-    parts.push(phrases.detailedAnalysis);
-
-    // Integrate basic info into detailed analysis
-    if (yearLord) {
-        parts.push(phrases.yearLordTheme.replace('{yearLord}', translatedYearLord));
-        const planetTone = (planet) => ['Jupiter', 'Venus', 'Mercury', 'Moon'].includes(planet) ? 'benefic' : 'malefic';
-        parts.push(planetTone(yearLord) === 'benefic' ? phrases.yearLordBenefic.replace('{yearLord}', translatedYearLord) : phrases.yearLordMalefic.replace('{yearLord}', translatedYearLord));
-        if (planetHousePlacements?.[yearLord]) {
-            parts.push(phrases.yearLordPlacement(planetHousePlacements[yearLord]));
-        }
-    }
-    if (muntha) {
-        parts.push(phrases.munthaFocus.replace('{munthaSign}', translatedMunthaSign).replace('{munthaHouse}', muntha.house));
-        parts.push(phrases.munthaHouseFocus(muntha.house));
-    }
-    if (ascendant) {
-        parts.push(phrases.ascendantFocus.replace('{ascendantRashi}', translatedAscendantRashi).replace('{ascendantRashiLord}', translatedAscendantLord));
-    }
-
-
-    // Planetary Strengths
-    parts.push(phrases.strengthAndInfluence);
-    if (upbsScores && Object.keys(upbsScores).length > 0) {
-        parts.push(phrases.strongestPlanetUPBS(translatedStrongestUPBS));
-    }
-    if (shadbala?.shadbalaRank && shadbala.shadbalaRank.length > 0) {
-        parts.push(phrases.strongestPlanetShadbala(translatedStrongestShadbala));
+    if (strongestPlanet) {
+        parts.push(phrases.strengthHeader);
+        const translatedStrongestPlanet = getPlanetName(strongestPlanet, lang);
+        parts.push(phrases.strongestPlanet(translatedStrongestPlanet, strongestPlanetScore));
     }
     
-    // Mudda Dasha
+    // 6. Mudda Dasha
     if (muddaDasha && muddaDasha.length > 0) {
-        parts.push(phrases.muddaDashaSection);
-        muddaDasha.slice(0, 5).forEach(dasha => { // Limit to first 5 for brevity
-            const translatedDashaLord = lang === 'hi' ? (planetNames_hi[dasha.lord] || dasha.lord) : dasha.lord;
-            parts.push(phrases.dashaPeriod(translatedDashaLord, dasha.start, dasha.end));
+        parts.push(phrases.muddaDashaHeader);
+        muddaDasha.forEach(dasha => {
+            const translatedDashaLord = getPlanetName(dasha.lord, lang);
+            const theme = muddaThemesLang[dasha.lord] || '';
+            parts.push(phrases.dashaPeriod(translatedDashaLord, new Date(dasha.start), new Date(dasha.end), theme));
         });
     }
 
-    // KP Significators
-    if (kpSignificators) {
-        parts.push(phrases.kpSection);
-        // Cusp Significators
-        if (kpSignificators.cusps) {
-            Object.entries(kpSignificators.cusps).slice(0, 5).forEach(([cusp, sigs]) => {
-                const translatedSigs = sigs.map(sig => lang === 'hi' ? (planetNames_hi[sig] || sig) : sig);
-                 parts.push(phrases.kpCuspSignificators(cusp, translatedSigs.join(', ')));
-            });
+        // 7. Conclusion
+        const summary = generateVarshphalSummary(yearLordTheme, munthaTheme, ascendantTheme, strongestPlanet, lang);
+        parts.push(summary);
+    
+        return parts.join(' ');
+    }    
+    function generateVarshphalSummary(yearLordTheme, munthaTheme, ascendantTheme, strongestPlanet, lang) {
+        const P_VARS = {
+            en: {
+                header: `\n\n#### Summary & Advice\n`,
+                intro: `This year is a complex tapestry woven from the themes of **{yearLordTheme}** (overall focus), **{munthaTheme}** (personal development), and **{ascendantTheme}** (your outlook).`,
+                synthesis: `To make the most of this year, you should aim to apply your personal focus on {munthaTheme} to serve the year's broader theme of {yearLordTheme}.`,
+                keyPlanet: `The key to unlocking this synergy lies in leveraging the energy of **${getPlanetName(strongestPlanet, lang)}**.`,
+                suggestionsHeader: `\nHere are some practical ways to harmonize these themes:\n`,
+                suggestion: (text) => `*   ${text}\n`,
+                defaultConclusion: "By consciously integrating these themes, you can navigate the year's challenges and make the most of its opportunities."
+            },
+            hi: {
+                header: `\n\n#### सारांश और सलाह\n`,
+                intro: `यह वर्ष **{yearLordTheme}** (समग्र फोकस), **{munthaTheme}** (व्यक्तिगत विकास), और **{ascendantTheme}** (आपका दृष्टिकोण) के विषयों से बुना हुआ एक जटिल ताना-बाना है।`,
+                synthesis: `इस वर्ष का अधिकतम लाभ उठाने के लिए, आपको {yearLordTheme} के व्यापक विषय की सेवा के लिए {munthaTheme} पर अपना व्यक्तिगत ध्यान केंद्रित करना चाहिए।`,
+                keyPlanet: `इस तालमेल को अनलॉक करने की कुंजी **${getPlanetName(strongestPlanet, lang)}** की ऊर्जा का लाभ उठाने में निहित है।`,
+                suggestionsHeader: `\nइन विषयों में सामंजस्य स्थापित करने के कुछ व्यावहारिक तरीके यहां दिए गए हैं:\n`,
+                suggestion: (text) => `*   ${text}\n`,
+                defaultConclusion: "इन विषयों को सचेत रूप से एकीकृत करके, आप वर्ष की चुनौतियों से निपट सकते हैं और इसके अवसरों का अधिकतम लाभ उठा सकते हैं।"
+            }
+        };
+    
+        const phrases = P_VARS[lang] || P_VARS['en'];
+        let summary = phrases.header;
+        summary += phrases.intro.replace('{yearLordTheme}', yearLordTheme).replace('{munthaTheme}', munthaTheme).replace('{ascendantTheme}', ascendantTheme);
+        summary += ` ${phrases.synthesis.replace('{munthaTheme}', `**${munthaTheme}**`).replace('{yearLordTheme}', `**${yearLordTheme}**`)}`;
+        summary += ` ${phrases.keyPlanet}`;
+        summary += phrases.suggestionsHeader;
+    
+        // Add dynamic suggestions based on keyword matching in themes
+        const suggestions = [];
+        if (yearLordTheme.includes('work') && munthaTheme.includes('spirituality')) {
+            suggestions.push(lang === 'hi' ? 'अपने काम में गहरा अर्थ खोजें या अपने करियर को सेवा-उन्मुख गतिविधियों के साथ संरेखित करें।' : 'Find deeper meaning in your work, or align your career with service-oriented activities.');
         }
-         // Planet Significators
-        if (kpSignificators.planets) {
-            Object.entries(kpSignificators.planets).slice(0, 5).forEach(([planet, sigs]) => {
-                const translatedPlanet = lang === 'hi' ? (planetNames_hi[planet] || planet) : planet;
-                 parts.push(phrases.kpPlanetSignificators(translatedPlanet, sigs.join(', ')));
-            });
+        if (yearLordTheme.includes('health') && ascendantTheme.includes('self')) {
+            suggestions.push(lang === 'hi' ? 'एक नई स्वास्थ्य व्यवस्था शुरू करें जो शारीरिक और मानसिक कल्याण दोनों पर ध्यान केंद्रित करे।' : 'Initiate a new health regimen that focuses on both physical and mental well-being.');
         }
+        if (munthaTheme.includes('expenses') && yearLordTheme.includes('work')) {
+            suggestions.push(lang === 'hi' ? 'अपने करियर के माध्यम से आय बढ़ाने पर ध्यान केंद्रित करें ताकि खर्चों का प्रबंधन किया जा सके और वित्तीय अनुशासन का अभ्यास किया जा सके।' : 'Focus on increasing income through your career to manage expenses and practice financial discipline.');
+        }
+         if (suggestions.length === 0) {
+            suggestions.push(lang === 'hi' ? 'वर्ष के मुख्य विषयों पर विचार करने के लिए समय निकालें और उन्हें अपने व्यक्तिगत लक्ष्यों के साथ कैसे संरेखित करें।' : 'Take time to reflect on the year\'s main themes and how to align them with your personal goals.');
+        }
+    
+    
+        suggestions.forEach(s => summary += phrases.suggestion(s));
+        summary += `\n${phrases.defaultConclusion}`;
+    
+        return summary;
     }
     
-    // Conclusion
-    parts.push(phrases.conclusion);
-    parts.push(phrases.detailedConclusion(translatedYearLord, translatedMunthaSign, translatedAscendantRashi));
+    function getPlanetInterpretation(planet, dignity, lang) {
+    const interpretations = {
+        en: {
+            Sun: {
+                Exalted: "Sun, being exalted, brings strong leadership, confidence, and success. You'll find natural authority.",
+                'Own Sign': "Sun, in its own sign, provides strong willpower, authority, and a stable sense of self. Your core identity is robust.",
+                Friend: "Sun, in a friendly sign, indicates that your vitality and leadership will be well-supported. You lead with ease.",
+                Neutral: "Sun, in a neutral sign, gives results based on its house placement. Its influence is balanced.",
+                Enemy: "Sun, in an enemy sign, may cause challenges to your ego, health, or relationship with authority. Assertiveness may be tested.",
+                Debilitated: "Sun, being debilitated, can indicate a lack of confidence, and challenges in leadership roles. Your self-esteem may need nurturing.",
+            },
+            Moon: {
+                Exalted: "Moon, being exalted, promises emotional stability, high receptivity, and a nurturing disposition. Your feelings are a strong guide.",
+                'Own Sign': "Moon, in its own sign, indicates a strong connection to emotions, home, and family. Emotional security is paramount.",
+                Friend: "Moon, in a friendly sign, suggests emotional happiness and supportive relationships. You find comfort easily.",
+                Neutral: "Moon, in a neutral sign, reflects emotional climate of its house. Feelings are balanced but susceptible to environment.",
+                Enemy: "Moon, in an enemy sign, may bring emotional restlessness and fluctuations. Inner peace can be elusive.",
+                Debilitated: "Moon, being debilitated, can indicate emotional turmoil and a sense of insecurity. You may struggle with emotional well-being.",
+            },
+            Mars: {
+                Exalted: "Mars, being exalted, provides immense courage, drive, and determination to succeed. Your actions are powerful and effective.",
+                'Own Sign': "Mars, in its own sign, gives strong logical abilities, and the energy to pursue goals. You are a natural executor.",
+                Friend: "Mars, in a friendly sign, ensures your actions and efforts will be productive. You assert yourself constructively.",
+                Neutral: "Mars, in a neutral sign, acts according to the house it occupies. Energy is present, but needs direction.",
+                Enemy: "Mars, in an enemy sign, may lead to arguments, conflicts, and misdirected energy. Patience is required.",
+                Debilitated: "Mars, being debilitated, can result in a lack of motivation or frustrated energy. You may struggle to assert yourself.",
+            },
+            Mercury: {
+                Exalted: "Mercury, being exalted, grants superior intellect, analytical skills, and communication abilities. Your mind is sharp and articulate.",
+                'Own Sign': "Mercury, in its own sign, indicates a sharp mind, adaptability, and skill in commerce. You are quick-witted and versatile.",
+                Friend: "Mercury, in a friendly sign, suggests your intelligence will be used effectively. Communication flows smoothly.",
+                Neutral: "Mercury, in a neutral sign, is influenced by planets it conjoins. Your thought process is balanced but can be swayed.",
+                Enemy: "Mercury, in an enemy sign, can lead to communication issues and nervous energy. Clear expression may be challenging.",
+                Debilitated: "Mercury, being debilitated, may cause difficulties in decision-making and learning. Mental clarity can be elusive.",
+            },
+            Jupiter: {
+                Exalted: "Jupiter, being exalted, is a sign of great wisdom, fortune, and divine grace. Opportunities and growth abound.",
+                'Own Sign': "Jupiter, in its own sign, provides strong principles, optimism, and opportunities for growth. Your inherent wisdom is powerful.",
+                Friend: "Jupiter, in a friendly sign, indicates your wisdom will be well-received and supported. You inspire confidence.",
+                Neutral: "Jupiter, in a neutral sign, gives balanced results in its areas of influence. Growth is steady.",
+                Enemy: "Jupiter, in an enemy sign, may cause you to have rigid beliefs or face challenges with teachers. Expansion may be hindered.",
+                Debilitated: "Jupiter, being debilitated, can indicate a lack of judgment or missed opportunities. Fortune may be challenging.",
+            },
+            Venus: {
+                Exalted: "Venus, being exalted, promises refinement, artistic talent, and happiness in relationships. Harmony is a key theme.",
+                'Own Sign': "Venus, in its own sign, gives a love for beauty, harmony, and pleasure. You naturally attract comfort.",
+                Friend: "Venus, in a friendly sign, suggests a happy social life and good fortune in love. Relationships are supportive.",
+                Neutral: "Venus, in a neutral sign, provides a balanced approach to relationships and comforts. Aesthetics are important.",
+                Enemy: "Venus, in an enemy sign, may create dissatisfaction or challenges in relationships. Harmony may be hard to find.",
+                Debilitated: "Venus, being debilitated, can lead to difficulties in finding happiness and refinement. Relationships may struggle.",
+            },
+            Saturn: {
+                Exalted: "Saturn, being exalted, gives profound discipline, patience, and the ability to achieve long-lasting success. You build with strength.",
+                'Own Sign': "Saturn, in its own sign, indicates a strong sense of duty, responsibility, and a structured approach to life. You are naturally disciplined.",
+                Friend: "Saturn, in a friendly sign, shows your hard work and discipline will be rewarded. Efforts lead to tangible results.",
+                Neutral: "Saturn, in a neutral sign, delivers results based on your karma and efforts. Lessons are learned through experience.",
+                Enemy: "Saturn, in an enemy sign, can bring about delays, frustrations, and a feeling of being burdened. Patience is vital.",
+                Debilitated: "Saturn, being debilitated, may indicate a struggle with discipline and enduring hardships. Responsibilities can feel heavy.",
+            },
+            Rahu: {
+                Exalted: "Rahu, being exalted, can give immense worldly success and the ability to achieve great ambition. Unconventional paths lead to prominence.",
+                'Own Sign': "Rahu, in its own sign, provides a strong drive for innovation and unconventional success. You break new ground effectively.",
+                Friend: "Rahu, in a friendly sign, suggests your ambitions will find supportive environments. Desires are easily manifested.",
+                Neutral: "Rahu, in a neutral sign, amplifies the results of the house it is in. Its influence is unpredictable but strong.",
+                Enemy: "Rahu, in an an enemy sign, can create insatiable desires and dissatisfaction. Material pursuits may feel empty.",
+                Debilitated: "Rahu, being debilitated, may lead to confusion, deception, and unfulfilled desires. A sense of direction is needed.",
+            },
+            Ketu: {
+                Exalted: "Ketu, being exalted, can provide profound spiritual insights and detachment from worldly affairs. Intuition is heightened.",
+                'Own Sign': "Ketu, in its own sign, indicates a strong intuitive ability and a path towards spiritual liberation. Your inner guidance is strong.",
+                Friend: "Ketu, in a friendly sign, suggests your spiritual journey will be supported. Detachment brings peace.",
+                Neutral: "Ketu, in a neutral sign, brings a sense of detachment to the house it occupies. Your focus is more internal.",
+                Enemy: "Ketu, in an enemy sign, may create confusion, a sense of loss, and unexpected obstacles. Letting go is challenging.",
+                Debilitated: "Ketu, being debilitated, can indicate a lack of direction and feelings of helplessness. Spiritual path may be unclear.",
+            },
+        },
+        hi: {
+            // ... (hindi interpretations)
+        }
+    };
 
-    return parts.join('');
+    const langInterpretations = interpretations[lang] || interpretations['en'];
+    return langInterpretations[planet]?.[dignity] || '';
+}
+
+// Helper function to provide nuanced interpretation for planet significators
+function getPlanetSignificatorDetailedDescription(planetName, dignity, signifiedHouses, lang = 'en') {
+    const translatedPlanet = getPlanetName(planetName, lang);
+    const houseList = signifiedHouses.length > 0 ? `house(s) ${signifiedHouses.join(', ')}` : (lang === 'hi' ? 'किसी विशेष भाव' : 'no particular houses');
+    const houseListHi = signifiedHouses.length > 0 ? `भाव(ओं) ${signifiedHouses.join(', ')}` : 'किसी विशेष भाव';
+
+    let description = '';
+
+    if (lang === 'hi') {
+        switch (dignity) {
+            case 'Exalted':
+                description = `उच्च का होने के कारण, ${translatedPlanet} ${houseListHi} से संबंधित क्षेत्रों में **अत्यधिक शुभ और शक्तिशाली परिणाम** देगा। इसकी दशा में, आप इन भावों के विषयों में उत्कृष्ट प्रगति की उम्मीद कर सकते हैं।`;
+                break;
+            case 'Own Sign':
+                description = `अपनी स्वराशि में होने के कारण, ${translatedPlanet} ${houseListHi} के लिए **स्थिर और मजबूत परिणाम** देगा। इसकी दशा में, इन भावों के मामलों में आत्मविश्वास और नियंत्रण रहेगा।`;
+                break;
+            case 'Friend':
+                description = `मित्र राशि में होने के कारण, ${translatedPlanet} ${houseListHi} से संबंधित क्षेत्रों में **अनुकूल और सहायक परिणाम** देगा। इसकी दशा में, आप सुचारू प्रगति और अवसरों की उम्मीद कर सकते हैं।`;
+                break;
+            case 'Neutral':
+                description = `सम राशि में होने के कारण, ${translatedPlanet} ${houseListHi} से संबंधित क्षेत्रों में **संतुलित परिणाम** देगा। इसकी दशा में, परिणाम अन्य ग्रहों के प्रभाव पर निर्भर करेंगे।`;
+                break;
+            case 'Enemy':
+                description = `शत्रु राशि में होने के कारण, ${translatedPlanet} ${houseListHi} से संबंधित क्षेत्रों में **चुनौतियां और बाधाएं** ला सकता है। इसकी दशा में, सचेत प्रयास और धैर्य की आवश्यकता होगी।`;
+                break;
+            case 'Debilitated':
+                description = `नीच का होने के कारण, ${translatedPlanet} ${houseListHi} से संबंधित क्षेत्रों में **गंभीर बाधाएं और कठिनाइयां** ला सकता है। इसकी दशा में, आपको महत्वपूर्ण चुनौतियों का सामना करना पड़ सकता है।`;
+                break;
+            default:
+                description = `अपनी ${dignity} स्थिति के कारण, ${translatedPlanet} ${houseListHi} से संबंधित क्षेत्रों में अपनी क्षमता के अनुसार परिणाम देगा। इसकी दशा में, आप इन भावों के विषयों में महत्वपूर्ण घटनाओं की उम्मीद कर सकते हैं।`;
+        }
+    } else { // English
+        switch (dignity) {
+            case 'Exalted':
+                description = `Due to its **Exalted** status, ${translatedPlanet} is exceptionally powerful and will deliver **highly favorable and strong results** in areas related to ${houseList}. During its Dasha, you can expect excellent progress in these matters.`;
+                break;
+            case 'Own Sign':
+                description = `In its **Own Sign**, ${translatedPlanet} will deliver **stable and strong results** for ${houseList}. During its Dasha, you can expect confidence and control in matters related to these houses.`;
+                break;
+            case 'Friend':
+                description = `Due to its **Friend** status, ${translatedPlanet} is well-positioned to deliver **favorable and supportive results** in areas related to ${houseList}. During its Dasha, you can expect smooth progress and opportunities.`;
+                break;
+            case 'Neutral':
+                description = `Its **Neutral** status suggests **balanced results** for ${houseList}, with outcomes depending on other influences. During its Dasha, you can expect significant events, the nature of which will be mixed.`;
+                break;
+            case 'Enemy':
+                description = `Due to its **Enemy** status, ${translatedPlanet} may bring **challenges and obstacles** in matters related to ${houseList}. During its Dasha, conscious effort and patience will be required.`;
+                break;
+            case 'Debilitated':
+                description = `Being **Debilitated**, ${translatedPlanet} may indicate **significant hurdles and difficulties** in areas related to ${houseList}. During its Dasha, you may face considerable challenges.`;
+                break;
+            default:
+                description = `Due to its ${dignity} status, ${translatedPlanet} will deliver results in areas related to ${houseList} according to its capacity. During its Dasha, you can expect significant events related to the themes of these houses.`;
+        }
+    }
+    return description;
+
+}
+// Helper function to rank significators for a specific event
+function rankSignificators(event, keyHouses, karaka, kpSignificators, planetDetailsMap, lang) {
+    const { cusps, planets } = kpSignificators.overview;
+    const scores = {};
+    const allPlanets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
+
+    allPlanets.forEach(p => scores[p] = 0);
+
+    // Score planets
+    allPlanets.forEach(p => {
+        // +3 points if planet is a primary significator of a key house
+        keyHouses.forEach(house => {
+            if (cusps[house] && cusps[house].includes(p)) {
+                scores[p] += 3;
+            }
+        });
+
+        // +2 points if planet signifies a key house in its own list
+        const signifiedHouses = planets[p] || [];
+        if (signifiedHouses.some(h => keyHouses.includes(h))) {
+            scores[p] += 2;
+        }
+
+        // +2 points if it's the karaka
+        if (p === karaka) {
+            scores[p] += 2;
+        }
+
+        // +1 for good dignity
+        const planetDetail = planetDetailsMap.get(p);
+        const dignity = planetDetail?.avasthas?.dignity;
+        if (['Exalted', 'Own Sign', 'Friend'].includes(dignity)) {
+            scores[p] += 1;
+        }
+    });
+
+    // Filter out planets with a score of 0 and sort
+    const ranked = Object.entries(scores)
+        .filter(([, score]) => score > 0)
+        .sort((a, b) => b[1] - a[1]);
+
+    // Build the analysis string
+    let analysis = '';
+    const topSignificators = ranked.slice(0, 4);
+
+    if (topSignificators.length > 0) {
+        if (lang === 'hi') {
+            analysis += `**${event}:**\n`;
+            analysis += `*   **प्रमुख कारक:** ${topSignificators.map(p => `${planetNames_hi[p[0]] || p[0]} (स्कोर: ${p[1]})`).join(', ')}.\n`;
+            analysis += `*   **घटना का समय:** इन शीर्ष कारक ग्रहों की महादशा, भुक्ति, या अंतर दशा के दौरान ${event} की संभावना सबसे अधिक होती है।\n`;
+            analysis += `*   **निष्कर्ष:** ${topSignificators[0][1] > 4 ? 'आपके चार्ट में इस घटना के लिए एक मजबूत और अनुकूल क्षमता है।' : 'इस घटना के लिए संभावनाएं मौजूद हैं, लेकिन सफलता के लिए प्रयास की आवश्यकता हो सकती है।'}\n\n`;
+        } else {
+            analysis += `**${event}:**\n`;
+            analysis += `*   **Top Significators:** ${topSignificators.map(p => `${p[0]} (Score: ${p[1]})`).join(', ')}.\n`;
+            analysis += `*   **Timing of Event:** The event is most likely to manifest during the Mahadasha, Bhukti, or Antara of these top-ranked significator planets.\n`;
+            analysis += `*   **Conclusion:** The outlook for this event is ${topSignificators[0][1] > 4 ? 'strong and favorable.' : 'present, but may require effort to bring to fruition.'}\n\n`;
+        }
+    } else {
+        if (lang === 'hi') {
+            analysis += `**${event}:** इस घटना के लिए कोई महत्वपूर्ण ज्योतिषीय कारक नहीं मिला।\n\n`;
+        } else {
+            analysis += `**${event}:** No significant astrological drivers found for this event.\n\n`;
+        }
+    }
+    return analysis;
+}
+
+
+export function getKpAnalysis(payload = {}, lang = 'en') {
+    const { kpSignificators, planetDetails } = payload;
+    if (!kpSignificators || !kpSignificators.overview || !kpSignificators.detailedPlanets || !planetDetails) {
+        return lang === 'hi' ? 'केपी विश्लेषण के लिए अपर्याप्त डेटा।' : 'Insufficient data for KP analysis.';
+    }
+
+    const { overview, detailedPlanets } = kpSignificators;
+    const { resultingFriendship } = planetDetails;
+    const houseThemes = lang === 'hi' ? houseThemes_hi : houseThemes_en;
+    
+    const planetDetailsMap = new Map(detailedPlanets.map(p => [p.name, p]));
+
+    let analysisText = lang === 'hi'
+        ? 'यह एक शक्तिशाली उपकरण है जो केपी ज्योतिष से सटीक भविष्यवाणियों के लिए है। \'भाव कारक\' तालिका दिखाती है कि कौन से ग्रह प्रत्येक जीवन क्षेत्र (भाव) को प्रभावित करते हैं। \'ग्रह कारक\' तालिका दिखाती है कि प्रत्येक ग्रह किन जीवन क्षेत्रों को प्रभावित करेगा।\n\n'
+        : "This is a powerful tool from KP astrology for precise predictions. The 'Cusp Significators' table shows which planets influence each life area (house). The 'Planet Significators' table shows which life areas each planet will affect.\n\n";
+
+    analysisText += lang === 'hi' ? '### केपी भविष्यफल विश्लेषण\n\n' : '### KP Predictive Analysis\n\n';
+    analysisText += lang === 'hi' ? '**भाव कारक विश्लेषण:**\n' : '**Cusp Significators Analysis:**\n';
+    analysisText += lang === 'hi'
+        ? 'यह खंड बताता है कि प्रत्येक भाव (जीवन का क्षेत्र) के लिए परिणाम देने के लिए कौन से ग्रह सशक्त हैं। जब इन ग्रहों की दशा/अंतर्दशा सक्रिय होती है, तो उस भाव से संबंधित घटनाएं प्रकट हो सकती हैं।\n\n'
+        : 'This section details which planets are empowered to deliver results for each house (area of life). When the periods (Dasha/Antardasha) of these planets are active, events related to that house can manifest.\n\n';
+
+    for (let i = 1; i <= 12; i++) {
+        const significators = overview.cusps[i] || [];
+        if (significators.length > 0) {
+            analysisText += `**${lang === 'hi' ? 'भाव ' + i : 'House ' + i} (${houseThemes[i]}):**\n`;
+            significators.forEach(p => {
+                const planetDetail = planetDetailsMap.get(p);
+                const dignity = planetDetail?.avasthas?.dignity || (lang === 'hi' ? 'अज्ञात' : 'Unknown');
+                const interpretation = getPlanetInterpretation(p, dignity, lang);
+                analysisText += `*   **${getPlanetName(p, lang)} (${dignity}):** ${interpretation}\n`;
+            });
+            analysisText += '\n';
+        }
+    }
+
+    analysisText += lang === 'hi' ? '\n**ग्रह कारक विश्लेषण:**\n' : '\n**Planet Significators Analysis:**\n';
+    analysisText += lang === 'hi'
+        ? 'यह खंड दिखाता है कि प्रत्येक ग्रह किन भावों का कारक है। जब किसी ग्रह की दशा या अंतर्दशा सक्रिय होती है, तो वह उन भावों से संबंधित परिणाम देगा जिनका वह प्रतिनिधित्व करता है।\n\n'
+        : 'This section shows which houses each planet signifies. When a planet\'s Dasha or Antardasha is active, it will deliver results pertaining to the houses it represents.\n\n';
+
+    for (const planet in overview.planets) {
+        const signifiedHouses = overview.planets[planet] || [];
+        const planetDetail = planetDetailsMap.get(planet);
+        const dignity = planetDetail?.avasthas?.dignity || 'Unknown';
+
+        // Use the new detailed description function
+        const detailedDescription = getPlanetSignificatorDetailedDescription(planet, dignity, signifiedHouses, lang);
+        analysisText += `**${getPlanetName(planet, lang)} (${dignity}):** ${detailedDescription}\n`;
+    }
+
+    analysisText += lang === 'hi' ? '\n**संश्लेषण और मुख्य भविष्यवाणियां:**\n' : '\n**Synthesis & Key Predictions:**\n';
+
+    // New ranked analysis for Marriage
+    analysisText += rankSignificators('Marriage', [2, 7, 11], 'Venus', kpSignificators, planetDetailsMap, lang);
+    
+    // New ranked analysis for Career/Profession
+    analysisText += rankSignificators('Career/Profession', [2, 6, 10, 11], 'Saturn', kpSignificators, planetDetailsMap, lang);
+
+    // New ranked analysis for Child Birth
+    analysisText += rankSignificators('Child Birth', [2, 5, 11], 'Jupiter', kpSignificators, planetDetailsMap, lang);
+
+    // New ranked analysis for Higher Education
+    analysisText += rankSignificators('Higher Education', [4, 5, 9], 'Jupiter', kpSignificators, planetDetailsMap, lang);
+
+    // New ranked analysis for Property & Vehicle
+    analysisText += rankSignificators('Property & Vehicle Purchase', [4, 11, 12], 'Mars', kpSignificators, planetDetailsMap, lang);
+
+    // New ranked analysis for Foreign Travel
+    analysisText += rankSignificators('Foreign Travel', [9, 12, 7], 'Rahu', kpSignificators, planetDetailsMap, lang);
+
+    // New ranked analysis for Health & Sickness
+    analysisText += rankSignificators('Health & Sickness', [6, 8, 12], 'Saturn', kpSignificators, planetDetailsMap, lang);
+
+    // New ranked analysis for Spiritual Progress
+    analysisText += rankSignificators('Spiritual Progress', [5, 9, 12], 'Jupiter', kpSignificators, planetDetailsMap, lang);
+
+    // New ranked analysis for Success in Litigation
+    analysisText += rankSignificators('Success in Litigation', [6, 11], 'Mars', kpSignificators, planetDetailsMap, lang);
+
+    return analysisText;
 }

@@ -343,18 +343,12 @@ const MuhurtaPage = () => {
                                         let translatedDescription;
 
                                         if (m.name.includes("Yoga") || m.name.includes("Ardha Prahar")) {
-                                            const yogaTranslation = t(`yogas.${formatYogaNameForTranslation(m.name)}`, { returnObjects: true, defaultValue: { name: m.name, description: m.description } });
-                                            translatedName = yogaTranslation.name;
-                                            translatedDescription = yogaTranslation.description;
+                                            translatedName = t(`yogas.${formatYogaNameForTranslation(m.name)}_name`, { defaultValue: m.name });
+                                            translatedDescription = t(`yogas.${formatYogaNameForTranslation(m.name)}_description`, { defaultValue: m.description });
                                         } else {
                                             // For all other muhurta periods, use muhurtaNames
-                                            const muhurtaTranslation = t(`muhurtaNames.${formatYogaNameForTranslation(m.name)}`, { returnObjects: true, defaultValue: { name: m.name, description: m.description } });
-                                            translatedName = muhurtaTranslation.name;
-                                            translatedDescription = muhurtaTranslation.description;
-                                        }
-
-                                        if (typeof translatedDescription === 'object' && translatedDescription !== null) {
-                                            translatedDescription = translatedDescription.description;
+                                            translatedName = t(`muhurtaNames.${formatYogaNameForTranslation(m.name)}_name`, { defaultValue: m.name });
+                                            translatedDescription = t(`muhurtaNames.${formatYogaNameForTranslation(m.name)}_description`, { defaultValue: m.description });
                                         }                                        return (
                                             <tr key={`${groupName}-${index}`} className={m.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
                                                 <td>{translatedName}</td>
@@ -411,7 +405,7 @@ const MuhurtaPage = () => {
                                         <p className="lunar-month-color"><strong>{t('muhurtaPage.lunarMonth', { defaultValue: 'Lunar Month' })}:</strong> {t(`hindiMonths.${muhurtaData.panchang?.PurnimantaMasa?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.PurnimantaMasa?.name_en_IN })}</p>
                                         <p className="tithi-color"><strong>{t('muhurtaPage.tithi', { defaultValue: 'Tithi' })}:</strong> {t(`tithis.${muhurtaData.panchang?.Tithi?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.Tithi?.name_en_IN })}</p>
                                         <p className="moon-nakshatra-color"><strong>{t('muhurtaPage.moonNakshatra', { defaultValue: 'Moon Nakshatra' })}:</strong> {t(`nakshatras.${muhurtaData.panchang?.Nakshatra?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.Nakshatra?.name_en_IN })}</p>
-                                        <p className="yoga-color"><strong>{t('muhurtaPage.yoga', { defaultValue: 'Yoga' })}:</strong> {t(`yogas.${muhurtaData.panchang?.Yoga?.name_en_IN}.name`, { defaultValue: muhurtaData.panchang?.Yoga?.name_en_IN })}</p>
+                                        <p className="yoga-color"><strong>{t('muhurtaPage.yoga', { defaultValue: 'Yoga' })}:</strong> {t(`yogas.${muhurtaData.panchang?.Yoga?.name_en_IN}_name`, { defaultValue: muhurtaData.panchang?.Yoga?.name_en_IN })}</p>
                                         <p className="karana-color"><strong>{t('muhurtaPage.karana', { defaultValue: 'Karana' })}:</strong> {t(`karans.${muhurtaData.panchang?.Karna?.name_en_IN}`, { defaultValue: muhurtaData.panchang?.Karna?.name_en_IN })}</p>
                                     </>
                                 )}
@@ -438,7 +432,7 @@ const MuhurtaPage = () => {
                             <div className="info-row">
                                 {muhurtaData.activeYogas && muhurtaData.activeYogas.map((yoga, index) => (
                                     <p key={`active-yoga-${index}`} className={yoga.type === 'auspicious' ? 'auspicious-period' : 'inauspicious-period'}>
-                                        <strong>{t(`yogas.${formatYogaNameForTranslation(yoga.name)}.name`, { defaultValue: yoga.name })}:</strong> {` (${moment(yoga.start).format('HH:mm')} - ${moment(yoga.end).format('HH:mm')})`}
+                                        <strong>{t(`yogas.${formatYogaNameForTranslation(yoga.name)}_name`, { defaultValue: yoga.name })}:</strong> {` (${moment(yoga.start).format('HH:mm')} - ${moment(yoga.end).format('HH:mm')})`}
                                     </p>
                                 ))}
                                  {muhurtaData.bhadra && muhurtaData.bhadra.bhadra_details && (

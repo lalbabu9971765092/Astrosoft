@@ -2,7 +2,6 @@ import express from 'express';
 import { query, validationResult } from 'express-validator';
 import logger from '../utils/logger.js';
 import * as predictionTextGenerator from '../utils/predictionTextGenerator.js'; // Import the general prediction generator
-import { getDashaPrediction } from '../utils/dashaPredictionGenerator.js'; // Import the Dasha prediction generator
 
 // --- Helper Function for Error Handling ---
 // Centralizes the error response logic (Copied from astrologyRoutes.js)
@@ -31,35 +30,6 @@ function handleRouteError(res, error, routeName, inputData = {}) {
 
 const router = express.Router();
 
-
-// Validation for dasha prediction query parameters
-const dashaPredictionValidation = [
-    query('mahadasha').notEmpty().withMessage('Mahadasha lord is required.'),
-    query('bhukti').notEmpty().withMessage('Bhukti lord is required.'),
-    query('antar').notEmpty().withMessage('Antar lord is required.'),
-    query('lang').optional().isIn(['en', 'hi']).withMessage('Language must be "en" or "hi".'),
-];
-
-// New route for Dasha predictions
-router.route('/dasha').get(dashaPredictionValidation, async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-
-    try {
-        const { mahadasha, bhukti, antar, lang } = req.query; // Destructure lang
-        const dashaPredictionText = getDashaPrediction(mahadasha, bhukti, antar, lang); // Pass lang
-
-        if (!dashaPredictionText) {
-            return res.status(404).json({ error: "No Dasha prediction found for the given combination." });
-        }
-        res.json({ prediction: dashaPredictionText });
-    } catch (error) {
-        handleRouteError(res, error, 'GET /api/dasha-predictions');
-    }
-});
-
 // New route: Generate Varshaphal-specific prediction text from Varshphal payload
 router.route('/varshaphal').post(async (req, res) => {
     try {
@@ -73,6 +43,22 @@ router.route('/varshaphal').post(async (req, res) => {
         res.json({ prediction: predictionText });
     } catch (error) {
         handleRouteError(res, error, 'POST /api/predictions/varshaphal', req.body);
+    }
+});
+
+// New route: Generate KP Significator analysis
+router.route('/kp-analysis').post(async (req, res) => {
+    try {
+        const { kpSignificators, planetDetails, lang } = req.body || {};
+        if (!kpSignificators || !planetDetails) {
+            return res.status(400).json({ error: 'kpSignificators and planetDetails payload are required.' });
+        }
+
+        const analysisText = predictionTextGenerator.getKpAnalysis({ kpSignificators, planetDetails }, lang || 'en');
+        if (!analysisText) return res.status(404).json({ error: 'No KP analysis could be generated.' });
+        res.json({ analysis: analysisText });
+    } catch (error) {
+        handleRouteError(res, error, 'POST /api/predictions/kp-analysis', req.body);
     }
 });
 

@@ -146,9 +146,7 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                     setKpError(kpErrMsg);
                     setKpData(null);
                 } else {
-                    // Assuming KP data is nested under kpSignificatorsData
-                    setKpData(Array.isArray(kpResponse.data?.kpSignificatorsData) ? kpResponse.data.kpSignificatorsData : null);
-                  
+                    setKpData(Array.isArray(kpResponse.data?.kpSignificatorsData?.detailedPlanets) ? kpResponse.data.kpSignificatorsData.detailedPlanets : null);
                 }
 
                 // Process Chart Response (for Dashas)
@@ -304,38 +302,30 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
             return finalMap;
         }
 
+
         // *** Use the pre-calculated sets from the useMemo hook above ***
         // Convert arrays back to Sets for efficient lookup inside this calculation
         const favorableSet = new Set(favorableHouses);
         const unfavorableSet = new Set(unfavorableHouses);
 
-        // Build intermediate map for efficient lookups (stores raw strings first)
+        // Build intermediate map for efficient lookups (stores all detailed planet data)
         const intermediatePlanetData = new Map();
-        const planetOrderSource = kpData.map(p => p.name);
-        const allRelevantPlanetNames = [...new Set([...FLATTENED_GRID_ORDER, ...planetOrderSource])];
-
-        allRelevantPlanetNames.forEach(planetName => {
-            const planet = kpData.find(p => p.name === planetName);
-            if (planet) {
-                intermediatePlanetData.set(planetName, {
-                    name: planetName,
-                    occupiedHouses: planet.occupiedHouses || [],
-                    ownedHouses: planet.ownedHouses || [],
-                    signLordOwnedHouses: planet.signLordOwnedHouses || [],
-                    aspectingOwnedHouses: planet.aspectingOwnedHouses || [],
-                    nakshatraLordName: planet.nakshatraLordName || 'N/A',
-                    nakshatraLordAllHouses: planet.nakLordAllHouses,
-                    subLordName: planet.subLordName || 'N/A',
-                    subLordAllHouses: planet.subLordAllHouses,
-                });
-            } else if (FLATTENED_GRID_ORDER.includes(planetName)) {
-                 intermediatePlanetData.set(planetName, {
-                    name: planetName, occupiedHouses: [], ownedHouses: [], signLordOwnedHouses: [],
-                    aspectingOwnedHouses: [], nakshatraLordName: 'N/A', subLordName: 'N/A',
-                });
-            
-
-        }
+        kpData.forEach(planet => {
+            intermediatePlanetData.set(planet.name, {
+                name: planet.name,
+                occupiedHouses: planet.occupiedHouses || [],
+                ownedHouses: planet.ownedHouses || [],
+                signLordOwnedHouses: planet.signLordOwnedHouses || [],
+                aspectingOwnedHouses: planet.aspectingOwnedHouses || [],
+                nakshatraLordName: planet.nakshatraLordName || 'N/A',
+                nakshatraLordAllHouses: planet.nakshatraLordAllHouses || [],
+                subLordName: planet.subLordName || 'N/A',
+                subLordAllHouses: planet.subLordAllHouses || [],
+                A: planet.A || [],
+                B: planet.B || [],
+                C: planet.C || [],
+                D: planet.D || [],
+            });
         });
       
         // Helper function to get combined, unique, sorted houses for a planet from intermediate data
@@ -367,9 +357,10 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
             
            // Get house lists for the planet itself using the helper
             const planetAllHouses = getCombinedHousesForPlanet(planetName);
-            // Directly use the arrays for nakLordAllHouses and subLordAllHouses from the intermediate data
-            const nakLordAllHouses = planetData.nakshatraLordAllHouses || [];
-            const subLordAllHouses = planetData.subLordAllHouses || [];
+            // The nakshatraLordAllHouses and subLordAllHouses are already in planetData,
+            // so we will use planetData.nakshatraLordAllHouses and planetData.subLordAllHouses directly below.
+
+
 
             let totalScore = 0;
             const allSignifiedHousesForCompleteness = new Set();
@@ -386,7 +377,7 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
             });
 
             // Level 2: Nakshatra Lord (+2 / -2)
-            nakLordAllHouses.forEach(house => {
+            (planetData.nakshatraLordAllHouses || []).forEach(house => {
                 const isFav = favorableSet.has(house);
                 const isUnfav = unfavorableSet.has(house);
                 if (isFav) totalScore += 2;
@@ -395,7 +386,7 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
             });
 
             // Level 3: Sub Lord (+3 / -3)
-            subLordAllHouses.forEach(house => {
+            (planetData.subLordAllHouses || []).forEach(house => {
                 const isFav = favorableSet.has(house);
                 const isUnfav = unfavorableSet.has(house);
                 if (isFav) {
@@ -417,8 +408,8 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
             } else { // Score is 0
                 // Check if any scoring houses were involved
                 const hasAnyScoringHouse = planetAllHouses.some(h => favorableSet.has(h) || unfavorableSet.has(h)) ||
-                                          nakLordAllHouses.some(h => favorableSet.has(h) || unfavorableSet.has(h)) ||
-                                          subLordAllHouses.some(h => favorableSet.has(h) || unfavorableSet.has(h));
+                                          (planetData.nakshatraLordAllHouses || []).some(h => favorableSet.has(h) || unfavorableSet.has(h)) || // Change this
+                                          (planetData.subLordAllHouses || []).some(h => favorableSet.has(h) || unfavorableSet.has(h)); // Change this
                 if (hasAnyScoringHouse) {
                     favourability = 'Mixed';
                 } else {
@@ -449,9 +440,13 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                 name: planetName,
                 allHouses: planetAllHouses,
                 nakshatraLordName: nakLordName,
-                nakLordAllHouses: nakLordAllHouses,
+                nakshatraLordAllHouses: planetData.nakshatraLordAllHouses, // Use planetData directly
                 subLordName: subLordName,
-                subLordAllHouses: subLordAllHouses,
+                subLordAllHouses: planetData.subLordAllHouses,     // Use planetData directly
+                A: planetData.A,
+                B: planetData.B,
+                C: planetData.C,
+                D: planetData.D,
                 // Add the calculated score, favourability, and completeness
                 score: totalScore,
                 favourability: favourability,
@@ -466,7 +461,9 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
 
     // --- Loading / Error / No Data States ---
     const isOverallLoading = isInitialLoading || isLoadingKp || isLoadingChart;
-    const hasValidKpData = useMemo(() => significatorDetailsMap.size > 0, [significatorDetailsMap]);
+    const hasValidKpData = useMemo(() => {
+        return significatorDetailsMap.size > 0;
+    }, [significatorDetailsMap]);
     const hasDashaData = chartData && Array.isArray(chartData) && chartData.length > 0;
     const displayInputDetails = currentApiParams;
 

@@ -14,7 +14,7 @@ import {
     PLANETARY_RELATIONS, FRIENDSHIP_PLANETS_ORDER, calculateTemporalFriendshipForPlanet,
     getResultingFriendship, calculateShadbala, calculateBhinnaAshtakavarga,
     calculateSarvaAshtakavarga, ASHTAKAVARGA_PLANETS, getHouseOfPlanet,
-    calculateUPBS, calculateAllBirthChartYogas
+    calculateUPBS, calculateAllBirthChartYogas, calculateKpSignificators
 } from '../utils/index.js';
 import { calculatePanchang } from '../utils/panchangUtils.js';
 import { calculateHousesAndAscendant, calculateWholeSignHouses } from '../utils/coreUtils.js';
@@ -231,6 +231,36 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
         const { directAspects, reverseAspects } = calculateAspects(siderealPositions, siderealCuspStartDegrees);
         const planetStateData = calculatePlanetStates(siderealPositions);
 
+        const temporalFriendshipData = {};
+        const resultingFriendshipData = {};
+        const naturalFriendshipMatrix = PLANETARY_RELATIONS;
+        const friendshipOrder = FRIENDSHIP_PLANETS_ORDER;
+        for (const planet of friendshipOrder) {
+            temporalFriendshipData[planet] = calculateTemporalFriendshipForPlanet(planet, siderealPositions);
+            resultingFriendshipData[planet] = {};
+            const naturalRow = naturalFriendshipMatrix[planet];
+            const temporalRow = temporalFriendshipData[planet];
+            for (const otherPlanet of friendshipOrder) {
+                if (planet === otherPlanet) {
+                    resultingFriendshipData[planet][otherPlanet] = '-';
+                    continue;
+                }
+                let naturalStatus;
+                if (naturalRow.friends.includes(otherPlanet)) {
+                    naturalStatus = 'F';
+                } else if (naturalRow.enemies.includes(otherPlanet)) {
+                    naturalStatus = 'E';
+                } else if (naturalRow.neutrals.includes(otherPlanet)) {
+                    naturalStatus = 'N';
+                } else {
+                    naturalStatus = 'N/A';
+                }
+                const temporalStatus = temporalRow ? temporalRow[otherPlanet] : 'N/A';
+                resultingFriendshipData[planet][otherPlanet] = getResultingFriendship(naturalStatus, temporalStatus);
+            }
+        }
+
+        const kpSignificators = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, houses, { directAspects, reverseAspects });
         // --- Start of Divisional Chart Calculations ---
         const { divisional_planets: d9_planets } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateNavamsaLongitude);
         const { divisional_planets: d2_planets } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateHoraLongitude);
@@ -258,6 +288,29 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
         const ashtakavargaResult = { bhinna: bhinnaAshtakavargaData, sarva: sarvaAshtakavargaData };
         
         const allBirthChartYogas = calculateAllBirthChartYogas(siderealPositions, houses, lang);
+
+        // --- Prepare and Calculate UPBS ---
+        const unifiedChartDataForUPBS = {
+            planetaryPositions: planetaryPositions,
+            planetHousePlacements: Object.fromEntries(PLANET_ORDER.map(p => [p, getHouseOfPlanet(siderealPositions[p]?.longitude, siderealCuspStartDegrees)])),
+            planetDetails: {
+                aspects: { directAspects, reverseAspects },
+                states: planetStateData
+            },
+            shadbala: shadbalaData,
+            d9_planets: d9_planets,
+            ascendant: {
+                sidereal_dms: convertToDMS(siderealAscendantDeg),
+                siderealAscendantDeg: siderealAscendantDeg
+            },
+            houses: houses
+        };
+
+        const upbsScores = {};
+        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+            upbsScores[planet] = calculateUPBS(planet, unifiedChartDataForUPBS);
+        }
+        // --- End UPBS Calculation ---
 
         // --- Assemble chartData for predictionEngine (using transitDate for relevant parts) ---
         const chartDataForPrediction = {
@@ -290,13 +343,24 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             divisionalPositions: divisionalPositions,
             dashaPeriods: dashaPeriods,
             planetDetails: {
+                states: planetStateData, // from calculatePlanetStates
+                aspects: directAspects,
+                reverseAspects: reverseAspects,
+                naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder }, // Add this
+                temporalFriendship: temporalFriendshipData, // Add this
+                resultingFriendship: resultingFriendshipData, // Add this
                 shadbala: shadbalaData,
+                upbsScores: upbsScores,
+                kpSignificators: kpSignificators,
             },
             yogas: allBirthChartYogas,
             ashtakavarga: ashtakavargaResult,
         };
 
         const holisticPrediction = await predictionEngine.generateHolisticPrediction(chartDataForPrediction, lang);
+
+        // Add the date used for the prediction to the response payload
+        holisticPrediction.predictionDate = dateForCalculations;
 
         res.json(holisticPrediction);
 

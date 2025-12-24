@@ -97,7 +97,7 @@ const MonthlyYogasPage = () => {
                                     <td>{moment(yoga.date).format('YYYY-MM-DD')}</td>
                                     <td>{t(`weekdays.${yoga.day}`)}</td>
                                     <td>{t(`nakshatras.${yoga.nakshatra}`)}</td>
-                                    <td>{t(`yogas.${yoga.name}.name`, { defaultValue: yoga.name })}</td>
+                                    <td>{t(`yogas.${yoga.name}_name`, { defaultValue: yoga.name })}</td>
                                     <td>{moment(yoga.start).format('HH:mm:ss')}</td>
                                     <td>{moment(yoga.end).format('HH:mm:ss')}</td>
                                 </tr>

@@ -99,15 +99,31 @@ router.post('/', kpValidation, async (req, res) => {
         const siderealPositions = planetaryPositions.sidereal;
         
         // Calculate aspects using Whole Sign cusps
-        const aspects = calculateAspects(siderealPositions);
-
-        // Calculate KP significators using Placidus cusps but with aspects from Whole Sign chart
-        const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, aspects);
-
-        const responsePayload = {
-            kpSignificatorsData: kpSignificatorsDetailed,
-        };
-       
+                const aspects = calculateAspects(siderealPositions);
+        
+                const housesData = [];
+                for (let i = 0; i < 12; i++) {
+                     const houseNumber = i + 1;
+                    const startDeg = siderealCuspStartDegrees[i];
+                    const endDeg = siderealCuspStartDegrees[(i + 1) % 12]; // Use original sidereal cusps for consistency
+                    const meanDeg = calculateMidpoint(startDeg, endDeg);
+                    const meanNakDetails = getNakshatraDetails(meanDeg);
+                    const meanRashiDetails = getRashiDetails(meanDeg);
+                    const meanCharan = calculateNakshatraPada(meanDeg);
+                    housesData.push({
+                        house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
+                        mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
+                        mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
+                    });
+                }
+                
+                // Calculate KP significators using Placidus cusps but with aspects from Whole Sign chart
+                const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, housesData, aspects);
+        
+                const responsePayload = {
+                    kpSignificatorsData: kpSignificatorsDetailed,
+                    houses: housesData, // Include housesData in the response payload
+                };       
         res.json(responsePayload);
     } catch (error) {
         handleRouteError(res, error, '/kp-significators', req.body);
@@ -153,7 +169,7 @@ router.post('/rotated', rotatedKpValidation, async (req, res) => {
         
         const aspects = calculateAspects(siderealPositions);
 
-        const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, rotatedSiderealCuspStartDegrees, aspects);
+        const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, rotatedSiderealCuspStartDegrees, housesData, aspects);
 
         const housesData = [];
         for (let i = 0; i < 12; i++) {

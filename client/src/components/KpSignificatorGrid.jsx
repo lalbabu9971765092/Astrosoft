@@ -141,7 +141,7 @@ const KpSignificatorGrid = ({ significatorDetailsMap, selectedEvent, significato
                     name: planetName,
                     allHouses: sigData?.allHouses || [],
                     nakshatraLordName: sigData?.nakshatraLordName || 'N/A', // Use a static string 'N/A'
-                    nakLordAllHouses: sigData?.nakLordAllHouses || [],
+                    nakLordAllHouses: sigData?.nakshatraLordAllHouses || [],
                     subLordName: sigData?.subLordName || 'N/A', // Use a static string 'N/A'
                     subLordAllHouses: sigData?.subLordAllHouses || [],
                     // Provide default fallbacks for potentially missing properties

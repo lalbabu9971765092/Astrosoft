@@ -8,42 +8,34 @@ const PredictionPage = () => {
     const { t, i18n } = useTranslation();
     const { mainResult, calculationInputParams, adjustedGocharDateTimeString, adjustedBirthDateTimeString } = useOutletContext() || {};
     
+    const [openSections, setOpenSections] = useState({
+        general: true // Default the first section to be open
+    });
+
+    const toggleSection = (section) => {
+        setOpenSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
+    };
+
     // Consolidating states
-    const [dashaPredictionText, setDashaPredictionText] = useState("");
-    const [isLoadingDashaPrediction, setIsLoadingDashaPrediction] = useState(false);
-    const [dashaPredictionError, setDashaPredictionError] = useState(null);
-    const [varshphalPrediction, setVarshphalPrediction] = useState("");
-    const [isLoadingVarshphal, setIsLoadingVarshphal] = useState(false);
-    const [varshphalError, setVarshphalError] = useState(null);
-    const [varshphalYear, setVarshphalYear] = useState(new Date().getFullYear());
-    const [varshphalStyle, setVarshphalStyle] = useState('detailed');
+    const [varshphalData, setVarshphalData] = useState({ prediction: "", isLoading: false, error: null, year: null });
 
     // Holistic Prediction state will now hold all primary prediction data
     const [holisticPrediction, setHolisticPrediction] = useState(null);
     const [isLoadingHolisticPrediction, setIsLoadingHolisticPrediction] = useState(false);
     const [holisticPredictionError, setHolisticPredictionError] = useState(null);
+    const [kpAnalysis, setKpAnalysis] = useState({ analysis: "", isLoading: false, error: null });
 
-    const fetchDashaPrediction = useCallback(async (mahadasha, bhukti, antar) => {
-        setIsLoadingDashaPrediction(true);
-        setDashaPredictionError(null);
-        try {
-            const response = await api.get('/predictions/dasha', {
-                params: { mahadasha, bhukti, antar, lang: i18n.language }
-            });
-            setDashaPredictionText(response.data.prediction);
-        } catch (err) {
-            console.error("Error fetching Dasha prediction:", err.response?.data || err.message || err);
-            setDashaPredictionError(t('predictionPage.dashaPredictionError', 'Failed to fetch Dasha prediction.'));
-            setDashaPredictionText("");
-        } finally {
-            setIsLoadingDashaPrediction(false);
-        }
-    }, [i18n.language, t]);
 
-    const fetchVarshphalPrediction = useCallback(async (yearValue = varshphalYear) => {
-        setIsLoadingVarshphal(true);
-        setVarshphalError(null);
-        setVarshphalPrediction("");
+    const fetchVarshphalPrediction = useCallback(async () => {
+        if (!calculationInputParams || !adjustedGocharDateTimeString) return;
+
+        const yearValue = new Date(adjustedGocharDateTimeString).getFullYear();
+        
+        setVarshphalData({ prediction: "", isLoading: true, error: null, year: yearValue });
+
         try {
             const natalDate = adjustedBirthDateTimeString || calculationInputParams.date;
             const payload = {
@@ -55,34 +47,28 @@ const PredictionPage = () => {
             const varResp = await api.post('/calculate-varshphal', payload);
             const varData = varResp.data;
             const varChart = varData.varshphalChart;
+
             if (varChart && varChart.ascendant && varChart.planetaryPositions && varChart.planetaryPositions.sidereal) {
-                try {
-                    const varshphalPayload = {
-                        varshphalChart: varChart,
-                        muntha: varData.muntha,
-                        yearLord: varData.yearLord,
-                        muddaDasha: varData.muddaDasha,
-                        kpSignificators: varData.kpSignificators,
-                        lang: i18n.language,
-                        style: varshphalStyle,
-                        varshphalYear: yearValue,
-                    };
-                    const predResp = await api.post('/predictions/varshaphal', varshphalPayload);
-                    setVarshphalPrediction(predResp.data.prediction || '');
-                } catch (predErr) {
-                    console.error('Error fetching varshphal prediction:', predErr.response?.data || predErr.message || predErr);
-                    setVarshphalError(t('predictionPage.varshphalPredictionError', 'Failed to fetch Varshphal-based prediction.'));
-                }
+                const varshphalPayload = {
+                    varshphalChart: varChart,
+                    muntha: varData.muntha,
+                    yearLord: varData.yearLord,
+                    muddaDasha: varData.muddaDasha,
+                    kpSignificators: varData.kpSignificators,
+                    lang: i18n.language,
+                    varshphalYear: yearValue,
+                };
+                const predResp = await api.post('/predictions/varshaphal', varshphalPayload);
+                setVarshphalData({ prediction: predResp.data.prediction || '', isLoading: false, error: null, year: yearValue });
             } else {
-                setVarshphalError(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
+                throw new Error(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
             }
         } catch (err) {
-            console.error('Error calculating varshphal:', err.response?.data || err.message || err);
-            setVarshphalError(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
-        } finally {
-            setIsLoadingVarshphal(false);
+            console.error('Error fetching/calculating varshphal:', err.response?.data || err.message || err);
+            const errorMsg = err.response?.data?.error || err.message || t('predictionPage.varshphalCalculationFailed');
+            setVarshphalData({ prediction: "", isLoading: false, error: errorMsg, year: yearValue });
         }
-    }, [varshphalYear, adjustedBirthDateTimeString, calculationInputParams, i18n.language, varshphalStyle, t]);
+    }, [adjustedBirthDateTimeString, adjustedGocharDateTimeString, calculationInputParams, i18n.language, t]);
 
     const fetchHolisticPrediction = useCallback(async () => {
         if (!calculationInputParams?.date || !calculationInputParams?.latitude || !calculationInputParams?.longitude) {
@@ -113,60 +99,107 @@ const PredictionPage = () => {
         }
     }, [calculationInputParams, adjustedBirthDateTimeString, adjustedGocharDateTimeString, i18n.language, t]);
 
+        const fetchKpAnalysis = useCallback(async (planetDetails) => {
 
-    useEffect(() => {
-        if (mainResult && calculationInputParams && calculationInputParams.date) {
-            const currentLang = i18n.language;
-            // Determine if a re-fetch of holistic prediction is needed
-            // - If there's no holisticPrediction data yet (initial load)
-            // - OR if the language of the existing holisticPrediction data does not match the current UI language
-            const shouldFetchHolistic = !holisticPrediction || (holisticPrediction.lang !== currentLang);
+            if (!planetDetails?.kpSignificators) return;
 
-            if (shouldFetchHolistic) {
-                // Clear the state *before* fetching to prevent showing stale data and trigger new loading state
-                setHolisticPrediction(null); // Explicitly clear before new fetch
-                fetchHolisticPrediction();
-            }
-            fetchVarshphalPrediction(varshphalYear);
+    
 
-            if (mainResult.dashaPeriods) {
-                const transitTime = adjustedGocharDateTimeString ? new Date(adjustedGocharDateTimeString) : new Date();
-                const findCurrentPeriod = (periods, level) => {
-                    return periods.find(p => {
-                        const start = new Date(p.start);
-                        const end = new Date(p.end);
-                        return p.level === level && transitTime >= start && transitTime <= end;
-                    });
+            setKpAnalysis({ analysis: "", isLoading: true, error: null });
+
+            try {
+
+                const payload = {
+
+                    kpSignificators: planetDetails.kpSignificators,
+
+                    planetDetails: planetDetails, // Pass the whole object
+
+                    lang: i18n.language,
+
                 };
 
-                const mahaDasha = findCurrentPeriod(mainResult.dashaPeriods, 1);
-                if (mahaDasha) {
-                    const antardashas = mainResult.dashaPeriods.filter(p => p.level === 2 && p.mahaLord === mahaDasha.lord);
-                    const antarDasha = findCurrentPeriod(antardashas, 2);
-                    if (antarDasha) {
-                        const pratyantardashas = mainResult.dashaPeriods.filter(p => p.level === 3 && p.mahaLord === mahaDasha.lord && p.antarLord === antarDasha.lord);
-                        const pratyantarDasha = findCurrentPeriod(pratyantardashas, 3);
-                        if (pratyantarDasha && mahaDasha.lord && antarDasha.lord && pratyantarDasha.lord) {
-                            fetchDashaPrediction(mahaDasha.lord, antarDasha.lord, pratyantarDasha.lord);
-                        } else if (antarDasha && mahaDasha.lord && antarDasha.lord) {
-                            fetchDashaPrediction(mahaDasha.lord, antarDasha.lord, antarDasha.lord);
-                        }
-                    } else {
-                        fetchDashaPrediction(mahaDasha.lord, mahaDasha.lord, mahaDasha.lord);
-                    }
-                } else { // if no mahadasha is found
-                    setDashaPredictionText(t('predictionPage.noCurrentDasha', 'No current Dasha period found.'));
-                }
-            } else { // if mainResult.dashaPeriods does not exist
-                setDashaPredictionText("");
+                const response = await api.post('/predictions/kp-analysis', payload);
+
+                setKpAnalysis({ analysis: response.data.analysis || '', isLoading: false, error: null });
+
+            } catch (err) {
+
+                console.error("Error fetching KP analysis:", err.response?.data || err.message || err);
+
+                const errorMsg = err.response?.data?.error || err.message || t('predictionPage.kpAnalysisError', 'Failed to fetch KP analysis.');
+
+                setKpAnalysis({ analysis: "", isLoading: false, error: errorMsg });
+
             }
-        } else {
-            // Clear all predictions when main inputs are not valid
-            setDashaPredictionText("");
-            setVarshphalPrediction("");
-            setHolisticPrediction(null);
-        }
-    }, [mainResult, calculationInputParams, adjustedGocharDateTimeString,holisticPrediction, i18n.language, t, varshphalYear, varshphalStyle, adjustedBirthDateTimeString, fetchDashaPrediction, fetchHolisticPrediction, fetchVarshphalPrediction]);
+
+        }, [i18n.language, t]);
+
+    
+
+        useEffect(() => {
+
+            if (mainResult && calculationInputParams && calculationInputParams.date) {
+
+                const currentLang = i18n.language;
+
+    
+
+                // Holistic prediction logic
+
+                const transitDateChanged = holisticPrediction?.predictionDate !== adjustedGocharDateTimeString;
+
+                const langChanged = holisticPrediction?.lang !== currentLang;
+
+                const shouldFetchHolistic = !holisticPrediction || langChanged || transitDateChanged;
+
+    
+
+                if (shouldFetchHolistic) {
+
+                    fetchHolisticPrediction();
+
+                }
+
+                
+
+                // Varshphal prediction logic
+
+                const yearForVarshphal = new Date(adjustedGocharDateTimeString).getFullYear();
+
+                const shouldFetchVarshphal = !varshphalData.prediction || varshphalData.year !== yearForVarshphal;
+
+    
+
+                if (shouldFetchVarshphal) {
+
+                    fetchVarshphalPrediction();
+
+                }
+
+    
+
+                if (holisticPrediction?.planetDetails) {
+
+                    fetchKpAnalysis(holisticPrediction.planetDetails);
+
+                }
+
+    
+
+            } else {
+
+                // Clear all predictions when main inputs are not valid
+
+                setVarshphalData({ prediction: "", isLoading: false, error: null, year: null });
+
+                setHolisticPrediction(null);
+
+                setKpAnalysis({ analysis: "", isLoading: false, error: null });
+
+            }
+
+        }, [mainResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language, fetchHolisticPrediction, fetchVarshphalPrediction, fetchKpAnalysis, holisticPrediction, varshphalData.prediction, varshphalData.year]);
 
 
     const renderContent = () => {
@@ -174,12 +207,12 @@ const PredictionPage = () => {
             return <p className="info-text">{t('predictionPage.calculateFirst', 'Please calculate a chart first to see the predictions.')}</p>;
         }
 
-        const overallLoading = isLoadingHolisticPrediction || isLoadingDashaPrediction || isLoadingVarshphal;
+        const overallLoading = isLoadingHolisticPrediction || varshphalData.isLoading;
         if (overallLoading) {
             return <div className="loader">{t('predictionPage.loading', 'Loading Predictions...')}</div>;
         }
 
-        const overallError = holisticPredictionError || dashaPredictionError || varshphalError;
+        const overallError = holisticPredictionError || varshphalData.error;
         if (overallError) {
             return <div className="error-text">{t('predictionPage.error', 'Could not load predictions: {{error}}', { error: overallError })}</div>;
         }
@@ -193,104 +226,196 @@ const PredictionPage = () => {
                 {/* General Prediction Section */}
                 {generalPrediction && (
                     <div className="prediction-section">
-                        <h3 className="prediction-title">{t('predictionPage.generalPredictionTitle', 'General Prediction')}</h3>
-                        <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{generalPrediction}</p>
+                        <h3 className="prediction-title" onClick={() => toggleSection('general')}>
+                            <span className="prediction-icon">🌟</span>
+                            {t('predictionPage.generalPredictionTitle', 'General Prediction')}
+                            <span className={`accordion-icon ${openSections.general ? 'open' : ''}`}>▼</span>
+                        </h3>
+                        {openSections.general && <div className="prediction-content"><p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{generalPrediction}</p></div>}
                     </div>
                 )}
 
                 {/* Yogas Table */}
                 {yogas.length > 0 ? (
                     <div className="prediction-section">
-                        <h3 className="prediction-title">{t('predictionPage.birthChartYogasTitle', 'Birth Chart Yogas')}</h3>
-                        <table className="yoga-table">
-                            <thead>
-                                <tr>
-                                    <th>{t('predictionPage.yogaName', 'Yoga Name')}</th>
-                                    <th>{t('predictionPage.description', 'Description')}</th>
-                                    <th>{t('predictionPage.planetsInvolved', 'Planets Involved')}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {yogas.map((yoga, index) => (
-                                    <tr key={index}>
-                                        <td>{yoga.name}</td>
-                                        <td>{yoga.description}</td>
-                                        <td>{yoga.planetsInvolved ? yoga.planetsInvolved.map(p => t(`planets.${p}`)).join(', ') : 'N/A'}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <h3 className="prediction-title" onClick={() => toggleSection('yogas')}>
+                            <span className="prediction-icon">✨</span>
+                            {t('predictionPage.birthChartYogasTitle', 'Birth Chart Yogas')}
+                            <span className={`accordion-icon ${openSections.yogas ? 'open' : ''}`}>▼</span>
+                        </h3>
+                        {openSections.yogas && (
+                            <div className="prediction-content">
+                                <table className="yoga-table">
+                                    <thead>
+                                        <tr>
+                                            <th>{t('predictionPage.yogaName', 'Yoga Name')}</th>
+                                            <th>{t('predictionPage.description', 'Description')}</th>
+                                            <th>{t('predictionPage.planetsInvolved', 'Planets Involved')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {yogas.map((yoga, index) => (
+                                            <tr key={index}>
+                                                <td>{t(`yogas.${yoga.name}_name`, { defaultValue: yoga.name })}</td>
+                                                <td>{t(`yogas.${yoga.name}_description`, { defaultValue: yoga.description })}</td>
+                                                <td>{yoga.planetsInvolved ? yoga.planetsInvolved.map(p => t(`planets.${p}`, { defaultValue: p })).join(', ') : 'N/A'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     !isLoadingHolisticPrediction && <p className="info-text">{t('predictionPage.noYogas', 'No significant predictions found in this chart.')}</p>
                 )}
 
+                {/* KP Significator Analysis Section */}
+                {holisticPrediction?.planetDetails?.kpSignificators && (
+                    <div className="prediction-section">
+                        <h3 className="prediction-title" onClick={() => toggleSection('kp')}>
+                            <span className="prediction-icon">🪐</span>
+                            {t('predictionPage.kpSignificatorsTitle', 'KP Significator Analysis')}
+                            <span className={`accordion-icon ${openSections.kp ? 'open' : ''}`}>▼</span>
+                        </h3>
+                        {openSections.kp && (
+                            <div className="prediction-content">
+                                {/* Cusp Significators */}
+                                {holisticPrediction.planetDetails.kpSignificators.cusps && Object.keys(holisticPrediction.planetDetails.kpSignificators.cusps).length > 0 && (
+                                    <div className="kp-cusp-significators">
+                                        <h4>{t('predictionPage.cuspSignificators', 'Cusp Significators')}</h4>
+                                        <table className="kp-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>{t('predictionPage.cusp', 'Cusp')}</th>
+                                                    <th>{t('predictionPage.significators', 'Significators')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {Object.entries(holisticPrediction.planetDetails.kpSignificators.cusps).map(([cusp, significators]) => (
+                                                    <tr key={cusp}>
+                                                        <td>{cusp}</td>
+                                                        <td>{significators.map(s => t(`planets.${s}`)).join(', ')}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {/* Planet Significators */}
+                                {holisticPrediction.planetDetails.kpSignificators.planets && Object.keys(holisticPrediction.planetDetails.kpSignificators.planets).length > 0 && (
+                                    <div className="kp-planet-significators">
+                                        <h4>{t('predictionPage.planetSignificators', 'Planet Significators')}</h4>
+                                        <table className="kp-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>{t('predictionPage.planet', 'Planet')}</th>
+                                                    <th>{t('predictionPage.signifiesHouses', 'Signifies Houses')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {Object.entries(holisticPrediction.planetDetails.kpSignificators.planets).map(([planet, houses]) => (
+                                                    <tr key={planet}>
+                                                        <td>{t(`planets.${planet}`)}</td>
+                                                        <td>{houses.join(', ')}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                                <p className="hint-text">{t('predictionPage.kpSignificatorsHint', "This is a powerful tool from KP astrology for precise predictions. The 'Cusp Significators' table shows which planets influence each life area (house). The 'Planet Significators' table shows which life areas each planet will affect.")}</p>
+                                
+                                <div className="kp-analysis-section">
+                                    {kpAnalysis.isLoading ? (
+                                        <div className="loader small-loader">{t('predictionPage.loadingKpAnalysis', 'Loading KP Analysis...')}</div>
+                                    ) : kpAnalysis.error ? (
+                                        <div className="error-text small-error">{kpAnalysis.error}</div>
+                                    ) : (
+                                        <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{kpAnalysis.analysis}</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
                
                 {/* Life Areas Summary Section */}
                 {holisticPrediction?.lifeAreaReports && (
                     <div className="prediction-section">
-                        <h3 className="prediction-title">{t('predictionPage.lifeAreasTitle', 'Life Areas Summary')}</h3>
-                        {Object.entries(holisticPrediction.lifeAreaReports).map(([area, report]) => (
-                            <div key={area} className="life-area-report">
-                                <h4>{t(`lifeAreas.${area}`, area)}</h4>
-                                <p>{report.narrative}</p>
+                        <h3 className="prediction-title" onClick={() => toggleSection('lifeAreas')}>
+                            <span className="prediction-icon">🏡</span>
+                            {t('predictionPage.lifeAreasTitle', 'Life Areas Summary')}
+                            <span className={`accordion-icon ${openSections.lifeAreas ? 'open' : ''}`}>▼</span>
+                        </h3>
+                        {openSections.lifeAreas && (
+                            <div className="prediction-content">
+                                {Object.entries(holisticPrediction.lifeAreaReports).map(([area, report]) => (
+                                    <div key={area} className="life-area-report">
+                                        <h4>{t(`lifeAreas.${area}`, area)}</h4>
+                                        <p>{report.narrative}</p>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
+                        )}
                     </div>
                 )}
 
                 {/* Event Timeline Section */}
                 {holisticPrediction?.eventTimeline && holisticPrediction.eventTimeline.length > 0 && (
                     <div className="prediction-section">
-                        <h3 className="prediction-title">{t('predictionPage.eventTimelineTitle', 'Event Timeline (Transits)')}</h3>
-                        <ul className="prediction-list">
-                            {holisticPrediction.eventTimeline.map((event, index) => (
-                                <li key={index}><strong>{t(`planets.${event.planet}`)} {t('predictionPage.inHouse', { houseNumber: event.house })}:</strong> {event.narration}</li>
-                            ))}
-                        </ul>
+                        <h3 className="prediction-title" onClick={() => toggleSection('timeline')}>
+                            <span className="prediction-icon">⏳</span>
+                            {t('predictionPage.eventTimelineTitle', 'Event Timeline (Transits)')}
+                            <span className={`accordion-icon ${openSections.timeline ? 'open' : ''}`}>▼</span>
+                        </h3>
+                        {openSections.timeline && (
+                            <div className="prediction-content">
+                                <ul className="prediction-list">
+                                    {holisticPrediction.eventTimeline.map((event, index) => (
+                                        <li key={index}><strong>{t(`planets.${event.planet}`)} {t('predictionPage.inHouse', { houseNumber: event.house })}:</strong> {event.narration}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
                 )}
-                 {/* Dasha Prediction Section */}
-                {dashaPredictionText && (
-                    <div className="prediction-section">
-                        <h3 className="prediction-title">{t('predictionPage.dashaPredictionTitle', 'Current Dasha Prediction')}</h3>
-                        <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{dashaPredictionText}</p>
-                    </div>
-                )}
-                
-                {/* Dasha Lords Section */}
+                {/* Dasha Analysis Section */}
                 {holisticPrediction?.dashaLordAnalysis && holisticPrediction.dashaLordAnalysis.length > 0 && (
                     <div className="prediction-section">
-                        <h3 className="prediction-title">{t('predictionPage.dashaLordsTitle', 'Dasha Lords in Chart')}</h3>
-                        <ul className="prediction-list">
-                            {holisticPrediction.dashaLordAnalysis.map((analysis, index) => (
-                                <li key={index}>{analysis}</li>
-                            ))}
-                        </ul>
+                        <h3 className="prediction-title" onClick={() => toggleSection('dasha')}>
+                            <span className="prediction-icon">🌀</span>
+                            {t('predictionPage.dashaAnalysisTitle', 'Dasha Analysis for Selected Date')}
+                            <span className={`accordion-icon ${openSections.dasha ? 'open' : ''}`}>▼</span>
+                        </h3>
+                        {openSections.dasha && (
+                            <div className="prediction-content dasha-analysis-container">
+                                {holisticPrediction.dashaLordAnalysis.map((analysis, index) => (
+                                    <p key={index} className="prediction-text">{analysis}</p>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {/* Varshphal-based Prediction Section */}
                 <div className="prediction-section">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                        <h3 className="prediction-title">{t('predictionPage.varshphalPredictionTitle', 'Varshphal-based Prediction')}</h3>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            <label style={{ fontSize: '0.9rem' }}>{t('predictionPage.varshphalYear', 'Year')}</label>
-                            <input type="number" value={varshphalYear} onChange={e => setVarshphalYear(Number(e.target.value))} style={{ width: '100px', padding: '4px' }} />
-                            <label style={{ fontSize: '0.9rem' }}>{t('predictionPage.style', 'Style')}</label>
-                            <select value={varshphalStyle} onChange={e => setVarshphalStyle(e.target.value)} style={{ padding: '4px' }}>
-                                <option value="simple">{t('predictionPage.styleSimple', 'Simple')}</option>
-                                <option value="detailed">{t('predictionPage.styleDetailed', 'Detailed')}</option>
-                            </select>
-                            <button className="nav-button" onClick={() => fetchVarshphalPrediction(varshphalYear)}>{t('predictionPage.recalculate', 'Recalculate')}</button>
+                    <h3 className="prediction-title" onClick={() => toggleSection('varshphal')}>
+                        <span className="prediction-icon">📅</span>
+                        {t('predictionPage.varshphalPredictionTitle', 'Varshphal-based Prediction')}
+                        <span className={`accordion-icon ${openSections.varshphal ? 'open' : ''}`}>▼</span>
+                    </h3>
+                    {openSections.varshphal && (
+                        <div className="prediction-content">
+                            {varshphalData.isLoading ? (
+                                <div className="loader small-loader">{t('predictionPage.calculatingVarshphal', 'Calculating Varshphal...')}</div>
+                            ) : varshphalData.error ? (
+                                <div className="error-text small-error">{varshphalData.error}</div>
+                            ) : (
+                                <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{varshphalData.prediction}</p>
+                            )}
                         </div>
-                    </div>
-                    {isLoadingVarshphal ? (
-                        <div className="loader small-loader">{t('predictionPage.calculatingVarshphal', 'Calculating Varshphal...')}</div>
-                    ) : varshphalError ? (
-                        <div className="error-text small-error">{varshphalError}</div>
-                    ) : (
-                        <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{varshphalPrediction}</p>
                     )}
                 </div>
 

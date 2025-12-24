@@ -484,6 +484,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             },
             ashtakavarga: ashtakavargaResult,
             yogas: allBirthChartYogas,
+            kpSignificators: calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, housesData, { directAspects, reverseAspects }),
         };
         
         res.json(responsePayload);
@@ -896,7 +897,7 @@ router.post('/calculate-prashna-number', prashnaValidation, async (req, res) => 
         const dashaPeriods = calculateVimshottariDashas(currentUTCDate, dashaBalance);
 
         const aspects = calculateAspects(siderealPositions, siderealCuspStartDegrees);
-        const kpSignificators = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, aspects);
+        const kpSignificators = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, housesData, aspects);
 
         // --- Assemble Response Payload ---
         // Calculate planet house placements for Bhava Chalit chart
@@ -1002,7 +1003,7 @@ router.post('/calculate-prashna-number/rotated', rotatedPrashnaValidation, async
         const dashaPeriods = calculateVimshottariDashas(currentUTCDate, dashaBalance);
 
         const aspects = calculateAspects(siderealPositions, rotatedSiderealCuspStartDegrees);
-        const kpSignificators = calculateKpSignificators(siderealPositions, rotatedSiderealCuspStartDegrees, aspects);
+        const kpSignificators = calculateKpSignificators(siderealPositions, rotatedSiderealCuspStartDegrees, housesData, aspects);
 
         // --- Assemble Response Payload ---
         // Calculate planet house placements for Bhava Chalit chart
@@ -1043,7 +1044,6 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
 
     try {
         const { natalDate, natalLatitude, natalLongitude, varshphalYear, natalPlaceName } = req.body; // Added natalPlaceName
-        logger.info(`Calculating Varshphal for year: ${varshphalYear}`);
         const latNum = natalLatitude; // Already parsed
         const lonNum = natalLongitude; // Already parsed
 
@@ -1218,7 +1218,7 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         const muddaDashaPeriods = calculateMuddaDasha(solarReturnJD_UT, latNum, lonNum); // Pass lat/lon
 
         // Calculate KP Significators for Varshphal Chart
-        const kpSignificators = calculateKpSignificators(srPlanetaryPositions.sidereal, srSiderealCuspStartDegrees, srAspects);
+        const kpSignificators = calculateKpSignificators(srPlanetaryPositions.sidereal, srSiderealCuspStartDegrees, srHousesData, srAspects);
 
         // --- Assemble Response Payload ---
         const responsePayload = {
@@ -1343,7 +1343,7 @@ router.post('/calculate-varshphal/rotated', rotatedVarshphalValidation, async (r
 
         const muddaDashaPeriods = calculateMuddaDasha(solarReturnJD_UT, latNum, lonNum);
 
-        const kpSignificators = calculateKpSignificators(srPlanetaryPositions.sidereal, rotatedSrSiderealCuspStartDegrees, srAspects);
+        const kpSignificators = calculateKpSignificators(srPlanetaryPositions.sidereal, rotatedSrSiderealCuspStartDegrees, srHousesData, srAspects);
 
         const srPlanetHousePlacements = {};
         PLANET_ORDER.forEach(planetName => {
@@ -1485,8 +1485,34 @@ router.post('/kp-significators', baseChartValidation, async (req, res) => {
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         const siderealPositions = planetaryPositions.sidereal;
         const aspects = calculateAspects(siderealPositions, siderealCuspStartDegrees);
+        
+        // Generate housesData for this route's context
+        const housesData = [];
+        for (let i = 0; i < 12; i++) {
+            const houseNumber = i + 1;
+            const startDeg = siderealCuspStartDegrees[i];
+            const endDeg = siderealCuspStartDegrees[(i + 1) % 12];
+            const meanDeg = calculateMidpoint(startDeg, endDeg);
+            const meanNakDetails = getNakshatraDetails(meanDeg);
+            const meanRashiDetails = getRashiDetails(meanDeg);
+            const meanCharan = calculateNakshatraPada(meanDeg);
+            const startRashiDetails = getRashiDetails(startDeg);
+            const startNakDetails = getNakshatraDetails(startDeg);
+            const startSubLordDetails = getSubLordDetails(startDeg);
+            housesData.push({
+                house_number: houseNumber, start_dms: convertToDMS(startDeg), mean_dms: convertToDMS(meanDeg), end_dms: convertToDMS(endDeg),
+                start_deg: startDeg,
+                mean_nakshatra: meanNakDetails.name, mean_nakshatra_charan: meanCharan, mean_nakshatra_lord: meanNakDetails.lord,
+                mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
+                start_rashi: startRashiDetails.name,
+                start_rashi_lord: startRashiDetails.lord,
+                start_nakshatra: startNakDetails.name, 
+                start_nakshatra_lord: startNakDetails.lord,
+                start_sub_lord: startSubLordDetails.lord,
+            });
+        }
 
-        const kpSignificatorsData = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, aspects);
+        const kpSignificatorsData = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, housesData, aspects);
 
         const responsePayload = {
             inputParameters: { date, latitude: latNum, longitude: lonNum },
