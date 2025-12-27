@@ -5,11 +5,11 @@ import DiamondChart from './DiamondChart';
 import CustomDetailedPlanetTable from './CustomDetailedPlanetTable'; // Changed import
 import KpSignificatorGrid from './KpSignificatorGrid';
 import ExpandedDashaTable from './ExpandedDashaTable';
+import DashaTable from './DashaTable';
 
 import AshtakavargaReport from './AshtakavargaReport';
 
 
-import VarshphalReport from './VarshphalReport';
 import GaneshaImage from '../assets/images/ganesha.png';
 import '../styles/PrintableReport.css'; // Import the print-specific CSS
 
@@ -90,7 +90,7 @@ const interpretUPBS = (score, t) => {
     };
 
 
-const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting }) => {
+const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting, adjustedGocharDateTimeString, locationForGocharTool, transitPlaceName }) => {
     const [mainResult, setMainResult] = useState(null);
     const [mainError, setMainError] = useState(null); // Re-added mainError
     const [kpResult, setKpResult] = useState(null);
@@ -103,6 +103,12 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
     // Combined loading state for initial fetch
     const [isLoading, setIsLoading] = useState(true); 
     const { t, i18n } = useTranslation();
+
+    const [holisticPrediction, setHolisticPrediction] = useState(null);
+    const [isLoadingHolisticPrediction, setIsLoadingHolisticPrediction] = useState(false);
+    const [holisticPredictionError, setHolisticPredictionError] = useState(null);
+    const [varshphalPrediction, setVarshphalPrediction] = useState({ prediction: "", isLoading: false, error: null, year: null });
+    const [kpAnalysis, setKpAnalysis] = useState({ analysis: "", isLoading: false, error: null });
 
     // --- Derived data for rendering ---
     const displayResult = mainResult; // No rectification for now in printable report
@@ -135,6 +141,154 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
         return ranks;
     }, [displayResult?.planetDetails?.shadbala]);
 
+    const significatorDetailsMap = useMemo(() => {
+        const finalMap = new Map();
+        const kpData = kpResult?.kpSignificatorsData?.detailedPlanets;
+
+        if (!kpData || !Array.isArray(kpData) || kpData.length === 0) {
+            return finalMap;
+        }
+
+        const FLATTENED_GRID_ORDER = [
+            'Ketu', 'Moon', 'Jupiter', 'Venus', 'Mars', 'Saturn', 'Sun', 'Rahu', 'Mercury'
+        ];
+
+        const intermediatePlanetData = new Map();
+        kpData.forEach(planet => {
+            intermediatePlanetData.set(planet.name, {
+                name: planet.name,
+                occupiedHouses: planet.occupiedHouses || [],
+                ownedHouses: planet.ownedHouses || [],
+                signLordOwnedHouses: planet.signLordOwnedHouses || [],
+                aspectingOwnedHouses: planet.aspectingOwnedHouses || [],
+                nakshatraLordName: planet.nakshatraLordName || 'N/A',
+                nakshatraLordAllHouses: planet.nakshatraLordAllHouses || [],
+                subLordName: planet.subLordName || 'N/A',
+                subLordAllHouses: planet.subLordAllHouses || [],
+                A: planet.A || [],
+                B: planet.B || [],
+                C: planet.C || [],
+                D: planet.D || [],
+            });
+        });
+
+        const getCombinedHousesForPlanet = (planetName) => {
+            const data = intermediatePlanetData.get(planetName);
+            if (!data) return [];
+            const allHouses = [
+                ...(data.occupiedHouses || []),
+                ...(data.ownedHouses || []),
+                ...(data.signLordOwnedHouses || []),
+                ...(data.aspectingOwnedHouses || [])
+            ];
+            return [...new Set(allHouses)].sort((a, b) => a - b);
+        };
+
+        FLATTENED_GRID_ORDER.forEach(planetName => {
+            const planetData = intermediatePlanetData.get(planetName);
+            if (!planetData) {
+                finalMap.set(planetName, { name: planetName, allHouses: [], nakshatraLordName: 'N/A', nakLordAllHouses: [], subLordName: 'N/A', subLordAllHouses: [], score: 0, favourability: 'N/A', completeness: 'N/A' });
+                return;
+            }
+
+            const nakLordName = planetData.nakshatraLordName;
+            const subLordName = planetData.subLordName;
+            const planetAllHouses = getCombinedHousesForPlanet(planetName);
+
+            finalMap.set(planetName, {
+                name: planetName,
+                allHouses: planetAllHouses,
+                nakshatraLordName: nakLordName,
+                nakshatraLordAllHouses: planetData.nakshatraLordAllHouses,
+                subLordName: subLordName,
+                subLordAllHouses: planetData.subLordAllHouses,
+                A: planetData.A,
+                B: planetData.B,
+                C: planetData.C,
+                D: planetData.D,
+                score: 0,
+                favourability: 'N/A',
+                completeness: 'N/A',
+            });
+        });
+
+        return finalMap;
+    }, [kpResult]);
+
+    const varshphalSignificatorDetailsMap = useMemo(() => {
+        const finalMap = new Map();
+        const kpData = varshphalResult?.kpSignificators?.detailedPlanets;
+
+        if (!kpData || !Array.isArray(kpData) || kpData.length === 0) {
+            return finalMap;
+        }
+
+        const FLATTENED_GRID_ORDER = [
+            'Ketu', 'Moon', 'Jupiter', 'Venus', 'Mars', 'Saturn', 'Sun', 'Rahu', 'Mercury'
+        ];
+
+        const intermediatePlanetData = new Map();
+        kpData.forEach(planet => {
+            intermediatePlanetData.set(planet.name, {
+                name: planet.name,
+                occupiedHouses: planet.occupiedHouses || [],
+                ownedHouses: planet.ownedHouses || [],
+                signLordOwnedHouses: planet.signLordOwnedHouses || [],
+                aspectingOwnedHouses: planet.aspectingOwnedHouses || [],
+                nakshatraLordName: planet.nakshatraLordName || 'N/A',
+                nakshatraLordAllHouses: planet.nakshatraLordAllHouses || [],
+                subLordName: planet.subLordName || 'N/A',
+                subLordAllHouses: planet.subLordAllHouses || [],
+                A: planet.A || [],
+                B: planet.B || [],
+                C: planet.C || [],
+                D: planet.D || [],
+            });
+        });
+
+        const getCombinedHousesForPlanet = (planetName) => {
+            const data = intermediatePlanetData.get(planetName);
+            if (!data) return [];
+            const allHouses = [
+                ...(data.occupiedHouses || []),
+                ...(data.ownedHouses || []),
+                ...(data.signLordOwnedHouses || []),
+                ...(data.aspectingOwnedHouses || [])
+            ];
+            return [...new Set(allHouses)].sort((a, b) => a - b);
+        };
+
+        FLATTENED_GRID_ORDER.forEach(planetName => {
+            const planetData = intermediatePlanetData.get(planetName);
+            if (!planetData) {
+                finalMap.set(planetName, { name: planetName, allHouses: [], nakshatraLordName: 'N/A', nakLordAllHouses: [], subLordName: 'N/A', subLordAllHouses: [], score: 0, favourability: 'N/A', completeness: 'N/A' });
+                return;
+            }
+
+            const nakLordName = planetData.nakshatraLordName;
+            const subLordName = planetData.subLordName;
+            const planetAllHouses = getCombinedHousesForPlanet(planetName);
+
+            finalMap.set(planetName, {
+                name: planetName,
+                allHouses: planetAllHouses,
+                nakshatraLordName: nakLordName,
+                nakshatraLordAllHouses: planetData.nakshatraLordAllHouses,
+                subLordName: subLordName,
+                subLordAllHouses: planetData.subLordAllHouses,
+                A: planetData.A,
+                B: planetData.B,
+                C: planetData.C,
+                D: planetData.D,
+                score: 0,
+                favourability: 'N/A',
+                completeness: 'N/A',
+            });
+        });
+
+        return finalMap;
+    }, [varshphalResult]);
+
 
     useEffect(() => {
         const fetchPrintData = async () => {
@@ -154,10 +308,10 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
 
                 // Payload for transit, using current date but natal location
                 const transitPayload = {
-                    date: new Date().toISOString(),
-                    latitude: calculationInputParams.latitude,
-                    longitude: calculationInputParams.longitude,
-                    placeName: calculationInputParams.placeName,
+                    date: adjustedGocharDateTimeString || new Date().toISOString(),
+                    latitude: locationForGocharTool?.lat || calculationInputParams.latitude,
+                    longitude: locationForGocharTool?.lon || calculationInputParams.longitude,
+                    placeName: transitPlaceName || calculationInputParams.placeName,
                     lang: i18n.language
                 };
 
@@ -168,8 +322,11 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                     api.post('/calculate', transitPayload).catch(err => ({ error: err })) // Fetch transit data
                 ]);
 
-                if (mainResponse.error) setMainError(mainResponse.error.response?.data?.error || mainResponse.error.message || 'Failed to fetch main chart data.');
-                else setMainResult(mainResponse.data);
+                if (mainResponse.error) {
+                    setMainError(mainResponse.error.response?.data?.error || mainResponse.error.message || 'Failed to fetch main chart data.');
+                } else {
+                    setMainResult(mainResponse.data);
+                }
 
                 if (kpResponse.error) setKpError(kpResponse.error.response?.data?.error || kpResponse.error.message || 'Failed to fetch KP significators data.');
                 else setKpResult(kpResponse.data);
@@ -189,18 +346,91 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
         };
 
         fetchPrintData();
-    }, [calculationInputParams, varshphalYear, i18n.language]);
+    }, [calculationInputParams, varshphalYear, i18n.language, adjustedGocharDateTimeString, locationForGocharTool, transitPlaceName]);
 
     useEffect(() => {
-        if (!isLoading && !mainError && !kpError && !varshphalError && !transitError && mainResult && kpResult && varshphalResult && transitResult) {
-            window.print();
-            setIsPrinting(false);
-        } else if (!isLoading && (mainError || kpError || varshphalError || transitError)) {
-            // If there's an error and loading is complete, stop printing and maybe show an alert
-            alert('Could not generate full print report due to errors. Please check console for details.');
-            setIsPrinting(false);
-        }
-    }, [isLoading, mainResult, kpResult, varshphalResult, transitResult, mainError, kpError, varshphalError, transitError, setIsPrinting, displayInputParams]);
+        const fetchPredictions = async () => {
+            if (!mainResult || !varshphalResult || !calculationInputParams) {
+                return;
+            }
+
+            // Fetch Holistic Prediction
+            setIsLoadingHolisticPrediction(true);
+            setHolisticPredictionError(null);
+            try {
+                const holisticPayload = {
+                    birthDate: calculationInputParams.date,
+                    latitude: calculationInputParams.latitude,
+                    longitude: calculationInputParams.longitude,
+                    transitDate: adjustedGocharDateTimeString,
+                    lang: i18n.language,
+                    houseSystem: "placidus"
+                };
+                const holisticResponse = await api.post('/predictions/holistic', holisticPayload);
+                setHolisticPrediction(holisticResponse.data);
+
+                // Fetch KP Analysis if data is available
+                if (holisticResponse.data?.planetDetails?.kpSignificators) {
+                    setKpAnalysis({ analysis: "", isLoading: true, error: null });
+                    try {
+                        const kpPayload = {
+                            kpSignificators: holisticResponse.data.planetDetails.kpSignificators,
+                            planetDetails: holisticResponse.data.planetDetails,
+                            lang: i18n.language
+                        };
+                        const kpResponse = await api.post('/predictions/kp-analysis', kpPayload);
+                        setKpAnalysis({ analysis: kpResponse.data.analysis.analysisText || '', isLoading: false, error: null });
+                    } catch (err) {
+                        const errorMsg = err.response?.data?.error || err.message || 'Failed to fetch KP analysis.';
+                        setKpAnalysis({ analysis: "", isLoading: false, error: errorMsg });
+                    }
+                }
+
+            } catch (err) {
+                setHolisticPredictionError('Failed to fetch holistic prediction.');
+            } finally {
+                setIsLoadingHolisticPrediction(false);
+            }
+
+            // Fetch Varshphal Prediction
+            const yearValue = new Date(adjustedGocharDateTimeString).getFullYear();
+            setVarshphalPrediction({ prediction: "", isLoading: true, error: null, year: yearValue });
+            try {
+                const varData = varshphalResult;
+                const varChart = varData.varshphalChart;
+                if (varChart && varChart.ascendant && varChart.planetaryPositions && varChart.planetaryPositions.sidereal) {
+                    const varshphalPredPayload = {
+                        varshphalChart: varChart,
+                        muntha: varData.muntha,
+                        yearLord: varData.yearLord,
+                        muddaDasha: varData.muddaDasha,
+                        kpSignificators: varData.kpSignificators,
+                        lang: i18n.language,
+                        varshphalYear: yearValue
+                    };
+                    const predResp = await api.post('/predictions/varshaphal', varshphalPredPayload);
+                    setVarshphalPrediction({ prediction: predResp.data.prediction || '', isLoading: false, error: null, year: yearValue });
+                } else {
+                    throw new Error('Varshphal calculation failed.');
+                }
+            } catch (err) {
+                const errorMsg = err.response?.data?.error || err.message || 'Varshphal prediction failed.';
+                setVarshphalPrediction({ prediction: "", isLoading: false, error: errorMsg, year: yearValue });
+            }
+        };
+
+        fetchPredictions();
+    }, [mainResult, varshphalResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language]);
+
+    useEffect(() => {
+            if (!isLoading && !mainError && !kpError && !varshphalError && !transitError && mainResult && kpResult && varshphalResult && transitResult && holisticPrediction && !varshphalPrediction.isLoading && !kpAnalysis.isLoading) {
+                window.print();
+                setIsPrinting(false);
+                } else if (!isLoading && (mainError || kpError || varshphalError || transitError || holisticPredictionError || varshphalPrediction.error || kpAnalysis.error)) {
+                    // If there's an error and loading is complete, stop printing and maybe show an alert
+                    alert('Could not generate full print report due to errors. Please check console for details.');
+                    setIsPrinting(false);
+                }    }, [isLoading, mainResult, kpResult, varshphalResult, transitResult, holisticPrediction, varshphalPrediction, kpAnalysis, mainError, kpError, varshphalError, transitError, holisticPredictionError, setIsPrinting, displayInputParams]);
 
     if (isLoading) {
         return <div>Loading print data...</div>;
@@ -297,7 +527,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                         {displayResult.badhakDetails && !displayResult.badhakDetails.error && (
                             <p>
                                 <strong>{t('astrologyForm.badhakTitle', 'Badhak:')}</strong>
-                                {` ${t('astrologyForm.badhakHouseLabel', 'House')} ${displayResult.badhakDetails.badhakHouse} `}
+                                {` ${t('astrologyForm.badhakHouseLabel', 'House')} ${displayResult.badhakDetails.rotatedHouse ?? displayResult.badhakDetails.badhakHouse} `}
                                 {`(${t(`rashis.${displayResult.badhakDetails.badhakSign}`, { defaultValue: displayResult.badhakDetails.badhakSign })}, `}
                                 {`${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.badhakDetails.badhakesh}`, { defaultValue: displayResult.badhakDetails.badhakesh })})`}
                             </p>
@@ -385,34 +615,41 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                         </div>
                     )}
 
-                    {/* 8. D1 Diamond Chart, 9. Nirayan Chart, 10. D9 Chart */}
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0px', justifyItems: 'center', pageBreakInside: 'avoid' }}>
-                        <h3>Charts</h3>
-                        {/* D1 - Lagna Chart */}
+                    {/* Natal Charts */}
+                    {/* D1 - Lagna Chart */}
+                    <div style={{ pageBreakInside: 'avoid' }}>
+                        <h3>{t('astrologyForm.mainChartsTitle', 'Natal Charts')}</h3>
                         <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartD1Title')}</h4>
-                        <DiamondChart
-                            title={t('astrologyForm.chartD1Title')}
-                            houses={mainResult.houses}
-                            planets={mainResult.planetaryPositions.sidereal}
-                            chartType="lagna"
-                            size={400}// Adjust size for print
-                        />
+                        <div style={{ display: 'flex', justifyContent: 'center' }}> {/* Center the chart */}
+                            <DiamondChart
+                                title={t('astrologyForm.chartD1Title')}
+                                houses={mainResult.houses}
+                                planets={mainResult.planetaryPositions.sidereal}
+                                chartType="lagna"
+                                size={400}// Adjust size for print
+                            />
+                        </div>
+                    </div>
 
-                        {/* Nirayan Chart (effectively D1, but labeled differently) */}
+                    {/* 9. Nirayan Chart */}
+                    <div style={{ pageBreakInside: 'avoid' }}>
                         <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartNirayanTitle')}</h4>
-                        <DiamondChart
-                            title={t('astrologyForm.chartNirayanTitle')}
-                            houses={mainResult.houses}
-                            planets={mainResult.planetaryPositions.sidereal}
-                            chartType="lagna"
-                            size={400} // Adjust size for print
-                        />
+                        <div style={{ display: 'flex', justifyContent: 'center' }}> {/* Center the chart */}
+                            <DiamondChart
+                                title={t('astrologyForm.chartNirayanTitle')}
+                                houses={mainResult.houses}
+                                planets={mainResult.planetaryPositions.sidereal}
+                                chartType="lagna"
+                                size={400} // Adjust size for print
+                            />
+                        </div>
+                    </div>
 
-                        {/* D9 - Navamsha Chart */}
-                        {mainResult.d9_planets && mainResult.d9_ascendant_dms && (
-                            <>
-                                <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartD9Title')}</h4>
+                    {/* 10. D9 - Navamsha Chart */}
+                    {mainResult.d9_planets && mainResult.d9_ascendant_dms && (
+                        <div style={{ pageBreakInside: 'avoid' }}>
+                            <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartD9Title')}</h4>
+                            <div style={{ display: 'flex', justifyContent: 'center' }}> {/* Center the chart */}
                                 <DiamondChart
                                     title={t('astrologyForm.chartD9Title')}
                                     houses={createChartHousesFromAscendant(mainResult.d9_ascendant_dms, t)}
@@ -420,9 +657,9 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                                     chartType="d9"
                                     size={400} // Adjust size for print
                                 />
-                            </>
-                        )}
-                    </div>
+                            </div>
+                        </div>
+                    )}
                     {/* Birth Chart House Cusps Table */}
                     {mainResult?.houses && (
                         <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
@@ -469,7 +706,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                     
                     {/* 11. Planet Details Table */}
                     <div className="portrait-section" style={{ pageBreakInside: 'avoid' }}>
-                        <h2 style={{ width: '100%', textAlign: 'center', pageBreakBefore: 'always' }}>Planet Details</h2>
+                        <h2 style={{ width: '100%', textAlign: 'center' }}>Planet Details</h2>
                         <div style={{ marginBottom: '20px' }}> {/* Wrapper for first table */}
                             <CustomDetailedPlanetTable 
                                 planets={mainResult.planetaryPositions.sidereal} 
@@ -479,7 +716,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                                 columns={COLUMNS_TABLE_1}
                             />
                         </div>
-                        <div style={{ pageBreakBefore: 'avoid' }}> {/* Wrapper for second table */}
+                        <div> {/* Wrapper for second table */}
                             <CustomDetailedPlanetTable 
                                 planets={mainResult.planetaryPositions.sidereal} 
                                 houses={mainResult.houses} 
@@ -528,14 +765,14 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                                     <thead>
                                         <tr>
                                             <th>{t('friendshipTableHeaders.planet')}</th>
-                                            {PLANET_ORDER.filter(p => p !== 'Rahu' && p !== 'Ketu').map(p => <th key={p}>{t(`planetsShort.${p}`, p)}</th>)}
+                                            {PLANET_ORDER.filter(p => p !== 'Rahu' && p !== 'Ketu' && p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(p => <th key={p}>{t(`planetsShort.${p}`, p)}</th>)}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {PLANET_ORDER.filter(p => p !== 'Rahu' && p !== 'Ketu').map(planet => (
+                                        {PLANET_ORDER.filter(p => p !== 'Rahu' && p !== 'Ketu' && p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(planet => (
                                             <tr key={planet}>
                                                 <td>{t(`planets.${planet}`, planet)}</td>
-                                                {PLANET_ORDER.filter(p => p !== 'Rahu' && p !== 'Ketu').map(otherPlanet => {
+                                                {PLANET_ORDER.filter(p => p !== 'Rahu' && p !== 'Ketu' && p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(otherPlanet => {
                                                     const friendship = displayResult.planetDetails.resultingFriendship[planet]?.[otherPlanet];
                                                     const className = friendship ? `friendship-${friendship.toLowerCase().replace(' ', '-')}` : '';
                                                     return (
@@ -629,7 +866,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                     {/* 15. Uncommon Planetary Beneficence Score (UPBS) */}
                     {displayResult?.planetDetails?.upbsScores && (
                         <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
-                            <h3 style={{ pageBreakBefore: 'always' }}>{t('planetDetailsPage.upbsTitle')}</h3>
+                            <h3 >{t('planetDetailsPage.upbsTitle')}</h3>
                             <div className="table-wrapper upbs-table-wrapper">
                                 <table className="results-table upbs-table">
                                     <thead>
@@ -649,7 +886,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {PLANET_ORDER.filter(p => p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(planet => {
+                                        {PLANET_ORDER.filter(p => p !== 'Rahu' && p !== 'Ketu' && p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(planet => {
                                             const planetUPBS = displayResult.planetDetails.upbsScores[planet];
                                             if (!planetUPBS || isNaN(planetUPBS.total) || !planetUPBS.breakdown) {
                                                 return (
@@ -710,108 +947,304 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                     {/* 17. Ashtakavarga Charts */}
                     
                     <AshtakavargaReport ashtakavargaData={mainResult.ashtakavarga} houses={mainResult.houses} inputParams={displayInputParams} />
-                </>
-            )}
-            {/* 18. KP Significators */}
-            {kpResult && (
-                <>
-                    <h2 style={{ pageBreakBefore: 'always' }}>KP Significators</h2>
-                    {kpResult.kpSignificatorsData && (
-                        <KpSignificatorGrid
-                            significatorDetailsMap={new Map(kpResult.kpSignificatorsData.map(s => [s.name, s]))}
-                            selectedEvent=""
-                            significatorPlanet=""
-                        />
-                    )}
-                </>
-            )}
-            {/* 19. Varshphal Report */}
-            {varshphalResult && (
-                <>
-                  
-                    <VarshphalReport varshphalResult={varshphalResult} reportYear={varshphalYear} natalInputParams={displayInputParams} t={t} i18n={i18n} formatDisplayDateTime={formatDisplayDateTime} isPrintable={true} />
-                </>
-            )}
-
-            {/* 20. Transit Report */}
-            {transitResult && (
-                <div className="transit-report" style={{ pageBreakBefore: 'always' }}>
-                    <h2>{t('varshphalPage.transitReportTitle', 'Transit Report (Gochar)')}</h2>
-                    {/* Transit Input Summary */}
-                    <div className="report-section input-summary">
-                        <h3>{t('sharedLayout.transitDetailsTitle', 'Transit Details')}</h3>
-                        <p><strong>{t('sharedLayout.transitDateTimeLabel', 'Date & Time:')}</strong> {formatDisplayDateTime(transitResult.inputParameters.date, t, i18n)}</p>
-                        <p><strong>{t('sharedLayout.transitPlaceLabel', 'Place:')}</strong> {transitResult.inputParameters.placeName || t('utils.notAvailable', 'N/A')}</p>
-                        <p><strong>{t('sharedLayout.coordsLabel', 'Coordinates:')}</strong> {transitResult.inputParameters.latitude.toFixed(4)}, {transitResult.inputParameters.longitude.toFixed(4)}</p>
-                    </div>
-
-                    {/* Transit Charts */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0px', justifyItems: 'center', pageBreakInside: 'avoid' }}>
-                        <h3>{t('astrologyForm.mainChartsTitle', 'Charts')}</h3>
-                        {/* Lagna Chart */}
-                        <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartD1Title', 'Lagna Chart')}</h4>
-                        <DiamondChart
-                            title={t('astrologyForm.chartD1Title')}
-                            houses={transitResult.houses}
-                            planets={transitResult.planetaryPositions.sidereal}
-                            chartType="lagna"
-                            size={400}
-                        />
-
-                        {/* Nirayan Chart */}
-                        <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartNirayanTitle', 'Nirayan Chart')}</h4>
-                        <DiamondChart
-                            title={t('astrologyForm.chartNirayanTitle')}
-                            houses={transitResult.houses}
-                            planets={transitResult.planetaryPositions.sidereal}
-                            chartType="lagna"
-                            size={400}
-                        />
-                    </div>
-
-                    {/* Transit Panchang */}
-                    {transitResult.panchang && (
-                        <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
-                            <h3>{t('astrologyForm.transitPanchangaTitle', 'Transit Panchanga')}</h3>
-                            <p>{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${transitResult.panchang?.samvatsar}`, { defaultValue: transitResult.panchang?.samvatsar ?? t('utils.notAvailable', 'N/A') })}</p>
-                            <p>{t('astrologyForm.vikramSamvatLabel')} {transitResult.panchang?.vikram_samvat ?? t('utils.notAvailable', 'N/A')}</p>
-                            <p>{t('astrologyForm.sakaYearLabel')} {transitResult.panchang?.SakaYear ?? t('utils.notAvailable', 'N/A')}</p>
-                            <p>{t('astrologyForm.solarMonthLabel')} {t(`hindiMonths.${transitResult.panchang?.Masa?.name_en_IN}`, { defaultValue: transitResult.panchang?.Masa?.name_en_IN ?? t('utils.notAvailable', 'N/A') })} ({transitResult.panchang?.Masa?.solar_day})</p>
-                            <p>{t('astrologyForm.amantaLunarMonthLabel')} {t(`hindiMonths.${transitResult.panchang?.MoonMasa?.name_en_IN}`, { defaultValue: transitResult.panchang?.MoonMasa?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}</p>
-                            <p>{t('astrologyForm.purnimantaLunarMonthLabel')} {t(`hindiMonths.${transitResult.panchang?.PurnimantaMasa?.name_en_IN}`, { defaultValue: transitResult.panchang?.PurnimantaMasa?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}</p>
-                            <p>{t('astrologyForm.rituLabel')} {t(`ritus.${transitResult.panchang?.Ritu?.name_en_UK}`, { defaultValue: transitResult.panchang?.Ritu?.name_en_UK ?? t('utils.notAvailable', 'N/A') })}</p>
-                            <p>
-                                {t('astrologyForm.tithiLabel')} {transitResult.panchang?.Tithi
-                                    ? `${t(`pakshas.${transitResult.panchang.Tithi.paksha_en_IN}`, { defaultValue: transitResult.panchang.Tithi.paksha_en_IN })} ${transitResult.panchang.Tithi.number || ''} (${t(`tithis.${transitResult.panchang.Tithi.name_en_IN}`, { defaultValue: transitResult.panchang.Tithi.name_en_IN || 'N/A' })})`
-                                    : t('utils.notAvailable', 'N/A')}
-                                {transitResult.panchang?.Tithi?.start && transitResult.panchang?.Tithi?.end && ` (${formatPanchangTime(transitResult.panchang.Tithi.start, t, i18n)} - ${formatPanchangTime(transitResult.panchang.Tithi.end, t, i18n)})`}
-                            </p>
-                            <p>{t('astrologyForm.rashiMoLabel')} {t(`rashis.${getRashiFromDegree(convertDMSToDegrees(transitResult.planetaryPositions.sidereal.Moon?.dms), t)}`, { defaultValue: getRashiFromDegree(convertDMSToDegrees(transitResult.planetaryPositions.sidereal.Moon?.dms), t) ?? t('utils.notAvailable', 'N/A') })}</p>
-                            <p>
-                                {t('astrologyForm.nakMoLabel')} {t(`nakshatras.${transitResult.panchang?.Nakshatra?.name_en_IN}`, { defaultValue: transitResult.panchang?.Nakshatra?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}
-                                {transitResult.planetaryPositions.sidereal.Moon?.nakLord && ` (${t('astrologyForm.lordLabel')} ${t(`planets.${transitResult.planetaryPositions.sidereal.Moon.nakLord}`, { defaultValue: transitResult.planetaryPositions.sidereal.Moon.nakLord })})`}
-                                {calculateNakshatraPada(convertDMSToDegrees(transitResult.planetaryPositions.sidereal.Moon?.dms), t) !== 'N/A' ? ` (${t('astrologyForm.padaLabel')}${calculateNakshatraPada(convertDMSToDegrees(transitResult.planetaryPositions.sidereal.Moon?.dms), t)})` : ""}
-                                {transitResult.panchang?.Nakshatra?.start && transitResult.panchang?.Nakshatra?.end && ` (${formatPanchangTime(transitResult.panchang.Nakshatra.start, t, i18n)} - ${formatPanchangTime(transitResult.panchang.Nakshatra.end, t, i18n)})`}
-                            </p>
-                            <p>
-                                {t('astrologyForm.yogaLabel')} {t(`yogas.${transitResult.panchang?.Yoga?.name_en_IN}_name`, { defaultValue: transitResult.panchang?.Yoga?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}
-                                {transitResult.panchang?.Yoga?.start && transitResult.panchang?.Yoga?.end && ` (${formatPanchangTime(transitResult.panchang.Yoga.start, t, i18n)} - ${formatPanchangTime(transitResult.panchang.Yoga.end, t, i18n)})`}
-                            </p>
-                            <p>
-                                {t('astrologyForm.karanLabel')} {t(`karans.${transitResult.panchang?.Karna?.name_en_IN}`, { defaultValue: transitResult.panchang?.Karna?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}
-                                {transitResult.panchang?.Karna?.start && transitResult.panchang?.Karna?.end && ` (${formatPanchangTime(transitResult.panchang.Karna.start, t, i18n)} - ${formatPanchangTime(transitResult.panchang.Karna.end, t, i18n)})`}
-                            </p>
-                            <p>{t('astrologyForm.varLabel')} {t(`weekdays.${calculateVar(transitResult.inputParameters.date, t).varName}`, { defaultValue: calculateVar(transitResult.inputParameters.date, t).varName ?? t('utils.notAvailable', 'N/A') })}</p>
+                    {kpResult && (
+                        <div className="report-section" style={{ pageBreakBefore: 'always' }}>
+                            <h3 className="result-sub-title">{t('kpSignificatorsPrintableTitle')}</h3>
+                            <KpSignificatorGrid
+                                significatorDetailsMap={significatorDetailsMap}
+                                selectedEvent=""
+                                significatorPlanet=""
+                            />
                         </div>
                     )}
 
-                    {/* Transit House Cusps Table */}
-                    {transitResult?.houses && (
-                        <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
-                            <h3>{t('astrologyForm.transitHouseCuspsTitle', 'Transit House Cusps')}</h3>
-                            <div className="table-wrapper">
-                                <table className="results-table">
-                                    <thead>
+                    {varshphalResult && (
+                        <div style={{ pageBreakBefore: 'always' }}>
+                            <h2 style={{ width: '100%', textAlign: 'center' }}>{t('varshphalPage.pageTitle')}</h2>
+
+                            {/* Input Summary */}
+                            <div className="report-section input-summary">
+                                <h3>{t('varshphalPage.inputSummaryTitle')}</h3>
+                                <p>{t('varshphalPage.inputSummary', {
+                                    date: formatDisplayDateTime(calculationInputParams.date, t, i18n),
+                                    varshphalDate: (varshphalResult.muddaDasha && varshphalResult.muddaDasha.length > 0) ? formatDisplayDateTime(varshphalResult.muddaDasha[0].start, t, i18n) : t('utils.notAvailable', 'N/A'),
+                                    place: calculationInputParams.placeName,
+                                    lat: calculationInputParams.latitude.toFixed(4),
+                                    lon: calculationInputParams.longitude.toFixed(4),
+                                    year: varshphalYear
+                                })}</p>
+                            </div>
+
+                            {/* Key Details */}
+                            <div className="report-section">
+                                <h3>{t('varshphalPage.keyDetailsTitle')}</h3>
+                                {varshphalResult.muntha && (
+                                    <p>
+                                        <strong>{t('varshphalPage.munthaLabel')}</strong>{' '}
+                                        {t('varshphalPage.munthaText', {
+                                            house: varshphalResult.muntha.house,
+                                            sign: t(`signs.${varshphalResult.muntha.sign}`, varshphalResult.muntha.sign)
+                                        })}
+                                    </p>
+                                )}
+                                {varshphalResult.yearLord && (
+                                    <p>
+                                        <strong>{t('varshphalPage.yearLordLabel')}</strong>{' '}
+                                        {t(`planets.${varshphalResult.yearLord}`, varshphalResult.yearLord)}
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Varshphal Chart */}
+                            {varshphalResult.varshphalChart && (
+                                <div style={{ pageBreakInside: 'avoid' }}>
+                                    <h4 style={{ margin: '5px 0' }}>{t('varshphalPage.chartTitle', { year: varshphalYear })}</h4>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <DiamondChart
+                                            houses={varshphalResult.varshphalChart.houses}
+                                            planets={varshphalResult.varshphalChart.planetaryPositions.sidereal}
+                                            size={400}
+                                            chartType="lagna"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Nirayan Bhava Chalit Chart */}
+                            {varshphalResult.varshphalChart?.planetHousePlacements && (
+                                <div style={{ pageBreakInside: 'avoid' }}>
+                                    <h4 style={{ margin: '5px 0' }}>{t('varshphalPage.bhavaChalitChartTitle', { year: varshphalYear })}</h4>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <DiamondChart
+                                            houses={varshphalResult.varshphalChart.houses}
+                                            planetHousePlacements={varshphalResult.varshphalChart.planetHousePlacements}
+                                            size={400}
+                                            chartType="bhava"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                            
+                            {/* Mudda Dasha */}
+                            {varshphalResult.muddaDasha && (
+                                <div className="report-section" style={{ pageBreakBefore: 'always' }}>
+                                    <h3>{t('varshphalPage.muddaDashaTitle')}</h3>
+                                    <DashaTable dashaPeriods={varshphalResult.muddaDasha} />
+                                </div>
+                            )}
+                            
+                            {/* House Cusps */}
+                            {varshphalResult.varshphalChart?.houses && (
+                                <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
+                                    <h3>{t('varshphalPage.houseCuspsTitle')}</h3>
+                                    <div className="table-wrapper">
+                                        <table className="results-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>{t('common.house')}</th>
+                                                    <th>{t('common.start')}</th>
+                                                    <th>{t('common.mean')}</th>
+                                                    <th>{t('common.end')}</th>
+                                                    <th>{t('common.rashi')}</th>
+                                                    <th>{t('common.nakshatra')}</th>
+                                                    <th>{t('common.subLord')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {varshphalResult.varshphalChart.houses.map((house) => (
+                                                <tr key={house.house_number}>
+                                                    <td>{house.house_number}</td>
+                                                    <td>{house.start_dms || 'N/A'}</td>
+                                                    <td>{house.mean_dms || 'N/A'}</td>
+                                                    <td>{house.end_dms || 'N/A'}</td>
+                                                    <td>{t(`rashis.${house.start_rashi}`, house.start_rashi) || 'N/A'} ({t(`planets.${house.start_rashi_lord}`, house.start_rashi_lord) || 'N/A'})</td>
+                                                    <td>{t(`nakshatras.${house.start_nakshatra}`, house.start_nakshatra) || 'N/A'} ({t(`planets.${house.start_nakshatra_lord}`, house.start_nakshatra_lord) || 'N/A'})</td>
+                                                    <td>{t(`planets.${house.start_sub_lord}`, house.start_sub_lord) || 'N/A'}</td>
+                                                </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Planetary Positions */}
+                             <div className="portrait-section" style={{ pageBreakInside: 'avoid' }}>
+                                <h2 style={{ width: '100%', textAlign: 'center' }}>{t('varshphalPage.siderealPlanetaryPositionsTitle')}</h2>
+                                <div style={{ marginBottom: '20px' }}>
+                                    <CustomDetailedPlanetTable 
+                                        planets={varshphalResult.varshphalChart.planetaryPositions.sidereal} 
+                                        houses={varshphalResult.varshphalChart.houses} 
+                                        planetDetails={varshphalResult.varshphalChart.planetDetails} 
+                                        planetOrder={PLANET_ORDER} 
+                                        columns={COLUMNS_TABLE_1}
+                                    />
+                                </div>
+                                <div>
+                                    <CustomDetailedPlanetTable 
+                                        planets={varshphalResult.varshphalChart.planetaryPositions.sidereal} 
+                                        houses={varshphalResult.varshphalChart.houses} 
+                                        planetDetails={varshphalResult.varshphalChart.planetDetails} 
+                                        planetOrder={PLANET_ORDER} 
+                                        columns={COLUMNS_TABLE_2}
+                                    />
+                                </div>
+                            </div>
+                            
+                            {/* KP Significators */}
+                            {varshphalResult.kpSignificators && (
+                                <div className="report-section" style={{ pageBreakBefore: 'always' }}>
+                                    <h3>{t('varshphalPage.kpSignificatorsTitle')}</h3>
+                                    <KpSignificatorGrid significatorDetailsMap={varshphalSignificatorDetailsMap} selectedEvent="" />
+                                </div>
+                            )}
+
+                            {/* UPBS Table */}
+                            {varshphalResult.varshphalChart?.planetDetails?.upbsScores && (
+                                <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
+                                    <h3>{t('varshphalPage.upbsTitle')}</h3>
+                                    <div className="table-wrapper upbs-table-wrapper">
+                                        <table className="results-table upbs-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>{t('upbsTableHeaders.planet')}</th>
+                                                    <th>{t('upbsBreakdownShort.NBS')}</th>
+                                                    <th>{t('upbsBreakdownShort.FBS')}</th>
+                                                    <th>{t('upbsBreakdownShort.PDS')}</th>
+                                                    <th>{t('upbsBreakdownShort.SS')}</th>
+                                                    <th>{t('upbsBreakdownShort.CRS')}</th>
+                                                    <th>{t('upbsBreakdownShort.HPS')}</th>
+                                                    <th>{t('upbsBreakdownShort.ARS')}</th>
+                                                    <th>{t('upbsBreakdownShort.NLM')}</th>
+                                                    <th>{t('upbsBreakdownShort.ASC')}</th>
+                                                    <th>{t('upbsTableHeaders.totalScoreShort')}</th>
+                                                    <th>{t('upbsTableHeaders.interpretationShort')}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {Object.keys(varshphalResult.varshphalChart.planetDetails.upbsScores).map(planet => {
+                                                    const planetUPBS = varshphalResult.varshphalChart.planetDetails.upbsScores[planet];
+                                                    if (!planetUPBS || isNaN(planetUPBS.total)) {
+                                                    return (
+                                                        <tr key={`upbs-${planet}`}>
+                                                        <td>{t(`planets.${planet}`, planet)}</td>
+                                                        <td colSpan="11">{t('varshphalPage.upbsDataMissing')}</td>
+                                                        </tr>
+                                                    );
+                                                    }
+                                                    const interpretation = interpretUPBS(planetUPBS.total, t);
+                                                    return (
+                                                    <tr key={`upbs-${planet}`}>
+                                                        <td>{t(`planets.${planet}`, planet)}</td>
+                                                        <td>{planetUPBS.breakdown.NBS.toFixed(2)}</td>
+                                                        <td>{planetUPBS.breakdown.FBS.toFixed(2)}</td>
+                                                        <td>{planetUPBS.breakdown.PDS.toFixed(2)}</td>
+                                                        <td>{planetUPBS.breakdown.SS.toFixed(2)}</td>
+                                                        <td>{planetUPBS.breakdown.CRS.toFixed(2)}</td>
+                                                        <td>{planetUPBS.breakdown.HPS.toFixed(2)}</td>
+                                                        <td>{planetUPBS.breakdown.ARS.toFixed(2)}</td>
+                                                        <td>{planetUPBS.breakdown.NLM.toFixed(2)}</td>
+                                                        <td>{planetUPBS.breakdown.ASC.toFixed(2)}</td>
+                                                        <td><strong>{planetUPBS.total.toFixed(2)}</strong></td>
+                                                        <td>{interpretation}</td>
+                                                    </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    
+                    {transitResult && (
+                        <div style={{ pageBreakBefore: 'always' }}>
+                            <h2 style={{ width: '100%', textAlign: 'center' }}>Transit Details</h2>
+
+                            {/* Transit Basic Info */}
+                            <div className="report-section">
+                                <h3>{t('astrologyForm.transitBasicInfoTitle')}</h3>
+                                <p>{t('astrologyForm.transitTimeTitle')}: {formatDisplayDateTime(transitResult.inputParameters.date, t, i18n)}</p>
+                                <p>
+                                    {t('Transit Ascendent')} {transitResult.ascendant?.sidereal_dms ?? t('utils.notAvailable', 'N/A')}
+                                    {transitResult.ascendant?.rashi && ` (${t(`rashis.${transitResult.ascendant.rashi}`, { defaultValue: transitResult.ascendant.rashi })} - ${t(`planets.${transitResult.ascendant.rashiLord}`, { defaultValue: transitResult.ascendant.rashiLord })})`}
+                                </p>
+                                <p>
+                                    {t('Transit Ascendent Detail')}
+                                    {transitResult.ascendant?.rashi && ` (${t(`rashis.${transitResult.ascendant.rashi}`, { defaultValue: transitResult.ascendant.rashi })}, ${t('astrologyForm.nakshatraLabel')} ${t(`nakshatras.${transitResult.ascendant.nakshatra}`, { defaultValue: transitResult.ascendant.nakshatra })} ${t('astrologyForm.padaLabel')}${transitResult.ascendant.pada}, ${t('astrologyForm.lordLabel')} ${t(`planets.${transitResult.ascendant.nakLord}`, { defaultValue: transitResult.ascendant.nakLord })})`}
+                                </p>
+                                {transitResult.sunMoonTimes && (
+                                    <>
+                                        <p>{t('astrologyForm.sunriseLabel')} {formatPanchangTime(transitResult.sunMoonTimes.sunrise, t, i18n) ?? t('utils.notAvailable', 'N/A')}</p>
+                                        <p>{t('astrologyForm.sunsetLabel')} {formatPanchangTime(transitResult.sunMoonTimes.sunset, t, i18n) ?? t('utils.notAvailable', 'N/A')}</p>
+                                        <p>{t('astrologyForm.moonriseLabel')} {formatPanchangTime(transitResult.sunMoonTimes.moonrise, t, i18n) ?? t('utils.notAvailable', 'N/A')}</p>
+                                        <p>{t('astrologyForm.moonsetLabel')} {formatPanchangTime(transitResult.sunMoonTimes.moonset, t, i18n) ?? t('utils.notAvailable', 'N/A')}</p>
+                                    </>
+                                )}
+                            </div>
+
+                            {/* Transit Panchang */}
+                            <div className="report-section">
+                                <h3>{t('astrologyForm.transitPanchangaTitle')}</h3>
+                                <p>{t('astrologyForm.samvatsarLabel')} {t(`samvatsaras.${transitResult.panchang?.samvatsar}`, { defaultValue: transitResult.panchang?.samvatsar ?? t('utils.notAvailable', 'N/A') })}</p>
+                                <p>{t('astrologyForm.vikramSamvatLabel')} {transitResult.panchang?.vikram_samvat ?? t('utils.notAvailable', 'N/A')}</p>
+                                <p>{t('astrologyForm.sakaYearLabel')} {transitResult.panchang?.SakaYear ?? t('utils.notAvailable', 'N/A')}</p>
+                                <p>{t('astrologyForm.solarMonthLabel')} {t(`hindiMonths.${transitResult.panchang?.Masa?.name_en_IN}`, { defaultValue: transitResult.panchang?.Masa?.name_en_IN ?? t('utils.notAvailable', 'N/A') })} ({transitResult.panchang?.Masa?.solar_day})</p>
+                                <p>{t('astrologyForm.amantaLunarMonthLabel')} {t(`hindiMonths.${transitResult.panchang?.MoonMasa?.name_en_IN}`, { defaultValue: transitResult.panchang?.MoonMasa?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}</p>
+                                <p>{t('astrologyForm.purnimantaLunarMonthLabel')} {t(`hindiMonths.${transitResult.panchang?.PurnimantaMasa?.name_en_IN}`, { defaultValue: transitResult.panchang?.PurnimantaMasa?.name_en_IN ?? t('utils.notAvailable', 'N/A') })}</p>
+                                <p>{t('astrologyForm.rituLabel')} {t(`ritus.${transitResult.panchang?.Ritu?.name_en_UK}`, { defaultValue: transitResult.panchang?.Ritu?.name_en_UK ?? t('utils.notAvailable', 'N/A') })}</p>
+                            </div>
+
+                            {/* Transit Time Lordship */}
+                            <div className="report-section">
+                                <h3>{t('Transit Time Lordship')}</h3>
+                                <div className="lordship-column">
+                                    <p>{t('Day Lord')}: {t(`planets.${calculateVar(transitResult.inputParameters.date, t).dayLord}`, { defaultValue: 'N/A' })}</p>
+                                    <p>{t('Ascendant Lord')}: {t(`planets.${transitResult.ascendant?.rashiLord}`, { defaultValue: transitResult.ascendant?.rashiLord ?? 'N/A' })}</p>
+                                    <p>{t('Ascendant Nakshatra Lord')}: {t(`planets.${transitResult.ascendant?.nakLord}`, { defaultValue: transitResult.ascendant?.nakLord ?? 'N/A' })}</p>
+                                    <p>{t('Ascendant Nakshatra SubLord')}: {t(`planets.${transitResult.ascendant?.subLord}`, { defaultValue: transitResult.ascendant?.subLord ?? 'N/A' })}</p>
+                                    <p>{t('Moon Rashi Lord')}: {t(`planets.${transitResult.planetaryPositions?.sidereal?.Moon?.rashiLord}`, { defaultValue: transitResult.planetaryPositions?.sidereal?.Moon?.rashiLord ?? 'N/A' })}</p>
+                                    <p>{t('Moon Nakshatra Lord')}: {t(`planets.${transitResult.planetaryPositions?.sidereal?.Moon?.nakLord}`, { defaultValue: transitResult.planetaryPositions?.sidereal?.Moon?.nakLord ?? 'N/A' })}</p>
+                                    <p>{t('Moon Nakshatra SubLord')}: {t(`planets.${transitResult.planetaryPositions?.sidereal?.Moon?.subLord}`, { defaultValue: transitResult.planetaryPositions?.sidereal?.Moon?.subLord ?? 'N/A' })}</p>
+                                </div>
+                            </div>
+                            
+                            {/* Transit D1 Chart */}
+                            <div style={{ pageBreakInside: 'avoid' }}>
+                                <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartGocharTitle')}</h4>
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <DiamondChart
+                                        houses={createChartHousesFromAscendant(transitResult.ascendant.sidereal_dms, t)}
+                                        planets={transitResult.planetaryPositions.sidereal}
+                                        chartType="gochar"
+                                        size={400}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Transit Bhava Chalit Chart */}
+                            {transitResult.planetHousePlacements && (
+                                <div style={{ pageBreakInside: 'avoid' }}>
+                                    <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartBhavaTitle')} - {t('nav.gochar')}</h4>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <DiamondChart
+                                            houses={transitResult.houses}
+                                            planetHousePlacements={transitResult.planetHousePlacements}
+                                            chartType="bhava"
+                                            size={400}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Transit House Cusps Table */}
+                            {transitResult?.houses && (
+                                <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
+                                    <h3 style={{ pageBreakBefore: 'always' }}>{t('astrologyForm.transitHouseCuspsTitle')}</h3>
+                                    <div className="table-wrapper">
+                                        <table className="results-table">
+                                        <thead>
                                         <tr>
                                             <th>{t('common.house')}</th>
                                             <th>{t('common.start')}</th>
@@ -844,39 +1277,184 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting 
                                             </tr>
                                         ))}
                                     </tbody>
-                                </table>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Transit Planet Details Table */}
+                            <div className="portrait-section" style={{ pageBreakInside: 'avoid' }}>
+                                <h2 style={{ width: '100%', textAlign: 'center' }}>{t('astrologyForm.transitPlanetaryPositionsTitle')}</h2>
+                                <div style={{ marginBottom: '20px' }}>
+                                    <CustomDetailedPlanetTable 
+                                        planets={transitResult.planetaryPositions.sidereal} 
+                                        houses={transitResult.houses} 
+                                        planetDetails={transitResult.planetDetails} 
+                                        planetOrder={PLANET_ORDER} 
+                                        columns={COLUMNS_TABLE_1}
+                                    />
+                                </div>
+                                <div>
+                                    <CustomDetailedPlanetTable 
+                                        planets={transitResult.planetaryPositions.sidereal} 
+                                        houses={transitResult.houses} 
+                                        planetDetails={transitResult.planetDetails} 
+                                        planetOrder={PLANET_ORDER} 
+                                        columns={COLUMNS_TABLE_2}
+                                    />
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Transit Planetary Positions Table */}
-                    {transitResult?.planetaryPositions?.sidereal && (
-                        <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
-                            <h3>{t('astrologyForm.transitPlanetaryPositionsTitle', 'Transit Planetary Positions')}</h3>
-                            <div style={{ marginBottom: '20px' }}>
-                                <CustomDetailedPlanetTable
-                                    planets={transitResult.planetaryPositions.sidereal}
-                                    houses={transitResult.houses}
-                                    planetDetails={transitResult.planetDetails}
-                                    planetOrder={PLANET_ORDER}
-                                    columns={COLUMNS_TABLE_1}
-                                />
-                            </div>
-                            <div style={{ pageBreakBefore: 'avoid' }}>
-                                <CustomDetailedPlanetTable
-                                    planets={transitResult.planetaryPositions.sidereal}
-                                    houses={transitResult.houses}
-                                    planetDetails={transitResult.planetDetails}
-                                    planetOrder={PLANET_ORDER}
-                                    columns={COLUMNS_TABLE_2}
-                                />
+                    {holisticPrediction && (
+                        <div className="report-section" style={{ pageBreakBefore: 'always' }}>
+                            <h2 style={{ width: '100%', textAlign: 'center' }}>{t('predictionPage.title')}</h2>
+                            
+                            {holisticPrediction.overallReport && (
+                                <div className="prediction-section">
+                                    <h3>{t('predictionPage.generalPredictionTitle')}</h3>
+                                    <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{holisticPrediction.overallReport}</p>
+                                </div>
+                            )}
+
+                            {holisticPrediction.yogas?.length > 0 && (
+                                <div className="prediction-section">
+                                    <h3>{t('predictionPage.birthChartYogasTitle')}</h3>
+                                    <table className="yoga-table">
+                                        <thead>
+                                            <tr>
+                                                <th>{t('predictionPage.yogaName')}</th>
+                                                <th>{t('predictionPage.description')}</th>
+                                                <th>{t('predictionPage.planetsInvolved')}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {holisticPrediction.yogas.map((yoga, index) => (
+                                                <tr key={index}>
+                                                    <td>{t(`yogas.${yoga.name}_name`, { defaultValue: yoga.name })}</td>
+                                                    <td>{t(`yogas.${yoga.name}_description`, { defaultValue: yoga.description })}</td>
+                                                    <td>{yoga.planetsInvolved ? yoga.planetsInvolved.map(p => t(`planets.${p}`, { defaultValue: p })).join(', ') : 'N/A'}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+
+                            {holisticPrediction.planetDetails?.kpSignificators && (
+                                <div className="prediction-section">
+                                    <h3>{t('predictionPage.kpSignificatorsTitle')}</h3>
+                                    {holisticPrediction.planetDetails.kpSignificators.cusps && Object.keys(holisticPrediction.planetDetails.kpSignificators.cusps).length > 0 && (
+                                        <div className="kp-cusp-significators">
+                                            <h4>{t('predictionPage.cuspSignificators')}</h4>
+                                            <table className="kp-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{t('predictionPage.cusp')}</th>
+                                                        <th>{t('predictionPage.significators')}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {Object.entries(holisticPrediction.planetDetails.kpSignificators.cusps).map(([cusp, significators]) => (
+                                                        <tr key={cusp}>
+                                                            <td>{cusp}</td>
+                                                            <td>{significators.map(s => t(`planets.${s}`)).join(', ')}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+
+                                    {holisticPrediction.planetDetails.kpSignificators.planets && Object.keys(holisticPrediction.planetDetails.kpSignificators.planets).length > 0 && (
+                                        <div className="kp-planet-significators">
+                                            <h4>{t('predictionPage.planetSignificators')}</h4>
+                                            <table className="kp-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>{t('predictionPage.planet')}</th>
+                                                        <th>{t('predictionPage.signifiesHouses')}</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {Object.entries(holisticPrediction.planetDetails.kpSignificators.planets).map(([planet, houses]) => (
+                                                        <tr key={planet}>
+                                                            <td>{t(`planets.${planet}`)}</td>
+                                                            <td>{houses.join(', ')}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="kp-analysis-section">
+                                        {kpAnalysis.isLoading ? (
+                                            <p>{t('predictionPage.loadingKpAnalysis')}</p>
+                                        ) : kpAnalysis.error ? (
+                                            <p className="error-text">{kpAnalysis.error}</p>
+                                        ) : (
+                                            <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{kpAnalysis.analysis}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                           
+                            {holisticPrediction.lifeAreaReports && (
+                                <div className="prediction-section">
+                                    <h3>{t('predictionPage.lifeAreasTitle')}</h3>
+                                    {Object.entries(holisticPrediction.lifeAreaReports).map(([area, report]) => (
+                                        <div key={area} className="life-area-report">
+                                            <h4>{t(`lifeAreas.${area}`, area)}</h4>
+                                            <p>{report.narrative}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {holisticPrediction.eventTimeline?.length > 0 && (
+                                <div className="prediction-section">
+                                    <h3>{t('predictionPage.eventTimelineTitle')}</h3>
+                                    <ul className="prediction-list">
+                                        {holisticPrediction.eventTimeline.map((event, index) => (
+                                            <li key={index}><strong>{t(`planets.${event.planet}`)} {t('predictionPage.inHouse', { houseNumber: event.house })}:</strong> {event.narration}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            
+                            {holisticPrediction.dashaLordAnalysis?.length > 0 && (
+                                <div className="prediction-section">
+                                    <h3>{t('predictionPage.dashaAnalysisTitle')}</h3>
+                                    {holisticPrediction.dashaLordAnalysis.map((analysis, index) => (
+                                        <p key={index} className="prediction-text">{analysis}</p>
+                                    ))}
+                                </div>
+                            )}
+
+                            <div className="prediction-section">
+                                <h3>{t('predictionPage.varshphalPredictionTitle')}</h3>
+                                {varshphalPrediction.isLoading ? (
+                                    <p>{t('predictionPage.calculatingVarshphal')}</p>
+                                ) : varshphalPrediction.error ? (
+                                    <p className="error-text">{varshphalPrediction.error}</p>
+                                ) : (
+                                    <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{varshphalPrediction.prediction}</p>
+                                )}
                             </div>
                         </div>
                     )}
-                </div>
+                </>
             )}
+
+
+
+
+
         </div>
     );
-};
 
+};
+    
 export default PrintableReport;

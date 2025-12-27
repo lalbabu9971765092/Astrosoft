@@ -92,7 +92,7 @@ const limiter = rateLimit({
 // --- General Middleware ---
 // Use logger's stream for morgan HTTP request logging
 app.use(morgan(NODE_ENV === 'production' ? 'combined' : 'dev', { stream: logger.stream }));
-app.use(express.json()); // for parsing application/json
+app.use(express.json({ limit: '50mb' })); // for parsing application/json, increased limit for large payloads
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
 // --- Swiss Ephemeris Global Setup ---

@@ -13,6 +13,18 @@ api.interceptors.request.use((config) => {
             config.headers.Authorization = `Bearer ${token}`;
         }
     }
+    // Attach global house rotation if present in localStorage for POST/PUT requests
+    try {
+        const storedRotation = localStorage.getItem('house_to_rotate');
+        if (storedRotation && (config.method === 'post' || config.method === 'put')) {
+            let data = config.data || {};
+            if (typeof data === 'object' && !Array.isArray(data)) {
+                // avoid overwriting if already present
+                if (data.house_to_rotate === undefined) data.house_to_rotate = parseInt(storedRotation, 10);
+                config.data = data;
+            }
+        }
+    } catch (e) { /* ignore */ }
     return config;
 }, (error) => {
     return Promise.reject(error);

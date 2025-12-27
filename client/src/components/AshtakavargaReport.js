@@ -22,7 +22,6 @@ const AshtakavargaReport = ({ ashtakavargaData, houses, inputParams }) => {
             <h2>{reportTitle}</h2>
             {sarvaScores && (
                 <div className="result-section sav-section">
-                    <h3>Sarva Ashtakavarga</h3>
                     <DiamondChart
                         title="Sarva Ashtakavarga"
                         size={400}
@@ -43,8 +42,7 @@ const AshtakavargaReport = ({ ashtakavargaData, houses, inputParams }) => {
                             const isValidScoreArray = Array.isArray(bavScoresArray);
 
                             return (
-                                <div key={`bav-chart-container-${planetName}`}>
-                                    <h4 className="chart-title">{chartTitle}</h4>
+                                <div key={`bav-chart-container-${planetName}`} style={{ pageBreakInside: 'avoid' }}>
                                     <DiamondChart
                                         title={chartTitle}
                                         size={300}

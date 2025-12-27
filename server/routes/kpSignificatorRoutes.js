@@ -19,7 +19,7 @@ import {
     PLANET_ORDER
 } from '../utils/index.js';
 import { calculateKpSignificators } from '../utils/kpUtils.js';
-import { rotateHouses } from '../utils/rotationUtils.js';
+import { rotateHouses, applyHouseRotation } from '../utils/rotationUtils.js';
 
 const router = express.Router();
 
@@ -89,10 +89,10 @@ router.post('/', kpValidation, async (req, res) => {
             throw new Error("Failed to calculate house cusps, cannot proceed with KP significator calculation.");
         }
 
-        const siderealCuspStartDegrees = validTropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
+        const { siderealCuspStartDegrees, siderealAscendantDeg, rotatedCusps } = applyHouseRotation({ tropicalCusps: validTropicalCusps, tropicalAscendant, ayanamsa, houseToRotate: req.body.house_to_rotate });
         
-        // Calculate Whole Sign cusps for aspects
-        const siderealAscendant = normalizeAngle(tropicalAscendant - ayanamsa);
+        // Calculate Whole Sign cusps for aspects (based on sidereal ascendant)
+        const siderealAscendant = siderealAscendantDeg;
         const wholeSignCusps = calculateWholeSignHouses(siderealAscendant);
 
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
@@ -160,16 +160,13 @@ router.post('/rotated', rotatedKpValidation, async (req, res) => {
             throw new Error("Failed to calculate house cusps, cannot proceed with KP significator calculation.");
         }
 
-        const siderealCuspStartDegrees = validTropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
-        
-        const rotatedSiderealCuspStartDegrees = rotateHouses(siderealCuspStartDegrees, house_to_rotate);
+        const { siderealCuspStartDegrees, siderealAscendantDeg, rotatedCusps } = applyHouseRotation({ tropicalCusps: validTropicalCusps, tropicalAscendant, ayanamsa, houseToRotate: house_to_rotate });
+        const rotatedSiderealCuspStartDegrees = rotatedCusps;
 
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         const siderealPositions = planetaryPositions.sidereal;
         
         const aspects = calculateAspects(siderealPositions);
-
-        const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, rotatedSiderealCuspStartDegrees, housesData, aspects);
 
         const housesData = [];
         for (let i = 0; i < 12; i++) {
@@ -186,6 +183,8 @@ router.post('/rotated', rotatedKpValidation, async (req, res) => {
                 mean_rashi: meanRashiDetails.name, mean_rashi_lord: meanRashiDetails.lord,
             });
         }
+
+        const kpSignificatorsDetailed = calculateKpSignificators(siderealPositions, rotatedSiderealCuspStartDegrees, housesData, aspects);
 
         const planetHousePlacements = {};
         PLANET_ORDER.forEach(planetName => {

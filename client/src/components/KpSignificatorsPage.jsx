@@ -49,7 +49,8 @@ const KpSignificatorsPage = () => {
         error: initialError,
         calculationInputParams,
         adjustedBirthDateTimeString,
-        adjustedGocharDateTimeString
+        adjustedGocharDateTimeString,
+        houseToRotate
     } = useOutletContext() || {};
 
     // --- Local state ---
@@ -64,7 +65,6 @@ const KpSignificatorsPage = () => {
     const [chartError, setChartError] = useState(null);
     const [currentApiParams, setCurrentApiParams] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState('');
-    const [selectedHouse, setSelectedHouse] = useState(1); // Default to House 1
     const [openSections, setOpenSections] = useState({ diamondChart: true });
     const [currentDasha, setCurrentDasha] = useState(null);
     
@@ -73,9 +73,7 @@ const KpSignificatorsPage = () => {
         setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
     };
 
-    const handleHouseChange = (event) => {
-        setSelectedHouse(parseInt(event.target.value, 10));
-    };
+    // house selection is provided globally via SharedInputLayout's outlet context (`houseToRotate`)
 
     // --- Generate translated event options ---
     // This useMemo hook remains the same, it will now use the dynamically generated keys
@@ -217,17 +215,18 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
             setKpError(null);
 
             let response;
-            if (selectedHouse === 1) {
-                // If House 1 is selected, fetch the original (non-rotated) data
+            const house = (typeof houseToRotate === 'number' && !isNaN(houseToRotate)) ? houseToRotate : 1;
+            if (house === 1) {
+                // If House 1 (no rotation), fetch the original (non-rotated) data
                 const paramsForFetch = { date: formattedDateForApi, latitude: latToUse, longitude: lonToUse, placeName: calculationInputParams?.placeName };
                 response = await api.post('/calculate', paramsForFetch);
             } else {
-                // Otherwise, fetch the rotated data
+                // Otherwise, fetch the rotated KP significators
                 const paramsForFetch = {
                     date: formattedDateForApi,
                     latitude: latToUse,
                     longitude: lonToUse,
-                    house_to_rotate: selectedHouse
+                    house_to_rotate: house
                 };
                 response = await api.post('/kp-significators/rotated', paramsForFetch);
             }
@@ -243,11 +242,24 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                 } else {
                     // For /calculate endpoint, kpSignificatorsData is nested under planetaryPositions.sidereal
                     // For /kp-significators/rotated, it's directly under data
-                    const kpSignificatorsData = selectedHouse === 1 
-                        ? response.data?.planetaryPositions?.sidereal // Assuming /calculate returns this structure
+                    const rawKpData = (house === 1)
+                        ? response.data?.planetaryPositions?.sidereal // legacy /calculate structure
                         : response.data?.kpSignificatorsData;
 
-                    setKpData(Array.isArray(kpSignificatorsData) ? kpSignificatorsData : null);
+                    let normalizedKpArray = null;
+                    if (Array.isArray(rawKpData)) {
+                        normalizedKpArray = rawKpData;
+                    } else if (rawKpData && typeof rawKpData === 'object') {
+                        // Accept both { detailedPlanets: [...] } and { overview: ..., detailedPlanets: [...] }
+                        if (Array.isArray(rawKpData.detailedPlanets)) normalizedKpArray = rawKpData.detailedPlanets;
+                        // If legacy planetaryPositions object was returned, convert to array of planet entries if possible
+                        else if (house === 1 && rawKpData && typeof rawKpData === 'object') {
+                            // rawKpData is an object keyed by planet name (e.g., { Sun: { ... }, Moon: { ... } })
+                            normalizedKpArray = Object.keys(rawKpData).map(name => ({ name, ...rawKpData[name] }));
+                        }
+                    }
+
+                    setKpData(Array.isArray(normalizedKpArray) && normalizedKpArray.length ? normalizedKpArray : null);
                     setD1Houses(response.data?.houses);
                     setBhavaChalitPlacements(response.data?.planetHousePlacements);
                 }
@@ -264,7 +276,7 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
         };
 
         fetchRotatedData();
-    }, [selectedHouse, calculationInputParams, adjustedBirthDateTimeString, t]);
+    }, [houseToRotate, calculationInputParams, adjustedBirthDateTimeString, t]);
 
     useEffect(() => {
         if (chartData) {
@@ -510,16 +522,7 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                     )}
                 </div>
 
-                <div className="house-selection-container">
-                  <label htmlFor="house-select">Rotate from House:</label>
-                  <select id="house-select" value={selectedHouse} onChange={handleHouseChange}>
-                    {[...Array(12).keys()].map(i => (
-                      <option key={i + 1} value={i + 1}>
-                        House {i + 1}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                                {/* House rotation selector is provided globally in SharedInputLayout; removed local selector */}
 
                 <div className="section-header" onClick={() => toggleSection('diamondChart')}>
                     <h3 className="result-sub-title">{t('kpSignificatorsPage.diamondChartTitle')}</h3>
@@ -529,13 +532,13 @@ const { favorableHouses, unfavorableHouses, significatorPlanet } = useMemo(() =>
                   <div className="charts-container">
                     {d1Houses && d1Planets && (
                       <div className="chart-wrapper">
-                        <h3>{t('kpSignificatorsPage.lagnaChartTitle', 'Lagna Chart')}</h3>
+                       
                         <DiamondChart title="Lagna Chart" houses={d1Houses} planets={d1Planets} size={300} chartType="lagna" />
                       </div>
                     )}
                     {d1Houses && d1Planets && bhavaChalitPlacements && (
                       <div className="chart-wrapper">
-                        <h3>{t('kpSignificatorsPage.bhavaChalitChartTitle', 'Nirayan Bhava Chalit Chart')}</h3>
+                        
                         <DiamondChart title="Nirayan Bhava Chalit Chart" houses={d1Houses} planetHousePlacements={bhavaChalitPlacements} size={300} chartType="bhava" />
                       </div>
                     )}

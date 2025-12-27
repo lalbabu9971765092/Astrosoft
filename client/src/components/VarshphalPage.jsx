@@ -11,7 +11,6 @@ import "../styles/VarshphalPage.css";
 import { validateAndFormatDateTime } from './AstrologyUtils'; // Import validation if needed for birth date check
 
 // --- Constants ---
-const CURRENT_YEAR = new Date().getFullYear();
 const SIGNIFICATOR_GRID_ORDER = [
     ['Ketu', 'Moon', 'Jupiter'],
     ['Venus', 'Mars', 'Saturn'],
@@ -50,15 +49,31 @@ const VarshphalPage = () => {
     calculationInputParams,
     isLoading: isInitialLoading,
     error: initialError,
+    selectedVarshphalYear,
+    setSelectedVarshphalYear,
   } = useOutletContext() || {};
-
-  // --- State for Varshphal Year ---
-  const [varshphalYear, setVarshphalYear] = useState(CURRENT_YEAR.toString());
-  const [selectedHouse, setSelectedHouse] = useState(1);
+  const outletHouseToRotate = (useOutletContext() || {}).houseToRotate;
+  const outletSetHouseToRotate = (useOutletContext() || {}).setHouseToRotate;
+  const [selectedHouse, setSelectedHouse] = useState(() => (typeof outletHouseToRotate === 'number' ? outletHouseToRotate : 1));
 
   const handleHouseChange = (event) => {
     setSelectedHouse(parseInt(event.target.value, 10));
   };
+
+  // Keep selectedHouse in sync with global outlet houseToRotate
+  useEffect(() => {
+    if (typeof outletHouseToRotate === 'number' && outletHouseToRotate !== selectedHouse) {
+      setSelectedHouse(outletHouseToRotate);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [outletHouseToRotate]);
+
+  useEffect(() => {
+    if (typeof outletSetHouseToRotate === 'function') {
+      try { outletSetHouseToRotate(selectedHouse); } catch (e) {}
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedHouse]);
 
   // --- State for Calculation ---
   const [isLoading, setIsLoading] = useState(false);
@@ -144,7 +159,7 @@ const VarshphalPage = () => {
           return;
         }
     
-        const yearNum = parseInt(varshphalYear, 10);
+        const yearNum = parseInt(selectedVarshphalYear, 10);
         if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
           // Translate error
           setCalculationError(t('varshphalPage.errorInvalidYear'));
@@ -197,7 +212,7 @@ const VarshphalPage = () => {
         } finally {
           setIsLoading(false);
         }
-      }, [calculationInputParams, varshphalYear, birthYear, t]); // Add t dependency
+      }, [calculationInputParams, selectedVarshphalYear, birthYear, t]); // Add t dependency
     
       useEffect(() => {
         const fetchRotatedData = async () => {
@@ -246,7 +261,7 @@ const VarshphalPage = () => {
             setVarshphalResult(null);
             return;
           }
-          const yearNum = parseInt(varshphalYear, 10);
+          const yearNum = parseInt(selectedVarshphalYear, 10);
           if (
             !isNaN(yearNum) &&
             yearNum >= birthYear &&
@@ -275,7 +290,7 @@ const VarshphalPage = () => {
         }
       }, [
         calculationInputParams,
-        varshphalYear,
+        selectedVarshphalYear,
         isInitialLoading,
         initialError,
         handleCalculateVarshphal,
@@ -659,8 +674,8 @@ const VarshphalPage = () => {
             <input
               id="varshphal-year"
               type="number"
-              value={varshphalYear}
-              onChange={(e) => setVarshphalYear(e.target.value)}
+              value={selectedVarshphalYear}
+              onChange={(e) => setSelectedVarshphalYear(e.target.value)}
               required
               min="1900"
               max="2100"

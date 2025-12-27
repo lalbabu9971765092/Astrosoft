@@ -48,18 +48,34 @@ router.route('/varshaphal').post(async (req, res) => {
 
 // New route: Generate KP Significator analysis
 router.route('/kp-analysis').post(async (req, res) => {
-    try {
-        const { kpSignificators, planetDetails, lang } = req.body || {};
-        if (!kpSignificators || !planetDetails) {
-            return res.status(400).json({ error: 'kpSignificators and planetDetails payload are required.' });
+        try {
+            const { kpSignificators, planetDetails, lang } = req.body || {};
+            if (!kpSignificators || !planetDetails) {
+                return res.status(400).json({ error: 'kpSignificators and planetDetails payload are required.' });
+            }
+
+            const kpAnalysisResult = predictionTextGenerator.getKpAnalysis({ kpSignificators, planetDetails }, lang || 'en');
+            if (!kpAnalysisResult) return res.status(404).json({ error: 'No KP analysis could be generated.' });
+            res.json({ analysis: kpAnalysisResult });
+        } catch (error) {
+            handleRouteError(res, error, 'POST /api/predictions/kp-analysis', req.body);
         }
+    });
 
-        const analysisText = predictionTextGenerator.getKpAnalysis({ kpSignificators, planetDetails }, lang || 'en');
-        if (!analysisText) return res.status(404).json({ error: 'No KP analysis could be generated.' });
-        res.json({ analysis: analysisText });
-    } catch (error) {
-        handleRouteError(res, error, 'POST /api/predictions/kp-analysis', req.body);
-    }
-});
+    // New route: Generate Combined Long Birth Chart Prediction Text
+    router.route('/combined-long').post(async (req, res) => {
+        try {
+            const { lagna, rashi, nakshatra, additionalData, lang } = req.body || {};
+            if (!lagna || !rashi || !nakshatra || !additionalData) {
+                return res.status(400).json({ error: 'Lagna, Rashi, Nakshatra, and additionalData are required.' });
+            }
 
-export default router;
+            const predictionText = predictionTextGenerator.getCombinedPredictionLong(lagna, rashi, nakshatra, additionalData, lang || 'en');
+            if (!predictionText) return res.status(404).json({ error: 'No combined birth chart prediction could be generated.' });
+            res.json({ predictionText: predictionText });
+        } catch (error) {
+            handleRouteError(res, error, 'POST /api/predictions/combined-long', req.body);
+        }
+    });
+
+    export default router;

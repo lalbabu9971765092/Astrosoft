@@ -30,12 +30,15 @@ const AshtakavargaPage = () => {
     const {
         mainResult,
         calculationInputParams,
-        adjustedBirthDateTimeString
+        adjustedBirthDateTimeString,
+        houseToRotate
     } = useOutletContext() || {};
 
     const [rectifiedResultLocal, setRectifiedResultLocal] = useState(null);
     const [isLoadingRectification, setIsLoadingRectification] = useState(false);
     const [rectificationError, setRectificationError] = useState(null);
+    const [rotatedResultLocal, setRotatedResultLocal] = useState(null);
+    const [isLoadingRotated, setIsLoadingRotated] = useState(false);
 
     // useEffect for rectification (keep as is)
     useEffect(() => {
@@ -99,7 +102,48 @@ const AshtakavargaPage = () => {
 
     }, [adjustedBirthDateTimeString, calculationInputParams, t, rectificationError, rectifiedResultLocal]);
 
-    const displayNatalResult = rectifiedResultLocal || mainResult;
+    // Fetch rotated chart when global house rotation changes
+    useEffect(() => {
+        let cancelled = false;
+        const fetchRotated = async () => {
+            if (!calculationInputParams || !calculationInputParams.date || calculationInputParams.latitude === undefined || calculationInputParams.longitude === undefined) {
+                setRotatedResultLocal(null);
+                return;
+            }
+            const house = (typeof houseToRotate === 'number' && !isNaN(houseToRotate)) ? houseToRotate : 1;
+            if (house === 1) {
+                setRotatedResultLocal(null);
+                return;
+            }
+            const dateTimeValidation = validateAndFormatDateTime(calculationInputParams.date);
+            if (!dateTimeValidation.isValid) {
+                setRotatedResultLocal(null);
+                return;
+            }
+            const formattedDateForApi = dateTimeValidation.formattedDate;
+            setIsLoadingRotated(true);
+            try {
+                const payload = {
+                    date: formattedDateForApi,
+                    latitude: calculationInputParams.latitude,
+                    longitude: calculationInputParams.longitude,
+                    placeName: calculationInputParams.placeName,
+                    house_to_rotate: house
+                };
+                const resp = await api.post('/calculate', payload);
+                if (!cancelled) setRotatedResultLocal(resp.data);
+            } catch (err) {
+                console.warn('AshtakavargaPage: rotated fetch failed', err.response?.data || err.message || err);
+                if (!cancelled) setRotatedResultLocal(null);
+            } finally {
+                if (!cancelled) setIsLoadingRotated(false);
+            }
+        };
+        fetchRotated();
+        return () => { cancelled = true; };
+    }, [houseToRotate, calculationInputParams]);
+
+    const displayNatalResult = rotatedResultLocal || rectifiedResultLocal || mainResult;
 
     const displayNatalInputParams = useMemo(() => {
         // ... (keep existing useMemo logic)
@@ -185,7 +229,6 @@ const AshtakavargaPage = () => {
                     <div className="result-section sav-section">
                         {hasSarvaData ? (
                             <div>
-                                <h3 className="chart-title">{t('ashtakavargaPage.savTitle')}</h3>
                                 <DiamondChart
                                     title={t('ashtakavargaPage.savTitle')} // Pass translated title
                                     size={400} // Keep SAV chart larger
@@ -225,7 +268,6 @@ const AshtakavargaPage = () => {
                         
                                     return (
                                         <div key={`bav-chart-container-${planetName}`}>
-                                            <h4 className="chart-title">{chartTitle}</h4>
                                             <DiamondChart
                                                 title={chartTitle}
                                                 size={300} // Make BAV charts smaller

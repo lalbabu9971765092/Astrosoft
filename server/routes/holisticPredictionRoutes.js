@@ -19,6 +19,7 @@ import {
 import { calculatePanchang } from '../utils/panchangUtils.js';
 import { calculateHousesAndAscendant, calculateWholeSignHouses } from '../utils/coreUtils.js';
 import predictionEngine from '../utils/predictionEngine.js'; // Ensure predictionEngine is imported
+import { rotateHouses, applyHouseRotation } from '../utils/rotationUtils.js';
 
 const router = express.Router();
 
@@ -165,6 +166,8 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
 
         // --- Conditional House System Calculation ---
         let tropicalAscendant, siderealCuspStartDegrees;
+        let rotatedSiderealCuspStartDegrees;
+        let rotatedSiderealAscendantDeg;
 
         if (houseSystem === 'whole_sign') {
             // For Whole Sign, we only need the Ascendant degree to determine the signs.
@@ -174,25 +177,43 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             tropicalAscendant = asc;
             const siderealAscendant = normalizeAngle(tropicalAscendant - ayanamsa);
             siderealCuspStartDegrees = calculateWholeSignHouses(siderealAscendant);
+            rotatedSiderealCuspStartDegrees = siderealCuspStartDegrees;
+            rotatedSiderealAscendantDeg = siderealAscendant;
         } else { // Default to Placidus
             const { tropicalAscendant: asc, tropicalCusps } = calculateHousesAndAscendant(julianDayUT, latNum, lonNum);
             if (tropicalCusps === null) {
                 throw new Error(`Failed to calculate Placidus House Cusps for JD ${julianDayUT}, Lat ${latNum}, Lon ${lonNum}`);
             }
             tropicalAscendant = asc;
-            siderealCuspStartDegrees = tropicalCusps.map(cusp => normalizeAngle(cusp - ayanamsa));
+                const rotationResult = applyHouseRotation({ tropicalCusps, tropicalAscendant: asc, ayanamsa, houseToRotate: req.body?.house_to_rotate });
+                siderealCuspStartDegrees = rotationResult.siderealCuspStartDegrees;
+                rotatedSiderealCuspStartDegrees = rotationResult.rotatedCusps;
+                rotatedSiderealAscendantDeg = rotationResult.rotatedAscendantDeg;
         }
 
         const siderealAscendantDeg = normalizeAngle(tropicalAscendant - ayanamsa);
-        const ascendantNakDetails = getNakshatraDetails(siderealAscendantDeg);
-        const ascendantRashiDetails = getRashiDetails(siderealAscendantDeg);
-        const ascendantPada = calculateNakshatraPada(siderealAscendantDeg);
+        const useRotated = typeof req.body?.house_to_rotate === 'number' && !isNaN(req.body.house_to_rotate) && req.body.house_to_rotate > 1;
+        const effectiveCuspStartDegrees = useRotated ? rotatedSiderealCuspStartDegrees : siderealCuspStartDegrees;
+        const ascForDivisional = useRotated ? rotatedSiderealAscendantDeg : siderealAscendantDeg;
+        const ascendantDegUsed = ascForDivisional;
+        const ascendantNakDetails = getNakshatraDetails(ascendantDegUsed);
+        const ascendantRashiDetails = getRashiDetails(ascendantDegUsed);
+        const ascendantPada = calculateNakshatraPada(ascendantDegUsed);
         const ascendantPadaAlphabet = getNakshatraPadaAlphabet(ascendantNakDetails.name, ascendantPada);
-        const ascendantSubLordDetails = getSubLordDetails(siderealAscendantDeg);
-        const ascendantPositionWithinNakshatra = siderealAscendantDeg - (getNakshatraDetails(siderealAscendantDeg).index * NAKSHATRA_SPAN);
+        const ascendantSubLordDetails = getSubLordDetails(ascendantDegUsed);
+        const ascendantPositionWithinNakshatra = ascendantDegUsed - (getNakshatraDetails(ascendantDegUsed).index * NAKSHATRA_SPAN);
         const ascendantSubSubLordDetails = getSubSubLordDetails(ascendantPositionWithinNakshatra, ascendantSubLordDetails);
 
-        const badhakDetails = calculateBadhakDetails(siderealAscendantDeg);
+        const badhakDetails = calculateBadhakDetails(ascendantDegUsed);
+        // Provide rotated house index for badhak when a rotation is requested
+        let badhakDetailsToReturn = { ...badhakDetails };
+        try {
+            const htr = req.body?.house_to_rotate;
+            if (!badhakDetailsToReturn.error && typeof htr === 'number' && !isNaN(htr)) {
+                const orig = badhakDetailsToReturn.badhakHouse;
+                badhakDetailsToReturn.rotatedHouse = ((orig - htr + 12) % 12) + 1;
+            }
+        } catch (e) { /* ignore */ }
 
         const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
         const siderealPositions = planetaryPositions.sidereal;
@@ -203,8 +224,8 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
         const houses = [];
         for (let i = 0; i < 12; i++) {
             const houseNumber = i + 1;
-            const startDeg = siderealCuspStartDegrees[i];
-            const endDeg = siderealCuspStartDegrees[(i + 1) % 12];
+            const startDeg = effectiveCuspStartDegrees[i];
+            const endDeg = effectiveCuspStartDegrees[(i + 1) % 12];
             const meanDeg = calculateMidpoint(startDeg, endDeg);
             const meanNakDetails = getNakshatraDetails(meanDeg);
             const meanRashiDetails = getRashiDetails(meanDeg);
@@ -228,7 +249,7 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
         const dashaBalance = calculateVimshottariBalance(siderealPositions['Moon']?.longitude);
         const dashaPeriods = calculateVimshottariDashas(natalUtcDate, dashaBalance); // Use natalUtcDate
 
-        const { directAspects, reverseAspects } = calculateAspects(siderealPositions, siderealCuspStartDegrees);
+        const { directAspects, reverseAspects } = calculateAspects(siderealPositions, effectiveCuspStartDegrees);
         const planetStateData = calculatePlanetStates(siderealPositions);
 
         const temporalFriendshipData = {};
@@ -260,14 +281,14 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             }
         }
 
-        const kpSignificators = calculateKpSignificators(siderealPositions, siderealCuspStartDegrees, houses, { directAspects, reverseAspects });
+        const kpSignificators = calculateKpSignificators(siderealPositions, effectiveCuspStartDegrees, houses, { directAspects, reverseAspects });
         // --- Start of Divisional Chart Calculations ---
-        const { divisional_planets: d9_planets } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateNavamsaLongitude);
-        const { divisional_planets: d2_planets } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateHoraLongitude);
-        const { divisional_planets: d3_planets } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateDrekkanaLongitude);
-        const { divisional_planets: d7_planets } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateSaptamsaLongitude);
-        const { divisional_planets: d12_planets } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateDwadasamsaLongitude);
-        const { divisional_planets: d30_planets } = calculateDivisionalChartData(siderealPositions, siderealAscendantDeg, calculateTrimsamsaLongitude);
+        const { divisional_planets: d9_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateNavamsaLongitude);
+        const { divisional_planets: d2_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateHoraLongitude);
+        const { divisional_planets: d3_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateDrekkanaLongitude);
+        const { divisional_planets: d7_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateSaptamsaLongitude);
+        const { divisional_planets: d12_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateDwadasamsaLongitude);
+        const { divisional_planets: d30_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateTrimsamsaLongitude);
 
         const divisionalPositions = {
             D1: siderealPositions,
@@ -283,7 +304,7 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
         const shadbalaData = calculateShadbala(siderealPositions, houses, directAspects, sunMoonTimes, natalUtcDate, divisionalPositions);
 
         const bhinnaAshtakavargaData = {};
-        ASHTAKAVARGA_PLANETS.forEach(planetName => { bhinnaAshtakavargaData[planetName] = calculateBhinnaAshtakavarga(planetName, siderealPositions, siderealAscendantDeg); });
+        ASHTAKAVARGA_PLANETS.forEach(planetName => { bhinnaAshtakavargaData[planetName] = calculateBhinnaAshtakavarga(planetName, siderealPositions, ascendantDegUsed); });
         const sarvaAshtakavargaData = calculateSarvaAshtakavarga(bhinnaAshtakavargaData);
         const ashtakavargaResult = { bhinna: bhinnaAshtakavargaData, sarva: sarvaAshtakavargaData };
         
@@ -292,7 +313,7 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
         // --- Prepare and Calculate UPBS ---
         const unifiedChartDataForUPBS = {
             planetaryPositions: planetaryPositions,
-            planetHousePlacements: Object.fromEntries(PLANET_ORDER.map(p => [p, getHouseOfPlanet(siderealPositions[p]?.longitude, siderealCuspStartDegrees)])),
+            planetHousePlacements: Object.fromEntries(PLANET_ORDER.map(p => [p, getHouseOfPlanet(siderealPositions[p]?.longitude, effectiveCuspStartDegrees)])),
             planetDetails: {
                 aspects: { directAspects, reverseAspects },
                 states: planetStateData
@@ -300,8 +321,8 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             shadbala: shadbalaData,
             d9_planets: d9_planets,
             ascendant: {
-                sidereal_dms: convertToDMS(siderealAscendantDeg),
-                siderealAscendantDeg: siderealAscendantDeg
+                sidereal_dms: convertToDMS(ascendantDegUsed),
+                siderealAscendantDeg: ascendantDegUsed
             },
             houses: houses
         };
@@ -328,7 +349,7 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             },
             ascendant: {
                 tropical_dms: convertToDMS(tropicalAscendant),
-                sidereal_dms: convertToDMS(siderealAscendantDeg),
+                sidereal_dms: convertToDMS(ascendantDegUsed),
                 nakshatra: ascendantNakDetails.name,
                 nakLord: ascendantNakDetails.lord,
                 rashi: ascendantRashiDetails.name,
@@ -357,10 +378,13 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             ashtakavarga: ashtakavargaResult,
         };
 
+        logger.info(`HolisticPrediction: ascendant rashi = ${chartDataForPrediction.ascendant.rashi}, sidereal = ${chartDataForPrediction.ascendant.sidereal_dms}`);
         const holisticPrediction = await predictionEngine.generateHolisticPrediction(chartDataForPrediction, lang);
 
         // Add the date used for the prediction to the response payload
         holisticPrediction.predictionDate = dateForCalculations;
+        // Debug: include the ascendant that was passed to the engine
+        holisticPrediction._debug_chart_ascendant = chartDataForPrediction.ascendant;
 
         res.json(holisticPrediction);
 

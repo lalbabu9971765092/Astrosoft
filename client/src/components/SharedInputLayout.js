@@ -31,7 +31,6 @@ const SharedInputLayout = () => {
     const [error, setError] = useState(null);
     const [locationError, setLocationError] = useState(null);
     const [mainResult, setMainResult] = useState(null);
-    const [kpResult, setKpResult] = useState(null);
     const [calculationInputParams, setCalculationInputParams] = useState(null);
     const [adjustedBirthDateTimeString, setAdjustedBirthDateTimeString] = useState(null);
     const [adjustedGocharDateTimeString, setAdjustedGocharDateTimeString] = useState(null);
@@ -52,6 +51,10 @@ const SharedInputLayout = () => {
     const [isCalculatingTransit, setIsCalculatingTransit] = useState(false);
     const [transitError, setTransitError] = useState(null);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [selectedVarshphalYear, setSelectedVarshphalYear] = useState(new Date().getFullYear().toString());
+    // Default rotation is House 1. Ignore any stored value on initial load.
+    const [houseToRotate, setHouseToRotate] = useState(1);
+
 
     const fetchSavedCharts = useCallback(async () => {
         try {
@@ -153,6 +156,16 @@ const SharedInputLayout = () => {
     }, [t, fetchSavedCharts, calculateInitialTransit]);
 
     useEffect(() => {
+        try {
+            if (houseToRotate && typeof houseToRotate === 'number') {
+                localStorage.setItem('house_to_rotate', String(houseToRotate));
+            } else {
+                localStorage.removeItem('house_to_rotate');
+            }
+        } catch (e) { /* ignore */ }
+    }, [houseToRotate]);
+
+    useEffect(() => {
         if (calculationInputParams?.date) {
             setAdjustedBirthDateTimeString(calculationInputParams.date);
             if (!hasSetInitialBirthDate.current) {
@@ -188,7 +201,7 @@ const SharedInputLayout = () => {
         setDate(formattedLoadDate);
         setCoords(`${chartToLoad.latitude?.toFixed(6) || ''},${chartToLoad.longitude?.toFixed(6) || ''}`);
         setPlaceName(chartToLoad.placeName || '');
-        setMainResult(null); setKpResult(null); setError(null); setLocationError(null); setCalculationInputParams(null);
+        setMainResult(null); setError(null); setLocationError(null); setCalculationInputParams(null);
     }, [t]);
 
     useEffect(() => {
@@ -278,7 +291,6 @@ const SharedInputLayout = () => {
         setError(null);
         setLocationError(null);
         setMainResult(null);
-        setKpResult(null);
 
 
         const dateTimeToUse = gocharDate || date;
@@ -293,36 +305,19 @@ const SharedInputLayout = () => {
         const currentInputParams = { date: formattedDate, latitude, longitude, placeName: placeName, name: name, gender: gender, lang: i18n.language };
 
         try {
-            const [mainResponse, kpResponse] = await Promise.all([
-                api.post('/calculate', currentInputParams).catch(err => ({ error: err })),
-                api.post('/kp-significators', currentInputParams).catch(err => ({ error: err }))
-            ]);
-
-            let errors = [];
-            if (mainResponse.error) {
-                console.error("Main calculation API error:", mainResponse.error.response?.data || mainResponse.error.message || mainResponse.error);
-                errors.push(`Main Calc: ${mainResponse.error.response?.data?.error || mainResponse.error.message || t('sharedLayout.calculationFailedGeneric')}`);
-                setMainResult(null);
-            } else {
-                setMainResult(mainResponse.data);
-            }
-            if (kpResponse.error) {
-                console.error("KP Significator API error:", kpResponse.error.response?.data || kpResponse.error.message || kpResponse.error);
-                errors.push(`KP Significators: ${kpResponse.error.response?.data?.error || kpResponse.error.message || t('sharedLayout.kpCalculationFailedGeneric')}`);
-                setKpResult(null);
-            } else {
-                setKpResult({ ...kpResponse.data, inputParameters: currentInputParams });
-            }
+            const mainResponse = await api.post('/calculate', currentInputParams);
+            setMainResult(mainResponse.data);
 
             if (JSON.stringify(currentInputParams) !== JSON.stringify(calculationInputParams)) {
                 setCalculationInputParams(currentInputParams);
             }
-            if (errors.length > 0) setError(errors.join(' | '));
 
         } catch (err) {
-            console.error("Overall calculation error:", err);
-            setError(t('sharedLayout.calculationUnexpectedError'));
-            setMainResult(null); setKpResult(null); setCalculationInputParams(null);
+            console.error("Overall calculation error:", err.response?.data || err.message || err);
+            const backendError = err.response?.data?.error || err.response?.data?.message;
+            setError(backendError || err.message || 'Failed to fetch calculation results.');
+            setMainResult(null);
+            setCalculationInputParams(null);
         } finally {
             setIsLoading(false);
         }
@@ -367,7 +362,10 @@ const SharedInputLayout = () => {
         if (hasValidInputs && isReady && needsCalculation) {
             handleCalculateAll();
         }
-    }, [date, coords, locationError, isLoading, isGeocoding, isFetchingLocation, calculationInputParams, error, handleCalculateAll]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [date, coords, locationError, isLoading, isGeocoding, isFetchingLocation, calculationInputParams, error]);
+
+
 
     const handleBirthTimeChange = useCallback((newDateTimeString) => {
         setAdjustedBirthDateTimeString(newDateTimeString);
@@ -597,22 +595,35 @@ const SharedInputLayout = () => {
                 {isPrinting ? (
                     <PrintableReport
                         calculationInputParams={calculationInputParams}
-                        varshphalYear={new Date().getFullYear()}
+                        varshphalYear={selectedVarshphalYear}
                         setIsPrinting={setIsPrinting}
+                        adjustedGocharDateTimeString={adjustedGocharDateTimeString}
+                        locationForGocharTool={locationForGocharTool}
+                        transitPlaceName={transitPlaceName}
                     />
                 ) : (
                     <>
+                        <label style={{ marginRight: '8px', display: 'inline-flex', alignItems: 'center' }}>
+                            <span style={{ marginRight: '6px' }}>{t('sharedLayout.rotateHouseLabel', 'Rotate to House')}:</span>
+                            <select value={houseToRotate} onChange={(e) => setHouseToRotate(parseInt(e.target.value, 10))} style={{ marginRight: '12px' }}>
+                                {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+                                    <option key={h} value={h}>{h}</option>
+                                ))}
+                            </select>
+                        </label>
                         <button onClick={() => setIsPrinting(true)} style={{ marginLeft: '5px' }} className="nav-button" disabled={!calculationInputParams}>
                             Print
                         </button>
                         <Outlet context={{
-                            mainResult, kpResult, isLoading, error, calculationInputParams,
+                            mainResult, isLoading, error, calculationInputParams,
                             adjustedBirthDateTimeString, handleBirthTimeChange,
                             adjustedGocharDateTimeString, handleGocharTimeChange,
                             locationForGocharTool, currentName: name, currentGender: gender,
                             currentDate: date, currentCoords: coords, currentPlaceName: placeName,
                             isGeocoding, isFetchingLocation, transitDateTime, transitResult,
-                            isCalculatingTransit, transitError, transitPlaceName: displayedTransitPlaceName
+                            isCalculatingTransit, transitError, transitPlaceName: displayedTransitPlaceName,
+                            selectedVarshphalYear, setSelectedVarshphalYear,
+                            houseToRotate, setHouseToRotate
                          }} />
                     </>
                 )}

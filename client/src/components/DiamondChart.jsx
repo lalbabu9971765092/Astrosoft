@@ -205,6 +205,7 @@ const DiamondChart = ({
 
     return (
         <div className="birth-chart-container">
+            {title && <h4 className="diamond-chart-title">{title}</h4>}
             <svg
                 width={chartSize}
                 height={chartSize}

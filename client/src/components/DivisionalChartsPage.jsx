@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import api from './api';
 import DiamondChart from './DiamondChart';
 import DetailedPlanetTable from './DetailedPlanetTable';
 import HouseDetailsTable from './HouseDetailsTable';
@@ -16,6 +17,7 @@ const DivisionalChartsPage = () => {
     const mainResult = outlet?.mainResult || null;
     const calculationInputParams = outlet?.calculationInputParams || null;
     const adjustedBirthDateTimeString = outlet?.adjustedBirthDateTimeString || null;
+    const houseToRotate = outlet?.houseToRotate;
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -27,19 +29,23 @@ const DivisionalChartsPage = () => {
     const [d12ChartData, setD12ChartData] = useState(null); // New
     const [d30ChartData, setD30ChartData] = useState(null); // New
     const [d60ChartData, setD60ChartData] = useState(null); // New
+    const [rotatedResult, setRotatedResult] = useState(null);
+    const [isLoadingRotated, setIsLoadingRotated] = useState(false);
 
     // Update divisional chart state when main calculation result or input params change
     useEffect(() => {
         setIsLoading(false);
         setError(null);
 
-        if (!mainResult) {
+        const displayResult = rotatedResult || mainResult;
+
+        if (!displayResult) {
             setD1ChartData(null); setD2ChartData(null); setD3ChartData(null); setD7ChartData(null);
             setD9ChartData(null); setD12ChartData(null); setD30ChartData(null); setD60ChartData(null);
             return;
         }
 
-        const result = mainResult;
+        const result = displayResult;
 
         // D1
         const d1Houses = result.houses;
@@ -82,7 +88,43 @@ const DivisionalChartsPage = () => {
         const d60Planets = result.d60_planets || result.d60?.planets || result.d60Planets || null;
         setD60ChartData({ houses: d60Houses, planets: d60Planets, planetDetails: {} });
 
-    }, [mainResult, calculationInputParams, adjustedBirthDateTimeString]);
+    }, [mainResult, rotatedResult, calculationInputParams, adjustedBirthDateTimeString]);
+
+
+    // Fetch rotated `/calculate` when houseToRotate changes
+    useEffect(() => {
+        let cancelled = false;
+        const fetchRotated = async () => {
+            if (!calculationInputParams || !calculationInputParams.date || calculationInputParams.latitude === undefined || calculationInputParams.longitude === undefined) {
+                setRotatedResult(null);
+                return;
+            }
+            const house = (typeof houseToRotate === 'number' && !isNaN(houseToRotate)) ? houseToRotate : 1;
+            if (house === 1) {
+                setRotatedResult(null);
+                return;
+            }
+            setIsLoadingRotated(true);
+            try {
+                const payload = {
+                    date: calculationInputParams.date,
+                    latitude: calculationInputParams.latitude,
+                    longitude: calculationInputParams.longitude,
+                    placeName: calculationInputParams.placeName,
+                    house_to_rotate: house
+                };
+                const resp = await api.post('/calculate', payload);
+                if (!cancelled) setRotatedResult(resp.data);
+            } catch (err) {
+                console.warn('DivisionalChartsPage: rotated fetch failed', err.response?.data || err.message || err);
+                if (!cancelled) setRotatedResult(null);
+            } finally {
+                if (!cancelled) setIsLoadingRotated(false);
+            }
+        };
+        fetchRotated();
+        return () => { cancelled = true; };
+    }, [houseToRotate, calculationInputParams]);
 
     // refs for each chart section to enable navigation
     const sectionRefs = useRef({});

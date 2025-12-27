@@ -356,7 +356,8 @@
     "transitDetailsTitle": "Transit Details",
     "transitDateTimeLabel": "Transit Time",
     "transitPlaceLabel": "Transit Place",
-    "updateTransitButton": "Update Transit"
+    "updateTransitButton": "Update Transit",
+    "rotateHouseLabel": "Rotate to House"
   },
   "ashtakavargaPage": {
     "title": "Ashtakavarga",
@@ -524,7 +525,8 @@
     "validationErrorCoordsInvalidFormat": "Invalid coordinates format. Use 'Latitude,Longitude'.",
     "validationErrorCoordsInvalidLat": "Invalid Latitude. Must be between -90 and 90.",
     "validationErrorCoordsInvalidLon": "Invalid Longitude. Must be between -180 and 180.",
-    "invalidDate": "Invalid Date"
+    "invalidDate": "Invalid Date",
+    "invalidTime": "Invalid Time"
   },
   "validation": {
     "dateTimeRequired": "Please enter Date and Time.",
@@ -813,6 +815,7 @@
     "lagnaChartTitle": "Lagna Chart",
     "bhavaChalitChartTitle": "Nirayan Bhava Chalit Chart"
   },
+  "kpSignificatorsPrintableTitle": "KP Significators",
   "lifeEvents": {
     "education": "Education (Higher)",
     "career_start": "Career Start / Job",
@@ -894,7 +897,8 @@
     "Foreign Travel": "Foreign Travel",
     "Health & Sickness": "Health & Sickness",
     "Spiritual Progress": "Spiritual Progress",
-    "Success in Litigation": "Success in Litigation"
+    "Success in Litigation": "Success in Litigation",
+    "vehicle_purchase_on_loan": "Vehicle Purchase on Loan"
   },
   "planetDetailsPage": {
     "pageTitle": "Detailed Planet Information",
@@ -1326,20 +1330,6 @@
     "no": "No",
     "yes": "Yes"
   },
-  "common": {
-    "planet": "Planet",
-    "longitude": "Longitude",
-    "rashi": "Rashi",
-    "nakshatra": "Nakshatra",
-    "subLord": "Sub Lord",
-    "house": "House",
-    "start": "Start",
-    "mean": "Mean",
-    "end": "End",
-    "login": "Login",
-    "no": "No",
-    "yes": "Yes"
-  },
   "avasthas": {
     "Kumara": "Youthful",
     "Swapna": "Dreaming",
@@ -1532,7 +1522,6 @@
     "Rudhirodgari": "Rudhirodgari",
     "Raktakshi": "Raktakshi",
     "Krodhana": "Krodhana",
-   
     "Mars in house 7 from Ascendant. Mars in house 7 (by Rashi count) from Moon.": "Mars in house 7 from Ascendant. Mars in house 7 (by Rashi count) from Moon.",
     "Planets are found on both sides of the Rahu-Ketu axis": "Planets are found on both sides of the Rahu-Ketu axis",
     "Moon is in Purva Bhadrapada, which is not a Gand Mool Nakshatra": "Moon is in Purva Bhadrapada, which is not a Gand Mool Nakshatra",
@@ -1796,7 +1785,8 @@
     "night_ardha_prahar_7_name": "Night Ardha Prahar 7",
     "night_ardha_prahar_7_description": "Inauspicious period. (Friday, Wednesday)",
     "night_ardha_prahar_8_name": "Night Ardha Prahar 8",
-    "night_ardha_prahar_8_description": "Inauspicious period. (Thursday, Saturday)"
+    "night_ardha_prahar_8_description": "Inauspicious period. (Thursday, Saturday)",
+    "Variyan_name": "Variyan"
   },
       "login": {
         "title": "Sign In",
@@ -1839,6 +1829,7 @@
         "login": "Login",
         "passwordsDoNotMatch": "Passwords do not match"
       },
+
   "divisionalChartsPage": {
     "title": "Divisional Charts",
     "loading": "Loading divisional charts...",
@@ -1852,6 +1843,7 @@
     "d1PlanetsUnavailable": "D1 Planetary Positions Unavailable",
     "d2ChartTitle": "D2 - Hora Chart",
     "d2ChartUnavailable": "D2 Chart Unavailable",
+    
     "d2HouseDetails": "D2 House Details",
     "d2PlanetDetails": "D2 Planetary Positions",
     "d2PlanetsUnavailable": "D2 Planetary Positions Unavailable",

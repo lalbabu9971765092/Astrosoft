@@ -77,6 +77,7 @@ const AstrologyForm = () => {
         adjustedGocharDateTimeString,
         locationForGocharTool,
         transitPlaceName,
+        houseToRotate
     } = outletContext;
 
     // --- State ---
@@ -86,6 +87,8 @@ const AstrologyForm = () => {
     const [gocharData, setGocharData] = useState(null);
     const [isLoadingGochar, setIsLoadingGochar] = useState(false);
     const [gocharError, setGocharError] = useState(null);
+    const [rotatedResult, setRotatedResult] = useState(null);
+    const [isLoadingRotated, setIsLoadingRotated] = useState(false);
     const [openSections, setOpenSections] = useState({
         basicInfo: true,
         dashaBalance: true,
@@ -104,6 +107,7 @@ const AstrologyForm = () => {
         transitLordships: true
     });
     const [currentDasha, setCurrentDasha] = useState(null);
+
 
     const toggleSection = (section) => {
         setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
@@ -203,7 +207,41 @@ const AstrologyForm = () => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [adjustedGocharDateTimeString, locationForGocharTool, t, transitPlaceName]);
-    const displayResult = rectifiedResult || mainResult;
+    // Fetch rotated chart when global `houseToRotate` or calculation params change
+    useEffect(() => {
+        let cancelled = false;
+        const fetchRotated = async () => {
+            if (!calculationInputParams || !calculationInputParams.date || !calculationInputParams.latitude || !calculationInputParams.longitude) {
+                setRotatedResult(null);
+                return;
+            }
+            if (!houseToRotate || typeof houseToRotate !== 'number' || houseToRotate === 1) {
+                setRotatedResult(null);
+                return;
+            }
+            setIsLoadingRotated(true);
+            try {
+                const payload = {
+                    date: calculationInputParams.date,
+                    latitude: calculationInputParams.latitude,
+                    longitude: calculationInputParams.longitude,
+                    placeName: calculationInputParams.placeName,
+                    lang: (i18n && i18n.language) ? i18n.language : undefined,
+                    house_to_rotate: houseToRotate
+                };
+                const resp = await api.post('/calculate', payload);
+                if (!cancelled) setRotatedResult(resp.data);
+            } catch (err) {
+                console.warn('Failed to fetch rotated chart:', err.response?.data || err.message || err);
+                if (!cancelled) setRotatedResult(null);
+            } finally {
+                if (!cancelled) setIsLoadingRotated(false);
+            }
+        };
+        fetchRotated();
+        return () => { cancelled = true; };
+    }, [calculationInputParams, houseToRotate, i18n, t]);
+    const displayResult = rotatedResult || rectifiedResult || mainResult;
 
     useEffect(() => {
         if (displayResult && displayResult.dashaPeriods) {
@@ -501,7 +539,7 @@ const AstrologyForm = () => {
                         {displayResult.badhakDetails && !displayResult.badhakDetails.error && (
                             <p className="result-text">
                                 <strong>{t('astrologyForm.badhakTitle', 'Badhak:')}</strong>
-                                {` ${t('astrologyForm.badhakHouseLabel', 'House')} ${displayResult.badhakDetails.badhakHouse} `}
+                                {` ${t('astrologyForm.badhakHouseLabel', 'House')} ${displayResult.badhakDetails.rotatedHouse ?? displayResult.badhakDetails.badhakHouse} `}
                                 {`(${t(`rashis.${displayResult.badhakDetails.badhakSign}`, { defaultValue: displayResult.badhakDetails.badhakSign })}, `}
                                 {`${t('astrologyForm.lordLabel')} ${t(`planets.${displayResult.badhakDetails.badhakesh}`, { defaultValue: displayResult.badhakDetails.badhakesh })})`}
                             </p>
@@ -707,7 +745,7 @@ const AstrologyForm = () => {
                                         <div className="chart-cell">
                                             {canRenderBirthCharts ? (
                                                 <>
-                                                    <h3 className='chart-title'>{t('astrologyForm.chartD1Title')}</h3>
+                                                    
                                                     <DiamondChart
                                                         title={t('astrologyForm.chartD1Title')}
                                                         houses={displayResult.houses}
@@ -720,7 +758,7 @@ const AstrologyForm = () => {
                                         <div className="chart-cell">
                                             {canRenderBhavaChart ? (
                                                 <>
-                                                    <h3 className='chart-title'>{t('astrologyForm.chartBhavaTitle')}</h3>
+                                                   
                                                     <DiamondChart
                                                         title={t('astrologyForm.chartBhavaTitle')}
                                                         houses={displayResult.houses}
@@ -734,7 +772,7 @@ const AstrologyForm = () => {
                                         <div className="chart-cell">
                                             {hasD9Data && d9Houses ? (
                                                 <>
-                                                    <h3 className='chart-title'>{t('astrologyForm.chartD9Title')}</h3>
+                                                  
                                                     <DiamondChart
                                                         title={t('astrologyForm.chartD9Title')}
                                                         houses={d9Houses}
@@ -749,7 +787,7 @@ const AstrologyForm = () => {
                                                 <div className="chart-placeholder">{t('astrologyForm.chartPlaceholderLoadingGochar')}</div>
                                              ) : hasGocharData && gocharHouses ? (
                                                 <>
-                                                    <h3 className='chart-title'>{t('astrologyForm.chartGocharTitle')}</h3>
+                                                    
                                                     <DiamondChart
                                                         title={t('astrologyForm.chartGocharTitle')}
                                                         houses={gocharHouses}
@@ -1001,6 +1039,7 @@ const AstrologyForm = () => {
             {initialError && !mainResult && <div className="error-overlay">{t('astrologyForm.errorInitial', { error: initialError })}</div>}
             {(displayResult || gocharData) ? (
                 <>
+                   
                     {renderLeftColumn()}
                     {renderRightColumn()}
                 </>

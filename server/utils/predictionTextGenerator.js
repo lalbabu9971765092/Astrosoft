@@ -411,7 +411,7 @@ function generateLordshipText(lordOfHouse, placementHouse, lordPlanet, lang = 'e
     }
 
     // Default generic (but improved) case
-    return `The lord of your ${lordOfOrdinal} house (governing ${themes1}), which is ${lord}, is placed in your ${placementOrdinal} house. This creates a powerful link, suggesting your path to fulfilling matters of your ${lordOfOrdinal} house is deeply connected with activities related to ${themes2}.`;
+    return `The lord of your ${lordOfOrdinal} house (governing ${themes1}), which is ${lord}, is placed in your ${placementOrdinal} house. This links matters of ${themes1} with activities related to ${themes2}.`;
 }
 
 
@@ -492,7 +492,7 @@ export function getUPBSDescription(score, lang = 'en') {
     // English default
     if (score >= 12) return `is exceptionally benefic and powerful, capable of delivering excellent results.`;
     if (score >= 5) return `is benefic and well-disposed, promising positivity and ease in life.`;
-    if (score >= 0) return `is mildly benefic, but its effects may be mixed or dependent on the support of other planets.`;
+    if (score >= 0) return `is mildly benefic, though its effects may be mixed or dependent on other planetary support.`;
     if (score >= -4) return `is slightly afflicted, indicating some struggles or obstacles.`;
     if (score >= -10) return `is significantly afflicted, and will require conscious effort to manage the challenges in its domains.`;
     return `is severely afflicted, suggesting major blockages or difficulties in areas related to its significations.`;
@@ -788,9 +788,9 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             yearLordMalefic: (lord) => ` As a natural malefic, ${lord} indicates this theme will involve discipline, overcoming obstacles, and hard-won results.`,
             muntha: (sign, house, theme) => `Your personal focus and area of self-development, shown by the Muntha, falls in **${sign}** in house **${house}**. This pulls your attention towards **${theme}**.`,
             ascendant: (sign, lord, theme) => `Finally, the annual ascendant in **${sign}** (ruled by **${lord}**) colors your personal outlook and how you project yourself, emphasizing themes of **${theme}** throughout the year.`,
-            synthesis: `\nThe interplay between these factors is key. You'll find the most success where you can apply your personal focus on {munthaTheme} to serve the year's broader theme of {yearLordTheme}, all while expressing yourself through the lens of {ascendantTheme}.`,
+            synthesis: `\nThe interplay between these factors is key. You'll find the most success where you can align the year's broader theme of {yearLordTheme} with your personal focus on {munthaTheme}, all while expressing yourself through the lens of {ascendantTheme}.`,
             strengthHeader: `\n\n#### Key Planetary Influences\n`,
-            strongestPlanet: (planet, score) => `The most influential planet this year is **${planet}** (with a UPBS score of ${score.toFixed(2)}). Its themes of discipline, structure, and long-term planning will be a dominant force, demanding attention and rewarding thoroughness in the areas it influences.`,
+            strongestPlanet: (planet, score, yearLordName) => `While **${yearLordName}** sets the overarching tone for the year, the most influential planet is **${planet}** (with a UPBS score of ${score.toFixed(2)}). Its themes of discipline, structure, and long-term planning will be a dominant force, demanding attention and rewarding thoroughness in the areas it influences.`,
             muddaDashaHeader: `\n\n#### Timeline of the Year (Mudda Dasha)\nThe year's focus will shift according to these planetary sub-periods:\n`,
             dashaPeriod: (lord, start, end, theme) => `*   **${lord} Period (${start.toLocaleDateString()} - ${end.toLocaleDateString()}):** A time to focus on ${theme}.\n`,
             conclusionHeader: `\n\n#### Summary & Advice\n`,
@@ -866,7 +866,7 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
     if (strongestPlanet) {
         parts.push(phrases.strengthHeader);
         const translatedStrongestPlanet = getPlanetName(strongestPlanet, lang);
-        parts.push(phrases.strongestPlanet(translatedStrongestPlanet, strongestPlanetScore));
+        parts.push(phrases.strongestPlanet(translatedStrongestPlanet, strongestPlanetScore, translatedYearLord));
     }
     
     // 6. Mudda Dasha
@@ -914,18 +914,26 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
         summary += ` ${phrases.keyPlanet}`;
         summary += phrases.suggestionsHeader;
     
-        // Add dynamic suggestions based on keyword matching in themes
+        // Add specific suggestions based on the prominent themes
         const suggestions = [];
-        if (yearLordTheme.includes('work') && munthaTheme.includes('spirituality')) {
-            suggestions.push(lang === 'hi' ? 'अपने काम में गहरा अर्थ खोजें या अपने करियर को सेवा-उन्मुख गतिविधियों के साथ संरेखित करें।' : 'Find deeper meaning in your work, or align your career with service-oriented activities.');
+        const yearLordThemeKeywords = yearLordTheme.split(', ').map(s => s.trim());
+        const munthaThemeKeywords = munthaTheme.split(', ').map(s => s.trim());
+        const ascendantThemeKeywords = ascendantTheme.split(', ').map(s => s.trim());
+
+        // Suggestion 1: Integrate spiritual practices into pursuit of knowledge/travel
+        if ((yearLordThemeKeywords.includes('higher learning') || yearLordThemeKeywords.includes('travel') || yearLordThemeKeywords.includes('faith')) &&
+            (munthaThemeKeywords.includes('secrets') || munthaThemeKeywords.includes('expenses') || munthaThemeKeywords.includes('spirituality'))) {
+            suggestions.push(lang === 'hi' ? 'अध्ययन या पवित्र स्थलों के दौरे के माध्यम से ज्ञान या यात्रा की अपनी खोज में आध्यात्मिक प्रथाओं (रहस्यों, खर्चों, आध्यात्मिकता) को एकीकृत करें।' : 'Integrate spiritual practices (secrets, expenses, spirituality) into your pursuit of knowledge or travel (higher learning, travel, faith), perhaps through studying ancient texts or visiting sacred sites.');
         }
-        if (yearLordTheme.includes('health') && ascendantTheme.includes('self')) {
-            suggestions.push(lang === 'hi' ? 'एक नई स्वास्थ्य व्यवस्था शुरू करें जो शारीरिक और मानसिक कल्याण दोनों पर ध्यान केंद्रित करे।' : 'Initiate a new health regimen that focuses on both physical and mental well-being.');
+
+        // Suggestion 2: Use self-awareness to guide exploration of philosophies
+        if ((yearLordThemeKeywords.includes('higher learning') || yearLordThemeKeywords.includes('travel') || yearLordThemeKeywords.includes('faith')) &&
+            (ascendantThemeKeywords.includes('self') || ascendantThemeKeywords.includes('identity') || ascendantThemeKeywords.includes('health'))) {
+             suggestions.push(lang === 'hi' ? 'नई दर्शनशास्त्रों या विश्वास प्रणालियों (उच्च शिक्षा, यात्रा, विश्वास) की अपनी खोज को मार्गदर्शन करने के लिए अपनी व्यक्तिगत अंतर्दृष्टि और आत्म-जागरूकता (स्वयं, पहचान, स्वास्थ्य) का उपयोग करें।' : 'Using your personal insights and self-awareness (self, identity, health) to guide your exploration of new philosophies or belief systems (higher learning, travel, faith).');
         }
-        if (munthaTheme.includes('expenses') && yearLordTheme.includes('work')) {
-            suggestions.push(lang === 'hi' ? 'अपने करियर के माध्यम से आय बढ़ाने पर ध्यान केंद्रित करें ताकि खर्चों का प्रबंधन किया जा सके और वित्तीय अनुशासन का अभ्यास किया जा सके।' : 'Focus on increasing income through your career to manage expenses and practice financial discipline.');
-        }
-         if (suggestions.length === 0) {
+
+        // Default generic suggestion if no specific ones are matched
+        if (suggestions.length === 0) {
             suggestions.push(lang === 'hi' ? 'वर्ष के मुख्य विषयों पर विचार करने के लिए समय निकालें और उन्हें अपने व्यक्तिगत लक्ष्यों के साथ कैसे संरेखित करें।' : 'Take time to reflect on the year\'s main themes and how to align them with your personal goals.');
         }
     
@@ -942,73 +950,73 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             Sun: {
                 Exalted: "Sun, being exalted, brings strong leadership, confidence, and success. You'll find natural authority.",
                 'Own Sign': "Sun, in its own sign, provides strong willpower, authority, and a stable sense of self. Your core identity is robust.",
-                Friend: "Sun, in a friendly sign, indicates that your vitality and leadership will be well-supported. You lead with ease.",
+                Friend: "Sun, well-disposed, supports vitality and leadership, bringing ease in assertion.",
                 Neutral: "Sun, in a neutral sign, gives results based on its house placement. Its influence is balanced.",
-                Enemy: "Sun, in an enemy sign, may cause challenges to your ego, health, or relationship with authority. Assertiveness may be tested.",
+                Enemy: "Sun, unfavorably placed, may challenge ego, health, or authority, testing assertiveness.",
                 Debilitated: "Sun, being debilitated, can indicate a lack of confidence, and challenges in leadership roles. Your self-esteem may need nurturing.",
             },
             Moon: {
                 Exalted: "Moon, being exalted, promises emotional stability, high receptivity, and a nurturing disposition. Your feelings are a strong guide.",
                 'Own Sign': "Moon, in its own sign, indicates a strong connection to emotions, home, and family. Emotional security is paramount.",
-                Friend: "Moon, in a friendly sign, suggests emotional happiness and supportive relationships. You find comfort easily.",
+                Friend: "Moon, well-disposed, brings emotional happiness and supportive relationships, with comfort found easily.",
                 Neutral: "Moon, in a neutral sign, reflects emotional climate of its house. Feelings are balanced but susceptible to environment.",
-                Enemy: "Moon, in an enemy sign, may bring emotional restlessness and fluctuations. Inner peace can be elusive.",
+                Enemy: "Moon, unfavorably placed, may cause emotional restlessness and fluctuations, making inner peace elusive.",
                 Debilitated: "Moon, being debilitated, can indicate emotional turmoil and a sense of insecurity. You may struggle with emotional well-being.",
             },
             Mars: {
                 Exalted: "Mars, being exalted, provides immense courage, drive, and determination to succeed. Your actions are powerful and effective.",
                 'Own Sign': "Mars, in its own sign, gives strong logical abilities, and the energy to pursue goals. You are a natural executor.",
-                Friend: "Mars, in a friendly sign, ensures your actions and efforts will be productive. You assert yourself constructively.",
+                Friend: "Mars, well-disposed, ensures productive actions and efforts, leading to constructive assertion.",
                 Neutral: "Mars, in a neutral sign, acts according to the house it occupies. Energy is present, but needs direction.",
-                Enemy: "Mars, in an enemy sign, may lead to arguments, conflicts, and misdirected energy. Patience is required.",
+                Enemy: "Mars, unfavorably placed, may lead to arguments, conflicts, or misdirected energy, requiring patience.",
                 Debilitated: "Mars, being debilitated, can result in a lack of motivation or frustrated energy. You may struggle to assert yourself.",
             },
             Mercury: {
                 Exalted: "Mercury, being exalted, grants superior intellect, analytical skills, and communication abilities. Your mind is sharp and articulate.",
                 'Own Sign': "Mercury, in its own sign, indicates a sharp mind, adaptability, and skill in commerce. You are quick-witted and versatile.",
-                Friend: "Mercury, in a friendly sign, suggests your intelligence will be used effectively. Communication flows smoothly.",
+                Friend: "Mercury, well-disposed, implies intelligence is used effectively and communication flows smoothly.",
                 Neutral: "Mercury, in a neutral sign, is influenced by planets it conjoins. Your thought process is balanced but can be swayed.",
-                Enemy: "Mercury, in an enemy sign, can lead to communication issues and nervous energy. Clear expression may be challenging.",
+                Enemy: "Mercury, unfavorably placed, can lead to communication issues and nervous energy, making clear expression challenging.",
                 Debilitated: "Mercury, being debilitated, may cause difficulties in decision-making and learning. Mental clarity can be elusive.",
             },
             Jupiter: {
                 Exalted: "Jupiter, being exalted, is a sign of great wisdom, fortune, and divine grace. Opportunities and growth abound.",
                 'Own Sign': "Jupiter, in its own sign, provides strong principles, optimism, and opportunities for growth. Your inherent wisdom is powerful.",
-                Friend: "Jupiter, in a friendly sign, indicates your wisdom will be well-received and supported. You inspire confidence.",
+                Friend: "Jupiter, well-disposed, implies wisdom is well-received and supported, inspiring confidence.",
                 Neutral: "Jupiter, in a neutral sign, gives balanced results in its areas of influence. Growth is steady.",
-                Enemy: "Jupiter, in an enemy sign, may cause you to have rigid beliefs or face challenges with teachers. Expansion may be hindered.",
+                Enemy: "Jupiter, unfavorably placed, may cause rigid beliefs or challenges with teachers, hindering expansion.",
                 Debilitated: "Jupiter, being debilitated, can indicate a lack of judgment or missed opportunities. Fortune may be challenging.",
             },
             Venus: {
                 Exalted: "Venus, being exalted, promises refinement, artistic talent, and happiness in relationships. Harmony is a key theme.",
                 'Own Sign': "Venus, in its own sign, gives a love for beauty, harmony, and pleasure. You naturally attract comfort.",
-                Friend: "Venus, in a friendly sign, suggests a happy social life and good fortune in love. Relationships are supportive.",
+                Friend: "Venus, well-disposed, implies a happy social life and good fortune in love, with supportive relationships.",
                 Neutral: "Venus, in a neutral sign, provides a balanced approach to relationships and comforts. Aesthetics are important.",
-                Enemy: "Venus, in an enemy sign, may create dissatisfaction or challenges in relationships. Harmony may be hard to find.",
+                Enemy: "Venus, unfavorably placed, may create dissatisfaction or challenges in relationships, making harmony hard to find.",
                 Debilitated: "Venus, being debilitated, can lead to difficulties in finding happiness and refinement. Relationships may struggle.",
             },
             Saturn: {
                 Exalted: "Saturn, being exalted, gives profound discipline, patience, and the ability to achieve long-lasting success. You build with strength.",
                 'Own Sign': "Saturn, in its own sign, indicates a strong sense of duty, responsibility, and a structured approach to life. You are naturally disciplined.",
-                Friend: "Saturn, in a friendly sign, shows your hard work and discipline will be rewarded. Efforts lead to tangible results.",
+                Friend: "Saturn, well-disposed, indicates hard work and discipline are rewarded, leading to tangible results.",
                 Neutral: "Saturn, in a neutral sign, delivers results based on your karma and efforts. Lessons are learned through experience.",
-                Enemy: "Saturn, in an enemy sign, can bring about delays, frustrations, and a feeling of being burdened. Patience is vital.",
+                Enemy: "Saturn, unfavorably placed, can bring delays, frustrations, and a feeling of being burdened, making patience vital.",
                 Debilitated: "Saturn, being debilitated, may indicate a struggle with discipline and enduring hardships. Responsibilities can feel heavy.",
             },
             Rahu: {
                 Exalted: "Rahu, being exalted, can give immense worldly success and the ability to achieve great ambition. Unconventional paths lead to prominence.",
                 'Own Sign': "Rahu, in its own sign, provides a strong drive for innovation and unconventional success. You break new ground effectively.",
-                Friend: "Rahu, in a friendly sign, suggests your ambitions will find supportive environments. Desires are easily manifested.",
+                Friend: "Rahu, well-disposed, implies ambitions find supportive environments, and desires manifest easily.",
                 Neutral: "Rahu, in a neutral sign, amplifies the results of the house it is in. Its influence is unpredictable but strong.",
-                Enemy: "Rahu, in an an enemy sign, can create insatiable desires and dissatisfaction. Material pursuits may feel empty.",
+                Enemy: "Rahu, unfavorably placed, can create insatiable desires and dissatisfaction, leading to empty material pursuits.",
                 Debilitated: "Rahu, being debilitated, may lead to confusion, deception, and unfulfilled desires. A sense of direction is needed.",
             },
             Ketu: {
                 Exalted: "Ketu, being exalted, can provide profound spiritual insights and detachment from worldly affairs. Intuition is heightened.",
                 'Own Sign': "Ketu, in its own sign, indicates a strong intuitive ability and a path towards spiritual liberation. Your inner guidance is strong.",
-                Friend: "Ketu, in a friendly sign, suggests your spiritual journey will be supported. Detachment brings peace.",
+                Friend: "Ketu, well-disposed, implies spiritual journey is supported, and detachment brings peace.",
                 Neutral: "Ketu, in a neutral sign, brings a sense of detachment to the house it occupies. Your focus is more internal.",
-                Enemy: "Ketu, in an enemy sign, may create confusion, a sense of loss, and unexpected obstacles. Letting go is challenging.",
+                Enemy: "Ketu, unfavorably placed, may create confusion, loss, or unexpected obstacles, making letting go challenging.",
                 Debilitated: "Ketu, being debilitated, can indicate a lack of direction and feelings of helplessness. Spiritual path may be unclear.",
             },
         },
@@ -1134,7 +1142,19 @@ function rankSignificators(event, keyHouses, karaka, kpSignificators, planetDeta
             analysis += `**${event}:**\n`;
             analysis += `*   **Top Significators:** ${topSignificators.map(p => `${p[0]} (Score: ${p[1]})`).join(', ')}.\n`;
             analysis += `*   **Timing of Event:** The event is most likely to manifest during the Mahadasha, Bhukti, or Antara of these top-ranked significator planets.\n`;
-            analysis += `*   **Conclusion:** The outlook for this event is ${topSignificators[0][1] > 4 ? 'strong and favorable.' : 'present, but may require effort to bring to fruition.'}\n\n`;
+            let eventConclusion;
+            const topScore = topSignificators[0][1];
+
+            if (topScore >= 10) {
+                eventConclusion = 'Excellent potential for a highly favorable event.';
+            } else if (topScore >= 7) {
+                eventConclusion = 'Strong potential for a favorable event.';
+            } else if (topScore >= 4) {
+                eventConclusion = 'Favorable outlook, but may involve some effort or minor delays.';
+            } else { // topScore is less than 4, but greater than 0 (since filtered for > 0)
+                eventConclusion = 'The event is possible, but likely with obstacles, delays, or requiring significant effort.';
+            }
+            analysis += `*   **Conclusion:** ${eventConclusion}\n\n`;
         }
     } else {
         if (lang === 'hi') {
@@ -1159,9 +1179,7 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
     
     const planetDetailsMap = new Map(detailedPlanets.map(p => [p.name, p]));
 
-    let analysisText = lang === 'hi'
-        ? 'यह एक शक्तिशाली उपकरण है जो केपी ज्योतिष से सटीक भविष्यवाणियों के लिए है। \'भाव कारक\' तालिका दिखाती है कि कौन से ग्रह प्रत्येक जीवन क्षेत्र (भाव) को प्रभावित करते हैं। \'ग्रह कारक\' तालिका दिखाती है कि प्रत्येक ग्रह किन जीवन क्षेत्रों को प्रभावित करेगा।\n\n'
-        : "This is a powerful tool from KP astrology for precise predictions. The 'Cusp Significators' table shows which planets influence each life area (house). The 'Planet Significators' table shows which life areas each planet will affect.\n\n";
+    let analysisText = '';
 
     analysisText += lang === 'hi' ? '### केपी भविष्यफल विश्लेषण\n\n' : '### KP Predictive Analysis\n\n';
     analysisText += lang === 'hi' ? '**भाव कारक विश्लेषण:**\n' : '**Cusp Significators Analysis:**\n';
@@ -1198,7 +1216,7 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
         analysisText += `**${getPlanetName(planet, lang)} (${dignity}):** ${detailedDescription}\n`;
     }
 
-    analysisText += lang === 'hi' ? '\n**संश्लेषण और मुख्य भविष्यवाणियां:**\n' : '\n**Synthesis & Key Predictions:**\n';
+    analysisText += lang === 'hi' ? '\n**संश्लेषण और मुख्य भविष्यवाणियां:**\n' : '\n**Synthesis & Key Predictions:**\nGeneral Outlook: A generally positive outlook is indicated for major life events, with strong potential for growth and favorable outcomes during opportune periods.\n\n';
 
     // New ranked analysis for Marriage
     analysisText += rankSignificators('Marriage', [2, 7, 11], 'Venus', kpSignificators, planetDetailsMap, lang);
@@ -1227,5 +1245,9 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
     // New ranked analysis for Success in Litigation
     analysisText += rankSignificators('Success in Litigation', [6, 11], 'Mars', kpSignificators, planetDetailsMap, lang);
 
-    return analysisText;
+    return {
+        analysisText: analysisText,
+        kpSignificatorsData: detailedPlanets, // This is the data needed for the grid
+        kpSignificatorsOverview: overview, // This might also be useful
+    };
 }

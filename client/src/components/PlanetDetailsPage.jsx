@@ -42,13 +42,16 @@ const PlanetDetailsPage = () => {
         isLoading: isInitialLoading,
         error: initialError,
         calculationInputParams,
-        adjustedBirthDateTimeString
+        adjustedBirthDateTimeString,
+        houseToRotate
     } = useOutletContext() || {};
 
     // --- Local State for Rectified Data ---
     const [rectifiedResultLocal, setRectifiedResultLocal] = useState(null);
     const [isLoadingRectification, setIsLoadingRectification] = useState(false);
     const [rectificationError, setRectificationError] = useState(null);
+    const [rotatedResultLocal, setRotatedResultLocal] = useState(null);
+    const [isLoadingRotated, setIsLoadingRotated] = useState(false);
     const [openSections, setOpenSections] = useState({
         planets: true,
         aspects: true,
@@ -109,9 +112,45 @@ const PlanetDetailsPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [adjustedBirthDateTimeString, calculationInputParams, t]);
 
+    // --- Fetch rotated chart when global house rotation changes ---
+    useEffect(() => {
+        let cancelled = false;
+        const fetchRotated = async () => {
+            if (!calculationInputParams || !calculationInputParams.date || calculationInputParams.latitude === undefined || calculationInputParams.longitude === undefined) {
+                setRotatedResultLocal(null);
+                return;
+            }
+            const house = (typeof houseToRotate === 'number' && !isNaN(houseToRotate)) ? houseToRotate : 1;
+            if (house === 1) {
+                setRotatedResultLocal(null);
+                return;
+            }
+            const dateTimeValidation = validateAndFormatDateTime(calculationInputParams.date, t);
+            if (!dateTimeValidation.isValid) {
+                setRotatedResultLocal(null);
+                return;
+            }
+            const formattedDateForApi = dateTimeValidation.formattedDate;
+            setIsLoadingRotated(true);
+            try {
+                const payload = { date: formattedDateForApi, latitude: calculationInputParams.latitude, longitude: calculationInputParams.longitude, house_to_rotate: house };
+                // Note: api interceptor also adds house_to_rotate from localStorage, but we include it explicitly here
+                const resp = await api.post('/calculate', payload);
+                if (!cancelled) setRotatedResultLocal(resp.data);
+            } catch (err) {
+                console.warn('PlanetDetailsPage: rotated fetch failed', err.response?.data || err.message || err);
+                if (!cancelled) setRotatedResultLocal(null);
+            } finally {
+                if (!cancelled) setIsLoadingRotated(false);
+            }
+        };
+        fetchRotated();
+        return () => { cancelled = true; };
+    }, [houseToRotate, calculationInputParams, t]);
+
 
     // --- Determine which result set and input parameters to display ---
-    const displayResult = rectifiedResultLocal || mainResult;
+    const displayResult = rotatedResultLocal || rectifiedResultLocal || mainResult;
     const displayInputParams = useMemo(() => {
         if (rectifiedResultLocal) {
             return {
