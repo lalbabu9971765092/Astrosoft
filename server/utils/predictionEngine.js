@@ -32,40 +32,7 @@ function isBenefic(planet) {
 /* ======================================================
    Planetary Strength
 ====================================================== */
-function getStrengthDescription(strengthDetails, lang = 'en') {
-    const { dignity, digBala, kalaBala } = strengthDetails;
 
-    const descriptions = [];
-    
-    // Dignity (Sthana Bala)
-    if (dignity >= 20) {
-        descriptions.push(lang === 'hi' ? 'उच्च गरिमा (उच्चाटन)' : 'high dignity (exaltation)');
-    } else if (dignity >= 10) {
-        descriptions.push(lang === 'hi' ? 'अच्छी गरिमा (स्वराशि)' : 'good dignity (own sign)');
-    } else if (dignity <= -20) {
-        descriptions.push(lang === 'hi' ? 'कमजोर गरिमा (नीच)' : 'poor dignity (debilitation)');
-    }
-
-    // Directional Strength (Dig Bala)
-    if (digBala >= 60) {
-        descriptions.push(lang === 'hi' ? 'मजबूत दिशात्मक शक्ति' : 'strong directional strength');
-    }
-
-    // Temporal Strength (Kala Bala)
-    if (kalaBala >= 60) {
-        descriptions.push(lang === 'hi' ? 'मजबूत कालिक शक्ति' : 'strong temporal strength');
-    }
-
-    if (descriptions.length === 0) {
-        return ''; // No notable strength to describe
-    }
-
-    let narrative = lang === 'hi' ? 'यह ग्रह ' : 'This planet possesses ';
-    narrative += descriptions.join(lang === 'hi' ? ', और ' : ', and ');
-    narrative += '.';
-
-    return " " + narrative;
-}
 
 function isFunctionalBenefic(planet, houseNum) {
   const dusthanas = [6,8,12];
@@ -320,14 +287,14 @@ function analyzeDashaLordsInChart(chartData, planetaryPowers, currentDasha, curr
         }
         if (level.parentLord) {
             const parentLord = level.parentLord;
-            const relationship = PLANETARY_RELATIONSHIPS[parentLord]?.friends.includes(planet) ? 'मित्रतापूर्ण' :
-                                 PLANETARY_RELATIONSHIPS[parentLord]?.enemies.includes(planet) ? 'शत्रुतापूर्ण' : 'तटस्थ';
+            const relationship = PLANETARY_RELATIONSHIPS[parentLord]?.friends.includes(planet) ? (lang === 'hi' ? 'मित्रतापूर्ण' : 'a friendly') :
+                                 PLANETARY_RELATIONSHIPS[parentLord]?.enemies.includes(planet) ? (lang === 'hi' ? 'शत्रुतापूर्ण' : 'an enemy') : (lang === 'hi' ? 'तटस्थ' : 'a neutral');
             narrative += `${getPlanetName(parentLord, lang)} के साथ इसका ${relationship} संबंध बताता है कि इस अवधि के परिणाम ऊपरी अवधि के विषयों के साथ कैसे संरेखित होंगे।`;
         }
       } else {
         narrative = `**${level.name} Lord ${planet}:** This planet is located in your ${getOrdinal(natalHouse)} house in a state of ${dignityDesc}. It ${strengthDescription}. `;
         if (ruledHouses.length > 0) {
-          narrative += `During its period, matters related to house(s) ${ruledHouses.join(' and ')} will be prominent. `;
+          narrative += `During its period, matters related to house(s) ${ruledHouses.map(getOrdinal).join(' and ')} will be prominent. `;
         }
         if (level.parentLord) {
             const parentLord = level.parentLord;
@@ -449,7 +416,7 @@ function generateLifeAreaReports(chartData, planetaryPowers, ashtakavarga, yogas
 
       let narrative = lang === 'hi'
           ? `${getLifeAreaName(area.name, lang)} का क्षेत्र, जो ${houseNum}वें घर द्वारा शासित है, आपके जीवन भर के लिए एक महत्वपूर्ण विषय है। इसकी नींव इसके स्वामी, ${translatedLord}, द्वारा रखी गई है, जो ${strengthDesc}। यह ${lordPlacementHouse}वें घर में स्थित है, जो आपके ${getLifeAreaName(area.name, lang)} को ${theme} के मामलों से जोड़ता है। `
-          : `The domain of your ${area.name}, governed by house ${houseNum}, is a significant theme throughout your life. Its foundation is laid by its lord, ${houseLord}, which ${strengthDesc}. It is placed in the ${lordPlacementHouse}th house, linking your ${area.name.toLowerCase()} to matters of ${theme}. `;
+          : `The domain of your ${area.name}, governed by your ${getOrdinal(houseNum)} house, is a significant theme throughout your life. Its foundation is laid by its lord, ${houseLord}, which ${strengthDesc}. It is placed in the ${getOrdinal(lordPlacementHouse)} house, linking your ${area.name.toLowerCase()} to matters of ${theme}. `;
           
       if (positiveFactors.length > 0) {
           narrative += lang === 'hi' ? `इस क्षेत्र में क्षमता ${positiveFactors.join(' और ')} से काफी बढ़ जाती है। ` : `The potential in this area is significantly enhanced by ${positiveFactors.join(' and ')}. `;
@@ -491,33 +458,54 @@ function generateLifeAreaReports(chartData, planetaryPowers, ashtakavarga, yogas
    Human-readable Summary
 ====================================================== */
 function generateSummary(overallReport, lifeAreaReports, eventTimeline, yogas, dashaLordAnalysis, lang = 'en') {
-  let summary = overallReport + '\n\n';
+    const HEADERS = {
+        en: {
+            dashaAnalysis: '=== Dasha Analysis for Selected Date ===',
+            lifeAreasSummary: '=== Life Areas Summary ===',
+            eventTimeline: '=== Event Timeline (Transits) ===',
+            birthChartYogas: '=== Birth Chart Yogas ===',
+            noMajorYogas: 'No major Yogas active currently.'
+        },
+        hi: {
+            dashaAnalysis: '=== चयनित तिथि के लिए दशा विश्लेषण ===',
+            lifeAreasSummary: '=== जीवन क्षेत्र सारांश ===',
+            eventTimeline: '=== घटना समयरेखा (गोचर) ===',
+            birthChartYogas: '=== जन्म कुंडली योग ===',
+            noMajorYogas: 'वर्तमान में कोई बड़ा योग सक्रिय नहीं है।'
+        }
+    };
+    const currentHeaders = HEADERS[lang] || HEADERS['en'];
 
-  if (dashaLordAnalysis.length > 0) {
-    summary += (lang === 'hi' ? '=== चयनित तिथि के लिए दशा विश्लेषण ===\n' : '=== Dasha Analysis for Selected Date ===\n');
-    dashaLordAnalysis.forEach(analysis => {
-      summary += `* ${analysis}\n`;
+    let summary = overallReport + '\n\n';
+
+    if (dashaLordAnalysis.length > 0) {
+        summary += currentHeaders.dashaAnalysis + '\n';
+        dashaLordAnalysis.forEach(analysis => {
+            summary += `* ${analysis}\n`;
+        });
+        summary += '\n';
+    }
+    
+    summary += currentHeaders.lifeAreasSummary + '\n';
+    Object.values(lifeAreaReports).forEach(area => {
+        summary += `${area.narrative}\n\n`;
     });
-    summary += '\n';
-  }
-  summary += (lang === 'hi' ? '=== जीवन क्षेत्र सारांश ===\n' : '=== Life Areas Summary ===\n');
-  Object.values(lifeAreaReports).forEach(area => {
-    summary += `${area.narrative}\n\n`;
-  });
-  summary += (lang === 'hi' ? '=== घटना समयरेखा (गोचर) ===\n' : '=== Event Timeline (Transits) ===\n');
-  eventTimeline.forEach(ev => {
-    summary += `* ${ev.narration}\n`;
-  });
-  summary += '\n'; // Add an extra newline for spacing
-  summary += (lang === 'hi' ? '=== जन्म कुंडली योग ===\n' : '=== Birth Chart Yogas ===\n');
-  if (yogas.length > 0) {
-    yogas.forEach(yoga => {
-      summary += `* ${yoga.name}: ${yoga.description}\n`;
+    
+    summary += currentHeaders.eventTimeline + '\n';
+    eventTimeline.forEach(ev => {
+        summary += `* ${ev.narration}\n`;
     });
-  } else {
-    summary += (lang === 'hi' ? 'वर्तमान में कोई बड़ा योग सक्रिय नहीं है।' : 'No major Yogas active currently.');
-  }
-  return summary;
+    summary += '\n'; 
+    
+    summary += currentHeaders.birthChartYogas + '\n';
+    if (yogas.length > 0) {
+        yogas.forEach(yoga => {
+            summary += `* ${yoga.name}: ${yoga.description}\n`;
+        });
+    } else {
+        summary += currentHeaders.noMajorYogas;
+    }
+    return summary;
 }
 
 /* ======================================================

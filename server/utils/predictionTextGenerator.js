@@ -76,6 +76,18 @@ const nakshatraNames_hi = {
     Revati: "रेवती"
 };
 
+const eventNames_hi = {
+    'Marriage': 'विवाह',
+    'Career/Profession': 'करियर/पेशा',
+    'Child Birth': 'संतान जन्म',
+    'Higher Education': 'उच्च शिक्षा',
+    'Property & Vehicle Purchase': 'संपत्ति और वाहन खरीद',
+    'Foreign Travel': 'विदेश यात्रा',
+    'Health & Sickness': 'स्वास्थ्य और बीमारी',
+    'Spiritual Progress': 'आध्यात्मिक उन्नति',
+    'Success in Litigation': 'मुकदमे में सफलता'
+};
+
 const planetInHouse_en = {
     Sun: [
         "Sun in the 1st house amplifies your sense of self, bestowing leadership, vitality, and a strong desire for recognition. You have a commanding presence but should be mindful of ego.",
@@ -162,32 +174,32 @@ const planetInHouse_en = {
         "Venus in the 12th house finds love and beauty in seclusion, spirituality, and imagination. It can indicate hidden relationships or a love for luxurious comforts in private."
     ],
     Saturn: [
-        "Saturn in the 1st house adds seriousness, discipline, and responsibility to your personality. You may feel burdensome responsibilities from a young age but develop great endurance.",
-        "Saturn in the 2nd house can restrict finances and family wealth, demanding hard work and savings over time. It gives a serious, practical, and sometimes melancholic speech.",
-        "Saturn in the 3rd house can create challenges with siblings or communication. However, it gives immense perseverance and discipline in any skill you set your mind to master.",
-        "Saturn in the 4th house may indicate a restrictive or emotionally cool home environment. It builds security slowly over time through discipline and hard work.",
-        "Saturn in the 5th house can delay or bring a serious approach to children, romance, and creativity. Your creative pursuits are structured and may manifest later in life.",
-        "Saturn in the 6th house is a powerful placement for overcoming enemies through persistence. It shows a diligent worker but can indicate chronic health issues that require discipline.",
+        "Saturn in the 1st house adds seriousness, discipline, and responsibility to your personality. You may feel burdened by responsibilities from a young age but develop great endurance.",
+        "Saturn in the 2nd house can restrict finances and family wealth, demanding hard work and savings over time. It gives a serious, practical, and sometimes somber speech.",
+        "Saturn in the 3rd house can create challenges with siblings or communication. However, it gives immense perseverance and discipline in any skill you set out to master.",
+        "Saturn in the 4th house can indicate a restrictive or emotionally cold home environment. It builds security slowly over time through discipline and hard work.",
+        "Saturn in the 5th house can bring delays or a serious approach to children, romance, and creativity. Your creative pursuits are structured and may manifest later in life.",
+        "Saturn in the 6th house is a powerful placement for overcoming enemies through perseverance. It shows a diligent worker but can indicate chronic health issues that require discipline.",
         "Saturn in the 7th house can delay marriage or bring a mature, older, or very responsible partner. It demands commitment, structure, and patience in relationships.",
-        "Saturn in the 8th house is a strong placement for longevity. It can bring inheritances through long, patient waiting, and gives a deep, serious interest in research and metaphysics.",
-        "Saturn in the 9th house creates a structured, traditional, and sometimes rigid belief system. You take philosophy and higher learning seriously, but may question your teachers.",
+        "Saturn in the 8th house is a strong placement for longevity. It can bring inheritance through long, patient waiting, and gives a deep, serious interest in research and metaphysics.",
+        "Saturn in the 9th house creates a structured, traditional, and sometimes rigid belief system. You take philosophy and higher education seriously, but may question your teachers.",
         "Saturn in the 10th house (a strong placement) brings success and high status through slow, steady, and disciplined hard work. You build a lasting career and reputation over time.",
-        "Saturn in the 11th house can make fulfillment of desires a slow process. Friendships are few but long-lasting. Gains come through persistence and established networks.",
+        "Saturn in the 11th house can make the fulfillment of desires a slow process. Friends are few but long-lasting. Gains come through perseverance and established networks.",
         "Saturn in the 12th house indicates a solitary, disciplined spiritual path. It is excellent for meditation and behind-the-scenes work but can indicate feelings of isolation."
     ],
     Rahu: [
-        "Rahu in the 1st house creates a powerful, ambitious, and unconventional personality. You have an insatiable desire for recognition and may feel like an outsider seeking to prove yourself.",
-        "Rahu in the 2nd house gives a huge desire for wealth and accumulating possessions. It can bring wealth from unconventional sources, but also a tendency towards untruthful speech.",
-        "Rahu in the 3rd house grants extreme courage and a powerful, persuasive communication style. You may excel in media, technology, or marketing, but can be manipulative.",
-        "Rahu in the 4th house can create restlessness regarding home and emotional peace. There may be foreign elements in your home life or a feeling of never being truly settled.",
-        "Rahu in the 5th house brings an obsessive drive for creativity, romance, and speculation. It can grant fame through entertainment but also unorthodox approaches to children.",
-        "Rahu in the 6th house provides an uncanny ability to overcome enemies and solve complex problems with unconventional methods. It can give success in technology or healing.",
+        "Rahu in the 1st house creates a powerful, ambitious, and unconventional personality. You have an insatiable desire for recognition and may feel like an outsider trying to prove yourself.",
+        "Rahu in the 2nd house gives a great desire to accumulate wealth and property. It can bring wealth from unconventional sources, but also a tendency for untruthful speech.",
+        "Rahu in the 3rd house provides immense courage and a powerful, persuasive communication style. You may excel in media, technology, or marketing, but can also be manipulative.",
+        "Rahu in the 4th house can create restlessness regarding home and emotional peace. There may be foreign elements in your domestic life or a feeling of never being truly settled.",
+        "Rahu in the 5th house brings a passionate drive for creativity, romance, and speculation. It can grant fame through entertainment but also an unconventional approach to children.",
+        "Rahu in the 6th house provides an uncanny ability to overcome enemies and solve complex problems through unconventional means. It can give success in technology or healing.",
         "Rahu in the 7th house creates a strong desire for partnership, often with someone from a different background or culture. Relationships are a major focus and can be unconventional.",
         "Rahu in the 8th house gives a powerful and obsessive interest in secrets, metaphysics, and sudden wealth. It can bring unexpected gains and losses and a talent for research.",
-        "Rahu in the 9th house creates unconventional beliefs and a questioning attitude towards traditional dharma and teachers. It can lead to great success in foreign lands.",
-        "Rahu in the 10th house is a powerful driver for career ambition and fame. You are not afraid to break the rules to achieve high status and can rise quickly in your profession.",
-        "Rahu in the 11th house is an excellent placement for massive gains and achieving desires through technology and large networks. You have influential and unconventional friends.",
-        "Rahu in the 12th house directs its obsessive energy towards spirituality, foreign lands, or hidden matters. It can give powerful intuitive insights or lead to secret dealings and expenses."
+        "Rahu in the 9th house creates unconventional beliefs and a questioning attitude towards traditional religion and teachers. It can bring great success in foreign lands.",
+        "Rahu in the 10th house is a powerful driver for career ambition and fame. You are not afraid to break rules to achieve high status and can rise quickly in your profession.",
+        "Rahu in the 11th house is an excellent placement for huge gains and fulfillment of desires through technology and large networks. You have influential and unconventional friends.",
+        "Rahu in the 12th house directs its obsessive energy towards spirituality, foreign lands, or hidden affairs. It can give powerful intuitive insights or lead to secret dealings and expenses."
     ],
     Ketu: [
         "Ketu in the 1st house creates a detached, introspective, and spiritually-inclined personality. You may feel a sense of rootlessness or question your own identity, leading to a spiritual search.",
@@ -204,132 +216,133 @@ const planetInHouse_en = {
         "Ketu in the 12th house is the significator for liberation (Moksha) and is extremely powerful here. It grants profound intuitive insight, meditative ability, and spiritual detachment."
     ]
 };
+
 const planetInHouse_hi = {
     Sun: [
-        "सूर्य पहले घर में आपके आत्म-भाव को बढ़ाता है, नेतृत्व, जीवन शक्ति और मान्यता की तीव्र इच्छा प्रदान करता है। आपकी उपस्थिति प्रभावशाली है लेकिन अहंकार से सावधान रहना चाहिए।",
+        "पहले घर में सूर्य आपके आत्म-बोध को बढ़ाता है, नेतृत्व, जीवन शक्ति और मान्यता की प्रबल इच्छा प्रदान करता है। आपकी उपस्थिति प्रभावशाली है लेकिन अहंकार से सावधान रहना चाहिए।",
         "दूसरे घर में सूर्य आपकी पहचान को धन, पारिवारिक विरासत और मूल्यों से जोड़ता है। आपकी आवाज शक्तिशाली हो सकती है और आप महत्वपूर्ण संपत्ति जमा करने पर ध्यान केंद्रित कर सकते हैं।",
-        "तीसरे घर में सूर्य संचार में साहस, एक शक्तिशाली इच्छाशक्ति और अधिकार प्रदान करता है। आप आत्मविश्वास के साथ खुद को व्यक्त करते हैं और विपणन, लेखन या प्रदर्शन में उत्कृष्टता प्राप्त कर सकते हैं।",
-        "चौथे घर में सूर्य आपका ध्यान घर, परिवार और भावनात्मक नींव पर रखता है। आप घरेलू जीवन में एक प्रमुख भूमिका निभा सकते हैं और एक प्रमुख घरेलू वातावरण की तलाश कर सकते हैं।",
-        "पांचवें घर में सूर्य रचनात्मकता, बुद्धि और एक नाटकीय स्वभाव लाता है। आप रोमांस, प्रदर्शन और नेतृत्व के क्षेत्रों में चमकते हैं, और बच्चों के साथ आपका एक मजबूत संबंध है।",
-        "छठे घर में सूर्य आपके दैनिक काम और सेवा में नेतृत्व करने की प्रेरणा को इंगित करता है। आप चुनौतियों पर काबू पाने में गर्व महसूस करते हैं और स्वास्थ्य सेवा या प्रशासन में एक शक्तिशाली व्यक्ति हो सकते हैं।",
+        "तीसरे घर में सूर्य साहस, एक शक्तिशाली इच्छाशक्ति और संचार में अधिकार प्रदान करता है। आप आत्मविश्वास के साथ खुद को व्यक्त करते हैं और मार्केटिंग, लेखन या प्रदर्शन में उत्कृष्टता प्राप्त कर सकते हैं।",
+        "चौथे घर में सूर्य आपका ध्यान घर, परिवार और भावनात्मक नींव पर केंद्रित करता है। आप घरेलू जीवन में एक प्रमुख भूमिका निभा सकते हैं और एक प्रमुख घरेलू वातावरण की तलाश कर सकते हैं।",
+        "पांचवें घर में सूर्य रचनात्मकता, बुद्धि और एक नाटकीय स्वभाव लाता है। आप रोमांस, प्रदर्शन और नेतृत्व के क्षेत्रों में चमकते हैं, और बच्चों के साथ आपका मजबूत संबंध होता है।",
+        "छठे घर में सूर्य आपके दैनिक कार्य और सेवा में नेतृत्व करने की प्रेरणा को इंगित करता है। आप चुनौतियों पर काबू पाने में गर्व महसूस करते हैं और स्वास्थ्य सेवा या प्रशासन में एक शक्तिशाली व्यक्ति हो सकते हैं।",
         "सातवें घर में सूर्य आपके अहंकार और पहचान को साझेदारी में रखता है। आप एक प्रमुख साथी की तलाश करते हैं और अपने रिश्तों के माध्यम से खुद को परिभाषित कर सकते हैं, चाहे अच्छा हो या बुरा।",
         "आठवें घर में सूर्य रहस्यों, मनोविज्ञान और संयुक्त संसाधनों में एक शक्तिशाली रुचि देता है। आपके जीवन पथ में गहरे परिवर्तन और छिपी हुई शक्ति की गतिशीलता से निपटना शामिल है।",
         "नौवें घर में सूर्य आपकी पहचान को उच्च विश्वासों, ज्ञान और धर्म के साथ संरेखित करता है। आप एक प्राकृतिक शिक्षक या मार्गदर्शक हैं, और आपके पिता या गुरु महत्वपूर्ण व्यक्ति हो सकते हैं।",
-        "दसवें घर में सूर्य करियर और सार्वजनिक मान्यता के लिए एक शक्तिशाली स्थान है। आप एक प्राकृतिक नेता हैं, जो आपके पेशे और समाज में एक दृश्यमान भूमिका के लिए नियत हैं।",
-        "ग्यारहवें घर में सूर्य इंगित करता है कि आपकी पहचान आपके सामाजिक नेटवर्क, लक्ष्यों और लाभ से जुड़ी है। आप किसी बड़े संगठन या दोस्तों के समूह में एक नेता बन सकते हैं।",
-        "बारहवें घर में सूर्य आपकी ऊर्जा को आध्यात्मिकता, आत्मनिरीक्षण और विदेशों की ओर निर्देशित करता है। आपके पथ में संस्थानों में सेवा या एकांत में अपनी पहचान खोजना शामिल हो सकता है।"
+        "दसवें घर में सूर्य करियर और सार्वजनिक मान्यता के लिए एक शक्तिशाली स्थान है। आप एक प्राकृतिक नेता हैं, जो आपके पेशे और समाज में एक दृश्य भूमिका के लिए नियत हैं।",
+        "ग्यारहवें घर में सूर्य इंगित करता है कि आपकी पहचान आपके सामाजिक नेटवर्क, लक्ष्यों और लाभों से जुड़ी है। आप एक बड़े संगठन या दोस्तों के समूह के भीतर एक नेता बन सकते हैं।",
+        "बारहवें घर में सूर्य आपकी ऊर्जा को आध्यात्मिकता, आत्मनिरीक्षण और विदेशी भूमि की ओर निर्देशित करता है। आपके पथ में संस्थानों में सेवा या एकांत में अपनी पहचान खोजना शामिल हो सकता है।"
     ],
     Moon: [
         "पहले घर में चंद्रमा आपके व्यक्तित्व को गहरा भावनात्मक, सहज और ग्रहणशील बनाता है। आपकी पहचान तरल है, और आप अपने पर्यावरण और दूसरों के मूड के प्रति अत्यधिक संवेदनशील हैं।",
-        "दूसरे घर में चंद्रमा आपकी भावनात्मक सुरक्षा को वित्तीय स्थिरता और पारिवारिक मूल्यों से जोड़ता है। आपकी आय में उतार-चढ़ाव हो सकता है, और आप अपनी संपत्ति का पोषण करने में आराम पाते हैं।",
-        "तीसरे घर में चंद्रमा एक ऐसा मन बनाता है जो जिज्ञासु, मिलनसार और परिवर्तनशील होता है। आपके विचार आपकी भावनाओं से गहरे रूप से जुड़े होते हैं, जो आपको एक कल्पनाशील लेखक या वक्ता बनाते हैं।",
+        "दूसरे घर में चंद्रमा आपकी भावनात्मक सुरक्षा को वित्तीय स्थिरता और पारिवारिक मूल्यों से जोड़ता है। आपकी आय में उतार-चढ़ाव हो सकता है, और आप अपनी संपत्ति के पोषण में आराम पाते हैं।",
+        "तीसरे घर में चंद्रमा एक जिज्ञासु, मिलनसार और परिवर्तनशील मन बनाता है। आपके विचार आपकी भावनाओं से गहराई से जुड़े हुए हैं, जो आपको एक कल्पनाशील लेखक या वक्ता बनाते हैं।",
         "चौथे घर में चंद्रमा (अपने ही घर में) भावनात्मक खुशी के लिए अत्यंत मजबूत है। आपकी भलाई आपके घर, माँ और अपनेपन की भावना से गहराई से जुड़ी हुई है।",
-        "पांचवें घर में चंद्रमा आपको भावनात्मक रूप से रचनात्मक और रोमांटिक बनाता है। आपका बच्चों के साथ एक पोषण करने वाला संबंध है और आप रचनात्मक आत्म-अभिव्यक्ति के माध्यम से भावनात्मक पूर्ति पाते हैं।",
-        "छठे घर में चंद्रमा आपकी भावनाओं को आपके काम और दैनिक दिनचर्या से जोड़ता है। आपकी सेवा के प्रति एक पोषण करने वाला दृष्टिकोण हो सकता है लेकिन स्वास्थ्य और संघर्षों के बारे में चिंता करने की प्रवृत्ति हो सकती है।",
-        "सातवें घर में चंद्रमा साझेदारी के माध्यम से भावनात्मक पूर्ति चाहता है। आपकी खुशी आपके महत्वपूर्ण दूसरे के साथ महसूस होने वाले सामंजस्य और संबंध पर बहुत निर्भर करती है।",
-        "आठवें घर में चंद्रमा एक ऐसा मन देता है जो गहरा, सहज और रहस्यों की ओर आकर्षित होता है। आप गहन भावनात्मक परिवर्तनों का अनुभव करते हैं और आपके पास एक प्राकृतिक मानसिक क्षमता होती है।",
+        "पांचवें घर में चंद्रमा आपको भावनात्मक रूप से रचनात्मक और रोमांटिक बनाता है। आपका बच्चों के साथ एक पोषण करने वाला संबंध है और आप रचनात्मक आत्म-अभिव्यक्ति के माध्यम से भावनात्मक संतुष्टि पाते हैं।",
+        "छठे घर में चंद्रमा आपकी भावनाओं को आपके काम और दैनिक दिनचर्या से जोड़ता है। आपकी सेवा के प्रति एक पोषण दृष्टिकोण हो सकता है लेकिन स्वास्थ्य और संघर्षों के बारे में चिंता करने की प्रवृत्ति हो सकती है।",
+        "सातवें घर में चंद्रमा साझेदारी के माध्यम से भावनात्मक संतुष्टि चाहता है। आपकी खुशी काफी हद तक आपके महत्वपूर्ण दूसरे के साथ महसूस होने वाले सद्भाव और संबंध पर निर्भर करती है।",
+        "आठवें घर में चंद्रमा एक गहरा, सहज और रहस्यों की ओर आकर्षित मन देता है। आप गहन भावनात्मक परिवर्तनों का अनुभव करते हैं और आपके पास एक प्राकृतिक मानसिक क्षमता होती है।",
         "नौवें घर में चंद्रमा आपकी भावनाओं को आपके विश्वासों, उच्च शिक्षा और यात्रा से जोड़ता है। आप दर्शन, आध्यात्मिकता और विभिन्न संस्कृतियों की खोज के माध्यम से भावनात्मक शांति पाते हैं।",
         "दसवें घर में चंद्रमा आपकी भावनाओं को सार्वजनिक नजर में रखता है। आपका करियर जनता, देखभाल या भोजन से संबंधित हो सकता है, और आपकी प्रतिष्ठा उतार-चढ़ाव के अधीन है।",
         "ग्यारहवें घर में चंद्रमा दोस्ती, सामाजिक नेटवर्क और लक्ष्यों को प्राप्त करने के माध्यम से भावनात्मक संतुष्टि पाता है। आप अपने समुदाय और समूह की भागीदारी से पोषित होते हैं।",
         "बारहवें घर में चंद्रमा एक अत्यधिक कल्पनाशील, सहज और दयालु मन बनाता है। आपको रिचार्ज करने के लिए एकांत की अवधि की आवश्यकता होती है और आप आध्यात्मिक या अन्य दुनिया के क्षेत्रों से गहरा संबंध महसूस कर सकते हैं।"
     ],
     Mars: [
-        "पहले घर में मंगल एक मुखर, ऊर्जावान और साहसी व्यक्तित्व देता है। आप एक प्राकृतिक 'गो-गेटर' हैं, लेकिन आपको आवेगीपन और दुर्घटना-ग्रस्त होने की प्रवृत्ति से सावधान रहना चाहिए।",
-        "दूसरे घर में मंगल वित्त और वाणी में प्रेरणा और संघर्ष लाता है। आप पैसा कमाने में आक्रामक हैं, लेकिन वित्तीय विवाद भी हो सकते हैं या कठोर शब्दों का इस्तेमाल कर सकते हैं।",
-        "तीसरे घर में मंगल immense साहस, पहल और एक सीधी संचार शैली प्रदान करता है। आप अपने विचारों के एक शक्तिशाली पैरोकार हैं, हालांकि तर्कशील हो सकते हैं।",
+        "पहले घर में मंगल एक मुखर, ऊर्जावान और साहसी व्यक्तित्व देता है। आप एक प्राकृतिक कर्ता हैं, लेकिन आपको आवेगीपन और दुर्घटना-प्रवृत्ति से सावधान रहना चाहिए।",
+        "दूसरे घर में मंगल वित्त और वाणी में प्रेरणा और संघर्ष लाता है। आप पैसा कमाने में आक्रामक हैं, लेकिन वित्तीय विवाद भी हो सकते हैं या कठोर शब्दों का उपयोग कर सकते हैं।",
+        "तीसरे घर में मंगल अपार साहस, पहल और एक प्रत्यक्ष संचार शैली प्रदान करता है। आप अपने विचारों के एक शक्तिशाली हिमायती हैं, हालांकि तर्कशील हो सकते हैं।",
         "चौथे घर में मंगल घर के भीतर और परिवार के साथ संघर्ष और तर्क पैदा कर सकता है। यह आपकी ऊर्जा को उत्पादक घरेलू परियोजनाओं में लगाने की आवश्यकता को इंगित करता है।",
-        "पांचवें घर में मंगल रचनात्मकता, खेल और रोमांस में एक भावुक और प्रतिस्पर्धी प्रेरणा प्रदान करता है। आप अपने शौक और प्रेम हितों को बड़ी ऊर्जा के साथ आगे बढ़ाते हैं।",
-        "छठे घर में मंगल दुश्मनों और बाधाओं पर काबू पाने के लिए उत्कृष्ट है। आप एक दुर्जेय प्रतियोगी और एक अथक कार्यकर्ता हैं, लेकिन सूजन और चोटों से बचना चाहिए।",
-        "सातवें घर में मंगल साझेदारी में एक भावुक लेकिन संभावित रूप से तर्कपूर्ण ऊर्जा लाता है। आप मुखर भागीदारों के प्रति आकर्षित होते हैं, लेकिन शक्ति संघर्ष आम हैं।",
-        "आठवें घर में मंगल रहस्यों की जांच करने और संयुक्त वित्त के साथ जोखिम लेने की एक मजबूत प्रेरणा को इंगित करता है। यह अचानक घटनाओं और सावधानीपूर्वक ऊर्जा प्रबंधन की आवश्यकता का संकेत दे सकता है।",
-        "नौवें घर में मंगल आपके विश्वासों के लिए लड़ने की प्रेरणा दिखाता है। आप शिक्षकों के साथ या दर्शन के बारे में बहस कर सकते हैं, लेकिन आप जो सच मानते हैं, उसके लिए आप एक भावुक वकील हैं।",
-        "दसवें घर में मंगल आपके करियर में immense महत्वाकांक्षा और प्रेरणा प्रदान करता है। आप एक प्राकृतिक कमांडर हैं और इंजीनियरिंग या सर्जरी जैसे साहस और तकनीकी कौशल की आवश्यकता वाले क्षेत्रों में उत्कृष्टता प्राप्त करते हैं।",
+        "पांचवें घर में मंगल रचनात्मकता, खेल और रोमांस में एक भावुक और प्रतिस्पर्धी प्रेरणा प्रदान करता है। आप अपने शौक और प्रेम रुचियों को बड़ी ऊर्जा के साथ आगे बढ़ाते हैं।",
+        "छठे घर में मंगल दुश्मनों और बाधाओं पर काबू पाने के लिए उत्कृष्ट है। आप एक दुर्जेय प्रतियोगी और एक अथक कार्यकर्ता हैं, लेकिन सूजन और चोटों से सावधान रहना चाहिए।",
+        "सातवें घर में मंगल साझेदारी में एक भावुक लेकिन संभावित रूप से तर्कपूर्ण ऊर्जा लाता है। आप मुखर भागीदारों के प्रति आकर्षित होते हैं, लेकिन सत्ता संघर्ष आम हैं।",
+        "आठवें घर में मंगल रहस्यों की जांच करने के लिए एक मजबूत प्रेरणा और संयुक्त वित्त के साथ जोखिम लेने की प्रकृति को इंगित करता है। यह अचानक घटनाओं और सावधान ऊर्जा प्रबंधन की आवश्यकता का संकेत दे सकता है।",
+        "नौवें घर में मंगल आपके विश्वासों के लिए लड़ने की प्रेरणा दिखाता है। आप शिक्षकों के साथ या दर्शन के बारे में बहस कर सकते हैं, लेकिन आप जो सच मानते हैं उसके लिए एक भावुक हिमायती हैं।",
+        "दसवें घर में मंगल आपके करियर में अपार महत्वाकांक्षा और प्रेरणा प्रदान करता है। आप एक प्राकृतिक कमांडर हैं और इंजीनियरिंग या सर्जरी जैसे साहस और तकनीकी कौशल की आवश्यकता वाले क्षेत्रों में उत्कृष्टता प्राप्त करते हैं।",
         "ग्यारहवें घर में मंगल आपकी ऊर्जा को लक्ष्यों को प्राप्त करने और नेटवर्किंग की ओर निर्देशित करता है। आप अपने सामाजिक दायरे में सक्रिय हैं और दोस्तों के बीच एक नेता हो सकते हैं, हालांकि प्रतिस्पर्धा उत्पन्न हो सकती है।",
-        "बारहवें घर में मंगल छिपे हुए दुश्मन बना सकता है या आपकी ऊर्जा को अंदर की ओर निर्देशित कर सकता है, जिससे निराशा हो सकती है। यह आध्यात्मिक अनुशासन, अनुसंधान या सेवा के माध्यम से सबसे अच्छा प्रसारित होता है।"
+        "बारहवें घर में मंगल छिपे हुए दुश्मन बना सकता है या आपकी ऊर्जा को अंदर की ओर निर्देशित कर सकता है, जिससे निराशा हो सकती है। इसे आध्यात्मिक अनुशासन, अनुसंधान या सेवा के माध्यम से सर्वोत्तम रूप से प्रसारित किया जाता है।"
     ],
     Mercury: [
-        "पहले घर में बुध आपको अत्यधिक बुद्धिमान, मिलनसार और अनुकूलनीय बनाता है। आपकी पहचान आपकी बुद्धि से बंधी है, और आप खुद को एक युवा, जिज्ञासु तरीके से प्रस्तुत करते हैं।",
-        "दूसरे घर में बुध वित्तीय मामलों में बुद्धिमत्ता और एक कुशल, अक्सर विनोदी या बहुमुखी, बोलने का तरीका प्रदान करता है। आपका मन संसाधनों और डेटा को जमा करने पर केंद्रित है।",
+        "पहले घर में बुध आपको अत्यधिक बुद्धिमान, मिलनसार और अनुकूलनीय बनाता है। आपकी पहचान आपकी बुद्धि से जुड़ी है, और आप खुद को एक युवा, जिज्ञासु तरीके से प्रस्तुत करते हैं।",
+        "दूसरे घर में बुध वित्तीय मामलों में बुद्धि और एक कुशल, अक्सर विनोदी या बहुमुखी, भाषण की शैली प्रदान करता है। आपका मन संसाधनों और डेटा को जमा करने पर केंद्रित है।",
         "तीसरे घर में बुध (अपने ही घर में) संचार, लेखन और सीखने के लिए उत्कृष्ट है। आपके पास एक तेज, तार्किक दिमाग है और आप मीडिया, मार्केटिंग या कम दूरी की यात्रा में उत्कृष्टता प्राप्त करते हैं।",
-        "चौथे घर में बुध आपकी बुद्धि को घरेलू मामलों पर केंद्रित करता है। आप घर पर सीखने का आनंद ले सकते हैं, एक पारिवारिक व्यवसाय हो सकता है, या अचल संपत्ति और परिवार के बारे में लगातार सोच सकते हैं।",
-        "पांचवें घर में बुध एक चंचल, रचनात्मक और बुद्धिमान दिमाग देता है। आप कौशल के खेल, बौद्धिक शौक और बच्चों के साथ संवाद करने में उत्कृष्टता प्राप्त करते हैं।",
+        "चौथे घर में बुध आपकी बुद्धि को घरेलू मामलों पर केंद्रित करता है। आप घर पर सीखने का आनंद ले सकते हैं, एक पारिवारिक व्यवसाय कर सकते हैं, या अचल संपत्ति और परिवार के बारे में लगातार सोच सकते हैं।",
+        "पांचवें घर में बुध एक चंचल, रचनात्मक और बुद्धिमान मन देता है। आप कौशल के खेल, बौद्धिक शौक और बच्चों के साथ संवाद करने में उत्कृष्टता प्राप्त करते हैं।",
         "छठे घर में बुध आपकी विश्लेषणात्मक कौशल को समस्याओं, स्वास्थ्य और काम पर लागू करता है। आप एक विस्तार-उन्मुख कार्यकर्ता और एक उत्कृष्ट समस्या निवारक हैं, लेकिन अत्यधिक चिंता कर सकते हैं।",
-        "सातवें घर में बुध एक बुद्धिमान और मिलनसार साथी की तलाश करता है। सभी एक-से-एक रिश्तों में आपके लिए संवाद और मानसिक संबंध महत्वपूर्ण हैं।",
+        "सातवें घर में बुध एक बुद्धिमान और मिलनसार साथी चाहता है। सभी आमने-सामने के रिश्तों में आपके लिए संवाद और मानसिक संबंध महत्वपूर्ण हैं।",
         "आठवें घर में बुध एक ऐसा मन बनाता है जो अनुसंधान, जांच और रहस्यों को उजागर करने की ओर आकर्षित होता है। आपके पास मनोविज्ञान, ज्योतिष या खोजी पत्रकारिता के लिए एक प्राकृतिक प्रतिभा है।",
         "नौवें घर में बुध आपको उच्च ज्ञान का छात्र बनाता है। आप दर्शन, कानून, धर्म और लंबी दूरी की यात्रा के बारे में सीखना और संवाद करना पसंद करते हैं।",
-        "दसवें घर में बुध आपके करियर में संचार को एक प्राथमिक उपकरण के रूप में उपयोग करता है। आपके पास कई नौकरियां हो सकती हैं या मीडिया, लेखन, शिक्षण या परामर्श में एक पेशा हो सकता है।",
-        "ग्यारहवें घर में बुध एक विस्तृत सामाजिक नेटवर्क और लक्ष्यों को प्राप्त करने में बुद्धिमत्ता प्रदान करता है। आप कई अलग-अलग लोगों से जुड़ते हैं और समूह संचार में उत्कृष्टता प्राप्त करते हैं।",
-        "बारहवें घर में बुध एक ऐसा मन देता है जो सहज, कल्पनाशील और परदे के पीछे के शोध या आध्यात्मिक विषयों पर केंद्रित होता है। आप छिपी हुई चीजों के बारे में गहराई से सोचते हैं।"
+        "दसवें घर में बुध आपके करियर में संचार को एक प्राथमिक उपकरण के रूप में उपयोग करता है। आपके पास कई नौकरियां या मीडिया, लेखन, शिक्षण या परामर्श में एक पेशा हो सकता है।",
+        "ग्यारहवें घर में बुध एक विस्तृत सामाजिक नेटवर्क और लक्ष्यों को प्राप्त करने में बुद्धि प्रदान करता है। आप कई अलग-अलग लोगों से जुड़ते हैं और समूह संचार में उत्कृष्टता प्राप्त करते हैं।",
+        "बारहवें घर में बुध एक ऐसा मन देता है जो सहज, कल्पनाशील और पर्दे के पीछे के शोध या आध्यात्मिक विषयों पर केंद्रित होता है। आप छिपी हुई चीजों के बारे में गहराई से सोचते हैं।"
     ],
     Jupiter: [
         "पहले घर में बृहस्पति आपके व्यक्तित्व में आशावाद, ज्ञान और सौभाग्य लाता है। आपको उच्च सिद्धांतों वाले व्यक्ति के रूप में देखा जाता है, और आप स्वाभाविक रूप से अवसरों को आकर्षित करते हैं।",
-        "दूसरे घर में बृहस्पति धन और वित्त के लिए उत्कृष्ट है। यह प्रचुरता, एक उदार प्रकृति और संसाधनों को संभालने में ज्ञान का मार्ग इंगित करता है।",
-        "तीसरे घर में बृहस्पति आपके संचार और साहस का विस्तार करता है। आप एक आशावादी और प्रेरणादायक वक्ता या लेखक हैं, और भाई-बहनों के साथ आपके अच्छे संबंध हैं।",
+        "दूसरे घर में बृहस्पति धन और वित्त के लिए उत्कृष्ट है। यह बहुतायत का मार्ग, एक उदार प्रकृति और संसाधनों को संभालने में ज्ञान को इंगित करता है।",
+        "तीसरे घर में बृहस्पति आपके संचार और साहस का विस्तार करता है। आप एक आशावादी और प्रेरक वक्ता या लेखक हैं, और भाई-बहनों के साथ आपके अच्छे संबंध हैं।",
         "चौथे घर में बृहस्पति (एक मजबूत स्थान) आपको एक सुखी घरेलू जीवन, एक बड़ी संपत्ति और आपकी माँ से मजबूत समर्थन का आशीर्वाद देता है। यह गहरी आंतरिक शांति को इंगित करता है।",
-        "पांचवें घर में बृहस्पति बच्चों, रचनात्मकता और निवेश या सट्टेबाजी के माध्यम से सौभाग्य के लिए एक आशीर्वाद है। आपकी बुद्धि व्यापक है और आपकी रचनात्मकता विशाल है।",
+        "पांचवें घर में बृहस्पति बच्चों, रचनात्मकता और निवेश या सट्टेबाजी के माध्यम से सौभाग्य के लिए एक आशीर्वाद है। आपकी बुद्धि व्यापक है और आपकी रचनात्मकता विस्तृत है।",
         "छठे घर में बृहस्पति ज्ञान के साथ संघर्षों और स्वास्थ्य समस्याओं पर काबू पाने में मदद करता है। आप अपनी सेवा में उदार हैं और अपने काम में एक महान शिक्षक या परामर्शदाता हो सकते हैं।",
-        "सातवें घर में बृहस्पति एक बुद्धिमान, भाग्यशाली और اصولی साथी का वादा करता है। आपके रिश्ते आपके जीवन में विकास और विस्तार का एक स्रोत हैं।",
+        "सातवें घर में बृहस्पति एक बुद्धिमान, भाग्यशाली और सैद्धांतिक साथी का वादा करता है। आपके रिश्ते आपके जीवन में विकास और विस्तार का एक स्रोत हैं।",
         "आठवें घर में बृहस्पति विरासत या भागीदारों के माध्यम से धन ला सकता है, और जीवन के रहस्यों और दीर्घायु में गहरी, दार्शनिक रुचि देता है।",
-        "नौवें घर में बृहस्पति (अपने ही घर में) भाग्य, उच्च ज्ञान और धर्म के लिए अत्यंत शक्तिशाली है। आप एक जन्मजात शिक्षक, दार्शनिक या मार्गदर्शक हैं, जो भाग्य से धन्य हैं।",
+        "नौवें घर में बृहस्पति (अपने ही घर में) भाग्य, उच्च ज्ञान और धर्म के लिए अत्यंत शक्तिशाली है। आप जन्मजात शिक्षक, दार्शनिक या मार्गदर्शक हैं, जो भाग्य से धन्य हैं।",
         "दसवें घर में बृहस्पति आपके करियर में बड़ी सफलता, नैतिकता और ज्ञान प्रदान करता है। आप अपने क्षेत्र में एक सलाहकार, शिक्षक या नेता के रूप में एक उच्च पद प्राप्त कर सकते हैं।",
         "ग्यारहवें घर में बृहस्पति लाभ और इच्छाओं की पूर्ति के लिए सबसे अच्छे स्थानों में से एक है। आपके पास शक्तिशाली और सहायक मित्रों का एक विस्तृत नेटवर्क है।",
         "बारहवें घर में बृहस्पति दिव्य सुरक्षा और आध्यात्मिकता, ध्यान और दान में गहरी रुचि प्रदान करता है। आप एकांत और जाने देने में ज्ञान पाते हैं।"
     ],
     Venus: [
-        "Venus in the 1st house blesses you with charm, grace, and a love for beauty and harmony. You are naturally attractive, diplomatic, and have a pleasant demeanor.",
-        "Venus in the 2nd house is excellent for wealth, giving a love for luxury items, fine food, and a beautiful speaking voice. You attract money easily through your charm.",
-        "Venus in the 3rd house makes your communication style artistic and pleasant. You have a talent for creative writing, poetry, or design and enjoy harmonious sibling relationships.",
-        "Venus in the 4th house indicates a beautiful home, a love of comfort, and a happy domestic life. You may own luxury vehicles and have a strong, loving bond with your mother.",
-        "Venus in the 5th house grants creativity, romance, and artistic talent. You are highly charismatic and find great joy in love affairs, the arts, and entertainment.",
-        "Venus in the 6th house can bring harmony to the workplace, but also indicates that health issues may arise from overindulgence. You may serve others through art or design.",
-        "Venus in the 7th house (its own house) is a strong indicator of a beautiful, charming, and devoted partner. Your marriage is central to your happiness and social life.",
-        "Venus in the 8th house can bring wealth through marriage or inheritance, but also indicates intense, secret relationships. It gives a strong magnetism and allure.",
-        "Venus in the 9th house shows a love for philosophy, art, and the beauty in different cultures. Your beliefs are centered on harmony, and you may find a partner from a foreign land.",
-        "Venus in the 10th house grants success in careers related to arts, entertainment, beauty, or diplomacy. You have a charming public image and are well-liked.",
-        "Venus in the 11th house brings gains and friendships through your charm and social grace. You have a network of artistic and affluent friends who help you achieve your goals.",
-        "Venus in the 12th house finds love and beauty in seclusion, spirituality, and imagination. It can indicate hidden relationships or a love for luxurious comforts in private."
+        "पहले घर में शुक्र आपको आकर्षण, अनुग्रह और सुंदरता और सद्भाव के प्रति प्रेम का आशीर्वाद देता है। आप स्वाभाविक रूप से आकर्षक, कूटनीतिक और एक सुखद व्यवहार वाले हैं।",
+        "दूसरे घर में शुक्र धन के लिए उत्कृष्ट है, जो विलासिता की वस्तुओं, बढ़िया भोजन और एक सुंदर बोलने वाली आवाज के लिए प्यार देता है। आप अपने आकर्षण के माध्यम से आसानी से पैसा आकर्षित करते हैं।",
+        "तीसरे घर में शुक्र आपकी संचार शैली को कलात्मक और सुखद बनाता है। आपके पास रचनात्मक लेखन, कविता या डिजाइन के लिए एक प्रतिभा है और आप सामंजस्यपूर्ण भाई-बहन के संबंधों का आनंद लेते हैं।",
+        "चौथे घर में शुक्र एक सुंदर घर, आराम के प्रति प्रेम और एक सुखी घरेलू जीवन को इंगित करता है। आपके पास लक्जरी वाहन हो सकते हैं और आपकी माँ के साथ एक मजबूत, प्रेमपूर्ण बंधन हो सकता है।",
+        "पांचवें घर में शुक्र रचनात्मकता, रोमांस और कलात्मक प्रतिभा प्रदान करता है। आप अत्यधिक करिश्माई हैं और प्रेम संबंधों, कला और मनोरंजन में बहुत खुशी पाते हैं।",
+        "छठे घर में शुक्र कार्यस्थल पर सद्भाव ला सकता है, लेकिन यह भी इंगित करता है कि अधिक भोग से स्वास्थ्य संबंधी समस्याएं उत्पन्न हो सकती हैं। आप कला या डिजाइन के माध्यम से दूसरों की सेवा कर सकते हैं।",
+        "सातवें घर में शुक्र (अपने ही घर में) एक सुंदर, आकर्षक और समर्पित साथी का एक मजबूत संकेतक है। आपकी खुशी और सामाजिक जीवन के लिए आपका विवाह केंद्रीय है।",
+        "आठवें घर में शुक्र विवाह या विरासत के माध्यम से धन ला सकता है, लेकिन यह तीव्र, गुप्त संबंधों को भी इंगित करता है। यह एक मजबूत चुंबकत्व और आकर्षण देता है।",
+        "नौवें घर में शुक्र दर्शन, कला और विभिन्न संस्कृतियों में सुंदरता के प्रति प्रेम दिखाता है। आपके विश्वास सद्भाव पर केंद्रित हैं, और आप विदेशी भूमि से एक साथी ढूंढ सकते हैं।",
+        "दसवें घर में शुक्र कला, मनोरंजन, सौंदर्य या कूटनीति से संबंधित करियर में सफलता प्रदान करता है। आप एक आकर्षक सार्वजनिक छवि है और आपको बहुत पसंद किया जाता है।",
+        "ग्यारहवें घर में शुक्र आपके आकर्षण और सामाजिक अनुग्रह के माध्यम से लाभ और दोस्ती लाता है। आपके पास कलात्मक और धनी मित्रों का एक नेटवर्क है जो आपके लक्ष्यों को प्राप्त करने में आपकी मदद करते हैं।",
+        "बारहवें घर में शुक्र एकांत, आध्यात्मिकता और कल्पना में प्रेम और सुंदरता पाता है। यह छिपे हुए संबंधों या निजी तौर पर शानदार सुख-सुविधाओं के प्रति प्रेम को इंगित कर सकता है।"
     ],
     Saturn: [
-        "Saturn in the 1st house adds seriousness, discipline, and responsibility to your personality. You may feel burdensome responsibilities from a young age but develop great endurance.",
-        "Saturn in the 2nd house can restrict finances and family wealth, demanding hard work and savings over time. It gives a serious, practical, and sometimes melancholic speech.",
-        "Saturn in the 3rd house can create challenges with siblings or communication. However, it gives immense perseverance and discipline in any skill you set your mind to master.",
-        "Saturn in the 4th house may indicate a restrictive or emotionally cool home environment. It builds security slowly over time through discipline and hard work.",
-        "Saturn in the 5th house can delay or bring a serious approach to children, romance, and creativity. Your creative pursuits are structured and may manifest later in life.",
-        "Saturn in the 6th house is a powerful placement for overcoming enemies through persistence. It shows a diligent worker but can indicate chronic health issues that require discipline.",
-        "Saturn in the 7th house can delay marriage or bring a mature, older, or very responsible partner. It demands commitment, structure, and patience in relationships.",
-        "Saturn in the 8th house is a strong placement for longevity. It can bring inheritances through long, patient waiting, and gives a deep, serious interest in research and metaphysics.",
-        "Saturn in the 9th house creates a structured, traditional, and sometimes rigid belief system. You take philosophy and higher learning seriously, but may question your teachers.",
-        "Saturn in the 10th house (a strong placement) brings success and high status through slow, steady, and disciplined hard work. You build a lasting career and reputation over time.",
-        "Saturn in the 11th house can make fulfillment of desires a slow process. Friendships are few but long-lasting. Gains come through persistence and established networks.",
-        "Saturn in the 12th house indicates a solitary, disciplined spiritual path. It is excellent for meditation and behind-the-scenes work but can indicate feelings of isolation."
+        "पहले घर में शनि आपके व्यक्तित्व में गंभीरता, अनुशासन और जिम्मेदारी जोड़ता है। आप कम उम्र से ही बोझिल जिम्मेदारियों को महसूस कर सकते हैं लेकिन महान सहनशक्ति विकसित करते हैं।",
+        "दूसरे घर में शनि वित्त और पारिवारिक धन को प्रतिबंधित कर सकता है, समय के साथ कड़ी मेहनत और बचत की मांग करता है। यह एक गंभीर, व्यावहारिक और कभी-कभी उदास भाषण देता है।",
+        "तीसरे घर में शनि भाई-बहनों या संचार के साथ चुनौतियां पैदा कर सकता है। हालांकि, यह किसी भी कौशल में immense दृढ़ता और अनुशासन देता है जिसे आप मास्टर करने के लिए निर्धारित करते हैं।",
+        "चौथे घर में शनि एक प्रतिबंधात्मक या भावनात्मक रूप से ठंडा घरेलू वातावरण इंगित कर सकता है। यह अनुशासन और कड़ी मेहनत के माध्यम से समय के साथ धीरे-धीरे सुरक्षा का निर्माण करता है।",
+        "पांचवें घर में शनि बच्चों, रोमांस और रचनात्मकता के प्रति देरी या एक गंभीर दृष्टिकोण ला सकता है। आपकी रचनात्मक गतिविधियां संरचित हैं और जीवन में बाद में प्रकट हो सकती हैं।",
+        "छठे घर में शनि दृढ़ता के माध्यम से दुश्मनों पर काबू पाने के लिए एक शक्तिशाली स्थान है। यह एक मेहनती कार्यकर्ता को दिखाता है लेकिन पुरानी स्वास्थ्य समस्याओं को इंगित कर सकता है जिसके लिए अनुशासन की आवश्यकता होती है।",
+        "सातवें घर में शनि विवाह में देरी कर सकता है या एक परिपक्व, पुराने या बहुत जिम्मेदार साथी को ला सकता है। यह रिश्तों में प्रतिबद्धता, संरचना और धैर्य की मांग करता है।",
+        "आठवें घर में शनि दीर्घायु के लिए एक मजबूत स्थान है। यह लंबे, धैर्यपूर्ण इंतजार के माध्यम से विरासत ला सकता है, और अनुसंधान और तत्वमीमांसा में एक गहरी, गंभीर रुचि देता है।",
+        "नौवें घर में शनि एक संरचित, पारंपरिक और कभी-कभी कठोर विश्वास प्रणाली बनाता है। आप दर्शन और उच्च शिक्षा को गंभीरता से लेते हैं, लेकिन अपने शिक्षकों पर सवाल उठा सकते हैं।",
+        "दसवें घर में शनि (एक मजबूत स्थान) धीमी, स्थिर और अनुशासित कड़ी मेहनत के माध्यम से सफलता और उच्च स्थिति लाता है। आप समय के साथ एक स्थायी करियर और प्रतिष्ठा का निर्माण करते हैं।",
+        "ग्यारहवें घर में शनि इच्छाओं की पूर्ति को एक धीमी प्रक्रिया बना सकता है। दोस्त कम लेकिन लंबे समय तक चलने वाले होते हैं। दृढ़ता और स्थापित नेटवर्क के माध्यम से लाभ होता है।",
+        "बारहवें घर में शनि एक एकाकी, अनुशासित आध्यात्मिक मार्ग को इंगित करता है। यह ध्यान और परदे के पीछे के काम के लिए उत्कृष्ट है लेकिन अलगाव की भावनाओं को इंगित कर सकता है।"
     ],
     Rahu: [
-        "Rahu in the 1st house creates a powerful, ambitious, and unconventional personality. You have an insatiable desire for recognition and may feel like an outsider seeking to prove yourself.",
-        "Rahu in the 2nd house gives a huge desire for wealth and accumulating possessions. It can bring wealth from unconventional sources, but also a tendency towards untruthful speech.",
-        "Rahu in the 3rd house grants extreme courage and a powerful, persuasive communication style. You may excel in media, technology, or marketing, but can be manipulative.",
-        "Rahu in the 4th house can create restlessness regarding home and emotional peace. There may be foreign elements in your home life or a feeling of never being truly settled.",
-        "Rahu in the 5th house brings an obsessive drive for creativity, romance, and speculation. It can grant fame through entertainment but also unorthodox approaches to children.",
-        "Rahu in the 6th house provides an uncanny ability to overcome enemies and solve complex problems with unconventional methods. It can give success in technology or healing.",
-        "Rahu in the 7th house creates a strong desire for partnership, often with someone from a different background or culture. Relationships are a major focus and can be unconventional.",
-        "Rahu in the 8th house gives a powerful and obsessive interest in secrets, metaphysics, and sudden wealth. It can bring unexpected gains and losses and a talent for research.",
-        "Rahu in the 9th house creates unconventional beliefs and a questioning attitude towards traditional dharma and teachers. It can lead to great success in foreign lands.",
-        "Rahu in the 10th house is a powerful driver for career ambition and fame. You are not afraid to break the rules to achieve high status and can rise quickly in your profession.",
-        "Rahu in the 11th house is an excellent placement for massive gains and achieving desires through technology and large networks. You have influential and unconventional friends.",
-        "Rahu in the 12th house directs its obsessive energy towards spirituality, foreign lands, or hidden matters. It can give powerful intuitive insights or lead to secret dealings and expenses."
+        "पहले घर में राहु एक शक्तिशाली, महत्वाकांक्षी और अपरंपरागत व्यक्तित्व बनाता है। आपको मान्यता के लिए एक अतृप्त इच्छा होती है और आप खुद को साबित करने के लिए एक बाहरी व्यक्ति की तरह महसूस कर सकते हैं।",
+        "दूसरे घर में राहु धन और संपत्ति जमा करने के लिए एक बड़ी इच्छा देता है। यह अपरंपरागत स्रोतों से धन ला सकता है, लेकिन असत्य भाषण की प्रवृत्ति भी हो सकती है।",
+        "तीसरे घर में राहु immense साहस और एक शक्तिशाली, प्रेरक संचार शैली प्रदान करता है। आप मीडिया, प्रौद्योगिकी या विपणन में उत्कृष्टता प्राप्त कर सकते हैं, लेकिन जोड़ तोड़ भी हो सकते हैं।",
+        "चौथे घर में राहु घर और भावनात्मक शांति के संबंध में बेचैनी पैदा कर सकता है। आपके घरेलू जीवन में विदेशी तत्व हो सकते हैं या कभी भी वास्तव में बसे हुए न होने की भावना हो सकती है।",
+        "पांचवें घर में राहु रचनात्मकता, रोमांस और अटकलों के लिए एक जुनूनी प्रेरणा लाता है। यह मनोरंजन के माध्यम से प्रसिद्धि प्रदान कर सकता है लेकिन बच्चों के प्रति अपरंपरागत दृष्टिकोण भी हो सकता है।",
+        "छठे घर में राहु दुश्मनों पर काबू पाने और अपरंपरागत तरीकों से जटिल समस्याओं को हल करने की एक अलौकिक क्षमता प्रदान करता है। यह प्रौद्योगिकी या उपचार में सफलता दे सकता है।",
+        "सातवें घर में राहु साझेदारी के लिए एक मजबूत इच्छा पैदा करता है, अक्सर किसी ऐसे व्यक्ति के साथ जो एक अलग पृष्ठभूमि या संस्कृति से हो। रिश्ते एक प्रमुख फोकस हैं और अपरंपरागत हो सकते हैं।",
+        "आठवें घर में राहु रहस्यों, तत्वमीमांसा और अचानक धन में एक शक्तिशाली और जुनूनी रुचि देता है। यह अप्रत्याशित लाभ और हानि और अनुसंधान के लिए एक प्रतिभा ला सकता है।",
+        "नौवें घर में राहु अपरंपरागत विश्वासों और पारंपरिक धर्म और शिक्षकों के प्रति एक प्रश्नवाचक दृष्टिकोण बनाता है। यह विदेशी भूमि में बड़ी सफलता प्राप्त कर सकता है।",
+        "दसवें घर में राहु करियर की महत्वाकांक्षा और प्रसिद्धि के लिए एक शक्तिशाली चालक है। आप उच्च स्थिति प्राप्त करने के लिए नियमों को तोड़ने से डरते नहीं हैं और अपने पेशे में तेजी से आगे बढ़ सकते हैं।",
+        "ग्यारहवें घर में राहु प्रौद्योगिकी और बड़े नेटवर्क के माध्यम से भारी लाभ और इच्छाओं की पूर्ति के लिए एक उत्कृष्ट स्थान है। आपके पास प्रभावशाली और अपरंपरागत दोस्त हैं।",
+        "बारहवें घर में राहु अपनी जुनूनी ऊर्जा को आध्यात्मिकता, विदेशी भूमि या छिपे हुए मामलों की ओर निर्देशित करता है। यह शक्तिशाली सहज अंतर्दृष्टि दे सकता है या गुप्त सौदों और खर्चों को जन्म दे सकता है।"
     ],
     Ketu: [
-        "Ketu in the 1st house creates a detached, introspective, and spiritually-inclined personality. You may feel a sense of rootlessness or question your own identity, leading to a spiritual search.",
-        "Ketu in the 2nd house can create a detached attitude towards wealth and family. It may lead to financial uncertainty or a lack of focus on material accumulation.",
-        "Ketu in the 3rd house brings an intuitive and non-linear communication style. You may lack interest in conventional media but have powerful psychic or symbolic insights.",
-        "Ketu in the 4th house can indicate a detached or unsettled feeling about your home and roots. It promotes a search for a spiritual 'home' rather than a physical one.",
-        "Ketu in the 5th house creates a detached and critical view of romance, creativity, and children. You may have highly intuitive intelligence but struggle with conventional creative expression.",
-        "Ketu in the 6th house provides a powerful ability to intuitively diagnose and solve problems or diseases. However, it can also indicate strange, hard-to-diagnose health issues.",
-        "Ketu in the 7th house brings a spiritual, detached, or critical approach to partnership. You may feel a karmic connection to your partner but also a sense of dissatisfaction.",
-        "Ketu in the 8th house is a powerful placement for deep mystical and occult research. You have a natural ability to see through illusions and understand deep metaphysical truths.",
-        "Ketu in the 9th house indicates a questioning of traditional beliefs and a search for a more direct, intuitive spiritual truth. It shows past life mastery of philosophy.",
-        "Ketu in the 10th house creates a career path that is unconventional, spiritual, or involves research. You are detached from the ambitions of status and fame.",
-        "Ketu in the 11th house gives a detached view of social networks and material gains. Your friendships may be few or unusual, and your goals are often not materialistic.",
-        "Ketu in the 12th house is the significator for liberation (Moksha) and is extremely powerful here. It grants profound intuitive insight, meditative ability, and spiritual detachment."
+        "पहले घर में केतु एक अलग, आत्मनिरीक्षण और आध्यात्मिक रूप से इच्छुक व्यक्तित्व बनाता है। आप जड़हीनता की भावना महसूस कर सकते हैं या अपनी पहचान पर सवाल उठा सकते हैं, जिससे आध्यात्मिक खोज हो सकती है।",
+        "दूसरे घर में केतु धन और परिवार के प्रति एक अलग रवैया बना सकता है। यह वित्तीय अनिश्चितता या भौतिक संचय पर ध्यान केंद्रित करने की कमी का कारण बन सकता है।",
+        "तीसरे घर में केतु एक सहज और गैर-रेखीय संचार शैली लाता है। आपको पारंपरिक मीडिया में कोई दिलचस्पी नहीं हो सकती है, लेकिन आपके पास शक्तिशाली मानसिक या प्रतीकात्मक अंतर्दृष्टि हो सकती है।",
+        "चौथे घर में केतु आपके घर और जड़ों के बारे में एक अलग या अस्थिर भावना का संकेत दे सकता है। यह एक भौतिक घर के बजाय एक आध्यात्मिक 'घर' की खोज को बढ़ावा देता है।",
+        "पांचवें घर में केतु रोमांस, रचनात्मकता और बच्चों का एक अलग और महत्वपूर्ण दृष्टिकोण बनाता है। आपके पास अत्यधिक सहज बुद्धि हो सकती है लेकिन पारंपरिक रचनात्मक अभिव्यक्ति के साथ संघर्ष कर सकते हैं।",
+        "छठे घर में केतु समस्याओं या बीमारियों का सहज रूप से निदान और समाधान करने की एक शक्तिशाली क्षमता प्रदान करता है। हालांकि, यह अजीब, कठिन-से-निदान स्वास्थ्य समस्याओं का भी संकेत दे सकता है।",
+        "सातवें घर में केतु साझेदारी के लिए एक आध्यात्मिक, अलग या महत्वपूर्ण दृष्टिकोण लाता है। आप अपने साथी के प्रति एक कर्म संबंध महसूस कर सकते हैं, लेकिन असंतोष की भावना भी महसूस कर सकते हैं।",
+        "आठवें घर में केतु गहरे रहस्यमय और गुप्त अनुसंधान के लिए एक शक्तिशाली स्थान है। आपके पास भ्रम के माध्यम से देखने और गहरे आध्यात्मिक सत्य को समझने की एक प्राकृतिक क्षमता है।",
+        "नौवें घर में केतु पारंपरिक विश्वासों पर सवाल उठाने और अधिक प्रत्यक्ष, सहज आध्यात्मिक सत्य की खोज का संकेत देता है। यह दर्शन के पिछले जीवन की महारत को दर्शाता है।",
+        "दसवें घर में केतु एक ऐसा करियर पथ बनाता है जो अपरंपरागत, आध्यात्मिक या अनुसंधान से जुड़ा होता है। आप पद और प्रसिद्धि की महत्वाकांक्षाओं से अलग हैं।",
+        "ग्यारहवें घर में केतु सामाजिक नेटवर्क और भौतिक लाभ का एक अलग दृष्टिकोण देता है। आपकी दोस्ती कुछ या असामान्य हो सकती है, और आपके लक्ष्य अक्सर भौतिकवादी नहीं होते हैं।",
+        "बारहवें घर में केतु मुक्ति (मोक्ष) का कारक है और यहाँ अत्यंत शक्तिशाली है। यह गहन सहज अंतर्दृष्टि, ध्यान क्षमता और आध्यात्मिक वैराग्य प्रदान करता है।"
     ]
 };
 
@@ -1021,7 +1034,78 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             },
         },
         hi: {
-            // ... (hindi interpretations)
+            Sun: {
+                Exalted: "उच्च का सूर्य मजबूत नेतृत्व, आत्मविश्वास और सफलता लाता है। आपको स्वाभाविक अधिकार मिलेगा।",
+                'Own Sign': "स्वराशि में सूर्य मजबूत इच्छाशक्ति, अधिकार और स्वयं की एक स्थिर भावना प्रदान करता है। आपकी मूल पहचान मजबूत है।",
+                Friend: "मित्र राशि में सूर्य जीवन शक्ति और नेतृत्व का समर्थन करता है, जिससे मुखरता में आसानी होती है।",
+                Neutral: "सम राशि में सूर्य अपने भाव के आधार पर परिणाम देता है। इसका प्रभाव संतुलित है।",
+                Enemy: "शत्रु राशि में सूर्य अहंकार, स्वास्थ्य या अधिकार को चुनौती दे सकता है, जिससे मुखरता का परीक्षण होता है।",
+                Debilitated: "नीच का सूर्य आत्मविश्वास की कमी और नेतृत्व की भूमिकाओं में चुनौतियों का संकेत दे सकता है। आपके आत्म-सम्मान को पोषण की आवश्यकता हो सकती है।",
+            },
+            Moon: {
+                Exalted: "उच्च का चंद्रमा भावनात्मक स्थिरता, उच्च ग्रहणशीलता और एक पोषण करने वाले स्वभाव का वादा करता है। आपकी भावनाएं एक मजबूत मार्गदर्शक हैं।",
+                'Own Sign': "स्वराशि में चंद्रमा भावनाओं, घर और परिवार से एक मजबूत संबंध का संकेत देता है। भावनात्मक सुरक्षा सर्वोपरि है।",
+                Friend: "मित्र राशि में चंद्रमा भावनात्मक खुशी और सहायक रिश्ते लाता है, जिसमें आराम आसानी से मिलता है।",
+                Neutral: "सम राशि में चंद्रमा अपने भाव के भावनात्मक माहौल को दर्शाता है। भावनाएं संतुलित हैं लेकिन पर्यावरण के प्रति संवेदनशील हैं।",
+                Enemy: "शत्रु राशि में चंद्रमा भावनात्मक बेचैनी और उतार-चढ़ाव का कारण बन सकता है, जिससे आंतरिक शांति मायावी हो जाती है।",
+                Debilitated: "नीच का चंद्रमा भावनात्मक उथल-पुथल और असुरक्षा की भावना का संकेत दे सकता है। आप भावनात्मक कल्याण के साथ संघर्ष कर सकते हैं।",
+            },
+            Mars: {
+                Exalted: "उच्च का मंगल सफल होने के लिए अपार साहस, प्रेरणा और दृढ़ संकल्प प्रदान करता है। आपके कार्य शक्तिशाली और प्रभावी हैं।",
+                'Own Sign': "स्वराशि में मंगल मजबूत तार्किक क्षमताएं और लक्ष्यों को प्राप्त करने के लिए ऊर्जा देता है। आप एक प्राकृतिक निष्पादक हैं।",
+                Friend: "मित्र राशि में मंगल उत्पादक कार्यों और प्रयासों को सुनिश्चित करता है, जिससे रचनात्मक मुखरता होती है।",
+                Neutral: "सम राशि में मंगल उस भाव के अनुसार कार्य करता है जिसमें वह रहता है। ऊर्जा मौजूद है, लेकिन दिशा की आवश्यकता है।",
+                Enemy: "शत्रु राशि में मंगल तर्क, संघर्ष या गलत दिशा में ऊर्जा का कारण बन सकता है, जिसके लिए धैर्य की आवश्यकता होती है।",
+                Debilitated: "नीच का मंगल प्रेरणा की कमी या निराश ऊर्जा का परिणाम हो सकता है। आप खुद को मुखर करने के लिए संघर्ष कर सकते हैं।",
+            },
+            Mercury: {
+                Exalted: "उच्च का बुध श्रेष्ठ बुद्धि, विश्लेषणात्मक कौशल और संचार क्षमता प्रदान करता है। आपका मन तेज और स्पष्ट है।",
+                'Own Sign': "स्वराशि में बुध एक तेज दिमाग, अनुकूलनशीलता और वाणिज्य में कौशल का संकेत देता है। आप हाजिरजवाब और बहुमुखी हैं।",
+                Friend: "मित्र राशि में बुध का अर्थ है कि बुद्धि का प्रभावी ढंग से उपयोग किया जाता है और संचार सुचारू रूप से बहता है।",
+                Neutral: "सम राशि में बुध उन ग्रहों से प्रभावित होता है जिनसे यह जुड़ता है। आपकी विचार प्रक्रिया संतुलित है लेकिन इसे प्रभावित किया जा सकता है।",
+                Enemy: "शत्रु राशि में बुध संचार समस्याओं और घबराहट वाली ऊर्जा का कारण बन सकता है, जिससे स्पष्ट अभिव्यक्ति चुनौतीपूर्ण हो जाती है।",
+                Debilitated: "नीच का बुध निर्णय लेने और सीखने में कठिनाइयों का कारण बन सकता है। मानसिक स्पष्टता मायावी हो सकती है।",
+            },
+            Jupiter: {
+                Exalted: "उच्च का बृहस्पति महान ज्ञान, भाग्य और दिव्य कृपा का संकेत है। अवसर और विकास प्रचुर मात्रा में हैं।",
+                'Own Sign': "स्वराशि में बृहस्पति मजबूत सिद्धांत, आशावाद और विकास के अवसर प्रदान करता है। आपका अंतर्निहित ज्ञान शक्तिशाली है।",
+                Friend: "मित्र राशि में बृहस्पति का अर्थ है कि ज्ञान को अच्छी तरह से प्राप्त और समर्थित किया जाता है, जिससे आत्मविश्वास प्रेरित होता है।",
+                Neutral: "सम राशि में बृहस्पति अपने प्रभाव के क्षेत्रों में संतुलित परिणाम देता है। विकास स्थिर है।",
+                Enemy: "शत्रु राशि में बृहस्पति कठोर विश्वासों या शिक्षकों के साथ चुनौतियों का कारण बन सकता है, जिससे विस्तार में बाधा आती है।",
+                Debilitated: "नीच का बृहस्पति निर्णय की कमी या चूके हुए अवसरों का संकेत दे सकता है। भाग्य चुनौतीपूर्ण हो सकता है।",
+            },
+            Venus: {
+                Exalted: "उच्च का शुक्र शोधन, कलात्मक प्रतिभा और रिश्तों में खुशी का वादा करता है। सद्भाव एक प्रमुख विषय है।",
+                'Own Sign': "स्वराशि में शुक्र सौंदर्य, सद्भाव और आनंद के प्रति प्रेम देता है। आप स्वाभाविक रूप से आराम को आकर्षित करते हैं।",
+                Friend: "मित्र राशि में शुक्र एक खुशहाल सामाजिक जीवन और प्यार में सौभाग्य का अर्थ है, सहायक रिश्तों के साथ।",
+                Neutral: "सम राशि में शुक्र रिश्तों और सुख-सुविधाओं के लिए एक संतुलित दृष्टिकोण प्रदान करता है। सौंदर्यशास्त्र महत्वपूर्ण हैं।",
+                Enemy: "शत्रु राशि में शुक्र रिश्तों में असंतोष या चुनौतियां पैदा कर सकता है, जिससे सद्भाव खोजना मुश्किल हो जाता है।",
+                Debilitated: "नीच का शुक्र खुशी और शोधन खोजने में कठिनाइयों का कारण बन सकता है। रिश्ते संघर्ष कर सकते हैं।",
+            },
+            Saturn: {
+                Exalted: "उच्च का शनि गहरा अनुशासन, धैर्य और स्थायी सफलता प्राप्त करने की क्षमता देता है। आप ताकत से निर्माण करते हैं।",
+                'Own Sign': "स्वराशि में शनि कर्तव्य, जिम्मेदारी की एक मजबूत भावना और जीवन के लिए एक संरचित दृष्टिकोण का संकेत देता है। आप स्वाभाविक रूप से अनुशासित हैं।",
+                Friend: "मित्र राशि में शनि इंगित करता है कि कड़ी मेहनत और अनुशासन को पुरस्कृत किया जाता है, जिससे ठोस परिणाम मिलते हैं।",
+                Neutral: "सम राशि में शनि आपके कर्म और प्रयासों के आधार पर परिणाम देता है। सबक अनुभव के माध्यम से सीखे जाते हैं।",
+                Enemy: "शत्रु राशि में शनि देरी, निराशा और बोझ महसूस करने की भावना ला सकता है, जिससे धैर्य महत्वपूर्ण हो जाता है।",
+                Debilitated: "नीच का शनि अनुशासन के साथ संघर्ष और कठिनाइयों को सहन करने का संकेत दे सकता है। जिम्मेदारियां भारी महसूस हो सकती हैं।",
+            },
+            Rahu: {
+                Exalted: "उच्च का राहु अपार सांसारिक सफलता और महान महत्वाकांक्षा प्राप्त करने की क्षमता दे सकता है। अपरंपरागत रास्ते प्रमुखता की ओर ले जाते हैं।",
+                'Own Sign': "स्वराशि में राहु नवाचार और अपरंपरागत सफलता के लिए एक मजबूत प्रेरणा प्रदान करता है। आप प्रभावी ढंग से नई जमीन तोड़ते हैं।",
+                Friend: "मित्र राशि में राहु का अर्थ है कि महत्वाकांक्षाओं को सहायक वातावरण मिलता है, और इच्छाएं आसानी से प्रकट होती हैं।",
+                Neutral: "सम राशि में राहु उस घर के परिणामों को बढ़ाता है जिसमें वह है। इसका प्रभाव अप्रत्याशित लेकिन मजबूत है।",
+                Enemy: "शत्रु राशि में राहु अतृप्त इच्छाएं और असंतोष पैदा कर सकता है, जिससे खाली भौतिकवादी खोज होती है।",
+                Debilitated: "नीच का राहु भ्रम, धोखे और अधूरी इच्छाओं को जन्म दे सकता है। दिशा की भावना की आवश्यकता है।",
+            },
+            Ketu: {
+                Exalted: "उच्च का केतु गहन आध्यात्मिक अंतर्दृष्टि और सांसारिक मामलों से वैराग्य प्रदान कर सकता है। अंतर्ज्ञान बढ़ जाता है।",
+                'Own Sign': "स्वराशि में केतु एक मजबूत सहज क्षमता और आध्यात्मिक मुक्ति की ओर एक मार्ग का संकेत देता है। आपका आंतरिक मार्गदर्शन मजबूत है।",
+                Friend: "मित्र राशि में केतु का अर्थ है कि आध्यात्मिक यात्रा समर्थित है, और वैराग्य शांति लाता है।",
+                Neutral: "सम राशि में केतु उस घर में वैराग्य की भावना लाता है जिसमें वह रहता है। आपका ध्यान अधिक आंतरिक है।",
+                Enemy: "शत्रु राशि में केतु भ्रम, हानि या अप्रत्याशित बाधाएं पैदा कर सकता है, जिससे जाने देना चुनौतीपूर्ण हो जाता है।",
+                Debilitated: "नीच का केतु दिशा की कमी और लाचारी की भावनाओं का संकेत दे सकता है। आध्यात्मिक मार्ग अस्पष्ट हो सकता है।",
+            },
         }
     };
 
@@ -1093,6 +1177,8 @@ function rankSignificators(event, keyHouses, karaka, kpSignificators, planetDeta
     const scores = {};
     const allPlanets = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
 
+    const translatedEvent = lang === 'hi' ? (eventNames_hi[event] || event) : event;
+
     allPlanets.forEach(p => scores[p] = 0);
 
     // Score planets
@@ -1134,12 +1220,12 @@ function rankSignificators(event, keyHouses, karaka, kpSignificators, planetDeta
 
     if (topSignificators.length > 0) {
         if (lang === 'hi') {
-            analysis += `**${event}:**\n`;
+            analysis += `**${translatedEvent}:**\n`;
             analysis += `*   **प्रमुख कारक:** ${topSignificators.map(p => `${planetNames_hi[p[0]] || p[0]} (स्कोर: ${p[1]})`).join(', ')}.\n`;
-            analysis += `*   **घटना का समय:** इन शीर्ष कारक ग्रहों की महादशा, भुक्ति, या अंतर दशा के दौरान ${event} की संभावना सबसे अधिक होती है।\n`;
+            analysis += `*   **घटना का समय:** इन शीर्ष कारक ग्रहों की महादशा, भुक्ति, या अंतर दशा के दौरान ${translatedEvent} की संभावना सबसे अधिक होती है।\n`;
             analysis += `*   **निष्कर्ष:** ${topSignificators[0][1] > 4 ? 'आपके चार्ट में इस घटना के लिए एक मजबूत और अनुकूल क्षमता है।' : 'इस घटना के लिए संभावनाएं मौजूद हैं, लेकिन सफलता के लिए प्रयास की आवश्यकता हो सकती है।'}\n\n`;
         } else {
-            analysis += `**${event}:**\n`;
+            analysis += `**${translatedEvent}:**\n`;
             analysis += `*   **Top Significators:** ${topSignificators.map(p => `${p[0]} (Score: ${p[1]})`).join(', ')}.\n`;
             analysis += `*   **Timing of Event:** The event is most likely to manifest during the Mahadasha, Bhukti, or Antara of these top-ranked significator planets.\n`;
             let eventConclusion;
@@ -1158,9 +1244,9 @@ function rankSignificators(event, keyHouses, karaka, kpSignificators, planetDeta
         }
     } else {
         if (lang === 'hi') {
-            analysis += `**${event}:** इस घटना के लिए कोई महत्वपूर्ण ज्योतिषीय कारक नहीं मिला।\n\n`;
+            analysis += `**${translatedEvent}:** इस घटना के लिए कोई महत्वपूर्ण ज्योतिषीय कारक नहीं मिला।\n\n`;
         } else {
-            analysis += `**${event}:** No significant astrological drivers found for this event.\n\n`;
+            analysis += `**${translatedEvent}:** No significant astrological drivers found for this event.\n\n`;
         }
     }
     return analysis;
@@ -1174,9 +1260,18 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
     }
 
     const { overview, detailedPlanets } = kpSignificators;
-    const { resultingFriendship } = planetDetails;
     const houseThemes = lang === 'hi' ? houseThemes_hi : houseThemes_en;
     
+    const dignity_hi = {
+        'Exalted': 'उच्च',
+        'Own Sign': 'स्वराशि',
+        'Friend': 'मित्र',
+        'Neutral': 'सम',
+        'Enemy': 'शत्रु',
+        'Debilitated': 'नीच',
+        'Unknown': 'अज्ञात'
+    };
+
     const planetDetailsMap = new Map(detailedPlanets.map(p => [p.name, p]));
 
     let analysisText = '';
@@ -1193,9 +1288,10 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
             analysisText += `**${lang === 'hi' ? 'भाव ' + i : 'House ' + i} (${houseThemes[i]}):**\n`;
             significators.forEach(p => {
                 const planetDetail = planetDetailsMap.get(p);
-                const dignity = planetDetail?.avasthas?.dignity || (lang === 'hi' ? 'अज्ञात' : 'Unknown');
+                const dignity = planetDetail?.avasthas?.dignity || 'Unknown';
+                const translatedDignity = lang === 'hi' ? (dignity_hi[dignity] || dignity) : dignity;
                 const interpretation = getPlanetInterpretation(p, dignity, lang);
-                analysisText += `*   **${getPlanetName(p, lang)} (${dignity}):** ${interpretation}\n`;
+                analysisText += `*   **${getPlanetName(p, lang)} (${translatedDignity}):** ${interpretation}\n`;
             });
             analysisText += '\n';
         }
@@ -1210,13 +1306,18 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
         const signifiedHouses = overview.planets[planet] || [];
         const planetDetail = planetDetailsMap.get(planet);
         const dignity = planetDetail?.avasthas?.dignity || 'Unknown';
-
-        // Use the new detailed description function
+        const translatedDignity = lang === 'hi' ? (dignity_hi[dignity] || dignity) : dignity;
+        
         const detailedDescription = getPlanetSignificatorDetailedDescription(planet, dignity, signifiedHouses, lang);
-        analysisText += `**${getPlanetName(planet, lang)} (${dignity}):** ${detailedDescription}\n`;
+        analysisText += `**${getPlanetName(planet, lang)} (${translatedDignity}):** ${detailedDescription}\n`;
     }
 
-    analysisText += lang === 'hi' ? '\n**संश्लेषण और मुख्य भविष्यवाणियां:**\n' : '\n**Synthesis & Key Predictions:**\nGeneral Outlook: A generally positive outlook is indicated for major life events, with strong potential for growth and favorable outcomes during opportune periods.\n\n';
+    const synthesisHeader = lang === 'hi' ? '\n**संश्लेषण और मुख्य भविष्यवाणियां:**\n' : '\n**Synthesis & Key Predictions:**\n';
+    const synthesisIntroText = lang === 'hi' 
+        ? 'सामान्य दृष्टिकोण: प्रमुख जीवन की घटनाओं के लिए आम तौर पर एक सकारात्मक दृष्टिकोण का संकेत दिया गया है, जिसमें अनुकूल अवधियों के दौरान विकास और अनुकूल परिणामों की मजबूत क्षमता है।\n\n'
+        : 'General Outlook: A generally positive outlook is indicated for major life events, with strong potential for growth and favorable outcomes during opportune periods.\n\n';
+    
+    analysisText += synthesisHeader + synthesisIntroText;
 
     // New ranked analysis for Marriage
     analysisText += rankSignificators('Marriage', [2, 7, 11], 'Venus', kpSignificators, planetDetailsMap, lang);
@@ -1244,6 +1345,23 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
 
     // New ranked analysis for Success in Litigation
     analysisText += rankSignificators('Success in Litigation', [6, 11], 'Mars', kpSignificators, planetDetailsMap, lang);
+
+    if (lang === 'hi') {
+        const dignity_hi = {
+            'Exalted': 'उच्च',
+            'Own Sign': 'स्वराशि',
+            'Friend': 'मित्र',
+            'Neutral': 'सम',
+            'Enemy': 'शत्रु',
+            'Debilitated': 'नीच',
+            'Unknown': 'अज्ञात'
+        };
+        detailedPlanets.forEach(planet => {
+            if (planet.avasthas && planet.avasthas.dignity) {
+                planet.avasthas.dignity = dignity_hi[planet.avasthas.dignity] || planet.avasthas.dignity;
+            }
+        });
+    }
 
     return {
         analysisText: analysisText,

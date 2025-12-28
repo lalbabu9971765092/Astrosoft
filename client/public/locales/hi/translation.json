@@ -210,13 +210,27 @@
     "lifeAreasTitle": "जीवन क्षेत्र सारांश",
     "eventTimelineTitle": "घटना समयरेखा (गोचर)",
     "varshphalPredictionTitle": "वर्षफल-आधारित भविष्यवाणी",
-    "inHouse": "{{houseNumber}}वें घर में"
+    "inHouse": "{{houseNumber}}वें घर में",
+    "kpSignificatorsHint": "यह केपी ज्योतिष का एक शक्तिशाली उपकरण है जो सटीक भविष्यवाणियों के लिए है। 'भाव कारक' तालिका दिखाती है कि कौन से ग्रह प्रत्येक जीवन क्षेत्र (भाव) को प्रभावित करते हैं। 'ग्रह कारक' तालिका दिखाती है कि प्रत्येक ग्रह किन जीवन क्षेत्रों को प्रभावित करेगा।",
+    "cuspSignificators": "भाव कारक",
+    "planetSignificators": "ग्रह कारक",
+    "cusp": "भाव",
+    "significators": "कारक",
+    "planet": "ग्रह",
+    "signifiesHouses": "भाव दर्शाता है",
+    "loadingKpAnalysis": "केपी विश्लेषण लोड हो रहा है...",
+    "kpAnalysisError": "केपी विश्लेषण लाने में विफल।",
+    "varshphalCalculationFailed": "वर्षफल गणना विफल।",
+    "holisticPredictionError": "समग्र भविष्यवाणी लाने में विफल।"
   },
   "lifeAreas": {
     "career": "करियर",
+    "profession": "पेशा",
     "wealth": "धन",
+    "education": "शिक्षा",
     "marriage": "विवाह",
     "health": "स्वास्थ्य",
+    "litigation": "मुकदमेबाज़ी",
     "spirituality": "अध्यात्म"
   },
   "muhurtaPage": {
@@ -358,7 +372,8 @@
     "transitDetailsTitle": "गोचर विवरण",
     "transitDateTimeLabel": "गोचर समय",
     "transitPlaceLabel": "गोचर स्थान",
-    "updateTransitButton": "गोचर अपडेट करें"
+    "updateTransitButton": "गोचर अपडेट करें",
+    "rotateHouseLabel": "भाव घुमाएँ"
   },
   "ashtakavargaPage": {
     "title": "अष्टकवर्ग",
@@ -787,7 +802,7 @@
     "noHouses": "--" 
   },
   "kpSignificatorsPage": {
-    "pageTitle": "केपी सिग्निफिकेटर्स और दशा",
+    "pageTitle": "केपी सिग्निफिकेटर विश्लेषण",
     "calculatedForLabel": "इसके लिए गणना की गई:",
     "dateAtPlaceLabel": "{{date}} को {{place}} पर",
     "analyzeEventLabel": "घटना का विश्लेषण करें:",
@@ -805,9 +820,11 @@
     "dashaDataUnavailable": "दशा अवधि डेटा अनुपलब्ध है।",
     "diamondChartTitle": "डायमंड चार्ट",
     "currentDashaTitle": "वर्तमान दशा",
-    "mahaDashaLabel": "महादशा:"
-   
+    "mahaDashaLabel": "महादशा:",
+    "kpSignificatorsTitle": "केपी सिग्निफिकेटर विश्लेषण",
+    "dashaAnalysisTitle": "चयनित तिथि के लिए दशा विश्लेषण"
   },
+  "print": "प्रिंट",
   "lifeEvents": {
     "education": "शिक्षा (उच्च)",
     "career_start": "करियर प्रारंभ/नौकरी",
@@ -910,7 +927,50 @@
     "shadbalaMinimumsTitle": "न्यूनतम षड्बल आवश्यकताएँ (रूप):",
     "shadbalaNotePrefix": "ध्यान दें:",
     "invalidAdjustedDateError": "अमान्य समायोजित दिनांक: {{error}}",
-    "fetchRectifiedDataFailed": "सुधारा हुआ डेटा लाने में विफल।"
+    "fetchRectifiedDataFailed": "सुधारा हुआ डेटा लाने में विफल।",
+    "upbsTitle": "बिना शर्त ग्रह शुभता स्कोर (UPBS)"
+  },
+  "upbsTableHeaders": {
+    "planet": "ग्रह",
+    "totalScore": "कुल स्कोर",
+    "interpretation": "व्याख्या",
+    "details": "विवरण",
+    "breakdown": "विभाजन",
+    "totalScoreShort": "कुल",
+    "interpretationShort": "व्याख्या"
+  },
+  "upbsInterpretation": {
+    "highlyBenefic": "अत्यधिक शुभ",
+    "benefic": "शुभ",
+    "mildBenefic": "हल्का शुभ",
+    "mildMalefic": "हल्का अशुभ",
+    "malefic": "अशुभ",
+    "highlyMalefic": "अत्यधिक अशुभ"
+  },
+  "upbsBreakdown": {
+    "NBS": "प्राकृतिक शुभता स्कोर (NBS)",
+    "FBS": "कार्यात्मक शुभता स्कोर (FBS)",
+    "PDS": "ग्रह गरिमा स्कोर (PDS)",
+    "SS": "शक्ति स्कोर (SS)",
+    "CRS": "अस्त और वक्री स्कोर (CRS)",
+    "HPS": "भाव स्थान स्कोर (HPS)",
+    "ARS": "दृष्टि प्राप्त स्कोर (ARS)",
+    "NLM": "नक्षत्र-स्वामी संशोधक (NLM)",
+    "ASC": "संगति स्कोर (ASC)"
+  },
+  "upbsBreakdownShort": {
+    "NBS": "NBS",
+    "FBS": "FBS",
+    "PDS": "PDS",
+    "SS": "SS",
+    "CRS": "CRS",
+    "HPS": "HPS",
+    "ARS": "ARS",
+    "NLM": "NLM",
+    "ASC": "ASC"
+  },
+  "upbsLegend": {
+    "title": "UPBS विभाजन:"
   },
   "planetTableHeaders": {
     "planet": "ग्रह",
@@ -1068,7 +1128,7 @@
   },
   "remedies": {
     "Sun": {
-      "vedicMantra": "ॐ आकृष्णेन रजसा वर्तमानो निवेशयन्नमृतं मर्त्यं च। हिरण्ययेन सविता रथेना देवो याति भुवनानि पश्यन्॥",
+      "vedicMantra": "ॐ आ कृष्णेन रजसा वर्तमानो निवेशयन्नमृतं मर्त्यं च। हिरण्ययेन सविता रथेना देवो याति भुवनानि पश्यन्॥",
       "beejaMantra": "ॐ ह्रां ह्रीं ह्रौं सः सूर्याय नमः॥",
       "gemstone": "माणिक्य (Ruby)",
       "metal": "सोना, तांबा",
@@ -1079,7 +1139,7 @@
       "other": "सुबह सूर्य को जल (अर्घ्य) दें। पिता और बड़ों का सम्मान करें। अनुशासन बनाए रखें।"
     },
     "Moon": {
-      "vedicMantra": "ॐ इमं देवा असपत्नं सुवध्यं महते क्षत्राय महते ज्यैष्ठ्याय महते जानराज्यायेन्द्रस्येन्द्रियाय...",
+      "vedicMantra": "ॐ इमं देवा असपत्नं सुवध्यं महते क्षत्राय महते ज्यैष्ठ्याय महते जानराज्यायेन्द्रस्येन्द्रियाय इमममुष्य पुत्रममुष्यै पुत्रमस्यै विश एष वोऽमी राजा सोमोऽस्माकं ब्राह्मणानां राजा॥",
       "beejaMantra": "ॐ श्रां श्रीं श्रौं सः चंद्राय नमः॥",
       "gemstone": "मोती (Pearl)",
       "metal": "चांदी",
@@ -1101,7 +1161,7 @@
       "other": "रक्तदान करें (यदि स्वस्थ हों)। क्रोध पर नियंत्रण रखें। शारीरिक गतिविधि में संलग्न रहें।"
     },
     "Mercury": {
-      "vedicMantra": "ॐ उद्बुध्यस्वाग्ने प्रति जागृहि त्वमिष्टापूर्ते सं सृजेथामयं च...",
+      "vedicMantra": "ॐ उद्बुध्यस्वाग्ने प्रति जागृहि त्वमिष्टापूर्ते सं सृजेथामयं च। अस्मिन्त्सधस्थे अध्युत्तरस्मिन् विश्वे देवा यजमानश्च सीदत॥",
       "beejaMantra": "ॐ ब्रां ब्रीं ब्रौं सः बुधाय नमः॥",
       "gemstone": "पन्ना (Emerald)",
       "metal": "सोना, पीतल",
@@ -1123,7 +1183,7 @@
       "other": "शिक्षकों और बड़ों का सम्मान करें। हल्दी का तिलक लगाएं। आशावाद और ज्ञान बनाए रखें।"
     },
     "Venus": {
-      "vedicMantra": "ॐ अन्नात्परिस्रुतो रसं ब्रह्मणा व्यपिबत् क्षत्रं पयः सोमं प्रजापतिः...",
+      "vedicMantra": "ॐ अन्नात्परिस्रुतो रसं ब्रह्मणा व्यपिबत् क्षत्रं पयः सोमं प्रजापतिः। ऋतेन सत्यमिन्द्रियं विपानं शुक्रमन्धस इन्द्रस्येन्द्रियमिदं पयोऽमृतं मधु॥",
       "beejaMantra": "ॐ द्रां द्रीं द्रौं सः शुक्राय नमः॥",
       "gemstone": "हीरा (Diamond), सफेद पुखराज (White Sapphire)",
       "metal": "चांदी, प्लैटिनम",
@@ -1341,6 +1401,18 @@
     "Vyatipata": { "name": "व्यतीपात", "description": "" },
     "Variyana": { "name": "वरीयान्", "description": "" },
     "Parigha": { "name": "परिघ", "description": "" },
+    "Parigha_name": "परिघ",
+    "Parigha_description": "",
+    "Gaja Kesari Yoga_name": "गज केसरी योग",
+    "Gaja Kesari Yoga_description": "यह योग तब बनता है जब बृहस्पति चंद्रमा से केंद्र भाव (1, 4, 7, 10) में होता है। यह धन, बुद्धि और प्रसिद्धि देता है।",
+    "Kendruma Yoga_name": "केन्द्रुम योग",
+    "Kendruma Yoga_description": "यह योग तब बनता है जब चंद्रमा से दूसरे और बारहवें घर में कोई ग्रह नहीं होता है। यह संघर्ष और कठिनाइयां देता है।",
+    "Dharma Karma Adhipati Yoga_name": "धर्म कर्म अधिपतियोग",
+    "Dharma Karma Adhipati Yoga_description": "यह योग तब बनता है जब 9वें और 10वें घर के स्वामी एक दूसरे के साथ संबंध बनाते हैं। यह सफलता, प्रसिद्धि और धन देता है।",
+    "Amala Yoga_name": "अमल योग",
+    "Amala Yoga_description": "यह योग तब बनता है जब लग्न या चंद्रमा से 10वें घर में कोई शुभ ग्रह होता है। यह धन, प्रसिद्धि और एक अच्छा चरित्र देता है।",
+    "Kahala Yoga_name": "काहल योग",
+    "Kahala Yoga_description": "यह योग तब बनता है जब 4वें और 9वें घर के स्वामी एक दूसरे से केंद्र में होते हैं। यह हठ, साहस और सैन्य शक्ति देता है।",
     "Shiva": { "name": "शिव", "description": "" },
     "Siddha": { "name": "सिद्ध", "description": "" },
     "Sadhya": { "name": "साध्य", "description": "" },
@@ -1426,7 +1498,8 @@
   "common": {
     "login": "लॉगिन",
     "yes": "हाँ",
-    "no": "नहीं"
+    "no": "नहीं",
+    "print": "प्रिंट"
   },
 
   "weekdays": {
@@ -1638,7 +1711,8 @@
     "Neutral": "तटस्थ",
     "Own Sign": "स्वराशि",
     "Standard": "मानक",
-    "Unknown": "अज्ञात"
+    "Unknown": "अज्ञात",
+    "Enemy": "शत्रु"
   },
   "favourability": {
     "Favorable": "अनुकूल",

@@ -612,7 +612,7 @@ const SharedInputLayout = () => {
                             </select>
                         </label>
                         <button onClick={() => setIsPrinting(true)} style={{ marginLeft: '5px' }} className="nav-button" disabled={!calculationInputParams}>
-                            Print
+                            {t('print')}
                         </button>
                         <Outlet context={{
                             mainResult, isLoading, error, calculationInputParams,

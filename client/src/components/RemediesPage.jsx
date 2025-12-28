@@ -1,8 +1,13 @@
 // src/RemediesPage.jsx
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createRoot } from 'react-dom/client';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import i18n from '../i18n'; // Import i18n instance
 // Import the keys object instead of the remedies object
 import { PLANET_REMEDY_KEYS, PLANET_NAMES } from './remedyData';
+import Mantra from './Mantra';
 import '../styles/RemediesPage.css';
 
 // Optional: Import a download icon if you have one
@@ -10,11 +15,35 @@ import '../styles/RemediesPage.css';
 
 const RemediesPage = () => {
     const { t } = useTranslation();
+    // Create a translation function that always returns English translations
+    const tEn = i18n.getFixedT('en', 'translation');
+
     const [selectedPlanet, setSelectedPlanet] = useState('Sun'); // Default to Sun key
 
     const handlePlanetChange = (event) => {
         setSelectedPlanet(event.target.value);
     };
+
+    const handlePdfDownload = (mantraText, title, fileName) => {
+        const container = document.createElement('div');
+        document.body.appendChild(container);
+        const root = createRoot(container);
+        root.render(<Mantra text={mantraText} title={title} />);
+
+        setTimeout(() => {
+            html2canvas(container).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF();
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(fileName);
+                document.body.removeChild(container);
+            });
+        }, 500); // Small delay to ensure rendering
+    };
+
 
     // Get the object containing the *keys* and *PDF paths* for the selected planet
     const remedyKeys = PLANET_REMEDY_KEYS[selectedPlanet];
@@ -55,21 +84,21 @@ const RemediesPage = () => {
                             <div className="remedy-header">
                                 <strong>{t('remediesPage.vedicMantraLabel')}</strong>
                                 {/* Add Download Link */}
-                                {remedyKeys.vedicMantraPdf && (
-                                    <a
-                                        href={remedyKeys.vedicMantraPdf}
-                                        download // Suggests downloading the file
-                                        className="download-link"
-                                        title={t('remediesPage.downloadPdf')}
-                                        target="_blank" // Open in new tab/window
-                                        rel="noopener noreferrer" // Security best practice
-                                    >
-                                        {/* <FaDownload /> Optional Icon */}
-                                        {t('remediesPage.downloadPdf')}
-                                    </a>
-                                )}
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handlePdfDownload(t(remedyKeys.vedicMantra), t('remediesPage.vedicMantraLabel'), `${selectedPlanet.toLowerCase()}_vedic.pdf`);
+                                    }}
+                                    className="download-link"
+                                    title={t('remediesPage.downloadPdf')}
+                                >
+                                    {t('remediesPage.downloadPdf')}
+                                </button>
                             </div>
-                            <p>{t(remedyKeys.vedicMantra)}</p>
+                            <p className="mantra-hi">{t(remedyKeys.vedicMantra, { lng: 'hi' })}</p>
+                            <p className="mantra-en">
+                                <i>English Transliteration: {tEn(remedyKeys.vedicMantra)}</i>
+                            </p>
                         </div>
                     )}
 
@@ -79,20 +108,21 @@ const RemediesPage = () => {
                              <div className="remedy-header">
                                 <strong>{t('remediesPage.beejaMantraLabel')}</strong>
                                 {/* Add Download Link */}
-                                {remedyKeys.beejaMantraPdf && (
-                                    <a
-                                        href={remedyKeys.beejaMantraPdf}
-                                        download
-                                        className="download-link"
-                                        title={t('remediesPage.downloadPdf')}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        {t('remediesPage.downloadPdf')}
-                                    </a>
-                                )}
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handlePdfDownload(t(remedyKeys.beejaMantra), t('remediesPage.beejaMantraLabel'), `${selectedPlanet.toLowerCase()}_beeja.pdf`);
+                                    }}
+                                    className="download-link"
+                                    title={t('remediesPage.downloadPdf')}
+                                >
+                                    {t('remediesPage.downloadPdf')}
+                                </button>
                             </div>
-                            <p>{t(remedyKeys.beejaMantra)}</p>
+                            <p className="mantra-hi">{t(remedyKeys.beejaMantra, { lng: 'hi' })}</p>
+                            <p className="mantra-en">
+                                <i>English Transliteration: {tEn(remedyKeys.beejaMantra)}</i>
+                            </p>
                         </div>
                     )}
 
@@ -102,20 +132,21 @@ const RemediesPage = () => {
                             <div className="remedy-header">
                                 <strong>{t('remediesPage.stutiLabel')}</strong>
                                 {/* Add Download Link */}
-                                {remedyKeys.stutiPdf && (
-                                    <a
-                                        href={remedyKeys.stutiPdf}
-                                        download
-                                        className="download-link"
-                                        title={t('remediesPage.downloadPdf')}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        {t('remediesPage.downloadPdf')}
-                                    </a>
-                                )}
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handlePdfDownload(t(remedyKeys.stuti), t('remediesPage.stutiLabel'), `${selectedPlanet.toLowerCase()}_stuti.pdf`);
+                                    }}
+                                    className="download-link"
+                                    title={t('remediesPage.downloadPdf')}
+                                >
+                                    {t('remediesPage.downloadPdf')}
+                                </button>
                             </div>
-                            <p>{t(remedyKeys.stuti)}</p>
+                            <p className="mantra-hi">{t(remedyKeys.stuti, { lng: 'hi' })}</p>
+                            <p className="mantra-en">
+                                <i>English Transliteration: {tEn(remedyKeys.stuti)}</i>
+                            </p>
                         </div>
                     )}
 
