@@ -24,11 +24,14 @@ const RemediesPage = () => {
         setSelectedPlanet(event.target.value);
     };
 
-    const handlePdfDownload = (mantraText, title, fileName) => {
+    const handlePdfDownload = (mantraKey, title, fileName) => {
+        const textHi = t(mantraKey, { lng: 'hi' });
+        const textEn = tEn(mantraKey);
+
         const container = document.createElement('div');
         document.body.appendChild(container);
         const root = createRoot(container);
-        root.render(<Mantra text={mantraText} title={title} />);
+        root.render(<Mantra textHi={textHi} textEn={textEn} title={title} />);
 
         setTimeout(() => {
             html2canvas(container).then(canvas => {
@@ -87,7 +90,7 @@ const RemediesPage = () => {
                                 <button
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        handlePdfDownload(t(remedyKeys.vedicMantra), t('remediesPage.vedicMantraLabel'), `${selectedPlanet.toLowerCase()}_vedic.pdf`);
+                                        handlePdfDownload(remedyKeys.vedicMantra, t('remediesPage.vedicMantraLabel'), `${selectedPlanet.toLowerCase()}_vedic.pdf`);
                                     }}
                                     className="download-link"
                                     title={t('remediesPage.downloadPdf')}
@@ -111,7 +114,7 @@ const RemediesPage = () => {
                                 <button
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        handlePdfDownload(t(remedyKeys.beejaMantra), t('remediesPage.beejaMantraLabel'), `${selectedPlanet.toLowerCase()}_beeja.pdf`);
+                                        handlePdfDownload(remedyKeys.beejaMantra, t('remediesPage.beejaMantraLabel'), `${selectedPlanet.toLowerCase()}_beeja.pdf`);
                                     }}
                                     className="download-link"
                                     title={t('remediesPage.downloadPdf')}
@@ -135,7 +138,7 @@ const RemediesPage = () => {
                                 <button
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        handlePdfDownload(t(remedyKeys.stuti), t('remediesPage.stutiLabel'), `${selectedPlanet.toLowerCase()}_stuti.pdf`);
+                                        handlePdfDownload(remedyKeys.stuti, t('remediesPage.stutiLabel'), `${selectedPlanet.toLowerCase()}_stuti.pdf`);
                                     }}
                                     className="download-link"
                                     title={t('remediesPage.downloadPdf')}
