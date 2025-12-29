@@ -1114,7 +1114,11 @@
     "deityLabel": "Deity Worship:",
     "stutiLabel": "Stuti/Chanting:",
     "otherLabel": "Other General Remedies:",
-    "selectPlanetPrompt": "Select a planet to view remedies."
+    "selectPlanetPrompt": "Select a planet to view remedies.",
+    "fullStutiLabel": "Full Stuti",
+    "fullStutiTitle": "Full Stuti (Full Text)",
+    "fullStutiDescription": "Download the complete text of the Stuti in both Hindi (Devanagari) and English Transliteration.",
+    "downloadFullStutiPdf": "Download Full Stuti PDF"
   },
   "planets": {
     "Sun": "Sun",
@@ -1187,7 +1191,7 @@
       "metal": "Gold, Brass",
       "herb": "Vidharamool Root",
       "charity": "Green Moong Dal, Green Clothes, Green Vegetables, Bangles on Wednesday",
-      "stuti": "Vishnu Sahasranama",
+      "stuti": "Budha Stotram",
       "deity": "Lord Vishnu",
       "other": "Feed green fodder to cows. Maintain good communication. Read books."
     },
@@ -1209,7 +1213,7 @@
       "metal": "Silver, Platinum",
       "herb": "Arandmool Root",
       "charity": "Rice, Sugar, Ghee, White Clothes, Curd, Silver, Perfume on Friday",
-      "stuti": "Shri Suktam, Lakshmi Stuti",
+      "stuti": "Shukra Stotram",
       "deity": "Goddess Lakshmi, Goddess Durga",
       "other": "Maintain cleanliness. Appreciate beauty and art. Respect women."
     },
@@ -1220,7 +1224,7 @@
       "metal": "Iron, Steel, Lead",
       "herb": "Bichhu Booti Root (Nettle Root)",
       "charity": "Black Sesame Seeds, Urad Dal (Black Gram), Black Clothes, Mustard Oil, Iron items on Saturday",
-      "stuti": "Hanuman Chalisa, Shani Stotra",
+      "stuti": "Shani Stotram",
       "deity": "Lord Hanuman, Lord Shiva (as Mahakaal)",
       "other": "Serve the poor and needy. Be disciplined and patient. Avoid laziness."
     },
@@ -1231,7 +1235,7 @@
       "metal": "Mixed Metal (Panchdhatu), Lead",
       "herb": "White Sandalwood piece",
       "charity": "Urad Dal, Coconut, Lead, Black Clothes, Mustard Oil on Saturday",
-      "stuti": "Durga Saptashati, Bhairav Stuti",
+      "stuti": "Kalabhairava Ashtakam",
       "deity": "Goddess Durga, Lord Bhairav",
       "other": "Avoid intoxication and deception. Serve leprosy patients. Maintain clarity of thought."
     },
@@ -1242,7 +1246,7 @@
       "metal": "Mixed Metal (Panchdhatu)",
       "herb": "Ashwagandha Root",
       "charity": "Black Sesame Seeds, Urad Dal, Blanket (multi-colored), Mustard Oil, Knife on Tuesday/Saturday",
-      "stuti": "Ganesha Stotra, Shiva Stuti",
+      "stuti": "Ganesha Ashtakam",
       "deity": "Lord Ganesha, Lord Shiva",
       "other": "Feed stray dogs. Donate blankets. Practice detachment and spirituality."
     }

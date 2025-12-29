@@ -8,6 +8,7 @@ import i18n from '../i18n'; // Import i18n instance
 // Import the keys object instead of the remedies object
 import { PLANET_REMEDY_KEYS, PLANET_NAMES } from './remedyData';
 import Mantra from './Mantra';
+import FullStutiPdfContent from './FullStutiPdfContent';
 import '../styles/RemediesPage.css';
 
 // Optional: Import a download icon if you have one
@@ -24,23 +25,79 @@ const RemediesPage = () => {
         setSelectedPlanet(event.target.value);
     };
 
-    const handlePdfDownload = (mantraKey, title, fileName) => {
-        const textHi = t(mantraKey, { lng: 'hi' });
-        const textEn = tEn(mantraKey);
+    const handlePdfDownload = async (mantraKey, title, fileName, isFullStuti = false) => {
+        let textHi = '';
+        let textEn = '';
+        let componentToRender = Mantra;
+
+        if (isFullStuti) {
+            const hiPath = remedyKeys.fullStutiPathHi;
+            const enPath = remedyKeys.fullStutiPathEn;
+
+            if (!hiPath || !enPath) {
+                alert('Full Stuti paths not defined for this planet.');
+                return;
+            }
+
+            try {
+                const [hiResponse, enResponse] = await Promise.all([
+                    fetch(hiPath),
+                    fetch(enPath)
+                ]);
+
+                if (!hiResponse.ok || !enResponse.ok) {
+                    throw new Error('Failed to fetch full stuti text.');
+                }
+
+                textHi = await hiResponse.text();
+                textEn = await enResponse.text();
+                componentToRender = FullStutiPdfContent; // Use the new component for full stuti
+            } catch (error) {
+                console.error('Error fetching full stuti text:', error);
+                alert('Failed to download full Stuti. Please try again.');
+                return;
+            }
+        } else {
+            textHi = t(mantraKey, { lng: 'hi' });
+            textEn = tEn(mantraKey);
+            componentToRender = Mantra;
+        }
+
 
         const container = document.createElement('div');
+        container.style.width = '210mm'; // A4 width
+        container.style.padding = '10mm';
+        container.style.boxSizing = 'border-box';
+        container.style.backgroundColor = 'white';
+        container.style.position = 'absolute';
+        container.style.left = '-9999px'; // Hide it off-screen
         document.body.appendChild(container);
-        const root = createRoot(container);
-        root.render(<Mantra textHi={textHi} textEn={textEn} title={title} />);
 
+        const root = createRoot(container);
+        root.render(React.createElement(componentToRender, { textHi, textEn, title }));
+
+        // Allow a small delay for rendering to complete
         setTimeout(() => {
-            html2canvas(container).then(canvas => {
+            html2canvas(container, { scale: 2 }).then(canvas => { // Scale for better resolution
                 const imgData = canvas.toDataURL('image/png');
-                const pdf = new jsPDF();
+                const pdf = new jsPDF('p', 'mm', 'a4');
                 const imgProps = pdf.getImageProperties(imgData);
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+
+                let heightLeft = pdfHeight;
+                let position = 0;
+
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pdf.internal.pageSize.getHeight();
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= pdf.internal.pageSize.getHeight();
+                }
+
                 pdf.save(fileName);
                 document.body.removeChild(container);
             });
@@ -150,6 +207,31 @@ const RemediesPage = () => {
                             <p className="mantra-en">
                                 <i>English Transliteration: {tEn(remedyKeys.stuti)}</i>
                             </p>
+                        </div>
+                    )}
+
+                    {/* Full Stuti (Aditya Hridaya Stotra) Download */}
+                    {remedyKeys.fullStutiPathHi && remedyKeys.fullStutiPathEn && (
+                         <div className="remedy-item">
+                            <div className="remedy-header">
+                                <strong>{t('remediesPage.fullStutiLabel', { defaultValue: 'Full Stuti' })}</strong>
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handlePdfDownload(
+                                            remedyKeys.stuti, // Pass the stuti key
+                                            t(remedyKeys.stuti), // Use the translated stuti name as the title
+                                            `${selectedPlanet.toLowerCase()}_full_stuti.pdf`,
+                                            true // Indicate this is a full stuti download
+                                        );
+                                    }}
+                                    className="download-link"
+                                    title={t('remediesPage.downloadFullStutiPdf', { defaultValue: 'Download Full Stuti PDF' })}
+                                >
+                                    {t('remediesPage.downloadPdf')}
+                                </button>
+                            </div>
+                            <p>{t('remediesPage.fullStutiDescription', { defaultValue: 'Download the complete text of the Stuti in both Hindi (Devanagari) and English Transliteration.'})}</p>
                         </div>
                     )}
 

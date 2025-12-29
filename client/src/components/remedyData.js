@@ -14,6 +14,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Sun.charity',
         stuti: 'remedies.Sun.stuti',
         stutiPdf: '/pdf/mantras/sun_aditya_hridaya.pdf', // <-- Add PDF path (e.g., Aditya Hridaya)
+        fullStutiPathHi: '/stutis/sun_aditya_hridaya_hi.txt', // Path to full stuti in Hindi
+        fullStutiPathEn: '/stutis/sun_aditya_hridaya_en.txt', // Path to full stuti in English transliteration
         deity: 'remedies.Sun.deity',
         other: 'remedies.Sun.other'
     },
@@ -28,6 +30,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Moon.charity',
         stuti: 'remedies.Moon.stuti',
         stutiPdf: '/pdf/mantras/moon_shiva_stuti.pdf', // <-- Add PDF path (e.g., Shiva Stuti)
+        fullStutiPathHi: '/stutis/moon_shiva_stuti_hi.txt',
+        fullStutiPathEn: '/stutis/moon_shiva_stuti_en.txt',
         deity: 'remedies.Moon.deity',
         other: 'remedies.Moon.other'
     },
@@ -44,6 +48,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Mars.charity',
         stuti: 'remedies.Mars.stuti',
         stutiPdf: '/pdf/mantras/mars_hanuman_chalisa.pdf', // Example
+        fullStutiPathHi: '/stutis/mars_hanuman_chalisa_hi.txt',
+        fullStutiPathEn: '/stutis/mars_hanuman_chalisa_en.txt',
         deity: 'remedies.Mars.deity',
         other: 'remedies.Mars.other'
     },
@@ -58,6 +64,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Mercury.charity',
         stuti: 'remedies.Mercury.stuti',
         stutiPdf: '/pdf/mantras/mercury_vishnu_sahasranama.pdf', // Example
+        fullStutiPathHi: '/stutis/mercury_budha_stotram_hi.txt',
+        fullStutiPathEn: '/stutis/mercury_budha_stotram_en.txt',
         deity: 'remedies.Mercury.deity',
         other: 'remedies.Mercury.other'
     },
@@ -72,6 +80,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Jupiter.charity',
         stuti: 'remedies.Jupiter.stuti',
         stutiPdf: '/pdf/mantras/jupiter_guru_stotra.pdf', // Example
+        fullStutiPathHi: '/stutis/jupiter_guru_stotram_hi.txt',
+        fullStutiPathEn: '/stutis/jupiter_guru_stotram_en.txt',
         deity: 'remedies.Jupiter.deity',
         other: 'remedies.Jupiter.other'
     },
@@ -86,6 +96,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Venus.charity',
         stuti: 'remedies.Venus.stuti',
         stutiPdf: '/pdf/mantras/venus_shri_suktam.pdf', // Example
+        fullStutiPathHi: '/stutis/venus_shukra_stotram_hi.txt',
+        fullStutiPathEn: '/stutis/venus_shukra_stotram_en.txt',
         deity: 'remedies.Venus.deity',
         other: 'remedies.Venus.other'
     },
@@ -100,6 +112,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Saturn.charity',
         stuti: 'remedies.Saturn.stuti',
         stutiPdf: '/pdf/mantras/saturn_shani_stotra.pdf', // Example
+        fullStutiPathHi: '/stutis/saturn_shani_stotram_hi.txt',
+        fullStutiPathEn: '/stutis/saturn_shani_stotram_en.txt',
         deity: 'remedies.Saturn.deity',
         other: 'remedies.Saturn.other'
     },
@@ -114,6 +128,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Rahu.charity',
         stuti: 'remedies.Rahu.stuti',
         stutiPdf: '/pdf/mantras/rahu_durga_saptashati.pdf', // Example
+        fullStutiPathHi: '/stutis/rahu_kalabhairava_ashtakam_hi.txt',
+        fullStutiPathEn: '/stutis/rahu_kalabhairava_ashtakam_en.txt',
         deity: 'remedies.Rahu.deity',
         other: 'remedies.Rahu.other'
     },
@@ -128,6 +144,8 @@ export const PLANET_REMEDY_KEYS = {
         charity: 'remedies.Ketu.charity',
         stuti: 'remedies.Ketu.stuti',
         stutiPdf: '/pdf/mantras/ketu_ganesha_stotra.pdf', // Example
+        fullStutiPathHi: '/stutis/ketu_ganesha_ashtakam_hi.txt',
+        fullStutiPathEn: '/stutis/ketu_ganesha_ashtakam_en.txt',
         deity: 'remedies.Ketu.deity',
         other: 'remedies.Ketu.other'
     }
