@@ -1,9 +1,8 @@
-// server/utils/predictionTextGenerator.js
-import logger from './logger.js';
-
 import { getHouseOfPlanet } from './planetaryUtils.js';
 import { convertDMSToDegrees } from './coreUtils.js';
 import { getPlanetName } from './birthChartYogaUtils.js';
+import { getNakshatraPada } from './nakshatraUtils.js';
+import { NAKSHATRA_PADA_MEANINGS_EN, NAKSHATRA_PADA_MEANINGS_HI } from './nakshatraPadaMeanings.js';
 
 const houseThemes_en = {
     1: 'self, identity, health', 2: 'finance, possessions, speech', 3: 'siblings, communication, short trips',
@@ -625,8 +624,8 @@ export function getCombinedPredictionLong(lagna, rashi, nakshatra, additionalDat
     const p_hi = {
         yourChartCombines: "आपकी कुंडली आपके", lagna: "लग्न", rashi: "राशि", and: "और", nakshatra: "नक्षत्र", creatingProfile: "के गुणों को मिलाकर एक गहरी स्तरित व्यक्तित्व प्रोफाइल बनाती है।",
         asALagnaAscendant: "एक", outerBehavior: "लग्न के रूप में, आपका बाहरी व्यवहार, जीवन के प्रति दृष्टिकोण, और पहली प्रवृत्ति निम्नलिखित प्रवृत्तियों से आकार लेती है:",
-        emotionallyAndMentally: "भावनात्मक और मानसिक रूप से, आपकी", influencesHowYou: "में चंद्र राशि आपके अनुभवों को संसाधित करने, बंधन बनाने और आपकी आंतरिक दुनिया पर प्रतिक्रिया करने के तरीके को प्रभावित करती है। यह आपको निम्नलिखित भावनात्मक प्रकृति देता है:",
-        atADeeperKarmic: "एक गहरे कर्म और आध्यात्मिक स्तर पर, आपका जन्म", infusesYourInstincts: "नक्षत्र में आपकी प्रवृत्ति, अवचेतन प्रेरणाओं और आत्मा की यात्रा को निम्नलिखित गुणों से भर देता है:",
+        emotionallyAndMentally: "भावनात्मक और मानसिक रूप से, आपकी", influencesHowYou: " में चंद्र राशि आपके अनुभवों को संसाधित करने, बंधन बनाने और आपकी आंतरिक दुनिया पर प्रतिक्रिया करने के तरीके को प्रभावित करती है। यह आपको निम्नलिखित भावनात्मक प्रकृति देता है:",
+        atADeeperKarmic: "एक गहरे कर्म और आध्यात्मिक स्तर पर, आपका जन्म", infusesYourInstincts: " नक्षत्र में आपकी प्रवृत्ति, अवचेतन प्रेरणाओं और आत्मा की यात्रा को निम्नलिखित गुणों से भर देता है:",
         whenTheseThree: "जब ये तीन ताकतें मिलती हैं, तो वे आपके बाहरी व्यक्तित्व, आपके आंतरिक भावनात्मक जीवन और आपकी आध्यात्मिक नींव के बीच एक अनूठा सामंजस्य बनाती हैं। यह संयोजन बताता है कि आप दुनिया में कैसा व्यवहार करते हैं, आप भीतर कैसा महसूस करते हैं, और आपकी आत्मा आपके जीवन पथ पर क्या चाहती है। यह एकीकृत पैटर्न आपकी प्राकृतिक शक्तियों, चुनौतियों, रिश्तों, निर्णयों और दीर्घकालिक भाग्य को आकार देता है।"
     };
 
@@ -637,7 +636,7 @@ export function getCombinedPredictionLong(lagna, rashi, nakshatra, additionalDat
 
     let lagnaText = lagnaTraits[lagna] || "";
     let rashiText = rashiTraits[rashi] || "";
-    const nakshatraText = nakshatraTraits[nakshatra] || "";
+    let nakshatraText = nakshatraTraits[nakshatra] || ""; // Changed to let to allow modification
 
     const cuspDegrees = houses ? houses.map(h => convertDMSToDegrees(h.start_dms)) : [];
 
@@ -651,19 +650,39 @@ export function getCombinedPredictionLong(lagna, rashi, nakshatra, additionalDat
         }
     }
 
-    // --- Synthesize Moon's House Placement into Rashi Paragraph ---
+    // --- Synthesize Moon's House Placement and Nakshatra Pada into Rashi Paragraph ---
     const moonData = planetaryPositions?.Moon;
     if (moonData && typeof moonData.longitude === 'number' && cuspDegrees.length > 0) {
         const moonHouse = getHouseOfPlanet(moonData.longitude, cuspDegrees);
+        const { nakshatraNumber, pada } = getNakshatraPada(moonData.longitude);
         if (moonHouse) {
             const houseTheme = (lang === 'hi' ? houseThemes_hi : houseThemes_en)[moonHouse];
+            const currentNakshatraPadaMeanings = lang === 'hi' ? NAKSHATRA_PADA_MEANINGS_HI : NAKSHATRA_PADA_MEANINGS_EN;
+            const nakshatraPadaMeaning = currentNakshatraPadaMeanings[nakshatra]?.[pada - 1] || ""; // pada is 1-indexed
+
             if (lang === 'hi') {
-                rashiText += ` यह भावनात्मक प्रकृति सबसे अधिक ${moonHouse}वें घर पर केंद्रित है, जो बताता है कि आप ${houseTheme} से संबंधित मामलों में भावनात्मक पूर्ति और सुरक्षा चाहते हैं।`;
+                rashiText += ` यह भावनात्मक प्रकृति सबसे अधिक ${moonHouse}वें घर पर केंद्रित है, जो बताता है कि आप ${houseTheme} से संबंधित मामलों में भावनात्मक पूर्ति और सुरक्षा चाहते हैं। आपका चंद्रमा ${nakshatra} नक्षत्र के ${pada}वें पद में है, जिसका अर्थ है: ${nakshatraPadaMeaning}। यह आपके भावनात्मक प्रतिक्रियाओं में एक और परत जोड़ता है।`;
             } else {
-                rashiText += ` This emotional nature is most actively focused on the ${getOrdinal(moonHouse)} house, suggesting you seek emotional fulfillment and security in matters related to ${houseTheme}.`;
+                rashiText += ` This emotional nature is most actively focused on the ${getOrdinal(moonHouse)} house, suggesting you seek emotional fulfillment and security in matters related to ${houseTheme}. Your Moon is in the ${pada}th pada of ${nakshatra} nakshatra, meaning: ${nakshatraPadaMeaning}. This adds another layer to your emotional responses.`;
             }
         }
     }
+
+    // --- Add Nakshatra Pada meaning to Nakshatra section ---
+    const currentNakshatraPadaMeanings = lang === 'hi' ? NAKSHATRA_PADA_MEANINGS_HI : NAKSHATRA_PADA_MEANINGS_EN;
+    const moonNakshatraData = planetaryPositions.Moon; // Assuming nakshatra is always Moon's nakshatra
+    if (moonNakshatraData && typeof moonNakshatraData.longitude === 'number') {
+        const { pada } = getNakshatraPada(moonNakshatraData.longitude);
+        const nakshatraPadaMeaning = currentNakshatraPadaMeanings[nakshatra]?.[pada - 1] || "";
+        if (nakshatraPadaMeaning) {
+            if (lang === 'hi') {
+                nakshatraText += ` आपका जन्म ${nakshatra} नक्षत्र के ${pada}वें पद में हुआ है, जिसका अर्थ है: ${nakshatraPadaMeaning}`;
+            } else {
+                nakshatraText += ` Your birth in the ${pada}th pada of ${nakshatra} nakshatra means: ${nakshatraPadaMeaning}`;
+            }
+        }
+    }
+
 
     // --- Assemble the final report ---
     const displayedNakshatra = lang === 'hi' ? (nakshatraNames_hi[nakshatra] || nakshatra) : nakshatra; // Defensive fallback
@@ -673,7 +692,7 @@ ${p.asALagnaAscendant} ${lang === 'hi' ? rashiNames_hi[lagna] : lagna} ${p.outer
 
 ${p.emotionallyAndMentally} ${lang === 'hi' ? rashiNames_hi[rashi] : rashi} ${p.influencesHowYou} ${rashiText}
 
-${p.atADeeperKarmic} ${nakshatra} ${p.infusesYourInstincts} ${nakshatraText}
+${p.atADeeperKarmic} ${displayedNakshatra} ${p.infusesYourInstincts} ${nakshatraText}
 `;
 
     if (lagnaLord && lagnaLordNatalHouse && planetaryPowers?.[lagnaLord] !== undefined) {
@@ -722,10 +741,19 @@ ${placementsIntro}`;
                 if (house) {
                     const interpretation = (lang === 'hi' ? (planetInHouse_hi[planet]?.[house - 1]) : (planetInHouse_en[planet]?.[house - 1]));
                     const translatedPlanet = lang === 'hi' ? planetNames_hi[planet] : planet;
+                    
+                    const { nakshatraNumber, pada } = getNakshatraPada(planetData.longitude);
+                    const currentNakshatraPadaMeanings = lang === 'hi' ? NAKSHATRA_PADA_MEANINGS_HI : NAKSHATRA_PADA_MEANINGS_EN;
+                    const nakshatraName = planetData.nakshatra || "Unknown";
+                    const padaMeaning = currentNakshatraPadaMeanings[nakshatraName]?.[pada - 1] || "";
+
                     if (interpretation) {
                          result += `
 
-*   **${translatedPlanet} ${lang === 'hi' ? `${house} वें घर में` : `in ${house}th house`}:** ${interpretation}`;
+*   **${translatedPlanet} ${lang === 'hi' ? `${house} वें घर में` : `in ${house}th house`} (${nakshatraName} नक्षत्र के ${pada}वें पद में):** ${interpretation}`;
+                         if (padaMeaning) {
+                            result += ` ${lang === 'hi' ? `इस पद का अर्थ है: ${padaMeaning}` : `This pada signifies: ${padaMeaning}`}`;
+                         }
                          // Add UPBS description if available
                          if (planetaryPowers?.[planet] !== undefined && ['Rahu', 'Ketu'].indexOf(planet) === -1) {
                             const score = planetaryPowers[planet];
@@ -817,7 +845,7 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             yearLordMalefic: (lord) => ` एक नैसर्गिक पापी ग्रह के रूप में, ${lord} इंगित करता है कि इस विषय में अनुशासन, बाधाओं पर काबू पाना और कड़ी मेहनत से जीते गए परिणाम शामिल होंगे।`,
             muntha: (sign, house, theme) => `आपका व्यक्तिगत ध्यान और आत्म-विकास का क्षेत्र, जो मुंथा द्वारा दर्शाया गया है, **${house}**वें घर में **${sign}** में पड़ता है। यह आपका ध्यान **${theme}** की ओर खींचता है।`,
             ascendant: (sign, lord, theme) => `अंत में, **${sign}** में वार्षिक लग्न (जिसका स्वामी **${lord}** है) आपके व्यक्तिगत दृष्टिकोण को रंग देता है, जो पूरे वर्ष आपकी अभिव्यक्ति में **${theme}** के विषयों पर जोर देता है।`,
-            synthesis: `\nइन कारकों के बीच की परस्पर क्रिया महत्वपूर्ण है। आप सबसे अधिक सफलता तब पाएंगे जब आप {yearLordTheme} के व्यापक विषय की सेवा के लिए {munthaTheme} पर अपने व्यक्तिगत ध्यान को लागू कर सकते हैं, और यह सब {ascendantTheme} के लेंस के माध्यम से खुद को व्यक्त करते हुए।`,
+            synthesis: `\nइन कारकों के बीच की परस्पर क्रिया महत्वपूर्ण है। आप सबसे अधिक सफलता तब पाएंगे जब आप {yearLordTheme} के व्यापक विषय की सेवा के लिए {munthaTheme} पर अपना व्यक्तिगत ध्यान केंद्रित करना चाहिए। और यह सब {ascendantTheme} के लेंस के माध्यम से खुद को व्यक्त करते हुए।`,
             strengthHeader: `\n\n#### प्रमुख ग्रहों के प्रभाव\n`,
             strongestPlanet: (planet, score) => `इस वर्ष सबसे प्रभावशाली ग्रह **${planet}** है (UPBS स्कोर ${score.toFixed(2)} के साथ)। इसके अनुशासन, संरचना और दीर्घकालिक योजना के विषय एक प्रमुख शक्ति होंगे, जो इसके द्वारा प्रभावित क्षेत्रों में ध्यान और संपूर्णता की मांग करेंगे।`,
             muddaDashaHeader: `\n\n#### वर्ष की समयरेखा (मुद्दा दशा)\nवर्ष का ध्यान इन ग्रहों की उप-अवधियों के अनुसार बदल जाएगा:\n`,
@@ -961,7 +989,7 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
     const interpretations = {
         en: {
             Sun: {
-                Exalted: "Sun, being exalted, brings strong leadership, confidence, and success. You'll find natural authority.",
+                Exalted: "Sun, being exalted, brings strong leadership, confidence, and success. You\'ll find natural authority.",
                 'Own Sign': "Sun, in its own sign, provides strong willpower, authority, and a stable sense of self. Your core identity is robust.",
                 Friend: "Sun, well-disposed, supports vitality and leadership, bringing ease in assertion.",
                 Neutral: "Sun, in a neutral sign, gives results based on its house placement. Its influence is balanced.",
@@ -1104,7 +1132,7 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
                 Friend: "मित्र राशि में केतु का अर्थ है कि आध्यात्मिक यात्रा समर्थित है, और वैराग्य शांति लाता है।",
                 Neutral: "सम राशि में केतु उस घर में वैराग्य की भावना लाता है जिसमें वह रहता है। आपका ध्यान अधिक आंतरिक है।",
                 Enemy: "शत्रु राशि में केतु भ्रम, हानि या अप्रत्याशित बाधाएं पैदा कर सकता है, जिससे जाने देना चुनौतीपूर्ण हो जाता है।",
-                Debilitated: "नीच का केतु दिशा की कमी और लाचारी की भावनाओं का संकेत दे सकता है। आध्यात्मिक मार्ग अस्पष्ट हो सकता है।",
+                Debilitated: "नीच का केतु दिशा की कमी और लाचारी की भावनाओं का संकेत दे सकता है। आध्यात्मिक मार्ग अस्पष्ट हो सकता।",
             },
         }
     };

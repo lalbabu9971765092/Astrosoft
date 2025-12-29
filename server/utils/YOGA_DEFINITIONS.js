@@ -1,181 +1,181 @@
 export const YOGA_DEFINITIONS_EN = {
     GajaKesari: {
         name: 'Gaja Kesari Yoga',
-        description: 'Jupiter is in a Kendra (1st, 4th, 7th, or 10th house) from the Moon. This yoga blesses the native with intelligence, wealth, and fame.'
+        description: 'Jupiter is in a Kendra (1st, 4th, 7th, or 10th house) from the Moon. This is a powerful yoga that blesses the native with sharp intelligence, immense wealth, and lasting fame. You are likely to be respected by learned people and will be victorious over your enemies.'
     },
     RajaYoga: {
         name: 'Raja Yoga',
-        description: (kendraLord, trikonaLord) => `Lord of Kendra house, ${kendraLord}, is in conjunction with lord of Trikona house, ${trikonaLord}. This combination indicates success, status, and authority.`
+        description: (kendraLord, trikonaLord) => `A powerful combination for success and status, formed by the lord of a Kendra house, ${kendraLord}, in conjunction with the lord of a Trikona house, ${trikonaLord}. This yoga indicates that your actions (Kendra) and fortune (Trikona) are harmoniously linked, promising significant achievements, authority, and a high position in life.`
     },
     DhanaYoga: {
         name: 'Dhana Yoga',
-        description: (dhanaLord, trikonaLord) => `Lord of Dhana house, ${dhanaLord}, is in conjunction with lord of Trikona house, ${trikonaLord}. This combination indicates wealth and prosperity.`
+        description: (dhanaLord, trikonaLord) => `A combination for wealth, formed by the lord of a Dhana house (2nd or 11th), ${dhanaLord}, in conjunction with the lord of a Trikona house (5th or 9th), ${trikonaLord}. This yoga indicates a strong potential for earning and accumulating wealth, especially during the periods of the involved planets.`
     },
     RuchakaYoga: {
         name: 'Ruchaka Yoga',
-        description: 'Formed by Mars, this yoga bestows courage, strength, and victory over enemies.'
+        description: 'One of the Pancha Mahapurusha Yogas, formed by Mars. It bestows a strong physique, courage, and a dynamic personality. You will be adventurous, victorious over enemies, and may rise to a high position in fields like the military, police, or engineering.'
     },
     BhadraYoga: {
         name: 'Bhadra Yoga',
-        description: 'Formed by Mercury, this yoga grants intelligence, sharp intellect, and skill in communication.'
+        description: 'One of the Pancha Mahapurusha Yogas, formed by Mercury. It grants sharp intellect, excellent communication skills, and a youthful appearance. You are likely to be learned, witty, and successful in fields related to commerce, writing, or academia.'
     },
     HamsaYoga: {
         name: 'Hamsa Yoga',
-        description: 'Formed by Jupiter, this yoga indicates a person who is respected, learned, and righteous.'
+        description: 'One of the Pancha Mahapurusha Yogas, formed by Jupiter. It indicates a person who is righteous, respected, and possesses great wisdom. You are likely to be fortunate, long-lived, and have a spiritual inclination.'
     },
     MalavyaYoga: {
         name: 'Malavya Yoga',
-        description: 'Formed by Venus, this yoga blesses with luxury, artistic talents, and a happy married life.'
+        description: 'One of the Pancha Mahapurusha Yogas, formed by Venus. It blesses with a charming personality, a love for arts and luxury, and a harmonious married life. You are likely to enjoy all comforts of life and be successful in creative fields.'
     },
     SasaYoga: {
         name: 'Sasa Yoga',
-        description: 'Formed by Saturn, this yoga gives authority, leadership, and a long life.'
+        description: 'One of the Pancha Mahapurusha Yogas, formed by Saturn. It gives authority, a position of leadership, and the ability to rule. You may be a bit of a loner but will be respected by the masses and enjoy a long life.'
     },
     HarshaYoga: {
         name: 'Harsha Yoga',
-        description: 'The 6th lord is in the 8th or 12th house, giving happiness, health and victory over enemies.'
+        description: 'A Vipareeta Raja Yoga where the 6th lord is in the 8th or 12th house. This yoga indicates happiness from unexpected sources, good health, and victory over enemies. You will be fortunate and lead a comfortable life.'
     },
     SaralaYoga: {
         name: 'Sarala Yoga',
-        description: 'The 8th lord is in the 6th or 12th house, giving wisdom, wealth, and long life.'
+        description: 'A Vipareeta Raja Yoga where the 8th lord is in the 6th or 12th house. This yoga grants wisdom, the ability to overcome difficulties, and a long life. You will be able to defeat your enemies and accumulate wealth.'
     },
     VimalaYoga: {
         name: 'Vimala Yoga',
-        description: 'The 12th lord is in the 6th or 8th house, giving independence, noble character, and wealth.'
+        description: 'A Vipareeta Raja Yoga where the 12th lord is in the 6th or 8th house. This yoga makes you independent, virtuous, and happy. You will be good at managing your finances and will spend money on righteous deeds.'
     },
     NeechaBhangaRajaYoga: {
         name: 'Neecha Bhanga Raja Yoga',
-        description: (planet, planetRashi, dispositorPlanet) => `The planet ${planet} is in its debilitation sign (${planetRashi}), but its dispositor ${dispositorPlanet} is in a Kendra from the Lagna or the Moon, cancelling the debilitation and giving rise to a Raja Yoga.`
+        description: (planet, planetRashi, dispositorPlanet) => `The planet ${planet} is in its debilitation sign (${planetRashi}), but its dispositor ${dispositorPlanet} is in a Kendra from the Lagna or the Moon. This cancels the debilitation and gives rise to a powerful Raja Yoga, which can bestow great success and status after initial struggles.`
     },
     KendrumaYoga: {
         name: 'Kendruma Yoga',
-        description: 'No planets (except Sun, Rahu, and Ketu) in the 2nd or 12th house from the Moon. This yoga can indicate poverty, struggle, and lack of support from others.'
+        description: 'No planets (except Sun, Rahu, and Ketu) are in the 2nd or 12th house from the Moon. This yoga can indicate a feeling of loneliness and a lack of support from others. However, if other benefic yogas are present, the negative effects of this yoga are reduced.'
     },
     ChandraMangalaYoga: {
         name: 'Chandra Mangala Yoga',
-        description: 'Moon and Mars are in the same house. This yoga blesses the native with wealth, courage, and determination.'
+        description: 'Moon and Mars are in the same house. This yoga, also known as Lakshmi Yoga, blesses the native with abundant wealth, courage, and a go-getter attitude. You will be quick to act and have a strong drive to succeed.'
     },
     BudhadityaYoga: {
         name: 'Budhaditya Yoga',
-        description: 'Sun and Mercury are in the same house. This yoga blesses the native with intelligence, sharp intellect, and good reputation.'
+        description: 'Sun and Mercury are in the same house. This yoga blesses the native with sharp intellect, exceptional communication skills, and a good reputation. You are likely to be learned, skillful, and respected in your community.'
     },
     LakshmiYoga: {
         name: 'Lakshmi Yoga',
-        description: 'The lord of the 9th house and Venus are strong and well-placed, blessing the native with immense wealth, prosperity, and good fortune.'
+        description: 'The lord of the 9th house and Venus are strong and well-placed. This is a very auspicious yoga that blesses the native with immense wealth, prosperity, and good fortune throughout life. You will enjoy all luxuries and lead a comfortable life.'
     },
     DharmaKarmaAdhipatiYoga: {
         name: 'Dharma Karma Adhipati Yoga',
-        description: 'The lords of the 9th and 10th houses are in conjunction, indicating a rise in life due to righteous deeds and professional success.'
+        description: 'The lords of the 9th (Dharma) and 10th (Karma) houses are in conjunction. This is a powerful Raja Yoga that indicates a rise in life due to righteous deeds and professional success. You will be fortunate and successful in your career.'
     },
     AmalaYogaFromAscendant: {
         name: 'Amala Yoga',
-        description: (planet) => `A benefic planet, ${planet}, is in the 10th house from the Ascendant, bringing prosperity and a good reputation.`
+        description: (planet) => `A benefic planet, ${planet}, is in the 10th house from the Ascendant. This yoga brings lasting fame, wealth, and a spotless reputation. You will lead a prosperous life and be respected for your virtues.`
     },
     AmalaYogaFromMoon: {
         name: 'Amala Yoga',
-        description: (planet) => `A benefic planet, ${planet}, is in the 10th house from the Moon, bringing prosperity and a good reputation.`
+        description: (planet) => `A benefic planet, ${planet}, is in the 10th house from the Moon. This yoga also brings lasting fame, wealth, and a spotless reputation, similar to its formation from the Ascendant.`
     },
     SaraswatiYoga: {
         name: 'Saraswati Yoga',
-        description: 'Jupiter, Venus, and Mercury are in Kendra or Trikona houses, blessing the native with intelligence, creativity, and knowledge.'
+        description: 'Jupiter, Venus, and Mercury are in Kendra or Trikona houses. This is a powerful yoga for learning and knowledge, blessing the native with high intelligence, creativity, and a love for arts and sciences.'
     },
     ParvataYoga: {
         name: 'Parvata Yoga',
-        description: 'The lord of the Ascendant is in a Kendra or Trikona house and is in its own or exaltation sign, making the native fortunate, wealthy, and charitable.'
+        description: 'The lord of the Ascendant is in a Kendra or Trikona house and is in its own or exaltation sign. This yoga makes the native illustrious, fortunate, wealthy, and a leader in their community.'
     },
     KahalaYoga: {
         name: 'Kahala Yoga',
-        description: 'The lords of the 4th and 9th houses are in mutual Kendras, making the native bold, stubborn, and a leader.'
+        description: 'The lords of the 4th and 9th houses are in mutual Kendras. This yoga makes the native stubborn, but also courageous and a leader. You may lead a small army or a group of people.'
     }
 };
 
 export const YOGA_DEFINITIONS_HI = {
     GajaKesari: {
         name: 'गज केसरी योग',
-        description: 'चंद्रमा से गुरु केंद्र (पहले, चौथे, सातवें या दसवें घर) में है। यह योग जातक को बुद्धि, धन और प्रसिद्धि प्रदान करता है।'
+        description: 'बृहस्पति चंद्रमा से केंद्र (1, 4, 7, या 10 वें घर) में है। यह एक शक्तिशाली योग है जो जातक को तेज बुद्धि, अपार धन और स्थायी प्रसिद्धि का आशीर्वाद देता है। आपको विद्वान लोगों द्वारा सम्मानित किए जाने की संभावना है और आप अपने दुश्मनों पर विजय प्राप्त करेंगे।'
     },
     RajaYoga: {
         name: 'राज योग',
-        description: (kendraLord, trikonaLord) => `केंद्र भाव के स्वामी, ${kendraLord}, त्रिकोण भाव के स्वामी, ${trikonaLord} के साथ युति में हैं। यह संयोजन सफलता, पद और अधिकार को इंगित करता है।`
+        description: (kendraLord, trikonaLord) => `एक केंद्र घर के स्वामी, ${kendraLord} द्वारा त्रिकोण घर के स्वामी, ${trikonaLord} के साथ युति द्वारा गठित सफलता और स्थिति के लिए एक शक्तिशाली संयोजन। यह योग इंगित करता है कि आपके कार्य (केंद्र) और भाग्य (त्रिकोण) सामंजस्यपूर्ण रूप से जुड़े हुए हैं, जो महत्वपूर्ण उपलब्धियों, अधिकार और जीवन में एक उच्च पद का वादा करते हैं।`
     },
     DhanaYoga: {
         name: 'धन योग',
-        description: (dhanaLord, trikonaLord) => `धन भाव के स्वामी, ${dhanaLord}, त्रिकोण भाव के स्वामी, ${trikonaLord} के साथ युति में हैं। यह संयोजन धन और समृद्धि को इंगित करता है।`
+        description: (dhanaLord, trikonaLord) => `धन घर (दूसरे या 11वें) के स्वामी, ${dhanaLord} द्वारा त्रिकोण घर (5वें या 9वें) के स्वामी, ${trikonaLord} के साथ युति द्वारा गठित धन के लिए एक संयोजन। यह योग धन कमाने और जमा करने की एक मजबूत क्षमता को इंगित करता है, खासकर शामिल ग्रहों की अवधि के दौरान।`
     },
     RuchakaYoga: {
         name: 'रुचक योग',
-        description: 'मंगल द्वारा निर्मित, यह योग साहस, शक्ति और शत्रुओं पर विजय प्रदान करता है।'
+        description: 'पंच महापुरुष योगों में से एक, मंगल द्वारा निर्मित। यह एक मजबूत काया, साहस और एक गतिशील व्यक्तित्व प्रदान करता है। आप साहसी होंगे, दुश्मनों पर विजयी होंगे, और सेना, पुलिस या इंजीनियरिंग जैसे क्षेत्रों में एक उच्च पद पर पहुंच सकते हैं।'
     },
     BhadraYoga: {
         name: 'भद्र योग',
-        description: 'बुध द्वारा निर्मित, यह योग बुद्धि, तीक्ष्ण बुद्धि और संचार कौशल प्रदान करता है।'
+        description: 'पंच महापुरुष योगों में से एक, बुध द्वारा निर्मित। यह तेज बुद्धि, उत्कृष्ट संचार कौशल और एक युवा उपस्थिति प्रदान करता है। आपको वाणिज्य, लेखन या शिक्षा से संबंधित क्षेत्रों में विद्वान, मजाकिया और सफल होने की संभावना है।'
     },
     HamsaYoga: {
         name: 'हंस योग',
-        description: 'गुरु द्वारा निर्मित, यह योग ऐसे व्यक्ति को इंगित करता है जो सम्मानित, विद्वान और धर्मी है।'
+        description: 'पंच महापुरुष योगों में से एक, बृहस्पति द्वारा निर्मित। यह एक ऐसे व्यक्ति को इंगित करता है जो धर्मी, सम्मानित और महान ज्ञान रखता है। आपको भाग्यशाली, दीर्घायु और आध्यात्मिक झुकाव होने की संभावना है।'
     },
     MalavyaYoga: {
         name: 'मालव्य योग',
-        description: 'शुक्र द्वारा निर्मित, यह योग विलासिता, कलात्मक प्रतिभा और सुखी वैवाहिक जीवन का आशीर्वाद देता है।'
+        description: 'पंच महापुरुष योगों में से एक, शुक्र द्वारा निर्मित। यह एक आकर्षक व्यक्तित्व, कला और विलासिता के प्रति प्रेम और एक सामंजस्यपूर्ण विवाहित जीवन का आशीर्वाद देता है। आपको जीवन के सभी सुखों का आनंद लेने और रचनात्मक क्षेत्रों में सफल होने की संभावना है।'
     },
     SasaYoga: {
         name: 'शश योग',
-        description: 'शनि द्वारा निर्मित, यह योग अधिकार, नेतृत्व और लंबी आयु प्रदान करता है।'
+        description: 'पंच महापुरुष योगों में से एक, शनि द्वारा निर्मित। यह अधिकार, नेतृत्व की स्थिति और शासन करने की क्षमता देता है। आप थोड़े अकेले हो सकते हैं लेकिन जनता द्वारा सम्मानित होंगे और एक लंबा जीवन जिएंगे।'
     },
     HarshaYoga: {
         name: 'हर्ष योग',
-        description: 'छठे भाव का स्वामी आठवें या बारहवें भाव में है, जो खुशी, स्वास्थ्य और शत्रुओं पर विजय देता है।'
+        description: 'एक विपरीत राज योग जहां 6 वें स्वामी 8 वें या 12 वें घर में है। यह योग अप्रत्याशित स्रोतों से खुशी, अच्छे स्वास्थ्य और दुश्मनों पर जीत का संकेत देता है। आप भाग्यशाली होंगे और एक आरामदायक जीवन व्यतीत करेंगे।'
     },
     SaralaYoga: {
         name: 'सरल योग',
-        description: 'आठवें भाव का स्वामी छठे या बारहवें भाव में है, जो ज्ञान, धन और लंबी आयु देता है।'
+        description: 'एक विपरीत राज योग जहां 8 वें स्वामी 6 वें या 12 वें घर में है। यह योग ज्ञान, कठिनाइयों को दूर करने की क्षमता और एक लंबा जीवन प्रदान करता है। आप अपने दुश्मनों को हराने और धन जमा करने में सक्षम होंगे।'
     },
     VimalaYoga: {
         name: 'विमल योग',
-        description: 'बारहवें भाव का स्वामी छठे या आठवें भाव में है, जो स्वतंत्रता, नेक चरित्र और धन देता है।'
+        description: 'एक विपरीत राज योग जहां 12 वें स्वामी 6 वें या 8 वें घर में है। यह योग आपको स्वतंत्र, गुणी और खुश बनाता है। आप अपने वित्त के प्रबंधन में अच्छे होंगे और धर्मी कार्यों पर पैसा खर्च करेंगे।'
     },
     NeechaBhangaRajaYoga: {
         name: 'नीच भंग राज योग',
-        description: (planet, planetRashi, dispositorPlanet) => `ग्रह ${planet} अपनी नीच राशि (${planetRashi}) में है, लेकिन इसका अधिपति ${dispositorPlanet} लग्न या चंद्रमा से केंद्र में है, जो नीचता को रद्द करता है और राज योग को जन्म देता है।`
+        description: (planet, planetRashi, dispositorPlanet) => `ग्रह ${planet} अपनी नीच राशि (${planetRashi}) में है, लेकिन इसका स्वामी ${dispositorPlanet} लग्न या चंद्रमा से केंद्र में है। यह नीचता को रद्द करता है और एक शक्तिशाली राज योग को जन्म देता है, जो प्रारंभिक संघर्षों के बाद बड़ी सफलता और स्थिति प्रदान कर सकता है।`
     },
     KendrumaYoga: {
         name: 'केंद्रुम योग',
-        description: 'चंद्रमा से दूसरे या बारहवें भाव में कोई ग्रह (सूर्य, राहु और केतु को छोड़कर) नहीं है। यह योग गरीबी, संघर्ष और दूसरों से समर्थन की कमी को इंगित करता है।'
+        description: 'चंद्रमा से दूसरे या बारहवें घर में कोई ग्रह (सूर्य, राहु और केतु को छोड़कर) नहीं है। यह योग अकेलेपन की भावना और दूसरों से समर्थन की कमी का संकेत दे सकता है। हालांकि, यदि अन्य शुभ योग मौजूद हैं, तो इस योग के नकारात्मक प्रभाव कम हो जाते हैं।'
     },
     ChandraMangalaYoga: {
         name: 'चंद्र मंगल योग',
-        description: 'चंद्रमा और मंगल एक ही भाव में हैं। यह योग जातक को धन, साहस और दृढ़ संकल्प का आशीर्वाद देता है।'
+        description: 'चंद्रमा और मंगल एक ही घर में हैं। यह योग, जिसे लक्ष्मी योग के रूप में भी जाना जाता है, जातक को प्रचुर धन, साहस और एक कर्ता-धर्ता रवैये का आशीर्वाद देता है। आप कार्य करने में तेज होंगे और सफल होने के लिए एक मजबूत प्रेरणा रखेंगे।'
     },
     BudhadityaYoga: {
         name: 'बुधादित्य योग',
-        description: 'सूर्य और बुध एक ही भाव में हैं। यह योग जातक को बुद्धि, तीक्ष्ण बुद्धि और अच्छी प्रतिष्ठा का आशीर्वाद देता है।'
+        description: 'सूर्य और बुध एक ही घर में हैं। यह योग जातक को तेज बुद्धि, असाधारण संचार कौशल और एक अच्छी प्रतिष्ठा का आशीर्वाद देता है। आपको विद्वान, कुशल और अपने समुदाय में सम्मानित होने की संभावना है।'
     },
     LakshmiYoga: {
         name: 'लक्ष्मी योग',
-        description: 'नवम भाव का स्वामी और शुक्र मजबूत और अच्छी तरह से स्थित हैं, जो जातक को अपार धन, समृद्धि और सौभाग्य का आशीर्वाद देते हैं।'
+        description: '9वें घर का स्वामी और शुक्र मजबूत और अच्छी तरह से स्थित हैं। यह एक बहुत ही शुभ योग है जो जातक को जीवन भर अपार धन, समृद्धि और सौभाग्य का आशीर्वाद देता है। आप सभी विलासिता का आनंद लेंगे और एक आरामदायक जीवन व्यतीत करेंगे।'
     },
     DharmaKarmaAdhipatiYoga: {
         name: 'धर्म कर्म अधिपति योग',
-        description: 'नवम और दशम भाव के स्वामी युति में हैं, जो धार्मिक कार्यों और व्यावसायिक सफलता के कारण जीवन में वृद्धि को इंगित करता है।'
+        description: '9वें (धर्म) और 10वें (कर्म) घरों के स्वामी युति में हैं। यह एक शक्तिशाली राज योग है जो धर्मी कार्यों और व्यावसायिक सफलता के कारण जीवन में वृद्धि का संकेत देता है। आप अपने करियर में भाग्यशाली और सफल होंगे।'
     },
     AmalaYogaFromAscendant: {
         name: 'अमला योग',
-        description: (planet) => `एक शुभ ग्रह, ${planet}, लग्न से दसवें भाव में है, जो समृद्धि और अच्छी प्रतिष्ठा लाता है।`
+        description: (planet) => `एक शुभ ग्रह, ${planet}, लग्न से 10 वें घर में है। यह योग स्थायी प्रसिद्धि, धन और एक बेदाग प्रतिष्ठा लाता है। आप एक समृद्ध जीवन व्यतीत करेंगे और अपने गुणों के लिए सम्मानित होंगे।`
     },
     AmalaYogaFromMoon: {
         name: 'अमला योग',
-        description: (planet) => `एक शुभ ग्रह, ${planet}, चंद्रमा से दसवें भाव में है, जो समृद्धि और अच्छी प्रतिष्ठा लाता है।`
+        description: (planet) => `एक शुभ ग्रह, ${planet}, चंद्रमा से 10 वें घर में है। यह योग लग्न से बनने वाले योग के समान स्थायी प्रसिद्धि, धन और एक बेदाग प्रतिष्ठा भी लाता है।`
     },
     SaraswatiYoga: {
         name: 'सरस्वती योग',
-        description: 'गुरु, शुक्र और बुध केंद्र या त्रिकोण भाव में हैं, जो जातक को बुद्धि, रचनात्मकता और ज्ञान का आशीर्वाद देते हैं।'
+        description: 'बृहस्पति, शुक्र और बुध केंद्र या त्रिकोण घरों में हैं। यह सीखने और ज्ञान के लिए एक शक्तिशाली योग है, जो जातक को उच्च बुद्धि, रचनात्मकता और कला और विज्ञान के प्रति प्रेम का आशीर्वाद देता है।'
     },
     ParvataYoga: {
         name: 'पर्वत योग',
-        description: 'लग्न का स्वामी केंद्र या त्रिकोण भाव में है और अपनी स्वराशि या उच्च राशि में है, जो जातक को भाग्यशाली, धनी और परोपकारी बनाता है।'
+        description: 'लग्न का स्वामी केंद्र या त्रिकोण घर में है और अपनी स्वराशि या उच्च राशि में है। यह योग जातक को शानदार, भाग्यशाली, धनी और अपने समुदाय में एक नेता बनाता है।'
     },
     KahalaYoga: {
         name: 'कहला योग',
-        description: 'चौथे और नौवें भाव के स्वामी एक-दूसरे के केंद्र में हैं, जो जातक को साहसी, जिद्दी और नेता बनाता है।'
+        description: 'चौथे और नौवें घर के स्वामी आपसी केंद्र में हैं। यह योग जातक को जिद्दी, लेकिन साहसी और एक नेता भी बनाता है। आप एक छोटी सेना या लोगों के समूह का नेतृत्व कर सकते हैं।'
     }
 };
