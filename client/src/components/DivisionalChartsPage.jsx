@@ -29,6 +29,8 @@ const DivisionalChartsPage = () => {
     const [d12ChartData, setD12ChartData] = useState(null); // New
     const [d30ChartData, setD30ChartData] = useState(null); // New
     const [d60ChartData, setD60ChartData] = useState(null); // New
+    const [d10ChartData, setD10ChartData] = useState(null);
+    const [d6ChartData, setD6ChartData] = useState(null);
     const [rotatedResult, setRotatedResult] = useState(null);
     const [isLoadingRotated, setIsLoadingRotated] = useState(false);
 
@@ -41,7 +43,7 @@ const DivisionalChartsPage = () => {
 
         if (!displayResult) {
             setD1ChartData(null); setD2ChartData(null); setD3ChartData(null); setD7ChartData(null);
-            setD9ChartData(null); setD12ChartData(null); setD30ChartData(null); setD60ChartData(null);
+            setD9ChartData(null); setD12ChartData(null); setD30ChartData(null); setD60ChartData(null); setD10ChartData(null); setD6ChartData(null);
             return;
         }
 
@@ -87,6 +89,17 @@ const DivisionalChartsPage = () => {
         const d60Houses = result.d60_houses || result.d60Houses || result.d60?.houses || null;
         const d60Planets = result.d60_planets || result.d60?.planets || result.d60Planets || null;
         setD60ChartData({ houses: d60Houses, planets: d60Planets, planetDetails: {} });
+
+        // D10
+        const d10Houses = result.d10_houses || result.d10Houses || result.d10?.houses || null;
+        const d10Planets = result.d10_planets || result.d10?.planets || result.d10Planets || null;
+        setD10ChartData({ houses: d10Houses, planets: d10Planets, planetDetails: {} });
+
+        // D6
+        const d6Houses = result.d6_houses || result.d6Houses || result.d6?.houses || null;
+        const d6Planets = result.d6_planets || result.d6?.planets || result.d6Planets || null;
+        setD6ChartData({ houses: d6Houses, planets: d6Planets, planetDetails: {} });
+
 
     }, [mainResult, rotatedResult, calculationInputParams, adjustedBirthDateTimeString]);
 
@@ -134,8 +147,10 @@ const DivisionalChartsPage = () => {
         { key: 'd1', label: t('divisionalChartsPage.d1ChartTitle', 'D1 - Lagna Chart') },
         { key: 'd2', label: t('divisionalChartsPage.d2ChartTitle', 'D2 - Hora Chart') },
         { key: 'd3', label: t('divisionalChartsPage.d3ChartTitle', 'D3 - Drekkana Chart') },
+        { key: 'd6', label: t('divisionalChartsPage.d6ChartTitle', 'D6 - Shasthamsa Chart') },
         { key: 'd7', label: t('divisionalChartsPage.d7ChartTitle', 'D7 - Saptamsa Chart') },
         { key: 'd9', label: t('divisionalChartsPage.d9ChartTitle', 'D9 - Navamsa Chart') },
+        { key: 'd10', label: t('divisionalChartsPage.d10ChartTitle', 'D10 - Dasamsa Chart') },        
         { key: 'd12', label: t('divisionalChartsPage.d12ChartTitle', 'D12 - Dwadasamsa Chart') },
         { key: 'd30', label: t('divisionalChartsPage.d30ChartTitle', 'D30 - Trimsamsa Chart') },
         { key: 'd60', label: t('divisionalChartsPage.d60ChartTitle', 'D60 - Shashtiamsa Chart') },
@@ -198,6 +213,24 @@ const DivisionalChartsPage = () => {
         return degrees;
     }, [d9ChartData]);
 
+    const d10PlacidusCuspDegrees = useMemo(() => {
+        if (!d10ChartData?.houses || !Array.isArray(d10ChartData.houses) || d10ChartData.houses.length !== 12) return [];
+        const degrees = d10ChartData.houses.map(h => convertDMSToDegrees(h?.start_dms));
+        if (degrees.some(isNaN)) {
+            return [];
+        }
+        return degrees;
+    }, [d10ChartData]);
+
+    const d6PlacidusCuspDegrees = useMemo(() => {
+        if (!d6ChartData?.houses || !Array.isArray(d6ChartData.houses) || d6ChartData.houses.length !== 12) return [];
+        const degrees = d6ChartData.houses.map(h => convertDMSToDegrees(h?.start_dms));
+        if (degrees.some(isNaN)) {
+            return [];
+        }
+        return degrees;
+    }, [d6ChartData]);
+
     const d12PlacidusCuspDegrees = useMemo(() => {
         if (!d12ChartData?.houses || !Array.isArray(d12ChartData.houses) || d12ChartData.houses.length !== 12) return [];
         const degrees = d12ChartData.houses.map(h => convertDMSToDegrees(h?.start_dms));
@@ -233,7 +266,7 @@ const DivisionalChartsPage = () => {
         return <div className="error-message">{t('divisionalChartsPage.error', 'Error:')} {error}</div>;
     }
 
-    if (!d1ChartData || !d2ChartData || !d3ChartData || !d7ChartData || !d9ChartData || !d12ChartData || !d30ChartData || !d60ChartData) {
+    if (!d1ChartData || !d2ChartData || !d3ChartData || !d7ChartData || !d9ChartData || !d12ChartData || !d30ChartData || !d60ChartData || !d10ChartData || !d6ChartData) {
         return <div className="info-message">{t('divisionalChartsPage.noData', 'No chart data available. Please provide input parameters.')}</div>;
     }
 
@@ -414,6 +447,72 @@ const DivisionalChartsPage = () => {
                                 planetDetails={d9ChartData.planetDetails}
                             />
                         ) : <p>{t('divisionalChartsPage.d9PlanetsUnavailable', 'D9 Planetary Positions Unavailable')}</p>}
+                    </div>
+                </div>
+            </section>
+            )}
+
+            {/* D10 Chart and Details */}
+            {selectedChart === 'd10' && (
+            <section ref={setSectionRef('d10')} tabIndex={-1} className="chart-section d10-chart-section">
+                <h2>{t('divisionalChartsPage.d10ChartTitle', 'D10 - Dasamsa Chart')}</h2>
+                <div className="chart-and-tables-container">
+                    <div className="chart-display">
+                        {d10ChartData.houses && d10ChartData.planets ? (
+                            <DiamondChart
+                                title={t('astrologyForm.chartD10Title', 'Dasamsa Chart')}
+                                houses={d10ChartData.houses}
+                                planets={d10ChartData.planets}
+                                chartType="d10"
+                                size={400}
+                            />
+                        ) : <p>{t('divisionalChartsPage.d10ChartUnavailable', 'D10 Chart Unavailable')}</p>}
+                    </div>
+                    <div className="tables-display">
+                        <h3>{t('divisionalChartsPage.d10HouseDetails', 'D10 House Details')}</h3>
+                        <HouseDetailsTable houses={d10ChartData.houses} />
+
+                        <h3>{t('divisionalChartsPage.d10PlanetDetails', 'D10 Planetary Positions')}</h3>
+                        {d10ChartData.planets && d10PlacidusCuspDegrees.length === 12 ? (
+                             <DetailedPlanetTable
+                                planets={d10ChartData.planets}
+                                houses={d10ChartData.houses}
+                                planetDetails={d10ChartData.planetDetails}
+                            />
+                        ) : <p>{t('divisionalChartsPage.d10PlanetsUnavailable', 'D10 Planetary Positions Unavailable')}</p>}
+                    </div>
+                </div>
+            </section>
+            )}
+
+            {/* D6 Chart and Details */}
+            {selectedChart === 'd6' && (
+            <section ref={setSectionRef('d6')} tabIndex={-1} className="chart-section d6-chart-section">
+                <h2>{t('divisionalChartsPage.d6ChartTitle', 'D6 - Shasthamsa Chart')}</h2>
+                <div className="chart-and-tables-container">
+                    <div className="chart-display">
+                        {d6ChartData.houses && d6ChartData.planets ? (
+                            <DiamondChart
+                                title={t('astrologyForm.chartD6Title', 'Shasthamsa Chart')}
+                                houses={d6ChartData.houses}
+                                planets={d6ChartData.planets}
+                                chartType="d6"
+                                size={400}
+                            />
+                        ) : <p>{t('divisionalChartsPage.d6ChartUnavailable', 'D6 Chart Unavailable')}</p>}
+                    </div>
+                    <div className="tables-display">
+                        <h3>{t('divisionalChartsPage.d6HouseDetails', 'D6 House Details')}</h3>
+                        <HouseDetailsTable houses={d6ChartData.houses} />
+
+                        <h3>{t('divisionalChartsPage.d6PlanetDetails', 'D6 Planetary Positions')}</h3>
+                        {d6ChartData.planets && d6PlacidusCuspDegrees.length === 12 ? (
+                             <DetailedPlanetTable
+                                planets={d6ChartData.planets}
+                                houses={d6ChartData.houses}
+                                planetDetails={d6ChartData.planetDetails}
+                            />
+                        ) : <p>{t('divisionalChartsPage.d6PlanetsUnavailable', 'D6 Planetary Positions Unavailable')}</p>}
                     </div>
                 </div>
             </section>

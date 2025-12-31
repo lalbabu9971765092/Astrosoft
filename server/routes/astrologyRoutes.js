@@ -15,7 +15,7 @@ import {
     convertDMSToDegrees, getNakshatraPadaAlphabet,
     calculateMidpoint, calculateSunMoonTimes, calculateBadhakDetails, calculateLongevityFactors, calculateHouseBasedLongevity,
     calculatePlanetaryPositions, calculateVimshottariBalance, calculateVimshottariDashas,
-    calculateNavamsaLongitude, calculateHoraLongitude, calculateDrekkanaLongitude, calculateSaptamsaLongitude, calculateDwadasamsaLongitude, calculateTrimsamsaLongitude, calculateShashtiamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
+    calculateNavamsaLongitude, calculateHoraLongitude, calculateDrekkanaLongitude, calculateSaptamsaLongitude, calculateDwadasamsaLongitude, calculateTrimsamsaLongitude, calculateShashtiamsaLongitude, calculateDasamsaLongitude, calculateShasthamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
     calculateMoolDosha, calculatePlanetStates, calculateAspects,
     PLANETARY_RELATIONS, FRIENDSHIP_PLANETS_ORDER, calculateTemporalFriendshipForPlanet,
     getResultingFriendship, calculateShadbala, calculateBhinnaAshtakavarga,
@@ -342,6 +342,12 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
 
         // D60 (Shashtiamsa) Calculations
         const { divisional_planets: d60_planets, divisionalHouses: d60_houses, divisional_ascendant_dms: d60_ascendant_dms } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateShashtiamsaLongitude);
+
+        // D10 (Dasamsa) Calculations
+        const { divisional_planets: d10_planets, divisionalHouses: d10_houses, divisional_ascendant_dms: d10_ascendant_dms } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateDasamsaLongitude);
+
+        // D6 (Shasthamsa) Calculations
+        const { divisional_planets: d6_planets, divisionalHouses: d6_houses, divisional_ascendant_dms: d6_ascendant_dms } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateShasthamsaLongitude);
         
         const mangalDoshaResult = calculateMangalDosha(siderealPositions, siderealCuspStartDegrees, siderealAscendantDeg);
 
@@ -380,7 +386,9 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             D9: d9_planets,
             D12: d12_planets,
             D30: d30_planets,
-            D60: d60_planets
+            D60: d60_planets,
+            D10: d10_planets,
+            D6: d6_planets
         };
         const shadbalaData = calculateShadbala(siderealPositions, housesData, directAspects, sunMoonTimes, utcDate, divisionalPositions);
 
@@ -481,6 +489,12 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
             d60_planets: d60_planets,
             d60_ascendant_dms: d60_ascendant_dms,
             d60_houses: d60_houses,
+            d10_planets: d10_planets,
+            d10_ascendant_dms: d10_ascendant_dms,
+            d10_houses: d10_houses,
+            d6_planets: d6_planets,
+            d6_ascendant_dms: d6_ascendant_dms,
+            d6_houses: d6_houses,
             panchang: detailedPanchang, // Includes Masa, Samvat etc. from calculatePanchang
             doshas: {
                 mangal: mangalDoshaResult,

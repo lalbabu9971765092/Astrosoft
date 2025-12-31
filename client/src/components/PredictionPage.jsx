@@ -248,44 +248,34 @@ const PredictionPage = () => {
                                 {effectiveHolistic.planetDetails.kpSignificators.cusps && Object.keys(effectiveHolistic.planetDetails.kpSignificators.cusps).length > 0 && (
                                     <div className="kp-cusp-significators">
                                         <h4>{t('predictionPage.cuspSignificators', 'Cusp Significators')}</h4>
-                                        <table className="kp-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>{t('predictionPage.cusp', 'Cusp')}</th>
-                                                    <th>{t('predictionPage.significators', 'Significators')}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {Object.entries(effectiveHolistic.planetDetails.kpSignificators.cusps).map(([cusp, significators]) => (
-                                                    <tr key={cusp}>
-                                                        <td>{cusp}</td>
-                                                        <td>{significators.map(s => t(`planets.${s}`)).join(', ')}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                        <div className="kp-grid">
+                                            {Object.entries(effectiveHolistic.planetDetails.kpSignificators.cusps).map(([cusp, significators]) => (
+                                                <div key={cusp} className="kp-card">
+                                                    <div className="kp-card-title">{t('predictionPage.cusp', 'Cusp')} {cusp}</div>
+                                                    <div className="kp-card-content">
+                                                        <strong>{t('predictionPage.significators', 'Significators')}:</strong>
+                                                        <p>{significators.map(s => t(`planets.${s}`)).join(', ')}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
 
                                 {effectiveHolistic.planetDetails.kpSignificators.planets && Object.keys(effectiveHolistic.planetDetails.kpSignificators.planets).length > 0 && (
                                     <div className="kp-planet-significators">
                                         <h4>{t('predictionPage.planetSignificators', 'Planet Significators')}</h4>
-                                        <table className="kp-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>{t('predictionPage.planet', 'Planet')}</th>
-                                                    <th>{t('predictionPage.signifiesHouses', 'Signifies Houses')}</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {Object.entries(effectiveHolistic.planetDetails.kpSignificators.planets).map(([planet, houses]) => (
-                                                    <tr key={planet}>
-                                                        <td>{t(`planets.${planet}`)}</td>
-                                                        <td>{houses.join(', ')}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                        <div className="kp-grid">
+                                            {Object.entries(effectiveHolistic.planetDetails.kpSignificators.planets).map(([planet, houses]) => (
+                                                <div key={planet} className="kp-card">
+                                                    <div className="kp-card-title">{t(`planets.${planet}`)}</div>
+                                                    <div className="kp-card-content">
+                                                        <strong>{t('predictionPage.signifiesHouses', 'Signifies Houses')}:</strong>
+                                                        <p>{houses.join(', ')}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
 
@@ -316,7 +306,7 @@ const PredictionPage = () => {
                             <div className="prediction-content">
                                 {Object.entries(effectiveHolistic.lifeAreaReports).map(([area, report]) => (
                                     <div key={area} className="life-area-report">
-                                        <h4>{t(`lifeAreas.${area}`, area)}</h4>
+                                        <h4><span className="life-area-icon">🏠</span>{t(`lifeAreas.${area}`, area)}</h4>
                                         <p>{report.narrative}</p>
                                     </div>
                                 ))}

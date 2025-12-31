@@ -212,7 +212,7 @@ const planetInHouse_en = {
         "Ketu in the 9th house indicates a questioning of traditional beliefs and a search for a more direct, intuitive spiritual truth. It shows past life mastery of philosophy.",
         "Ketu in the 10th house creates a career path that is unconventional, spiritual, or involves research. You are detached from the ambitions of status and fame.",
         "Ketu in the 11th house gives a detached view of social networks and material gains. Your friendships may be few or unusual, and your goals are often not materialistic.",
-        "Ketu in the 12th house is the significator for liberation (Moksha) and is extremely powerful here. It grants profound intuitive insight, meditative ability, and spiritual detachment."
+        "Ketu in the 12th house directs its obsessive energy towards spirituality, foreign lands, or hidden affairs. It can give powerful intuitive insights or lead to secret dealings and expenses."
     ]
 };
 
@@ -331,7 +331,7 @@ const planetInHouse_hi = {
     ],
     Ketu: [
         "पहले घर में केतु एक अलग, आत्मनिरीक्षण और आध्यात्मिक रूप से इच्छुक व्यक्तित्व बनाता है। आप जड़हीनता की भावना महसूस कर सकते हैं या अपनी पहचान पर सवाल उठा सकते हैं, जिससे आध्यात्मिक खोज हो सकती है।",
-        "दूसरे घर में केतु धन और परिवार के प्रति एक अलग रवैया बना सकता है। यह वित्तीय अनिश्चितता या भौतिक संचय पर ध्यान केंद्रित करने की कमी का कारण बन सकता है।",
+        "दूसरे घर में केतु धन और परिवार के प्रति एक अलग रवैया बना सकता है। यह वित्तीय अनिश्चितता या फोकस की कमी का कारण बन सकता है।",
         "तीसरे घर में केतु एक सहज और गैर-रेखीय संचार शैली लाता है। आपको पारंपरिक मीडिया में कोई दिलचस्पी नहीं हो सकती है, लेकिन आपके पास शक्तिशाली मानसिक या प्रतीकात्मक अंतर्दृष्टि हो सकती है।",
         "चौथे घर में केतु आपके घर और जड़ों के बारे में एक अलग या अस्थिर भावना का संकेत दे सकता है। यह एक भौतिक घर के बजाय एक आध्यात्मिक 'घर' की खोज को बढ़ावा देता है।",
         "पांचवें घर में केतु रोमांस, रचनात्मकता और बच्चों का एक अलग और महत्वपूर्ण दृष्टिकोण बनाता है। आपके पास अत्यधिक सहज बुद्धि हो सकती है लेकिन पारंपरिक रचनात्मक अभिव्यक्ति के साथ संघर्ष कर सकते हैं।",
@@ -477,14 +477,14 @@ export const nakshatraTraitsLong_hi = {
     Swati: "स्वाति स्वतंत्रता, अनुकूलनशीलता, आत्म-खोज और विचार और गति में स्वतंत्रता देती है।",
     Vishakha: "विशाखा दृढ़ संकल्प, महत्वाकांक्षा, लक्ष्य-उन्मुखता और उपलब्धि के लिए गहरी भूख प्रदान करती है।",
     Anuradha: "अनुराधा भक्ति, मित्रता, वफादारी, अनुशासन और सहयोग देती है।",
-    Jyeshtha: "ज्येष्ठा अधिकार, वरिष्ठता, सुरक्षा और तेज बुद्धि प्रदान करती है।",
+    Jyeshtha: "ज्येष्ठा अधिकार, वरिष्ठता, संरक्षण और तेज बुद्धि प्रदान करती है।",
     Mula: "मूल गहरा सत्य की खोज, तीव्रता, दार्शनिक गहराई और परिवर्तनकारी ऊर्जा।",
     "Purva Ashadha": "पूर्वाषाढ़ा विजय, आत्मविश्वास, प्रेरक क्षमता और आदर्शवादी प्रेरणा देता है।",
     "Uttara Ashadha": "उत्तराषाढ़ा कुलीनता, अनुशासन, नेतृत्व क्षमता और दीर्घकालिक सफलता देता है। आप अपने सिद्धांतों के प्रति प्रतिबद्ध हैं और धैर्यवान, निरंतर प्रयास के माध्यम से स्थायी जीत हासिल कर सकते हैं।",
     Shravana: "श्रवण सीखने की क्षमता, सुनने का कौशल, ज्ञान और सामाजिक सम्मान देता है।",
     Dhanishta: "धनिष्ठा लय, धन की संभावना, उदारता और समूहों में नेतृत्व प्रदान करता है।",
     Shatabhisha: "शतभिषा उपचार क्षमता, गोपनीयता, अनुसंधान कौशल और रहस्यमय अंतर्दृष्टि देता है।",
-    "Purva Bhadrapada": "पूर्वाभाद्रपद तीव्रता, आध्यात्मिक आदर्शवाद, परिवर्तनकारी सोच और दृढ़ संकल्प देता है।",
+    "Purva Bhadrapada": "पूर्व भाद्रपद तीव्रता, आध्यात्मिक आदर्शवाद, परिवर्तनकारी सोच और दृढ़ संकल्प देता है।",
     "Uttara Bhadrapada": "उत्तराभाद्रपद शांति, धैर्य, आंतरिक ज्ञान और स्थिर भावनात्मक परिपक्वता देता है।",
     Revati: "रेवती करुणा, कोमलता, रचनात्मकता, सुरक्षा और आध्यात्मिक परिष्कार प्रदान करती है।" ,
     Unknown: "अज्ञात" // Added Unknown Nakshatra
@@ -545,6 +545,97 @@ function getLagnaLordInterpretation(lord, house, lang = 'en') {
     // English default
     return `As your ascendant is guided by the ${natures[lord] || ''} ${lord}, its placement in the ${house}th house directs your core life energy towards themes of ${themes[house] || ''}.`;
 }
+
+// New function for UPBS breakdown interpretation
+export function getPlanetUPBSBreakdownDescription(planetName, breakdown, lang = 'en') {
+    let description = '';
+    const translatedPlanet = getPlanetName(planetName, lang);
+    const positiveFactors = [];
+    const negativeFactors = [];
+
+    const appendFactor = (factor, score, positivePhrase, negativePhrase) => {
+        if (score > 0) {
+            positiveFactors.push(positivePhrase(score));
+        } else if (score < 0) {
+            negativeFactors.push(negativePhrase(score));
+        }
+    };
+
+    // NBS
+    appendFactor('NBS', breakdown.NBS, 
+        (s) => lang === 'hi' ? `इसकी प्राकृतिक शुभता (${s})` : `its natural beneficence (${s})`,
+        (s) => lang === 'hi' ? `इसकी प्राकृतिक अशुभता (${s})` : `its natural maleficence (${s})`
+    );
+
+    // FBS
+    appendFactor('FBS', breakdown.FBS,
+        (s) => lang === 'hi' ? `आपके चार्ट में भाव स्वामित्व की शुभ प्रकृति (${s})` : `the benefic nature of its house lordship (${s}) in your chart`,
+        (s) => lang === 'hi' ? `आपके चार्ट में भाव स्वामित्व की अशुभ प्रकृति (${s})` : `the malefic nature of its house lordship (${s}) in your chart`
+    );
+
+    // PDS
+    appendFactor('PDS', breakdown.PDS,
+        (s) => lang === 'hi' ? `इसकी मजबूत गरिमा या उच्च स्थिति (${s})` : `its strong dignity or exalted status (${s})`,
+        (s) => lang === 'hi' ? `इसकी कमजोर गरिमा या नीच स्थिति (${s})` : `its weak dignity or debilitated status (${s})`
+    );
+
+    // SS
+    appendFactor('SS', breakdown.SS,
+        (s) => lang === 'hi' ? `इसकी समग्र शक्ति (शद्बल, अवस्था, नवमांश आदि) (${s})` : `its overall strength (Shadbala, Avasthas, Navamsa etc.) (${s})`,
+        (s) => lang === 'hi' ? `इसकी समग्र कमजोरी (शद्बल, अवस्था, नवमांश आदि) (${s})` : `its overall weakness (Shadbala, Avasthas, Navamsa etc.) (${s})`
+    );
+
+    // CRS
+    appendFactor('CRS', breakdown.CRS,
+        (s) => lang === 'hi' ? `वक्रत्व (retrograde) का सकारात्मक प्रभाव (${s})` : `the positive effect of its retrograde motion (${s})`,
+        (s) => lang === 'hi' ? `अस्तंगत (combust) होने या वक्रत्व का नकारात्मक प्रभाव (${s})` : `the negative impact of combustion or retrograde motion (${s})`
+    );
+
+    // HPS
+    appendFactor('HPS', breakdown.HPS,
+        (s) => lang === 'hi' ? `इसके शुभ भाव में स्थान (${s})` : `its placement in an auspicious house (${s})`,
+        (s) => lang === 'hi' ? `इसके अशुभ भाव में स्थान (${s})` : `its placement in an inauspicious house (${s})`
+    );
+
+    // ARS
+    appendFactor('ARS', breakdown.ARS,
+        (s) => lang === 'hi' ? `इस पर शुभ ग्रहों के पहलू (${s})` : `the beneficial aspects it receives (${s})`,
+        (s) => lang === 'hi' ? `इस पर अशुभ ग्रहों के पहलू (${s})` : `the challenging aspects it receives (${s})`
+    );
+
+    // NLM
+    appendFactor('NLM', breakdown.NLM,
+        (s) => lang === 'hi' ? `इसके नक्षत्र स्वामी की शुभ प्रकृति (${s})` : `the benefic nature of its Nakshatra Lord (${s})`,
+        (s) => lang === 'hi' ? `इसके नक्षत्र स्वामी की अशुभ प्रकृति (${s})` : `the malefic nature of its Nakshatra Lord (${s})`
+    );
+
+    // ASC
+    appendFactor('ASC', breakdown.ASC,
+        (s) => lang === 'hi' ? `शुभ ग्रहों के साथ इसका संबंध (${s})` : `its association with benefic planets (${s})`,
+        (s) => lang === 'hi' ? `अशुभ ग्रहों के साथ इसका संबंध (${s})` : `its association with malefic planets (${s})`
+    );
+
+    if (positiveFactors.length > 0 && negativeFactors.length === 0) {
+        description = lang === 'hi'
+            ? `${translatedPlanet} मुख्य रूप से ${positiveFactors.join(', ')} के कारण अत्यंत शुभ है।`
+            : `${translatedPlanet} is predominantly benefic, primarily due to ${positiveFactors.join(', ')}.`;
+    } else if (negativeFactors.length > 0 && positiveFactors.length === 0) {
+        description = lang === 'hi'
+            ? `${translatedPlanet} मुख्य रूप से ${negativeFactors.join(', ')} के कारण पीड़ित है।`
+            : `${translatedPlanet} is significantly afflicted, mainly due to ${negativeFactors.join(', ')}.`;
+    } else if (positiveFactors.length > 0 && negativeFactors.length > 0) {
+        description = lang === 'hi'
+            ? `${translatedPlanet} की शक्ति ${positiveFactors.join(', ')} के सकारात्मक प्रभावों और ${negativeFactors.join(', ')} के चुनौतीपूर्ण प्रभावों का मिश्रण है।`
+            : `${translatedPlanet}'s strength is a mix of positive influences from ${positiveFactors.join(', ')} and challenging effects from ${negativeFactors.join(', ')}.`;
+    } else {
+        description = lang === 'hi'
+            ? `${translatedPlanet} की शक्ति पर औसत प्रभाव है।`
+            : `${translatedPlanet}'s strength has an average influence.`;
+    }
+
+    return description.trim();
+}
+
 
 // ---------------------------------------------------------
 //  FULL COMBINED PREDICTION GENERATOR (Lagna, Rashi, Nakshatra)
@@ -644,7 +735,7 @@ export function getCombinedPredictionLong(lagna, rashi, nakshatra, additionalDat
     if (lagnaLord && lagnaLordNatalHouse && cuspDegrees.length > 0) {
         const houseTheme = (lang === 'hi' ? houseThemes_hi : houseThemes_en)[lagnaLordNatalHouse];
         if (lang === 'hi') {
-            lagnaText += ` यह मुख्य पहचान ${lagnaLordNatalHouse}वें घर में अपनी प्राथमिक अभिव्यक्ति पाती है, जो आपके जीवन के पथ को ${houseTheme} के मामलों की ओर ले जाती है।`;
+            lagnaText += ` यह मुख्य पहचान ${lagnaLordNatalHouse}वें घर में अपनी प्राथमिक अभिव्यक्ति पाती है, जो आपके जीवन के पथ को ${houseTheme} के विषयों की ओर ले जाती है।`;
         } else {
             lagnaText += ` This core identity finds its primary expression in the ${getOrdinal(lagnaLordNatalHouse)} house, channeling your life's path toward matters of ${houseTheme}.`;
         }
@@ -695,8 +786,8 @@ ${p.emotionallyAndMentally} ${lang === 'hi' ? rashiNames_hi[rashi] : rashi} ${p.
 ${p.atADeeperKarmic} ${displayedNakshatra} ${p.infusesYourInstincts} ${nakshatraText}
 `;
 
-    if (lagnaLord && lagnaLordNatalHouse && planetaryPowers?.[lagnaLord] !== undefined) {
-        const lagnaLordScore = planetaryPowers[lagnaLord];
+    if (lagnaLord && lagnaLordNatalHouse && planetaryPowers?.[lagnaLord]?.total !== undefined) {
+        const lagnaLordScore = planetaryPowers[lagnaLord].total;
         const interpretation = getLagnaLordInterpretation(lagnaLord, lagnaLordNatalHouse, lang);
         const strengthDescription = getUPBSDescription(lagnaLordScore, lang); // Use new UPBS description
         const translatedLagnaLord = lang === 'hi' ? planetNames_hi[lagnaLord] : lagnaLord;
@@ -711,8 +802,8 @@ Your Lagna Lord, ${translatedLagnaLord}, is a key planet for your life path. ${i
         }
     }
 
-    if (atmakaraka && planetaryPowers?.[atmakaraka] !== undefined) {
-        const atmakarakaScore = planetaryPowers[atmakaraka];
+    if (atmakaraka && planetaryPowers?.[atmakaraka]?.total !== undefined) {
+        const atmakarakaScore = planetaryPowers[atmakaraka].total;
         const atmakarakaTranslated = lang === 'hi' ? planetNames_hi[atmakaraka] : atmakaraka;
         const strengthDescription = getUPBSDescription(atmakarakaScore, lang); // Use new UPBS description
         if (lang === 'hi') {
@@ -754,14 +845,21 @@ ${placementsIntro}`;
                          if (padaMeaning) {
                             result += ` ${lang === 'hi' ? `इस पद का अर्थ है: ${padaMeaning}` : `This pada signifies: ${padaMeaning}`}`;
                          }
-                         // Add UPBS description if available
-                         if (planetaryPowers?.[planet] !== undefined && ['Rahu', 'Ketu'].indexOf(planet) === -1) {
-                            const score = planetaryPowers[planet];
+                         // Add UPBS total description
+                         if (planetaryPowers?.[planet]?.total !== undefined && ['Rahu', 'Ketu'].indexOf(planet) === -1) {
+                            const score = planetaryPowers[planet].total;
                             const upbsText = getUPBSDescription(score, lang);
                             if(lang === 'hi') {
                                 result += ` आपके चार्ट में इसकी समग्र स्थिति (${score.toFixed(2)}) है, और यह ${upbsText}`
                             } else {
                                 result += ` Its overall condition in your chart is ${score.toFixed(2)}, and it ${upbsText}`;
+                            }
+                         }
+                         // Add UPBS breakdown description
+                         if (planetaryPowers?.[planet]?.breakdown) {
+                            const breakdownDescription = getPlanetUPBSBreakdownDescription(planet, planetaryPowers[planet].breakdown, lang);
+                            if (breakdownDescription) {
+                                result += lang === 'hi' ? ` ${breakdownDescription}` : ` ${breakdownDescription}`;
                             }
                          }
                     }
@@ -787,8 +885,8 @@ ${lordshipIntro}`;
                         
                         // Get lord's strength description
                         let strengthText = '';
-                        if(planetaryPowers?.[lord] !== undefined) {
-                            const score = planetaryPowers[lord];
+                        if(planetaryPowers?.[lord]?.total !== undefined) {
+                            const score = planetaryPowers[lord].total;
                             strengthText = lang === 'hi' ? ` इस स्वामी की शक्ति (${score.toFixed(2)}) इंगित करती है कि यह ${getUPBSDescription(score, lang)}` : ` The strength of this lord (${score.toFixed(2)}) indicates that it ${getUPBSDescription(score, lang)}`;
                         }
 
@@ -925,7 +1023,7 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
         parts.push(summary);
     
         return parts.join(' ');
-    }    
+    }
     function generateVarshphalSummary(yearLordTheme, munthaTheme, ascendantTheme, strongestPlanet, lang) {
         const P_VARS = {
             en: {
@@ -1121,15 +1219,15 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             Rahu: {
                 Exalted: "उच्च का राहु अपार सांसारिक सफलता और महान महत्वाकांक्षा प्राप्त करने की क्षमता दे सकता है। अपरंपरागत रास्ते प्रमुखता की ओर ले जाते हैं।",
                 'Own Sign': "स्वराशि में राहु नवाचार और अपरंपरागत सफलता के लिए एक मजबूत प्रेरणा प्रदान करता है। आप प्रभावी ढंग से नई जमीन तोड़ते हैं।",
-                Friend: "मित्र राशि में राहु का अर्थ है कि महत्वाकांक्षाओं को सहायक वातावरण मिलता है, और इच्छाएं आसानी से प्रकट होती हैं।",
+                Friend: "राहु, अच्छी तरह से निपटारा, महत्वाकांक्षाओं को सहायक वातावरण मिलते हैं, और इच्छाएं आसानी से प्रकट होती हैं।",
                 Neutral: "सम राशि में राहु उस घर के परिणामों को बढ़ाता है जिसमें वह है। इसका प्रभाव अप्रत्याशित लेकिन मजबूत है।",
-                Enemy: "शत्रु राशि में राहु अतृप्त इच्छाएं और असंतोष पैदा कर सकता है, जिससे खाली भौतिकवादी खोज होती है।",
+                Enemy: "राहु, प्रतिकूल रूप से रखा गया, अतृप्त इच्छाएं और असंतोष पैदा कर सकता है, जिससे खाली भौतिकवादी खोज होती है।",
                 Debilitated: "नीच का राहु भ्रम, धोखे और अधूरी इच्छाओं को जन्म दे सकता है। दिशा की भावना की आवश्यकता है।",
             },
             Ketu: {
                 Exalted: "उच्च का केतु गहन आध्यात्मिक अंतर्दृष्टि और सांसारिक मामलों से वैराग्य प्रदान कर सकता है। अंतर्ज्ञान बढ़ जाता है।",
                 'Own Sign': "स्वराशि में केतु एक मजबूत सहज क्षमता और आध्यात्मिक मुक्ति की ओर एक मार्ग का संकेत देता है। आपका आंतरिक मार्गदर्शन मजबूत है।",
-                Friend: "मित्र राशि में केतु का अर्थ है कि आध्यात्मिक यात्रा समर्थित है, और वैराग्य शांति लाता है।",
+                Friend: "केतु, अच्छी तरह से निपटारा, आध्यात्मिक यात्रा समर्थित है, और वैराग्य शांति लाता है।",
                 Neutral: "सम राशि में केतु उस घर में वैराग्य की भावना लाता है जिसमें वह रहता है। आपका ध्यान अधिक आंतरिक है।",
                 Enemy: "शत्रु राशि में केतु भ्रम, हानि या अप्रत्याशित बाधाएं पैदा कर सकता है, जिससे जाने देना चुनौतीपूर्ण हो जाता है।",
                 Debilitated: "नीच का केतु दिशा की कमी और लाचारी की भावनाओं का संकेत दे सकता है। आध्यात्मिक मार्ग अस्पष्ट हो सकता।",

@@ -122,6 +122,40 @@ export function calculateNavamsaLongitude(siderealLongitude) {
     return normalizeAngle(navamsaLongitude);
 }
 
+/**
+ * Calculates the Dasamsa (D10) longitude for a given sidereal longitude.
+ * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * @returns {number} The Dasamsa longitude in decimal degrees [0, 360), or NaN if invalid input.
+ */
+export function calculateDasamsaLongitude(siderealLongitude) {
+    const normalizedLng = normalizeAngle(siderealLongitude);
+    if (isNaN(normalizedLng)) {
+        return NaN;
+    }
+
+    const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN);
+    const positionInRashi = normalizedLng % RASHI_SPAN;
+
+    const dasamsaSpan = RASHI_SPAN / 10; // 3 degrees
+    const dasamsaIndexInRashi = Math.floor(positionInRashi / dasamsaSpan);
+
+    let startingSignIndex;
+    if (rashiIndex % 2 === 0) { // Odd signs
+        startingSignIndex = rashiIndex;
+    } else { // Even signs
+        startingSignIndex = (rashiIndex + 8) % 12; // 9th sign from current
+    }
+
+    const dasamsaSignIndex = (startingSignIndex + dasamsaIndexInRashi) % 12;
+
+    const positionInDasamsaSegment = positionInRashi % dasamsaSpan;
+    const positionInDasamsaSign = (positionInDasamsaSegment / dasamsaSpan) * RASHI_SPAN;
+
+    const dasamsaLongitude = (dasamsaSignIndex * RASHI_SPAN) + positionInDasamsaSign;
+
+    return normalizeAngle(dasamsaLongitude);
+}
+
 
 /**
  * Determines the Sub Lord (KP System) for a given sidereal longitude.
@@ -1622,6 +1656,43 @@ export function calculateTrimsamsaLongitude(siderealLongitude) {
     const trimsamsaLongitude = (trimsamsaSignIndex * RASHI_SPAN) + positionInRulingSign;
     return normalizeAngle(trimsamsaLongitude);
 }
+
+/**
+ * Calculates the Shasthamsa (D6) longitude for a given sidereal longitude.
+ * Each rashi is divided into 6 equal parts of 5 degrees each.
+ * For odd signs, counting starts from the sign itself.
+ * For even signs, counting starts from the 5th sign (trine) from it.
+ * @param {number} siderealLongitude - Sidereal longitude in decimal degrees.
+ * @returns {number} The Shasthamsa longitude in decimal degrees [0, 360), or NaN if invalid input.
+ */
+export function calculateShasthamsaLongitude(siderealLongitude) {
+    const normalizedLng = normalizeAngle(siderealLongitude);
+    if (isNaN(normalizedLng)) {
+        return NaN;
+    }
+
+    const rashiIndex = Math.floor(normalizedLng / RASHI_SPAN);
+    const positionInRashi = normalizedLng % RASHI_SPAN;
+
+    const shasthamsaSpan = RASHI_SPAN / 6; // 5 degrees
+
+    let startingSignIndex;
+    if (rashiIndex % 2 === 0) { // Odd signs
+        startingSignIndex = rashiIndex;
+    } else { // Even signs
+        startingSignIndex = (rashiIndex + 4) % 12; // 5th sign from current (trine)
+    }
+
+    const shasthamsaIndexInRashi = Math.floor(positionInRashi / shasthamsaSpan);
+    const shasthamsaSignIndex = (startingSignIndex + shasthamsaIndexInRashi) % 12;
+
+    const positionInShasthamsaSegment = positionInRashi % shasthamsaSpan;
+    const positionInShasthamsaSign = (positionInShasthamsaSegment / shasthamsaSpan) * RASHI_SPAN;
+
+    const shasthamsaLongitude = (shasthamsaSignIndex * RASHI_SPAN) + positionInShasthamsaSign;
+    return normalizeAngle(shasthamsaLongitude);
+}
+
 
 /**
  * Calculates the Shashtiamsa (D60) longitude for a given sidereal longitude.

@@ -9,7 +9,7 @@ import {
     convertDMSToDegrees, getNakshatraPadaAlphabet, getSubLordDetails, getSubSubLordDetails,
     calculateMidpoint, calculateSunMoonTimes, calculateBadhakDetails, calculateLongevityFactors, calculateHouseBasedLongevity,
     calculatePlanetaryPositions, calculateVimshottariBalance, calculateVimshottariDashas,
-    calculateNavamsaLongitude, calculateHoraLongitude, calculateDrekkanaLongitude, calculateSaptamsaLongitude, calculateDwadasamsaLongitude, calculateTrimsamsaLongitude, calculateShashtiamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
+    calculateNavamsaLongitude, calculateHoraLongitude, calculateDrekkanaLongitude, calculateSaptamsaLongitude, calculateDwadasamsaLongitude, calculateTrimsamsaLongitude, calculateShashtiamsaLongitude, calculateDasamsaLongitude, calculateShasthamsaLongitude, calculateMangalDosha, calculateKaalsarpaDosha,
     calculateMoolDosha, calculatePlanetStates, calculateAspects,
     PLANETARY_RELATIONS, FRIENDSHIP_PLANETS_ORDER, calculateTemporalFriendshipForPlanet,
     getResultingFriendship, calculateShadbala, calculateBhinnaAshtakavarga,
@@ -283,12 +283,14 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
 
         const kpSignificators = calculateKpSignificators(siderealPositions, effectiveCuspStartDegrees, houses, { directAspects, reverseAspects });
         // --- Start of Divisional Chart Calculations ---
-        const { divisional_planets: d9_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateNavamsaLongitude);
-        const { divisional_planets: d2_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateHoraLongitude);
-        const { divisional_planets: d3_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateDrekkanaLongitude);
-        const { divisional_planets: d7_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateSaptamsaLongitude);
-        const { divisional_planets: d12_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateDwadasamsaLongitude);
-        const { divisional_planets: d30_planets } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateTrimsamsaLongitude);
+        const { divisional_planets: d9_planets, divisionalHouses: d9_houses } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateNavamsaLongitude);
+        const { divisional_planets: d2_planets, divisionalHouses: d2_houses } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateHoraLongitude);
+        const { divisional_planets: d3_planets, divisionalHouses: d3_houses } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateDrekkanaLongitude);
+        const { divisional_planets: d7_planets, divisionalHouses: d7_houses } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateSaptamsaLongitude);
+        const { divisional_planets: d12_planets, divisionalHouses: d12_houses } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateDwadasamsaLongitude);
+        const { divisional_planets: d30_planets, divisionalHouses: d30_houses } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateTrimsamsaLongitude);
+        const { divisional_planets: d10_planets, divisionalHouses: d10_houses } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateDasamsaLongitude);
+        const { divisional_planets: d6_planets, divisionalHouses: d6_houses } = calculateDivisionalChartData(siderealPositions, ascForDivisional, calculateShasthamsaLongitude);
 
         const divisionalPositions = {
             D1: siderealPositions,
@@ -296,8 +298,10 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             D3: d3_planets,
             D7: d7_planets,
             D9: d9_planets,
+            D10: d10_planets,
             D12: d12_planets,
-            D30: d30_planets
+            D30: d30_planets,
+            D6: d6_planets
         };
         // --- End of Divisional Chart Calculations ---
 
@@ -365,17 +369,26 @@ router.post('/', holisticPredictionValidation, async (req, res) => {
             dashaPeriods: dashaPeriods,
             planetDetails: {
                 states: planetStateData, // from calculatePlanetStates
-                aspects: directAspects,
-                reverseAspects: reverseAspects,
-                naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder }, // Add this
-                temporalFriendship: temporalFriendshipData, // Add this
-                resultingFriendship: resultingFriendshipData, // Add this
-                shadbala: shadbalaData,
+                aspects: { directAspects, reverseAspects }, // Keep aspects here for ARS
+                naturalFriendship: { matrix: naturalFriendshipMatrix, order: friendshipOrder },
+                temporalFriendship: temporalFriendshipData,
+                resultingFriendship: resultingFriendshipData,
                 upbsScores: upbsScores,
                 kpSignificators: kpSignificators,
             },
             yogas: allBirthChartYogas,
             ashtakavarga: ashtakavargaResult,
+            planetHousePlacements: Object.fromEntries(PLANET_ORDER.map(p => [p, getHouseOfPlanet(siderealPositions[p]?.longitude, effectiveCuspStartDegrees)])), // Added
+            shadbala: shadbalaData, // Direct inclusion for UPBS
+            d9_planets: d9_planets, // Direct inclusion for UPBS
+            d2_houses: d2_houses,
+            d3_houses: d3_houses,
+            d7_houses: d7_houses,
+            d9_houses: d9_houses,
+            d10_houses: d10_houses,
+            d12_houses: d12_houses,
+            d30_houses: d30_houses,
+            d6_houses: d6_houses,
         };
 
         logger.info(`HolisticPrediction: ascendant rashi = ${chartDataForPrediction.ascendant.rashi}, sidereal = ${chartDataForPrediction.ascendant.sidereal_dms}`);

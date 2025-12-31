@@ -33,6 +33,7 @@
     appearance: none;
     -webkit-appearance: none;
     border: none;
+    background: linear-gradient(90deg,#6BCB77,#4D96FF);
     color: #fff;
     padding: 10px 18px;
     min-width: 120px;
@@ -52,16 +53,6 @@
 }
 
 .nav-chart-button:focus { outline: none; }
-
-/* Colorful gradients per button */
-.divisional-chart-nav .nav-chart-button:nth-child(1) { background: linear-gradient(90deg,#FF6B6B,#FFD93D); color:#111; }
-.divisional-chart-nav .nav-chart-button:nth-child(2) { background: linear-gradient(90deg,#6BCB77,#4D96FF); }
-.divisional-chart-nav .nav-chart-button:nth-child(3) { background: linear-gradient(90deg,#8E44AD,#3498DB); }
-.divisional-chart-nav .nav-chart-button:nth-child(4) { background: linear-gradient(90deg,#F39C12,#D35400); }
-.divisional-chart-nav .nav-chart-button:nth-child(5) { background: linear-gradient(90deg,#16A085,#1ABC9C); }
-.divisional-chart-nav .nav-chart-button:nth-child(6) { background: linear-gradient(90deg,#E74C3C,#C0392B); }
-.divisional-chart-nav .nav-chart-button:nth-child(7) { background: linear-gradient(90deg,#3498DB,#2E86C1); }
-.divisional-chart-nav .nav-chart-button:nth-child(8) { background: linear-gradient(90deg,#9B59B6,#E67E22); }
 
 /* Active state — brighter and larger shadow */
 .nav-chart-button.active {
