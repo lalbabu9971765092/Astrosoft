@@ -20,6 +20,7 @@ import generalRoutes from './routes/generalRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import predictionRoutes from './routes/predictionRoutes.js'; // Import predictionRoutes
 import holisticPredictionRoutes from './routes/holisticPredictionRoutes.js';
+import analysisRoutes from './routes/analysisRoutes.js';
 const app = express();
 
 // --- ES Module __dirname and __filename equivalents ---
@@ -114,6 +115,7 @@ app.use('/api/general', generalRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/predictions', predictionRoutes); // Mount predictionRoutes
 app.use('/api/predictions/holistic', holisticPredictionRoutes);
+app.use('/api/analysis', analysisRoutes);
 app.set('trust proxy', 1);
 // --- Basic Root Route (Optional Health Check) ---
 app.get('/', (req, res) => {

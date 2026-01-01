@@ -6,6 +6,7 @@ import api from './api';
 import DiamondChart from './DiamondChart'; // Import DiamondChart
 import ZodiacCircleChart from './ZodiacCircleChart';
 import DetailedPlanetTable from './DetailedPlanetTable';
+import TransitSearchBlock from './TransitSearchBlock';
 import {
     validateAndFormatDateTime,
     PLANET_ORDER,
@@ -341,6 +342,10 @@ const GocharPage = () => {
                 </div>
                 {openSections.detailedPlanetTable && transitResult && transitResult.planetaryPositions && transitResult.houses && transitResult.planetDetails && <DetailedPlanetTable planets={transitResult.planetaryPositions.sidereal} houses={transitResult.houses} planetDetails={transitResult.planetDetails} />}
             </div>
+
+            <section className="transit-search-section">
+                <TransitSearchBlock natalData={displayNatalResult} />
+            </section>
         </div>
     );
 };
