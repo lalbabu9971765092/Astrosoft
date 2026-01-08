@@ -399,23 +399,42 @@ const FestivalsPage = () => {
     // Specific formatter for Sankranti moment which might be approx or already formatted
     const formatSankrantiMoment = useCallback((momentString) => {
         if (!momentString) return t('festivalsPage.notAvailable');
-        // If the string already contains indicators like Approx, IST, UTC, or time components, return as is.
-        if (/\b(Approx|IST|UTC)\b|\d{1,2}:\d{2}/i.test(momentString)) {
-             // Use translation for the suffix if it exists
-             if (momentString.includes('(Approx. Ingress Date)')) {
-                 return momentString.replace('(Approx. Ingress Date)', t('festivalsPage.sankrantiApproxSuffix'));
-             }
-             return momentString; // Assume pre-formatted or special case
+
+        // Attempt to parse as a full ISO datetime string
+        try {
+            const date = new Date(momentString);
+            // Check if it's a valid date AND contains a time component (indicated by 'T' or time regex)
+            // This is a heuristic, better to rely on ISO format from backend
+            if (!isNaN(date.getTime()) && (momentString.includes('T') || /\d{1,2}:\d{2}/.test(momentString))) {
+                // If it's a valid datetime string, return just the time (date is in 'Date' column)
+                return formatDateTimeForDisplay(momentString);
+            }
+        } catch (e) {
+            // Continue to fallback if parsing as datetime fails
         }
-        // Otherwise, assume it's a date/time string needing formatting (likely approx date)
-        const formattedDateTime = formatDateTimeForDisplay(momentString);
-        if (formattedDateTime !== t('festivalsPage.invalidTime') && formattedDateTime !== t('festivalsPage.notAvailable')) {
-            // Append translated approx suffix if it was just a date formatted as time
-             return `${formattedDateTime} ${t('festivalsPage.sankrantiApproxSuffix')}`;
+        
+        // Fallback: If it's not a full datetime, assume it's an approximate date string or similar.
+        // Format it as a date, then add an approximate suffix.
+        let formattedApproxDate = formatDateForDisplay(momentString);
+        // If the backend sends something like "YYYY-MM-DD" and we formatted it as "Month Day, Year (DayOfWeek)"
+        // and it's not already marked approximate, add the suffix.
+        if (formattedApproxDate !== t('festivalsPage.notAvailable') && 
+            !momentString.includes('(Approx') && !momentString.includes('(approx')) { // Avoid double-suffix
+             return `${formattedApproxDate} ${t('festivalsPage.sankrantiApproxSuffix')}`;
         }
-        // Fallback if formatting failed
-        return t('festivalsPage.notAvailable');
-    }, [formatDateTimeForDisplay, t]); // Add t dependency
+
+        // If it was already approximate (e.g., "2026-01-14 (Approx Entry Date)"), just replace suffix for translation
+        if (momentString.includes('(Approx Entry Date)')) {
+            return momentString.replace('(Approx Entry Date)', t('festivalsPage.sankrantiApproxSuffix'));
+        }
+        if (momentString.includes('(Approx. Ingress Date)')) {
+            return momentString.replace('(Approx. Ingress Date)', t('festivalsPage.sankrantiApproxSuffix'));
+        }
+
+        // Final fallback: return the original string if nothing else applies
+        return momentString || t('festivalsPage.notAvailable');
+
+    }, [formatDateTimeForDisplay, formatDateForDisplay, t]);
 
     // --- Memoized Heading for Tithi Finder Results ---
     const tithiResultsHeading = useMemo(() => {

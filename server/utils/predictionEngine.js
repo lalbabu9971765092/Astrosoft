@@ -108,7 +108,7 @@ function getCurrentAntar(chartData) {
 /* ======================================================
    Transits
 ====================================================== */
-async function analyzeTransits(chartData, lang = 'en') {
+async function analyzeTransits(chartData, planetaryPowers, lang = 'en') {
   const jd = getJulianDateUT(chartData.inputParameters.utcDate, chartData.inputParameters.latitude, chartData.inputParameters.longitude);
   const transits = await calculatePlanetaryPositions(jd.julianDayUT);
   const natalPositions = chartData.planetaryPositions.sidereal;
@@ -117,20 +117,60 @@ async function analyzeTransits(chartData, lang = 'en') {
   const transitEvents = [];
   const slowMovingPlanets = ['Saturn', 'Jupiter', 'Rahu', 'Ketu'];
 
+  // Sade Sati Check (Saturn transiting 12th, 1st, or 2nd from natal Moon)
+  const natalMoonRashi = natalPositions.Moon?.rashi_number; // Assuming rashi_number is 1-12
+  const transitingSaturnRashi = transits.sidereal.Saturn?.rashi_number;
+
+  if (natalMoonRashi && transitingSaturnRashi) {
+      const relativeRashi = (transitingSaturnRashi - natalMoonRashi + 12) % 12;
+      if (relativeRashi === 11 || relativeRashi === 0 || relativeRashi === 1) { // 12th, 1st, 2nd from Moon
+          let sadeSatiPhase = '';
+          if (relativeRashi === 11) sadeSatiPhase = (lang === 'hi' ? 'पहला चरण (साढ़े साती)' : 'First Phase (Sade Sati)');
+          else if (relativeRashi === 0) sadeSatiPhase = (lang === 'hi' ? 'दूसरा चरण (साढ़े साती)' : 'Second Phase (Sade Sati)');
+          else if (relativeRashi === 1) sadeSatiPhase = (lang === 'hi' ? 'तीसरा चरण (साढ़े साती)' : 'Third Phase (Sade Sati)');
+
+          const sadeSatiNarration = lang === 'hi'
+              ? `आप वर्तमान में शनि की साढ़े साती के ${sadeSatiPhase} से गुजर रहे हैं। यह अवधि गहन आत्मनिरीक्षण, चुनौतियों और महत्वपूर्ण जीवन परिवर्तनों को ला सकती है। धैर्य, अनुशासन और आध्यात्मिक अभ्यास महत्वपूर्ण हैं।`
+              : `You are currently undergoing the ${sadeSatiPhase} of Saturn's Sade Sati. This period can bring intense introspection, challenges, and significant life transformations. Patience, discipline, and spiritual practices are crucial.`;
+          transitEvents.push({ planet: 'Saturn', event: 'Sade Sati', narration: sadeSatiNarration });
+      }
+  }
+
   for (const [transitingPlanet, transitData] of Object.entries(transits.sidereal)) {
     if (!transitData?.longitude || !PLANETS.includes(transitingPlanet)) continue;
 
     const transitedHouse = getHouseOfPlanet(transitData.longitude, cuspDegrees);
     const translatedTransitingPlanet = getPlanetName(transitingPlanet, lang);
+    const transitedRashi = getRashiDetails(transitData.longitude).rashi;
+    const transitedRashiNum = getRashiDetails(transitData.longitude).rashi_number;
 
     let narration = lang === 'hi'
       ? `${translatedTransitingPlanet} का ${transitedHouse}वें घर में गोचर इस घर से संबंधित मामलों पर ध्यान केंद्रित करेगा। `
       : `The transit of ${transitingPlanet} through your ${getOrdinal(transitedHouse)} house will focus your energy on matters related to this house. `;
     
+    // Impact based on planet speed
     if (slowMovingPlanets.includes(transitingPlanet)) {
         narration += lang === 'hi'
             ? 'यह एक महत्वपूर्ण और दीर्घकालिक प्रभाव है जो इन विषयों पर आपकी एकाग्रता को बढ़ाएगा। '
             : 'This is a significant and long-term influence that will heighten your focus on these themes. ';
+    } else {
+        narration += lang === 'hi'
+            ? 'यह एक अल्पकालिक प्रभाव है, जो इन क्षेत्रों में त्वरित घटनाओं या परिवर्तनों को लाएगा। '
+            : 'This is a short-term influence, bringing quick events or changes in these areas. ';
+    }
+
+    // Ashtakavarga influence
+    if (chartData.ashtakavarga?.bhinnashtakavarga?.[transitingPlanet] && chartData.ashtakavarga.bhinnashtakavarga[transitingPlanet][transitedRashiNum - 1] !== undefined) {
+        const ashtakavargaPoints = chartData.ashtakavarga.bhinnashtakavarga[transitingPlanet][transitedRashiNum - 1];
+        if (ashtakavargaPoints >= 5) { // Good points
+            narration += lang === 'hi'
+                ? `इस गोचर को अनुकूल अष्टकवर्ग बिंदुओं (${ashtakavargaPoints} बिंदु) का समर्थन प्राप्त है, जो इस अवधि के दौरान शुभ परिणाम और सफल प्रयासों का वादा करता है। `
+                : `This transit is supported by favorable Ashtakavarga points (${ashtakavargaPoints} points), promising auspicious results and successful endeavors during this period. `;
+        } else if (ashtakavargaPoints <= 3) { // Low points
+            narration += lang === 'hi'
+                ? `हालांकि, कम अष्टकवर्ग बिंदु (${ashtakavargaPoints} बिंदु) इस गोचर के दौरान कुछ चुनौतियों या धीमे परिणामों का संकेत दे सकते हैं। `
+                : `However, low Ashtakavarga points (${ashtakavargaPoints} points) may indicate some challenges or slower results during this transit. `;
+        }
     }
 
     // Find and interpret conjunctions
@@ -143,6 +183,20 @@ async function analyzeTransits(chartData, lang = 'en') {
       narration += lang === 'hi'
         ? `यहां यह आपके जन्मकालीन ${translatedNatalPlanets} से युति करेगा, जिससे इन ग्रहों की ऊर्जाएं विलीन हो जाएंगी। `
         : `Here, it will conjoin your natal ${translatedNatalPlanets}, merging their energies. `;
+        
+      // Add natal promise based on UPBS for conjuncted planets
+      natalPlanetsInHouse.forEach(natalPlanet => {
+          const natalPlanetUPBS = planetaryPowers[natalPlanet]?.total || 0;
+          if (natalPlanetUPBS >= 5) {
+              narration += lang === 'hi'
+                  ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की मजबूत स्थिति (${natalPlanetUPBS.toFixed(2)}) इस युति के सकारात्मक परिणामों को बढ़ाएगी। `
+                  : `The strong position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart will amplify the positive outcomes of this conjunction. `;
+          } else if (natalPlanetUPBS <= -5) {
+              narration += lang === 'hi'
+                  ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की पीड़ित स्थिति (${natalPlanetUPBS.toFixed(2)}) इस युति के दौरान चुनौतियां पेश कर सकती है। `
+                  : `The afflicted position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart may present challenges during this conjunction. `;
+          }
+      });
     }
 
     // Find and interpret other major aspects
@@ -153,29 +207,56 @@ async function analyzeTransits(chartData, lang = 'en') {
       const angle = Math.abs(transitData.longitude - natalData.longitude);
       const normalizedAngle = Math.min(angle, 360 - angle);
 
-      if (normalizedAngle > 175 && normalizedAngle < 185) {
-        aspects.opposition.push(getPlanetName(natalPlanet, lang));
-      } else if (normalizedAngle > 115 && normalizedAngle < 125) {
-        aspects.trine.push(getPlanetName(natalPlanet, lang));
-      } else if (normalizedAngle > 85 && normalizedAngle < 95) {
-        aspects.square.push(getPlanetName(natalPlanet, lang));
+      if (normalizedAngle > 175 && normalizedAngle < 185) { // Opposition
+        aspects.opposition.push(natalPlanet);
+      } else if (normalizedAngle > 115 && normalizedAngle < 125) { // Trine
+        aspects.trine.push(natalPlanet);
+      } else if (normalizedAngle > 85 && normalizedAngle < 95) { // Square
+        aspects.square.push(natalPlanet);
       }
     }
     
     if (aspects.trine.length > 0) {
+      const trinePlanets = aspects.trine.map(p => getPlanetName(p, lang));
       narration += lang === 'hi'
-        ? `${aspects.trine.join(', ')} से एक सामंजस्यपूर्ण त्रिकोण पहलू इस अवधि के दौरान सहज प्रवाह और समर्थन का वादा करता है। `
-        : `A harmonious trine aspect from ${aspects.trine.join(', ')} promises smooth flow and support during this period. `;
+        ? `${trinePlanets.join(', ')} से एक सामंजस्यपूर्ण त्रिकोण पहलू इस अवधि के दौरान सहज प्रवाह और समर्थन का वादा करता है। `
+        : `A harmonious trine aspect from ${trinePlanets.join(', ')} promises smooth flow and support during this period. `;
+        trinePlanets.forEach(natalPlanet => { // Add natal promise for aspecting planets
+            const natalPlanetUPBS = planetaryPowers[natalPlanet]?.total || 0;
+            if (natalPlanetUPBS >= 5) {
+                narration += lang === 'hi'
+                    ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की मजबूत स्थिति (${natalPlanetUPBS.toFixed(2)}) इन सहायक प्रभावों को बढ़ाएगी। `
+                    : `The strong position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart will amplify these supportive influences. `;
+            }
+        });
     }
     if (aspects.square.length > 0) {
+      const squarePlanets = aspects.square.map(p => getPlanetName(p, lang));
       narration += lang === 'hi'
-        ? `${aspects.square.join(', ')} से एक चुनौतीपूर्ण वर्ग पहलू घर्षण पैदा कर सकता है और कार्रवाई की मांग कर सकता है। `
-        : `A challenging square aspect from ${aspects.square.join(', ')} may create friction and demand action. `;
+        ? `${squarePlanets.join(', ')} से एक चुनौतीपूर्ण वर्ग पहलू घर्षण पैदा कर सकता है और कार्रवाई की मांग कर सकता है। `
+        : `A challenging square aspect from ${squarePlanets.join(', ')} may create friction and demand action. `;
+        squarePlanets.forEach(natalPlanet => { // Add natal promise for aspecting planets
+            const natalPlanetUPBS = planetaryPowers[natalPlanet]?.total || 0;
+            if (natalPlanetUPBS <= -5) {
+                narration += lang === 'hi'
+                    ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की पीड़ित स्थिति (${natalPlanetUPBS.toFixed(2)}) इन चुनौतीपूर्ण प्रभावों को बढ़ाएगी। `
+                    : `The afflicted position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart will intensify these challenging influences. `;
+            }
+        });
     }
     if (aspects.opposition.length > 0) {
+      const oppositionPlanets = aspects.opposition.map(p => getPlanetName(p, lang));
       narration += lang === 'hi'
-        ? `${aspects.opposition.join(', ')} से एक विरोधाभासी पहलू संतुलन की आवश्यकता या दूसरों के माध्यम से जागरूकता का संकेत देता है।`
-        : `An opposition aspect from ${aspects.opposition.join(', ')} signals a need for balance or awareness through others.`;
+        ? `${oppositionPlanets.join(', ')} से एक विरोधाभासी पहलू संतुलन की आवश्यकता या दूसरों के माध्यम से जागरूकता का संकेत देता है।`
+        : `An opposition aspect from ${oppositionPlanets.join(', ')} signals a need for balance or awareness through others.`;
+        oppositionPlanets.forEach(natalPlanet => { // Add natal promise for aspecting planets
+            const natalPlanetUPBS = planetaryPowers[natalPlanet]?.total || 0;
+            if (natalPlanetUPBS <= -5) {
+                narration += lang === 'hi'
+                    ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की पीड़ित स्थिति (${natalPlanetUPBS.toFixed(2)}) इन विरोधाभासी प्रभावों को बढ़ाएगी। `
+                    : `The afflicted position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart will heighten these oppositional influences. `;
+            }
+        });
     }
 
     transitEvents.push({ planet: transitingPlanet, house: transitedHouse, narration: narration.trim() });
@@ -238,20 +319,34 @@ function getPlanetDignityDescription(planetName, planetPosition, lang = 'en') {
   
   const rashi = planetPosition.rashi;
   const dignity = planetPosition.avasthas?.dignity;
-
-  if (!rashi) return lang === 'hi' ? 'अज्ञात राशि में' : 'in an unknown sign';
-
   const translatedRashi = getRashiName(rashi, lang);
+  const translatedPlanet = getPlanetName(planetName, lang);
 
-  if (dignity === 'Exalted') return lang === 'hi' ? `उच्च का ${translatedRashi} में` : `exalted in ${rashi}`;
-  if (dignity === 'Debilitated') return lang === 'hi' ? `नीच का ${translatedRashi} में` : `debilitated in ${rashi}`;
-  if (dignity === 'Moolatrikona') return lang === 'hi' ? `मूलत्रिकोण में (${translatedRashi})` : `in Moolatrikona in ${rashi}`;
-  if (dignity === 'Own Sign') return lang === 'hi' ? `अपनी स्वराशि (${translatedRashi}) में` : `in its own sign of ${rashi}`;
-  if (dignity === 'Friend') return lang === 'hi' ? `मित्र राशि (${translatedRashi}) में` : `in a friendly sign of ${rashi}`;
-  if (dignity === 'Enemy') return lang === 'hi' ? `शत्रु राशि (${translatedRashi}) में` : `in an enemy sign of ${rashi}`;
-  if (dignity === 'Neutral') return lang === 'hi' ? `सम राशि (${translatedRashi}) में` : `in a neutral sign of ${rashi}`;
+  let description = '';
 
-  return lang === 'hi' ? `${translatedRashi} में` : `in ${rashi}`; // Default
+  if (lang === 'hi') {
+      if (!rashi) return 'अज्ञात राशि में';
+      if (dignity === 'Exalted') description = `उच्च का ${translatedRashi} में, जो ${translatedPlanet} को असाधारण शक्ति और शुभता प्रदान करता है।`;
+      else if (dignity === 'Debilitated') description = `नीच का ${translatedRashi} में, जो ${translatedPlanet} की शक्ति को कमजोर करता है और चुनौतियों को इंगित करता है।`;
+      else if (dignity === 'Moolatrikona') description = `मूलत्रिकोण में (${translatedRashi}), जो ${translatedPlanet} को स्वाभाविक रूप से शक्तिशाली और अच्छी तरह से स्थित बनाता है।`;
+      else if (dignity === 'Own Sign') description = `अपनी स्वराशि (${translatedRashi}) में, जो ${translatedPlanet} को मजबूत, स्थिर और स्वतंत्र परिणाम देने वाला बनाता है।`;
+      else if (dignity === 'Friend') description = `मित्र राशि (${translatedRashi}) में, जो ${translatedPlanet} को सहजता और सकारात्मकता के साथ कार्य करने में मदद करता है।`;
+      else if (dignity === 'Enemy') description = `शत्रु राशि (${translatedRashi}) में, जो ${translatedPlanet} के प्रभाव में घर्षण और संघर्ष पैदा कर सकता है।`;
+      else if (dignity === 'Neutral') description = `सम राशि (${translatedRashi}) में, जो ${translatedPlanet} को तटस्थ परिणाम देता है, अन्य प्रभावों पर निर्भर करता है।`;
+      else description = `${translatedRashi} में`; // Default fallback
+  } else { // English
+      if (!rashi) return 'in an unknown sign';
+      if (dignity === 'Exalted') description = `exalted in ${rashi}, granting ${translatedPlanet} exceptional power and beneficence.`;
+      else if (dignity === 'Debilitated') description = `debilitated in ${rashi}, weakening ${translatedPlanet}'s influence and indicating challenges.`;
+      else if (dignity === 'Moolatrikona') description = `in Moolatrikona in ${rashi}, making ${translatedPlanet} naturally powerful and well-disposed.`;
+      else if (dignity === 'Own Sign') description = `in its own sign of ${rashi}, making ${translatedPlanet} strong, stable, and capable of independent results.`;
+      else if (dignity === 'Friend') description = `in a friendly sign of ${rashi}, helping ${translatedPlanet} to function with ease and positivity.`;
+      else if (dignity === 'Enemy') description = `in an enemy sign of ${rashi}, which may create friction and struggles in ${translatedPlanet}'s effects.`;
+      else if (dignity === 'Neutral') description = `in a neutral sign of ${rashi}, giving ${translatedPlanet} balanced results, dependent on other influences.`;
+      else description = `in ${rashi}`; // Default fallback
+  }
+
+  return description;
 }
 
 function analyzeDashaLordsInChart(chartData, planetaryPowers, currentDasha, currentBhukti, currentAntar, lang = 'en') {
@@ -268,7 +363,9 @@ function analyzeDashaLordsInChart(chartData, planetaryPowers, currentDasha, curr
     'Mercury': { friends: ['Sun', 'Venus'], enemies: ['Moon'], neutral: ['Mars', 'Jupiter', 'Saturn'] },
     'Jupiter': { friends: ['Sun', 'Moon', 'Mars'], enemies: ['Mercury', 'Venus'], neutral: ['Saturn'] },
     'Venus': { friends: ['Mercury', 'Saturn'], enemies: ['Sun', 'Moon'], neutral: ['Mars', 'Jupiter'] },
-    'Saturn': { friends: ['Mercury', 'Venus'], enemies: ['Sun', 'Moon', 'Mars'], neutral: ['Jupiter'] }
+    'Saturn': { friends: ['Mercury', 'Venus'], enemies: ['Sun', 'Moon', 'Mars'], neutral: ['Jupiter'] },
+    'Rahu': { friends: ['Mercury', 'Venus', 'Saturn'], enemies: ['Sun', 'Moon', 'Mars'], neutral: ['Jupiter'] },
+    'Ketu': { friends: ['Sun', 'Moon', 'Jupiter'], enemies: ['Mercury'], neutral: ['Venus', 'Saturn'] }
   };
 
   const dashaLevels = [
@@ -285,53 +382,69 @@ function analyzeDashaLordsInChart(chartData, planetaryPowers, currentDasha, curr
       const dignityDesc = getPlanetDignityDescription(planet, planetPosition, lang);
       const translatedPlanet = getPlanetName(planet, lang);
       
-      const lordScore = planetaryPowers[planet] || 0;
+      const lordScore = planetaryPowers[planet]?.total || 0;
       const strengthDescription = getUPBSDescription(lordScore, lang);
 
-      // Find houses ruled by this planet
       const ruledHouses = houses.filter(h => h.start_rashi_lord === planet).map(h => h.house_number);
-      
-      // Find houses aspected by this planet
       const aspectedHouses = calculateAspects({ sidereal: { [planet]: planetPosition } }, houses).map(a => a.house);
-
-      // Find yogas this planet is involved in
       const involvedYogas = yogas.filter(y => y.planetsInvolved.includes(planet));
 
       let narrative = '';
       if (lang === 'hi') {
         narrative = `**${level.name_hi} स्वामी ${translatedPlanet}:** यह ग्रह आपके ${natalHouse}वें घर में ${dignityDesc} में स्थित है। यह ${strengthDescription}। `;
         if (ruledHouses.length > 0) {
-          narrative += `${level.name_hi} के दौरान, ${ruledHouses.join(' और ')} भावों से संबंधित मामले प्रमुख होंगे। `;
-        }
-        if (aspectedHouses.length > 0) {
-            narrative += `यह ${aspectedHouses.join(', ')} भावों को भी प्रभावित कर रहा है, जो इन क्षेत्रों में घटनाओं को ट्रिगर कर सकता है। `;
+          narrative += `इसकी अवधि के दौरान, ${ruledHouses.map(getOrdinal).join(' और ')} भावों से संबंधित मामले प्रमुख होंगे। `;
         }
         if (involvedYogas.length > 0) {
             narrative += `यह ${involvedYogas.map(y => y.name).join(', ')} जैसे योगों में शामिल है, जो इस अवधि के दौरान इन योगों के परिणामों को सक्रिय करेगा। `;
         }
-        if (level.parentLord) {
-            const parentLord = level.parentLord;
-            const relationship = PLANETARY_RELATIONSHIPS[parentLord]?.friends.includes(planet) ? (lang === 'hi' ? 'मित्रतापूर्ण' : 'a friendly') :
-                                 PLANETARY_RELATIONSHIPS[parentLord]?.enemies.includes(planet) ? (lang === 'hi' ? 'शत्रुतापूर्ण' : 'an enemy') : (lang === 'hi' ? 'तटस्थ' : 'a neutral');
-            narrative += `${getPlanetName(parentLord, lang)} के साथ इसका ${relationship} संबंध बताता है कि इस अवधि के परिणाम ऊपरी अवधि के विषयों के साथ कैसे संरेखित होंगे।`;
-        }
       } else {
-        narrative = `**${level.name} Lord ${planet}:** This planet is located in your ${getOrdinal(natalHouse)} house in a state of ${dignityDesc}. It ${strengthDescription}. `;
+        narrative = `**${level.name} Lord ${planet}:** This planet is located in your ${getOrdinal(natalHouse)} house, ${dignityDesc}. It ${strengthDescription}. `;
         if (ruledHouses.length > 0) {
           narrative += `During its period, matters related to house(s) ${ruledHouses.map(getOrdinal).join(' and ')} will be prominent. `;
-        }
-        if (aspectedHouses.length > 0) {
-            narrative += `It is also influencing house(s) ${aspectedHouses.join(', ')}, which may trigger events in these areas. `;
         }
         if (involvedYogas.length > 0) {
             narrative += `It is involved in yogas like ${involvedYogas.map(y => y.name).join(', ')}, which will activate the results of these yogas during this period. `;
         }
-        if (level.parentLord) {
-            const parentLord = level.parentLord;
-            const relationship = PLANETARY_RELATIONSHIPS[parentLord]?.friends.includes(planet) ? 'a friendly' :
-                                 PLANETARY_RELATIONSHIPS[parentLord]?.enemies.includes(planet) ? 'an enemy' : 'a neutral';
-            narrative += `Its ${relationship} relationship with the overarching period lord, ${parentLord}, will color the results, suggesting cooperation or friction with the broader themes of the time.`;
-        }
+      }
+
+      if (level.parentLord) {
+          const parent = level.parentLord;
+          const parentPosition = planetaryPositions[parent];
+          const parentNatalHouse = getHouseOfPlanet(parentPosition.longitude, cuspDegrees);
+          
+          const relativeHouse = ((natalHouse - parentNatalHouse + 12) % 12) + 1;
+          const relationship = PLANETARY_RELATIONSHIPS[parent]?.[PLANETARY_RELATIONSHIPS[parent]?.friends.includes(planet) ? 'friends' : PLANETARY_RELATIONSHIPS[parent]?.enemies.includes(planet) ? 'enemies' : 'neutral'];
+
+          let relationshipDesc = '';
+          if (lang === 'hi') {
+              const relMap = { friends: 'मित्रतापूर्ण', enemies: 'शत्रुतापूर्ण', neutral: 'तटस्थ' };
+              relationshipDesc = relMap[Object.keys(relMap).find(key => PLANETARY_RELATIONSHIPS[parent]?.[key]?.includes(planet))] || 'तटस्थ';
+          } else {
+              relationshipDesc = Object.keys(PLANETARY_RELATIONSHIPS[parent]).find(key => PLANETARY_RELATIONSHIPS[parent][key].includes(planet));
+          }
+
+          let placementNarrative = '';
+          if (lang === 'hi') {
+              placementNarrative = `${getPlanetName(parent, lang)} के साथ इसका ${relationshipDesc} संबंध है। यह ${getPlanetName(parent, lang)} से ${relativeHouse}वें घर में स्थित है। `;
+              if ([6, 8, 12].includes(relativeHouse)) {
+                  placementNarrative += `यह एक चुनौतीपूर्ण स्थिति है, जो बताती है कि इस उप-अवधि में महादशा के विषयों के संबंध में बाधाएं या संघर्ष उत्पन्न हो सकते हैं।`;
+              } else if ([1, 5, 9].includes(relativeHouse)) {
+                  placementNarrative += `यह एक अत्यधिक शुभ स्थिति है, जो महादशा के विषयों का समर्थन करने वाली चिकनी प्रगति और भाग्य का वादा करती है।`;
+              } else if ([4, 7, 10].includes(relativeHouse)) {
+                  placementNarrative += `यह एक सहायक स्थिति है, जो महादशा के लक्ष्यों को प्राप्त करने के लिए कार्रवाई और प्रयास का संकेत देती है।`;
+              }
+          } else {
+              placementNarrative = `It has a ${relationshipDesc} relationship with ${parent}. It is placed in the ${getOrdinal(relativeHouse)} house from ${parent}. `;
+              if ([6, 8, 12].includes(relativeHouse)) {
+                  placementNarrative += `This is a challenging placement, suggesting that this sub-period may bring obstacles or conflicts in relation to the main period's themes.`;
+              } else if ([1, 5, 9].includes(relativeHouse)) {
+                  placementNarrative += `This is a highly favorable placement, promising smooth progress and fortune that supports the main period's themes.`;
+              } else if ([4, 7, 10].includes(relativeHouse)) {
+                  placementNarrative += `This is a supportive placement, indicating action and effort towards achieving the main period's goals.`;
+              }
+          }
+          narrative += placementNarrative;
       }
       analysis.push(narrative);
     }
@@ -358,6 +471,96 @@ const getLifeAreaName = (areaName, lang) => {
   }
   return areaName;
 };
+
+function synthesizeFactors(factors, lang = 'en') {
+    const supportive = [];
+    const challenging = [];
+    let summary = '';
+
+    const get = (type, name = null) => factors.find(f => f.type === type && (!name || f.name === name));
+    const getAll = (type) => factors.filter(f => f.type === type);
+
+    const lordStrength = get('lordStrength');
+    const yogas = getAll('yoga');
+    const beneficAspects = getAll('aspect').filter(a => a.name === 'benefic');
+    const maleficAspects = getAll('aspect').filter(a => a.name === 'malefic');
+    const sarva = get('sarva');
+
+    const isLordAfflicted = lordStrength && lordStrength.score < -5;
+    const isLordSupported = lordStrength && lordStrength.score >= 5;
+    const isLordNeutral = !isLordAfflicted && !isLordSupported;
+
+    const hasHighSarva = sarva && sarva.name === 'high';
+    const hasGoodYoga = yogas.length > 0;
+    const hasBeneficAspect = beneficAspects.length > 0;
+    const hasMaleficAspect = maleficAspects.length > 0;
+
+    // --- Categorize factors ---
+    if (hasHighSarva) {
+        supportive.push(lang === 'hi' ? `एक अनुकूल सर्वाष्टकवर्ग स्कोर (${sarva.score}) है, जो इस क्षेत्र में सफलता और विस्तार के लिए एक मजबूत क्षमता का संकेत देता है` : `a favorable Sarva Ashtakavarga score of ${sarva.score}, indicating a strong capacity for success and expansion`);
+    } else if (sarva) {
+        challenging.push(lang === 'hi' ? `एक कम सर्वाष्टकवर्ग स्कोर (${sarva.score}) है, जो बताता है कि वांछित परिणाम प्राप्त करने के लिए अधिक प्रयास की आवश्यकता हो सकती है` : `a low Sarva Ashtakavarga score of ${sarva.score}, suggesting that more effort may be required to achieve desired results`);
+    }
+
+    if (hasGoodYoga) {
+        const yogaNames = yogas.map(y => y.names).flat().join(', ');
+        supportive.push(lang === 'hi' ? `शक्तिशाली योगों की उपस्थिति (जैसे '${yogaNames}') क्षमता को और बढ़ाती है` : `the presence of powerful yogas like '${yogaNames}' further enhances the potential`);
+    }
+
+    if (hasBeneficAspect) {
+        const aspectingPlanets = beneficAspects.map(a => a.planets).flat().map(p => getPlanetName(p, lang)).join(', ');
+        supportive.push(lang === 'hi' ? `${aspectingPlanets} से सहायक पहलू विकास और अवसरों का संकेत देते हैं` : `supportive aspects from ${aspectingPlanets} indicate growth and opportunities`);
+    }
+    
+    if (hasMaleficAspect) {
+        const aspectingPlanets = maleficAspects.map(a => a.planets).flat().map(p => getPlanetName(p, lang)).join(', ');
+        challenging.push(lang === 'hi' ? `${aspectingPlanets} से चुनौतीपूर्ण पहलू बाधाओं या संघर्षों का संकेत दे सकते हैं` : `challenging aspects from ${aspectingPlanets} may indicate obstacles or conflicts`);
+    }
+
+    // --- Generate Detailed Summary ---
+    if (isLordSupported) {
+        if (!hasMaleficAspect) {
+            summary = lang === 'hi'
+                ? "इस क्षेत्र का स्वामी मजबूत है और उसे कोई बड़ी चुनौती नहीं मिल रही है, जो इस जीवन क्षेत्र में असाधारण क्षमता का संकेत देता है। आप प्राकृतिक प्रवाह, प्रचुर अवसरों और महत्वपूर्ण उपलब्धियों की उम्मीद कर सकते हैं।"
+                : "The lord of this area is strong and faces no major challenges, indicating exceptional potential in this sphere of life. You can expect natural flow, abundant opportunities, and significant achievements.";
+        } else {
+            summary = lang === 'hi'
+                ? `इस क्षेत्र का स्वामी मजबूत है, जो सफलता के लिए एक ठोस आधार प्रदान करता है। हालांकि, चुनौतीपूर्ण पहलू मौजूद हैं, जो यह सुझाव देते हैं कि आपको कुछ बाधाओं को दूर करने की आवश्यकता होगी, लेकिन आपके पास ऐसा करने की ताकत है।`
+                : `The lord of this area is strong, providing a solid foundation for success. However, challenging aspects are present, suggesting that while you will need to overcome some obstacles, you have the inherent strength to do so.`;
+        }
+    } else if (isLordAfflicted) {
+        if (hasBeneficAspect || hasGoodYoga || hasHighSarva) {
+            summary = lang === 'hi'
+                ? "इस क्षेत्र के स्वामी के पीड़ित होने के बावजूद, कई सकारात्मक प्रभाव एक 'संघर्ष के बाद सफलता' की गतिशील का निर्माण करते हैं। यह एक ऐसे मार्ग का सुझाव देता है जहाँ आपको महत्वपूर्ण बाधाओं का सामना करना पड़ेगा, लेकिन आपके पास उन्हें पार करने और अंततः महान सफलता प्राप्त करने की क्षमता भी है।"
+                : "Despite the affliction of this area's lord, several positive influences create a 'success after struggle' dynamic. This suggests a path where you will face significant obstacles, but you also possess the inherent potential to overcome them and achieve notable success.";
+        } else {
+            summary = lang === 'hi'
+                ? "इस क्षेत्र का स्वामी काफी पीड़ित है और उसे कोई बड़ा सहारा नहीं मिल रहा है। यह इस जीवन क्षेत्र में लगातार चुनौतियों का संकेत देता है। सफलता के लिए बहुत धैर्य, लचीलापन और सचेत प्रयास की आवश्यकता होगी।"
+                : "The lord of this area is significantly afflicted and lacks major supportive influences. This points to persistent challenges in this sphere of life. Success will require a great deal of patience, resilience, and conscious effort.";
+        }
+    } else { // isLordNeutral
+        if (hasHighSarva && hasBeneficAspect && !hasMaleficAspect) {
+            summary = lang === 'hi'
+                ? "यद्यपि इस क्षेत्र का स्वामी तटस्थ है, मजबूत सहायक कारक (जैसे उच्च सर्वाष्टकवर्ग और शुभ पहलू) एक बहुत ही सकारात्मक परिणाम का संकेत देते हैं। प्रयास आसानी से सफलता की ओर ले जाएंगे।"
+                : "Although the lord of this area is neutral, the strong supportive factors (like high Sarva and benefic aspects) indicate a very positive outcome. Efforts will lead to success with relative ease.";
+        } else if (hasMaleficAspect && !hasBeneficAspect && !hasHighSarva) {
+             summary = lang === 'hi'
+                ? "इस क्षेत्र का स्वामी तटस्थ है, लेकिन चुनौतीपूर्ण प्रभाव प्रमुख हैं। यह बताता है कि इस क्षेत्र में प्रगति के लिए आपको बाधाओं को दूर करने के लिए सचेत प्रयास करने की आवश्यकता होगी।"
+                : "The lord of this area is neutral, but challenging influences are prominent. This suggests that you will need to apply conscious effort to overcome obstacles for progress in this area.";
+        } else {
+            summary = lang === 'hi'
+                ? "इस क्षेत्र की क्षमता मध्यम है। सफलता आपके प्रयासों, बाहरी परिस्थितियों और आप जिन ग्रहों की दशाओं से गुजर रहे हैं, उन पर बहुत अधिक निर्भर करेगी।"
+                : "The potential of this area is moderate. Success will depend heavily on your efforts, external circumstances, and the planetary periods you are running.";
+        }
+    }
+
+    return {
+        supportive: supportive.length > 0 ? supportive.join('. ') + '.' : (lang === 'hi' ? 'कोई विशेष सहायक प्रभाव नहीं मिला।' : 'No specific supportive influences found.'),
+        challenging: challenging.length > 0 ? challenging.join('. ') + '.' : (lang === 'hi' ? 'कोई विशेष चुनौतीपूर्ण प्रभाव नहीं मिला।' : 'No specific challenging influences found.'),
+        summary: summary
+    };
+}
+
 
 /* ======================================================
    Life Area Reports
@@ -409,48 +612,31 @@ function generateLifeAreaReports(chartData, planetaryPowers, ashtakavarga, yogas
       const lordPlacementHouse = lordPosition ? getHouseOfPlanet(lordPosition.longitude, cuspDegrees) : null;
       const theme = HOUSE_THEMES[lordPlacementHouse]?.[lang] || (lang === 'hi' ? 'अज्ञात मामलों' : 'unknown matters');
       
-      const lordScore = planetaryPowers[houseLord] || 0;
+      const lordScore = planetaryPowers[houseLord]?.total || 0;
       const strengthDesc = getUPBSDescription(lordScore, lang);
       const translatedLord = getPlanetName(houseLord, lang);
 
-      // --- Dispositor Analysis ---
-      let dispositorNarrative = '';
-      if (lordPosition && lordPosition.rashi) {
-          const dispositor = RASHI_LORDS[lordPosition.rashi];
-          if (dispositor) {
-              const dispositorPosition = chartData.planetaryPositions.sidereal[dispositor];
-              const dispositorPlacementHouse = dispositorPosition ? getHouseOfPlanet(dispositorPosition.longitude, cuspDegrees) : null;
-              const dispositorScore = planetaryPowers[dispositor] || 0;
-              const dispositorStrengthDesc = getUPBSDescription(dispositorScore, lang);
-              const translatedDispositor = getPlanetName(dispositor, lang);
-              const dispositorTheme = HOUSE_THEMES[dispositorPlacementHouse]?.[lang] || (lang === 'hi' ? 'अज्ञात मामलों' : 'unknown matters');
+      let introNarrative = lang === 'hi'
+          ? `${getLifeAreaName(area.name, lang)} का क्षेत्र, जो ${houseNum}वें घर द्वारा शासित है, आपके जीवन भर के लिए एक महत्वपूर्ण विषय है। इसकी नींव इसके स्वामी, ${translatedLord}, द्वारा रखी गई है, जो ${strengthDesc}। यह ${lordPlacementHouse}वें घर में स्थित है, जो आपके ${getLifeAreaName(area.name, lang)} को ${theme} के मामलों से जोड़ता है।`
+          : `The domain of your ${area.name}, governed by your ${getOrdinal(houseNum)} house, is a significant theme throughout your life. Its foundation is laid by its lord, ${houseLord}, which ${strengthDesc}. It is placed in the ${getOrdinal(lordPlacementHouse)} house, linking your ${area.name.toLowerCase()} to matters of ${theme}.`;
 
-              if (lang === 'hi') {
-                  dispositorNarrative = `इस घर के स्वामी, ${translatedLord}, का स्थान ${lordPosition.rashi} राशि में है, जिसका स्वामी ${translatedDispositor} है। ${translatedDispositor}, जो आपके ${dispositorPlacementHouse}वें घर में स्थित है, ${dispositorStrengthDesc}। यह इंगित करता है कि इस जीवन क्षेत्र के अंतर्निहित परिणाम ${dispositorTheme} के मामलों से बहुत प्रभावित होते हैं। `;
-              } else {
-                  dispositorNarrative = `The lord of this house, ${translatedLord}, is placed in the sign of ${lordPosition.rashi}, whose lord is ${translatedDispositor}. ${translatedDispositor}, situated in your ${getOrdinal(dispositorPlacementHouse)} house, ${dispositorStrengthDesc}. This indicates that the underlying outcomes of this life area are heavily influenced by matters of ${dispositorTheme}. `;
-              }
-          }
+      const planetsInHouse = Object.entries(chartData.planetaryPositions.sidereal).filter(([p, d]) => d?.longitude && PLANETS.includes(p) && getHouseOfPlanet(d.longitude, cuspDegrees) === houseNum).map(([p]) => getPlanetName(p, lang));
+      if (planetsInHouse.length > 0) {
+          introNarrative += lang === 'hi' ? ` इस घर में ${planetsInHouse.join(', ')} स्थित हैं, जो अपनी ऊर्जा सीधे इस क्षेत्र में लाते हैं।` : ` The planets ${planetsInHouse.join(', ')} are situated here, lending their direct energies to this area.`;
       }
-      // --- End Dispositor Analysis ---
 
-      const positiveFactors = [];
-      const challengingFactors = [];
+      const factors = [];
+      factors.push({ type: 'lordStrength', score: lordScore });
 
       const sarvaPoints = ashtakavarga?.sarva?.scores?.[houseNum - 1] || 0;
-      if (sarvaPoints >= 28) {
-          positiveFactors.push((lang === 'hi' ? `अनुकूल सर्वाष्टकवर्ग स्कोर (${sarvaPoints}) है, जो इस क्षेत्र में सफलता और विस्तार के लिए एक मजबूत क्षमता का संकेत देता है।` : `a favorable Sarva Ashtakavarga score of ${sarvaPoints}, indicating a strong capacity for success and expansion in this area.`));
-      } else {
-          challengingFactors.push((lang === 'hi' ? `कम सर्वाष्टकवर्ग स्कोर (${sarvaPoints}) है, जो बताता है कि इस क्षेत्र में वांछित परिणाम प्राप्त करने के लिए अधिक प्रयास की आवश्यकता हो सकती है।` : `a low Sarva Ashtakavarga score of ${sarvaPoints}, suggesting that more effort may be required to achieve desired results in this area.`));
-      }
+      factors.push({ type: 'sarva', name: sarvaPoints >= 28 ? 'high' : 'low', score: sarvaPoints });
 
       const relevantYogas = yogas.filter(yoga => {
           const areaSpecificYogaNames = { 'Wealth': ['Dhana', 'Lakshmi'], 'Career': ['Raja', 'Adhipati', 'Amala', 'Pancha Mahapurusha'], 'Health': ['Harsha', 'Vipareeta'], 'Spirituality': ['Saraswati', 'Gaja Kesari', 'Adhipati'], 'Marriage': ['Raja'] };
           return yoga.planetsInvolved.includes(houseLord) || areaSpecificYogaNames[area.name]?.some(name => yoga.name.includes(name));
       });
       if (relevantYogas.length > 0) {
-          const yogaNames = relevantYogas.map(y => y.name).join(', ');
-          positiveFactors.push((lang === 'hi' ? `शक्तिशाली योगों की उपस्थिति (जैसे '${yogaNames}') इस क्षेत्र की क्षमता को और बढ़ाती है।` : `the presence of powerful yogas like '${yogaNames}' further enhances the potential of this area.`));
+          factors.push({ type: 'yoga', names: relevantYogas.map(y => y.name) });
       }
 
       const aspectsOnHouse = aspects.filter(aspect => aspect.house === houseNum);
@@ -460,37 +646,20 @@ function generateLifeAreaReports(chartData, planetaryPowers, ashtakavarga, yogas
       const maleficAspects = aspectsOnHouse.filter(a => maleficPlanets.includes(a.planet));
 
       if (beneficAspects.length > 0) {
-          const aspectingPlanets = beneficAspects.map(a => getPlanetName(a.planet, lang)).join(', ');
-          positiveFactors.push((lang === 'hi' ? `${aspectingPlanets} से सहायक पहलू इस क्षेत्र में विकास और अवसरों का संकेत देते हैं।` : `supportive aspects from ${aspectingPlanets} indicate growth and opportunities in this area.`));
+          factors.push({ type: 'aspect', name: 'benefic', planets: beneficAspects.map(a => a.planet) });
       }
       if (maleficAspects.length > 0) {
-          const aspectingPlanets = maleficAspects.map(a => getPlanetName(a.planet, lang)).join(', ');
-          challengingFactors.push((lang === 'hi' ? `${aspectingPlanets} से चुनौतीपूर्ण पहलू इस क्षेत्र में बाधाओं या संघर्षों का संकेत दे सकते हैं।` : `challenging aspects from ${aspectingPlanets} may indicate obstacles or conflicts in this area.`));
-      }
-
-      let narrative = lang === 'hi'
-          ? `${getLifeAreaName(area.name, lang)} का क्षेत्र, जो ${houseNum}वें घर द्वारा शासित है, आपके जीवन भर के लिए एक महत्वपूर्ण विषय है। इसकी नींव इसके स्वामी, ${translatedLord}, द्वारा रखी गई है, जो ${strengthDesc}। यह ${lordPlacementHouse}वें घर में स्थित है, जो आपके ${getLifeAreaName(area.name, lang)} को ${theme} के मामलों से जोड़ता है। ${dispositorNarrative}`
-          : `The domain of your ${area.name}, governed by your ${getOrdinal(houseNum)} house, is a significant theme throughout your life. Its foundation is laid by its lord, ${translatedLord}, which ${strengthDesc}. It is placed in the ${getOrdinal(lordPlacementHouse)} house, linking your ${area.name.toLowerCase()} to matters of ${theme}. ${dispositorNarrative}`;
-          
-      if (positiveFactors.length > 0) {
-          narrative += lang === 'hi' ? `इस क्षेत्र में क्षमता ${positiveFactors.join(' और ')} से काफी बढ़ जाती है। ` : `The potential in this area is significantly enhanced by ${positiveFactors.join(' and ')}. `;
-      }
-       if (challengingFactors.length > 0) {
-          narrative += lang === 'hi' ? `हालांकि, ${challengingFactors.join(' और ')} के कारण बाधाएं आ सकती हैं। ` : `However, obstacles may arise due to ${challengingFactors.join(' and ')}. `;
-      }
-
-      const planetsInHouse = Object.entries(chartData.planetaryPositions.sidereal).filter(([p, d]) => d?.longitude && PLANETS.includes(p) && getHouseOfPlanet(d.longitude, cuspDegrees) === houseNum).map(([p]) => getPlanetName(p, lang));
-      if (planetsInHouse.length > 0) {
-          narrative += lang === 'hi' ? `इस घर में ${planetsInHouse.join(', ')} स्थित हैं, जो अपनी ऊर्जा सीधे इस क्षेत्र में लाते हैं। ` : `The planets ${planetsInHouse.join(', ')} are situated here, lending their direct energies to this area. `;
+          factors.push({ type: 'aspect', name: 'malefic', planets: maleficAspects.map(a => a.planet) });
       }
       
-      // New lifelong Dasha analysis
+      const analysis = synthesizeFactors(factors, lang);
+      
+      let timingNarrative = '';
       const friendlyDashaLords = allMahadashaLords.filter(lord => PLANETARY_RELATIONSHIPS[houseLord]?.friends.includes(lord));
       const enemyDashaLords = allMahadashaLords.filter(lord => PLANETARY_RELATIONSHIPS[houseLord]?.enemies.includes(lord));
 
-      let timingNarrative = '';
       if (allMahadashaLords.includes(houseLord)) {
-        timingNarrative += lang === 'hi' ? `${translatedLord} की महादशा आपके जीवन में इस क्षेत्र के लिए एक महत्वपूर्ण और निर्णायक अवधि होगी। ` : `The major period of ${translatedLord} itself will be a pivotal and defining time for this area in your life. `;
+        timingNarrative += lang === 'hi' ? `${translatedLord} की महादशा आपके जीवन में इस क्षेत्र के लिए एक महत्वपूर्ण और निर्णायक अवधि होगी। ` : `The major period of ${houseLord} itself will be a pivotal and defining time for this area in your life. `;
       }
       if (friendlyDashaLords.length > 0) {
         timingNarrative += lang === 'hi' ? `आपके जीवन के दौरान, ${friendlyDashaLords.map(l => getPlanetName(l, lang)).join(', ')} जैसे मित्र ग्रहों द्वारा शासित प्रमुख अवधियाँ इस क्षेत्र में प्राकृतिक विकास और अवसरों को लाएंगी। ` : `Throughout your life, major periods ruled by friendly planets like ${friendlyDashaLords.map(l => getPlanetName(l, lang)).join(', ')} will bring natural growth and opportunities to this area. `;
@@ -499,230 +668,74 @@ function generateLifeAreaReports(chartData, planetaryPowers, ashtakavarga, yogas
         timingNarrative += lang === 'hi' ? `इसके विपरीत, ${enemyDashaLords.map(l => getPlanetName(l, lang)).join(', ')} द्वारा शासित अवधियों में इस डोमेन में चुनौतियों का सामना करना पड़ सकता है, जिसके लिए अधिक प्रयास और लचीलेपन की आवश्यकता होगी।` : `Conversely, periods ruled by ${enemyDashaLords.map(l => getPlanetName(l, lang)).join(', ')} may present challenges in this domain, requiring greater effort and resilience.`;
       }
       
-      if (timingNarrative) {
-          narrative += timingNarrative;
-      }
-
-      // --- Varga Analysis ---
+      let vargaNarrative = '';
       if (area.varga && chartData.divisionalPositions && chartData.divisionalPositions[area.varga]) {
-        const vargaChart = chartData.divisionalPositions[area.varga];
-        const vargaHouses = chartData[`${area.varga.toLowerCase()}_houses`];
-        const vargaHouseCusps = vargaHouses?.map(h => toDegrees(h.start_dms));
-        const vargaLagnaLord = vargaHouses?.[0]?.start_rashi_lord;
+          const vargaChart = chartData.divisionalPositions[area.varga];
+          const vargaHouses = chartData[`${area.varga.toLowerCase()}_houses`];
+          const vargaHouseCusps = vargaHouses?.map(h => toDegrees(h.start_dms));
+          
+          if(vargaHouseCusps) {
+              const vargaLagnaLord = vargaHouses[0]?.start_rashi_lord;
+              const d1LordInVargaHouse = getHouseOfPlanet(vargaChart[houseLord]?.longitude, vargaHouseCusps);
+              const d1LordDignityInVarga = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
 
-        if(vargaHouseCusps && vargaLagnaLord) {
-            const lordInVargaHouse = getHouseOfPlanet(vargaChart[houseLord]?.longitude, vargaHouseCusps);
-            const vargaLagnaLordInVargaHouse = getHouseOfPlanet(vargaChart[vargaLagnaLord]?.longitude, vargaHouseCusps);
+              let keyFactors = [];
 
-            // D10 specific analysis for Career/Profession
-            if (area.varga === 'D10') {
-                const d10AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d10AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d10LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
+              // 1. D1 House Lord in Varga
+              keyFactors.push({
+                  planet: houseLord,
+                  role: lang === 'hi' ? `${houseNum}वें घर का स्वामी` : `Lord of the ${getOrdinal(houseNum)}`,
+                  dignity: d1LordDignityInVarga,
+                  house: d1LordInVargaHouse
+              });
 
-                if (area.name === 'Career') {
-                    if (lang === 'hi') {
-                        narrative += ` आपके D10 चार्ट में, जो आपके करियर का सूक्ष्म जगत है, 10वें घर का स्वामी (${translatedLord}) ${d10LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है, जो आपके पेशेवर जीवन में इसके महत्व को दर्शाता है।`;
-                        narrative += ` D10 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D10 में ${d10AscendantLordDignity} है, जो आपके करियर की समग्र दिशा को प्रभावित करता है।`;
-                        if (d10AscendantPlanet) {
-                            narrative += ` D10 लग्न में ${getPlanetName(d10AscendantPlanet, lang)} की उपस्थिति आपके करियर पथ पर इसके गुणों का एक मजबूत प्रभाव डालती है।`;
-                        }
-                    } else {
-                        narrative += ` In your D10 chart, the microcosm of your career, the 10th lord (${houseLord}) is ${d10LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house, indicating its significance in your professional life.`;
-                        narrative += ` The D10 ascendant lord is ${vargaLagnaLord}, and it is ${d10AscendantLordDignity} in the D10, influencing the overall direction of your career.`;
-                        if (d10AscendantPlanet) {
-                            narrative += ` The presence of ${d10AscendantPlanet} in the D10 ascendant adds a strong influence of its qualities on your career path.`;
-                        }
-                    }
-                } else if (area.name === 'Profession') {
-                    if (lang === 'hi') {
-                        narrative += ` आपके पेशे के लिए D10 चार्ट में, 10वें घर का स्वामी (${translatedLord}) का ${lordInVargaHouse}वें घर में होना आपके काम की प्रकृति को दर्शाता है।`;
-                        narrative += ` D10 लग्न का स्वामी, ${getPlanetName(vargaLagnaLord, lang)}, जो ${d10AscendantLordDignity} है, यह निर्धारित करता है कि आप अपने पेशे को कैसे अपनाते हैं।`;
-                        if (d10AscendantPlanet) {
-                            narrative += ` ${getPlanetName(d10AscendantPlanet, lang)} का D10 लग्न में होना आपके काम के माहौल और भूमिका में इसके गुणों को लाता है।`;
-                        }
-                    } else {
-                        narrative += ` In the D10 chart for your profession, the placement of the 10th lord (${houseLord}) in the ${getOrdinal(lordInVargaHouse)} house indicates the nature of your work.`;
-                        narrative += ` The D10 ascendant lord, ${vargaLagnaLord}, which is ${d10AscendantLordDignity}, determines how you approach your profession.`;
-                        if (d10AscendantPlanet) {
-                            narrative += ` The presence of ${d10AscendantPlanet} in the D10 ascendant brings its qualities into your work environment and role.`;
-                        }
-                    }
-                }
-            } else if (area.varga === 'D2' && area.name === 'Wealth') {
-                const d2AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d2AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d2LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
-      
-                if (lang === 'hi') {
-                    narrative += ` D2 (होरा) चार्ट में, जो आपके धन और वित्त का विश्लेषण करता है, 2वें घर का स्वामी (${translatedLord}) ${d2LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है।`;
-                    narrative += ` D2 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D2 में ${d2AscendantLordDignity} है, जो आपकी वित्तीय स्थिति को प्रभावित करता है।`;
-                    if (d2AscendantPlanet) {
-                        narrative += ` D2 लग्न में ${getPlanetName(d2AscendantPlanet, lang)} की उपस्थिति आपके धन संचय के रास्ते पर इसके गुणों का प्रभाव डालती है।`;
-                    }
-                } else {
-                    narrative += ` In your D2 (Hora) chart, which analyzes your wealth and finances, the 2nd lord (${houseLord}) is ${d2LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house.`;
-                    narrative += ` The D2 ascendant lord is ${vargaLagnaLord}, and it is ${d2AscendantLordDignity} in the D2, influencing your financial standing.`;
-                    if (d2AscendantPlanet) {
-                        narrative += ` The presence of ${d2AscendantPlanet} in the D2 ascendant adds a strong influence of its qualities on your path to wealth accumulation.`;
-                    }
-                }
-            } else if (area.varga === 'D7' && area.name === 'Children') {
-                const d7AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d7AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d7LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
-      
-                if (lang === 'hi') {
-                    narrative += ` D7 (सप्तमांश) चार्ट में, जो आपकी संतान और वंश का विश्लेषण करता है, 5वें घर का स्वामी (${translatedLord}) ${d7LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है।`;
-                    narrative += ` D7 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D7 में ${d7AscendantLordDignity} है, जो संतान संबंधी मामलों को प्रभावित करता है।`;
-                    if (d7AscendantPlanet) {
-                        narrative += ` D7 लग्न में ${getPlanetName(d7AscendantPlanet, lang)} की उपस्थिति आपकी संतान संबंधी इच्छाओं पर इसके गुणों का प्रभाव डालती है।`;
-                    }
-                } else {
-                    narrative += ` In your D7 (Saptamsa) chart, which analyzes your children and progeny, the 5th lord (${houseLord}) is ${d7LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house.`;
-                    narrative += ` The D7 ascendant lord is ${vargaLagnaLord}, and it is ${d7AscendantLordDignity} in the D7, influencing matters related to children.`;
-                    if (d7AscendantPlanet) {
-                        narrative += ` The presence of ${d7AscendantPlanet} in the D7 ascendant adds a strong influence of its qualities on your desires concerning children.`;
-                    }
-                }
-            } else if (area.varga === 'D9' && area.name === 'Marriage') {
-                const d9AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d9AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d9LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
-      
-                if (lang === 'hi') {
-                    narrative += ` D9 (नवांश) चार्ट में, जो आपके विवाह और साझेदारी का विश्लेषण करता है, 7वें घर का स्वामी (${translatedLord}) ${d9LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है।`;
-                    narrative += ` D9 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D9 में ${d9AscendantLordDignity} है, जो आपके वैवाहिक जीवन की गुणवत्ता को प्रभावित करता है।`;
-                    if (d9AscendantPlanet) {
-                        narrative += ` D9 लग्न में ${getPlanetName(d9AscendantPlanet, lang)} की उपस्थिति आपके रिश्तों में इसके गुणों का प्रभाव डालती है।`;
-                    }
-                } else {
-                    narrative += ` In your D9 (Navamsa) chart, which analyzes your marriage and partnerships, the 7th lord (${houseLord}) is ${d9LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house.`;
-                    narrative += ` The D9 ascendant lord is ${vargaLagnaLord}, and it is ${d9AscendantLordDignity} in the D9, influencing the quality of your married life.`;
-                    if (d9AscendantPlanet) {
-                        narrative += ` The presence of ${d9AscendantPlanet} in the D9 ascendant adds a strong influence of its qualities on your relationships.`;
-                    }
-                }
-            } else if (area.varga === 'D12' && area.name === 'Health') {
-                const d12AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d12AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d12LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
-      
-                if (lang === 'hi') {
-                    narrative += ` D12 (द्वादशांश) चार्ट में, जो आपके स्वास्थ्य और माता-पिता के मुद्दों का विश्लेषण करता है, 6वें घर का स्वामी (${translatedLord}) ${d12LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है।`;
-                    narrative += ` D12 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D12 में ${d12AscendantLordDignity} है, जो आपके स्वास्थ्य और कल्याण को प्रभावित करता है।`;
-                    if (d12AscendantPlanet) {
-                        narrative += ` D12 लग्न में ${getPlanetName(d12AscendantPlanet, lang)} की उपस्थिति आपके स्वास्थ्य पर इसके गुणों का प्रभाव डालती है।`;
-                    }
-                } else {
-                    narrative += ` In your D12 (Dwadasamsa) chart, which analyzes your health and parental issues, the 6th lord (${houseLord}) is ${d12LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house.`;
-                    narrative += ` The D12 ascendant lord is ${vargaLagnaLord}, and it is ${d12AscendantLordDignity} in the D12, influencing your health and well-being.`;
-                    if (d12AscendantPlanet) {
-                        narrative += ` The presence of ${d12AscendantPlanet} in the D12 ascendant adds a strong influence of its qualities on your health.`;
-                    }
-                }
-            } else if (area.varga === 'D30' && (area.name === 'Litigation' || area.name === 'Health')) {
-                const d30AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d30AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d30LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
-      
-                if (lang === 'hi') {
-                    narrative += ` D30 (त्रिशांश) चार्ट में, जो दुर्भाग्य और बीमारियों का विश्लेषण करता है, इस घर का स्वामी (${translatedLord}) ${d30LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है।`;
-                    narrative += ` D30 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D30 में ${d30AscendantLordDignity} है, जो आपके जीवन में चुनौतियों और बाधाओं को प्रभावित करता है।`;
-                    if (d30AscendantPlanet) {
-                        narrative += ` D30 लग्न में ${getPlanetName(d30AscendantPlanet, lang)} की उपस्थिति इन क्षेत्रों में इसके गुणों का प्रभाव डालती है।`;
-                    }
-                } else {
-                    narrative += ` In your D30 (Trimsamsa) chart, which analyzes misfortunes and diseases, the house lord (${houseLord}) is ${d30LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house.`;
-                    narrative += ` The D30 ascendant lord is ${vargaLagnaLord}, and it is ${d30AscendantLordDignity} in the D30, influencing challenges and obstacles in your life.`;
-                    if (d30AscendantPlanet) {
-                        narrative += ` The presence of ${d30AscendantPlanet} in the D30 ascendant brings its qualities into these areas.`;
-                    }
-                }
-            } else if (area.varga === 'D3' && area.name === 'Siblings, Courage, Communication') {
-                const d3AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d3AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d3LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
-      
-                if (lang === 'hi') {
-                    narrative += ` D3 (द्रेष्काण) चार्ट में, जो आपके भाई-बहनों, साहस और संचार का विश्लेषण करता है, 3वें घर का स्वामी (${translatedLord}) ${d3LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है।`;
-                    narrative += ` D3 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D3 में ${d3AscendantLordDignity} है, जो आपके संबंधों और संचार कौशल को प्रभावित करता है।`;
-                    if (d3AscendantPlanet) {
-                        narrative += ` D3 लग्न में ${getPlanetName(d3AscendantPlanet, lang)} की उपस्थिति आपके भाई-बहनों और संचार पर इसके गुणों का प्रभाव डालती है।`;
-                    }
-                } else {
-                    narrative += ` In your D3 (Drekkana) chart, which analyzes your siblings, courage, and communication, the 3rd lord (${houseLord}) is ${d3LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house.`;
-                    narrative += ` The D3 ascendant lord is ${vargaLagnaLord}, and it is ${d3AscendantLordDignity} in the D3, influencing your relationships and communication skills.`;
-                    if (d3AscendantPlanet) {
-                        narrative += ` The presence of ${d3AscendantPlanet} in the D3 ascendant adds a strong influence of its qualities on your siblings and communication.`;
-                    }
-                }
-            } else if (area.varga === 'D6' && area.name === 'Litigation') {
-                const d6AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d6AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d6LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
-      
-                if (lang === 'hi') {
-                    narrative += ` D6 (षष्ठांश) चार्ट में, जो मुकदमेबाजी और संघर्षों का विश्लेषण करता है, 6वें घर का स्वामी (${translatedLord}) ${d6LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है।`;
-                    narrative += ` D6 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D6 में ${d6AscendantLordDignity} है, जो आपके जीवन में कानूनी और शत्रु संबंधी मामलों को प्रभावित करता है।`;
-                    if (d6AscendantPlanet) {
-                        narrative += ` D6 लग्न में ${getPlanetName(d6AscendantPlanet, lang)} की उपस्थिति इन क्षेत्रों में इसके गुणों का प्रभाव डालती है।`;
-                    }
-                } else {
-                    narrative += ` In your D6 (Shasthamsa) chart, which analyzes litigation and conflicts, the 6th lord (${houseLord}) is ${d6LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house.`;
-                    narrative += ` The D6 ascendant lord is ${vargaLagnaLord}, and it is ${d6AscendantLordDignity} in the D6, influencing legal and enemy-related matters in your life.`;
-                    if (d6AscendantPlanet) {
-                        narrative += ` The presence of ${d6AscendantPlanet} in the D6 ascendant brings its qualities into these areas.`;
-                    }
-                }
-            } else if (area.varga === 'D60' && area.name === 'Past Karma') {
-                const d60AscendantPlanet = Object.entries(vargaChart).find(([, planetData]) => 
-                    getHouseOfPlanet(planetData.longitude, vargaHouseCusps) === 1
-                )?.[0];
-                const d60AscendantLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
-                const d60LordDignity = getPlanetDignityDescription(houseLord, vargaChart[houseLord], lang);
-      
-                if (lang === 'hi') {
-                    narrative += ` D60 (षष्ट्यंश) चार्ट में, जो आपके पिछले कर्मों और नियति का विश्लेषण करता है, D1 लग्न का स्वामी (${translatedLord}) ${d60LordDignity} है और ${lordInVargaHouse}वें घर में स्थित है।`;
-                    narrative += ` D60 लग्न का स्वामी ${getPlanetName(vargaLagnaLord, lang)} है और यह D60 में ${d60AscendantLordDignity} है, जो आपकी नियति की समग्र दिशा को प्रभावित करता है।`;
-                    if (d60AscendantPlanet) {
-                        narrative += ` D60 लग्न में ${getPlanetName(d60AscendantPlanet, lang)} की उपस्थिति आपके जीवन पथ पर इसके गुणों का प्रभाव डालती है।`;
-                    }
-                } else {
-                    narrative += ` In your D60 (Shashtiamsa) chart, which analyzes your past karma and destiny, the D1 ascendant lord (${houseLord}) is ${d60LordDignity} and is placed in the ${getOrdinal(lordInVargaHouse)} house.`;
-                    narrative += ` The D60 ascendant lord is ${vargaLagnaLord}, and it is ${d60AscendantLordDignity} in the D60, influencing the overall direction of your destiny.`;
-                    if (d60AscendantPlanet) {
-                        narrative += ` The presence of ${d60AscendantPlanet} in the D60 ascendant adds a strong influence of its qualities on your life path.`;
-                    }
-                }
-            } else {
-                let vargaNarrative = '';
-                if (lang === 'hi') {
-                    vargaNarrative = `आपके ${area.varga} चार्ट में, जो इस जीवन क्षेत्र का सूक्ष्म विश्लेषण प्रदान करता है, इस घर का स्वामी (${translatedLord}) ${lordInVargaHouse}वें घर में स्थित है। ${area.varga} लग्न का स्वामी, ${getPlanetName(vargaLagnaLord, lang)}, ${vargaLagnaLordInVargaHouse}वें घर में है। `;
-                } else {
-                    vargaNarrative = `In your ${area.varga} chart, which provides a microscopic view of this life area, the lord of this house (${houseLord}) is placed in the ${getOrdinal(lordInVargaHouse)} house. The lord of the ${area.varga} ascendant, ${vargaLagnaLord}, is in the ${getOrdinal(vargaLagnaLordInVargaHouse)} house. `;
-                }
-                narrative += vargaNarrative;
-            }
-        }
+              // 2. Varga Ascendant Lord in Varga
+              if (vargaLagnaLord) {
+                  const vargaLagnaLordDignity = getPlanetDignityDescription(vargaLagnaLord, vargaChart[vargaLagnaLord], lang);
+                  const vargaLagnaLordHouse = getHouseOfPlanet(vargaChart[vargaLagnaLord]?.longitude, vargaHouseCusps);
+                  keyFactors.push({
+                      planet: vargaLagnaLord,
+                      role: lang === 'hi' ? `${area.varga} लग्न का स्वामी` : `${area.varga} Ascendant Lord`,
+                      dignity: vargaLagnaLordDignity,
+                      house: vargaLagnaLordHouse
+                  });
+              }
+
+              // Build narrative
+              if (lang === 'hi') {
+                  vargaNarrative = `आपके ${area.varga} चार्ट में, जो आपके ${getLifeAreaName(area.name, lang)} का सूक्ष्म जगत है, प्रमुख ग्रहों की स्थिति इस प्रकार है:\n`;
+                  keyFactors.forEach(factor => {
+                      vargaNarrative += `*   **${factor.role} (${getPlanetName(factor.planet, lang)}):** यह ${factor.house}वें घर में ${factor.dignity} में स्थित है। `;
+                      if (['उच्च का', 'स्वराशि में', 'मूलत्रिकोण में'].some(d => factor.dignity.includes(d))) {
+                          vargaNarrative += `यह इस क्षेत्र में असाधारण शक्ति और सफलता का संकेत देता है।\n`;
+                      } else if (['नीच का', 'शत्रु राशि में'].some(d => factor.dignity.includes(d))) {
+                          vargaNarrative += `यह इस क्षेत्र में चुनौतियों और संघर्षों का संकेत देता है।\n`;
+                      } else {
+                          vargaNarrative += `यह इस क्षेत्र में मिश्रित या मध्यम परिणाम देगा।\n`;
+                      }
+                  });
+              } else {
+                  vargaNarrative = `In your ${area.varga} chart, the microcosm of your ${area.name.toLowerCase()}, the key planetary placements are as follows:\n`;
+                  keyFactors.forEach(factor => {
+                      vargaNarrative += `*   **${factor.role} (${factor.planet}):** It is placed in the ${getOrdinal(factor.house)} house in a state of ${factor.dignity}. `;
+                      if (['exalted', 'Own Sign', 'Moolatrikona'].some(d => factor.dignity.includes(d))) {
+                          vargaNarrative += `This indicates exceptional strength and success in this area.\n`;
+                      } else if (['debilitated', 'enemy sign'].some(d => factor.dignity.includes(d))) {
+                          vargaNarrative += `This points to challenges and struggles in this area.\n`;
+                      } else {
+                          vargaNarrative += `This suggests mixed or moderate results in this domain.\n`;
+                      }
+                  });
+              }
+          }
       }
-      reports[area.name.toLowerCase()] = { narrative: narrative.trim() };
+
+      reports[area.name.toLowerCase().replace(/,/g, '').replace(/\\\s/g, '_').replace(/\//g, '_')] = { 
+          intro: introNarrative,
+          analysis: analysis,
+          timing: timingNarrative,
+          varga: vargaNarrative
+      };
   });
   return reports;
 }
@@ -760,8 +773,16 @@ function generateSummary(overallReport, lifeAreaReports, eventTimeline, yogas, d
     }
     
     summary += currentHeaders.lifeAreasSummary + '\n';
-    Object.values(lifeAreaReports).forEach(area => {
-        summary += `${area.narrative}\n\n`;
+    Object.entries(lifeAreaReports).forEach(([area, report]) => {
+        summary += `\n**${area.replace(/_/g, ' ')}**\n`;
+        summary += report.intro ? `${report.intro}\n` : '';
+        if(report.analysis) {
+            summary += `Supportive: ${report.analysis.supportive}\n`;
+            summary += `Challenging: ${report.analysis.challenging}\n`;
+            summary += `Summary: ${report.analysis.summary}\n`;
+        }
+        summary += report.timing ? `Timing: ${report.timing}\n` : '';
+        summary += report.varga ? `Divisional: ${report.varga}\n` : '';
     });
     
     summary += currentHeaders.eventTimeline + '\n';

@@ -429,7 +429,7 @@ router.post('/calculate', baseChartValidation, async (req, res) => { // Added as
 
         // --- Calculate UPBS for each planet ---
         const upbsScores = {};
-        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+        for (const planet of PLANET_ORDER) {
             upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
         }
 
@@ -710,7 +710,7 @@ router.post('/calculate/rotated', rotatedChartValidation, async (req, res) => { 
 
         // --- Calculate UPBS for each planet ---
         const upbsScores = {};
-        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+        for (const planet of PLANET_ORDER) {
             upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
         }
 
@@ -1232,7 +1232,7 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
 
         // --- Calculate UPBS for each planet ---
         const upbsScores = {};
-        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+        for (const planet of PLANET_ORDER) {
             upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
         }
 
@@ -1438,7 +1438,7 @@ router.post('/calculate-varshphal/rotated', rotatedVarshphalValidation, async (r
 
         // --- Calculate UPBS for each planet ---
         const upbsScores = {};
-        for (const planet of FRIENDSHIP_PLANETS_ORDER) {
+        for (const planet of PLANET_ORDER) {
             upbsScores[planet] = calculateUPBS(planet, unifiedChartData);
         }
 

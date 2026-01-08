@@ -1750,5 +1750,150 @@ export function calculateAtmakaraka(siderealPositions) {
       }
     }
   }
-  return atmakaraka.planet;
+      return atmakaraka.planet;
+  }
+  
+  /**
+   * Finds the precise Julian Day (UT) when the Sun ingresses into a specific sidereal Rashi longitude.
+   * This uses a binary search approach with swisseph.
+   * @param {number} year - The year for which to find the ingress.
+   * @param {number} targetRashiIndex - The 0-indexed Rashi (0 for Aries, 1 for Taurus, etc.)
+   * @returns {number|null} The Julian Day (UT) of the ingress, or null if not found.
+   */
+export function findSunRashiIngressJD(year, targetRashiIndex) {
+    const ayanamsaMode = swisseph.SE_SIDM_LAHIRI; // Assuming Lahiri Ayanamsa
+    swisseph.swe_set_sid_mode(ayanamsaMode, 0, 0);
+
+    const targetLongitude = targetRashiIndex * RASHI_SPAN; // RASHI_SPAN is 30 degrees
+   
+
+    // Corrected initial search window calculation for sidereal ingresses
+    // Rashi 0 (Aries) ingress is typically in April (month index 3)
+    // So, month_offset = 3.
+    const monthOffsetForRashi = 3;
+    let approxMonthIndex = (targetRashiIndex + monthOffsetForRashi) % 12;
+    let effectiveYearForSearchStart = year;
+    let effectiveYearForSearchEnd = year;
+
+    // Adjust year for months that wrap around (e.g., Capricorn ingress in Jan of current year)
+    // If approxMonthIndex is 0, 1, or 2 (Jan, Feb, Mar), it refers to the *next* year's Rashi ingress if the targetRashiIndex is high (e.g., Capricorn, Aquarius, Pisces)
+    // So, if targetRashiIndex is 9 (Capricorn), approxMonthIndex is (9+3)%12 = 0 (Jan). But it's Jan of *this* year.
+    // If targetRashiIndex is 0 (Aries), approxMonthIndex is 3 (Apr).
+
+    // Let's make this simpler: map Rashi index to typical month number directly.
+    const rashiToMonthMap = [
+        3, // Aries (0) -> April (3)
+        4, // Taurus (1) -> May (4)
+        5, // Gemini (2) -> June (5)
+        6, // Cancer (3) -> July (6)
+        7, // Leo (4) -> Aug (7)
+        8, // Virgo (5) -> Sept (8)
+        9, // Libra (6) -> Oct (9)
+        10, // Scorpio (7) -> Nov (10)
+        11, // Sagittarius (8) -> Dec (11)
+        0, // Capricorn (9) -> Jan (0)
+        1, // Aquarius (10) -> Feb (1)
+        2  // Pisces (11) -> Mar (2)
+    ];
+    approxMonthIndex = rashiToMonthMap[targetRashiIndex];
+
+    // Adjust year if the ingress month (e.g., Jan, Feb, Mar) is earlier than the first Rashi of the year (Aries in April).
+    // If targetRashiIndex is 9, 10, or 11 (Capricorn, Aquarius, Pisces), their ingresses fall in the *current* year's Jan-Mar range,
+    // but the `year` parameter typically refers to the *start* of the year.
+    // So, if we are looking for Capricorn (targetRashiIndex 9, month 0), it refers to the January of the `year`.
+    // If we are looking for Aries (targetRashiIndex 0, month 3), it refers to the April of the `year`.
+    
+    // The previous logic was `new Date(Date.UTC(year, targetRashiIndex, 1))` which was problematic.
+    // Let's ensure the year is correctly set for the target month.
+    if (approxMonthIndex < monthOffsetForRashi && targetRashiIndex >= 9) { // For Capricorn, Aquarius, Pisces
+        effectiveYearForSearchStart = year;
+        effectiveYearForSearchEnd = year;
+    } else { // For Aries through Sagittarius
+        effectiveYearForSearchStart = year;
+        effectiveYearForSearchEnd = year;
+    }
+
+    let searchStartDate = new Date(Date.UTC(effectiveYearForSearchStart, approxMonthIndex, 1));
+    let searchEndDate = new Date(Date.UTC(effectiveYearForSearchEnd, approxMonthIndex + 1, 1));
+
+    // Adjust start and end dates to give buffer
+    searchStartDate.setUTCDate(searchStartDate.getUTCDate() - 15); // Search from 15 days before start of approx month
+    searchEndDate.setUTCDate(searchEndDate.getUTCDate() + 15); // Search to 15 days after end of approx month
+
+   
+    const low_jd_result = swisseph.swe_utc_to_jd(
+        searchStartDate.getUTCFullYear(),
+        searchStartDate.getUTCMonth() + 1,
+        searchStartDate.getUTCDate(),
+        0, 0, 0, 1
+    );
+     let low_jd = low_jd_result.julianDayUT;
+
+    const high_jd_result = swisseph.swe_utc_to_jd(
+        searchEndDate.getUTCFullYear(),
+        searchEndDate.getUTCMonth() + 1,
+        searchEndDate.getUTCDate(),
+        0, 0, 0, 1
+    );
+    let high_jd = high_jd_result.julianDayUT;
+   
+    let jd_ingress = null;
+    const MAX_BISECTION_ITERATIONS = 100;
+    const JD_PRECISION = 1e-9; // Roughly equivalent to milliseconds precision in time
+    
+    // Binary search for the precise moment
+    let current_low_jd = low_jd;
+    let current_high_jd = high_jd;
+
+    for (let i = 0; i < MAX_BISECTION_ITERATIONS; i++) {
+        let jd_mid = (current_low_jd + current_high_jd) / 2;
+        let p_res = swisseph.swe_calc_ut(jd_mid, swisseph.SE_SUN, swisseph.SEFLG_SIDEREAL);
+        
+        if (!p_res || !p_res.longitude || isNaN(p_res.longitude)) {
+            logger.error(`[findSunRashiIngressJD] swe_calc_ut failed during bisection for JD ${jd_mid}`);
+            break;
+        }
+
+        let current_lon = normalizeAngle(p_res.longitude);
+       
+        // Robust angular comparison:
+        // Calculate the "angular distance" from current_lon to targetLongitude in the forward direction.
+        // If this distance is small (i.e., less than 180 degrees), it means current_lon is 'ahead' or 'at' targetLongitude.
+        // If this distance is large (i.e., more than 180 degrees), it means current_lon is 'behind' targetLongitude.
+        const angular_distance_from_target_to_current = normalizeAngle(current_lon - targetLongitude);
+
+        if (angular_distance_from_target_to_current < 180) { 
+            // Current longitude is at or past the target longitude (or very close in the forward direction)
+            // So, the ingress point is at or before jd_mid. Search in the lower half.
+            current_high_jd = jd_mid;
+        } else { 
+            // Current longitude is still before the target longitude (in the forward direction)
+            // So, the ingress point is after jd_mid. Search in the upper half.
+            current_low_jd = jd_mid;
+        }
+
+        if (Math.abs(current_high_jd - current_low_jd) < JD_PRECISION) {
+            jd_ingress = current_high_jd; 
+            break;
+        }
+    }
+
+    if (jd_ingress) {
+        // Final verification: ensure the Sun's longitude at jd_ingress is very close to targetLongitude
+        const final_p_res = swisseph.swe_calc_ut(jd_ingress, swisseph.SE_SUN, swisseph.SEFLG_SIDEREAL);
+        if (final_p_res && !isNaN(final_p_res.longitude)) {
+            const final_lon = normalizeAngle(final_p_res.longitude);
+            // Check if the longitude is within a very small epsilon of the targetLongitude
+            // The angular difference should be very small.
+            const angular_diff = normalizeAngle(final_lon - targetLongitude);
+            if (angular_diff < 0.001 || angular_diff > 359.999) { // Check if very close to target (0 or 360)
+                return jd_ingress;
+            } else {
+                 logger.warn(`[findSunRashiIngressJD] Converged JD ${jd_ingress} did not yield Sun longitude close to target ${targetLongitude}° (final: ${final_lon.toFixed(4)}°). Angular Diff: ${angular_diff.toFixed(4)}°`);
+            }
+        }
+    }
+    
+    logger.warn(`[findSunRashiIngressJD] Ingress for Rashi ${targetRashiIndex} (Lon: ${targetLongitude}°) not found or verified for year ${year}.`);
+    return null;
 }

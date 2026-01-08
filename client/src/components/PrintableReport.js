@@ -90,7 +90,7 @@ const interpretUPBS = (score, t) => {
     };
 
 
-const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting, adjustedGocharDateTimeString, locationForGocharTool, transitPlaceName }) => {
+const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting, adjustedGocharDateTimeString, locationForGocharTool, transitPlaceName, adjustedBirthDateTimeString }) => {
     const [mainResult, setMainResult] = useState(null);
     const [mainError, setMainError] = useState(null); // Re-added mainError
     const [kpResult, setKpResult] = useState(null);
@@ -105,7 +105,6 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
     const { t, i18n } = useTranslation();
 
     const [holisticPrediction, setHolisticPrediction] = useState(null);
-    const [isLoadingHolisticPrediction, setIsLoadingHolisticPrediction] = useState(false);
     const [holisticPredictionError, setHolisticPredictionError] = useState(null);
     const [varshphalPrediction, setVarshphalPrediction] = useState({ prediction: "", isLoading: false, error: null, year: null });
     const [kpAnalysis, setKpAnalysis] = useState({ analysis: "", isLoading: false, error: null });
@@ -355,11 +354,10 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
             }
 
             // Fetch Holistic Prediction
-            setIsLoadingHolisticPrediction(true);
             setHolisticPredictionError(null);
             try {
                 const holisticPayload = {
-                    birthDate: calculationInputParams.date,
+                    birthDate: adjustedBirthDateTimeString || calculationInputParams.date,
                     latitude: calculationInputParams.latitude,
                     longitude: calculationInputParams.longitude,
                     transitDate: adjustedGocharDateTimeString,
@@ -389,7 +387,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
             } catch (err) {
                 setHolisticPredictionError('Failed to fetch holistic prediction.');
             } finally {
-                setIsLoadingHolisticPrediction(false);
+                
             }
 
             // Fetch Varshphal Prediction
@@ -400,6 +398,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                 const varChart = varData.varshphalChart;
                 if (varChart && varChart.ascendant && varChart.planetaryPositions && varChart.planetaryPositions.sidereal) {
                     const varshphalPredPayload = {
+                        natalDate: adjustedBirthDateTimeString || calculationInputParams.date, // Use adjusted birth date
                         varshphalChart: varChart,
                         muntha: varData.muntha,
                         yearLord: varData.yearLord,
@@ -420,7 +419,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
         };
 
         fetchPredictions();
-    }, [mainResult, varshphalResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language]);
+    }, [mainResult, varshphalResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language, adjustedBirthDateTimeString]);
 
     useEffect(() => {
             if (!isLoading && !mainError && !kpError && !varshphalError && !transitError && mainResult && kpResult && varshphalResult && transitResult && holisticPrediction && !varshphalPrediction.isLoading && !kpAnalysis.isLoading) {
@@ -886,7 +885,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {PLANET_ORDER.filter(p => p !== 'Rahu' && p !== 'Ketu' && p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(planet => {
+                                        {PLANET_ORDER.filter(p => p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(planet => {
                                             const planetUPBS = displayResult.planetDetails.upbsScores[planet];
                                             if (!planetUPBS || isNaN(planetUPBS.total) || !planetUPBS.breakdown) {
                                                 return (
@@ -1122,7 +1121,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {Object.keys(varshphalResult.varshphalChart.planetDetails.upbsScores).map(planet => {
+                                                {PLANET_ORDER.filter(p => p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(planet => {
                                                     const planetUPBS = varshphalResult.varshphalChart.planetDetails.upbsScores[planet];
                                                     if (!planetUPBS || isNaN(planetUPBS.total)) {
                                                     return (
@@ -1407,7 +1406,16 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                     {Object.entries(holisticPrediction.lifeAreaReports).map(([area, report]) => (
                                         <div key={area} className="life-area-report">
                                             <h4>{t(`lifeAreas.${area}`, area)}</h4>
-                                            <p>{report.narrative}</p>
+                                            {report.intro && report.intro.trim() !== '' && <p>{report.intro}</p>}
+                                            {report.analysis && (
+                                                <div className="analysis-section">
+                                                    {report.analysis.supportive && report.analysis.supportive.trim() !== '' && <p><strong>{t('predictionPage.supportive', 'Supportive Influences')}:</strong> {report.analysis.supportive}</p>}
+                                                    {report.analysis.challenging && report.analysis.challenging.trim() !== '' && <p><strong>{t('predictionPage.challenging', 'Challenging Influences')}:</strong> {report.analysis.challenging}</p>}
+                                                    {report.analysis.summary && report.analysis.summary.trim() !== '' && <p><strong>{t('predictionPage.summary', 'Summary')}:</strong> {report.analysis.summary}</p>}
+                                                </div>
+                                            )}
+                                            {report.timing && report.timing.trim() !== '' && <p><strong>{t('predictionPage.timing', 'Timing of Events')}:</strong> {report.timing}</p>}
+                                            {report.varga && report.varga.trim() !== '' && <p><strong>{t('predictionPage.divisional', 'Divisional Chart')}:</strong> {report.varga}</p>}
                                         </div>
                                     ))}
                                 </div>

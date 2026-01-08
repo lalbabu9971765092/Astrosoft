@@ -32,6 +32,7 @@ const EXCLUDED_PLANETS_ASPECTS_FRIENDSHIP = ['Uranus', 'Neptune', 'Pluto'];
 const CORE_VEDIC_PLANETS = PLANET_ORDER.filter(p => !EXCLUDED_PLANETS_ASPECTS_FRIENDSHIP.includes(p) && p !== 'Rahu' && p !== 'Ketu');
 // Define planets for aspect table (excluding outer planets)
 const ASPECT_TABLE_PLANETS = PLANET_ORDER.filter(p => !EXCLUDED_PLANETS_ASPECTS_FRIENDSHIP.includes(p));
+const UPBS_PLANETS = PLANET_ORDER.filter(p => !EXCLUDED_PLANETS_ASPECTS_FRIENDSHIP.includes(p));
 
 
 const PlanetDetailsPage = () => {
@@ -51,7 +52,6 @@ const PlanetDetailsPage = () => {
     const [isLoadingRectification, setIsLoadingRectification] = useState(false);
     const [rectificationError, setRectificationError] = useState(null);
     const [rotatedResultLocal, setRotatedResultLocal] = useState(null);
-    const [isLoadingRotated, setIsLoadingRotated] = useState(false);
     const [openSections, setOpenSections] = useState({
         planets: true,
         aspects: true,
@@ -131,7 +131,6 @@ const PlanetDetailsPage = () => {
                 return;
             }
             const formattedDateForApi = dateTimeValidation.formattedDate;
-            setIsLoadingRotated(true);
             try {
                 const payload = { date: formattedDateForApi, latitude: calculationInputParams.latitude, longitude: calculationInputParams.longitude, house_to_rotate: house };
                 // Note: api interceptor also adds house_to_rotate from localStorage, but we include it explicitly here
@@ -140,8 +139,6 @@ const PlanetDetailsPage = () => {
             } catch (err) {
                 console.warn('PlanetDetailsPage: rotated fetch failed', err.response?.data || err.message || err);
                 if (!cancelled) setRotatedResultLocal(null);
-            } finally {
-                if (!cancelled) setIsLoadingRotated(false);
             }
         };
         fetchRotated();
@@ -477,7 +474,7 @@ const PlanetDetailsPage = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {CORE_VEDIC_PLANETS.map((planet) => {
+                                    {UPBS_PLANETS.map((planet) => {
                                         const planetUPBS = upbsScores[planet];
                                         if (!planetUPBS || isNaN(planetUPBS.total)) {
                                             return (

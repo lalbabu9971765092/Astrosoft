@@ -88,7 +88,6 @@ const AstrologyForm = () => {
     const [isLoadingGochar, setIsLoadingGochar] = useState(false);
     const [gocharError, setGocharError] = useState(null);
     const [rotatedResult, setRotatedResult] = useState(null);
-    const [isLoadingRotated, setIsLoadingRotated] = useState(false);
     const [openSections, setOpenSections] = useState({
         basicInfo: true,
         dashaBalance: true,
@@ -219,7 +218,6 @@ const AstrologyForm = () => {
                 setRotatedResult(null);
                 return;
             }
-            setIsLoadingRotated(true);
             try {
                 const payload = {
                     date: calculationInputParams.date,
@@ -234,9 +232,7 @@ const AstrologyForm = () => {
             } catch (err) {
                 console.warn('Failed to fetch rotated chart:', err.response?.data || err.message || err);
                 if (!cancelled) setRotatedResult(null);
-            } finally {
-                if (!cancelled) setIsLoadingRotated(false);
-            }
+            } 
         };
         fetchRotated();
         return () => { cancelled = true; };

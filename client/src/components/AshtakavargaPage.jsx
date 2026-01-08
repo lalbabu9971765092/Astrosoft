@@ -38,7 +38,6 @@ const AshtakavargaPage = () => {
     const [isLoadingRectification, setIsLoadingRectification] = useState(false);
     const [rectificationError, setRectificationError] = useState(null);
     const [rotatedResultLocal, setRotatedResultLocal] = useState(null);
-    const [isLoadingRotated, setIsLoadingRotated] = useState(false);
 
     // useEffect for rectification (keep as is)
     useEffect(() => {
@@ -121,7 +120,6 @@ const AshtakavargaPage = () => {
                 return;
             }
             const formattedDateForApi = dateTimeValidation.formattedDate;
-            setIsLoadingRotated(true);
             try {
                 const payload = {
                     date: formattedDateForApi,
@@ -135,9 +133,7 @@ const AshtakavargaPage = () => {
             } catch (err) {
                 console.warn('AshtakavargaPage: rotated fetch failed', err.response?.data || err.message || err);
                 if (!cancelled) setRotatedResultLocal(null);
-            } finally {
-                if (!cancelled) setIsLoadingRotated(false);
-            }
+            } 
         };
         fetchRotated();
         return () => { cancelled = true; };

@@ -44,12 +44,12 @@ const MainLayout = () => {
                         <li><NavLink to="/ashtakavarga" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.ashtakavarga')}</NavLink></li>
                         <li><NavLink to="/divisional-charts" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.divisionalCharts')}</NavLink></li>
                         <li><NavLink to="/yogas" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.predictions')}</NavLink></li>
-                        <li><NavLink to="/festivals" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.festivals')}</NavLink></li>
-                        <li><NavLink to="/prashna-time" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.prashnaTime')}</NavLink></li>
+                       <li><NavLink to="/prashna-time" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.prashnaTime')}</NavLink></li>
                         <li><NavLink to="/prashna-number" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.prashnaNumber')}</NavLink></li>
                         <li><NavLink to="/remedies" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.remedies')}</NavLink></li>
                         <li><NavLink to="/varshphal" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.varshphal')}</NavLink></li>
-                        <li><NavLink to="/muhurta" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.muhurta')}</NavLink></li>
+                         <li><NavLink to="/festivals" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.festivals')}</NavLink></li>
+                         <li><NavLink to="/muhurta" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.muhurta')}</NavLink></li>
                         <li><NavLink to="/monthly-yogas" className={({ isActive }) => isActive ? 'active' : ''} onClick={() => setIsNavOpen(false)}>{t('nav.monthlyYogas')}</NavLink></li>
                        {userInfo ? (
                             <>

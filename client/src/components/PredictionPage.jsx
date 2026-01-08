@@ -82,7 +82,10 @@ const PredictionPage = () => {
             };
             const response = await api.post('/predictions/holistic', payload);
             setHolisticPrediction(response.data);
-            try { setLastHolisticKey(`${adjustedGocharDateTimeString}|${i18n.language}`); } catch (e) {}
+            try { 
+                const birthDateString = adjustedBirthDateTimeString || calculationInputParams.date;
+                setLastHolisticKey(`${birthDateString}|${adjustedGocharDateTimeString}|${i18n.language}`); 
+            } catch (e) {}
         } catch (err) {
             console.error('Error fetching holistic prediction:', err.response?.data || err.message || err);
             setHolisticPredictionError(t('predictionPage.holisticPredictionError', 'Failed to fetch holistic prediction.'));
@@ -111,7 +114,10 @@ const PredictionPage = () => {
             };
             const response = await api.post('/predictions/holistic', payload);
             setRotatedHolisticPrediction(response.data);
-            try { setLastRotatedHolisticKey(`${adjustedGocharDateTimeString}|${i18n.language}|${rotateHouse}`); } catch (e) {}
+            try { 
+                const birthDateString = adjustedBirthDateTimeString || calculationInputParams.date;
+                setLastRotatedHolisticKey(`${birthDateString}|${adjustedGocharDateTimeString}|${i18n.language}|${rotateHouse}`); 
+            } catch (e) {}
         } catch (err) {
             console.error('Error fetching rotated holistic prediction:', err.response?.data || err.message || err);
             setRotatedHolisticPredictionError(t('predictionPage.holisticPredictionError', 'Failed to fetch holistic prediction.'));
@@ -132,19 +138,24 @@ const PredictionPage = () => {
             };
             const response = await api.post('/predictions/kp-analysis', payload);
             setKpAnalysis({ analysis: response.data.analysis.analysisText || '', isLoading: false, error: null });
-            try { setLastKpKey(`${adjustedGocharDateTimeString}|${i18n.language}`); } catch (e) {}
+            try { 
+                const birthDateString = adjustedBirthDateTimeString || calculationInputParams.date;
+                setLastKpKey(`${birthDateString}|${adjustedGocharDateTimeString}|${i18n.language}`); 
+            } catch (e) {}
         } catch (err) {
             console.error('Error fetching KP analysis:', err.response?.data || err.message || err);
             const errorMsg = err.response?.data?.error || err.message || t('predictionPage.kpAnalysisError', 'Failed to fetch KP analysis.');
             setKpAnalysis({ analysis: '', isLoading: false, error: errorMsg });
         }
-    }, [i18n.language, t]);
+    }, [i18n.language, t, adjustedGocharDateTimeString, adjustedBirthDateTimeString, calculationInputParams]);
 
     useEffect(() => {
         if (mainResult && calculationInputParams && calculationInputParams.date) {
             const currentLang = i18n.language;
-            const transitKey = `${adjustedGocharDateTimeString}|${currentLang}`;
-            const rotatedKey = `${adjustedGocharDateTimeString}|${currentLang}|${houseToRotate}`;
+            const birthDateString = adjustedBirthDateTimeString || calculationInputParams.date;
+
+            const transitKey = `${birthDateString}|${adjustedGocharDateTimeString}|${currentLang}`;
+            const rotatedKey = `${birthDateString}|${adjustedGocharDateTimeString}|${currentLang}|${houseToRotate}`;
 
             // Decide whether to fetch rotated or normal holistic
             if (typeof houseToRotate === 'number' && houseToRotate > 1) {
@@ -152,6 +163,9 @@ const PredictionPage = () => {
                     fetchRotatedHolisticPrediction(houseToRotate);
                 }
             } else {
+                if (rotatedHolisticPrediction) {
+                    setRotatedHolisticPrediction(null);
+                }
                 if (lastHolisticKey !== transitKey) {
                     fetchHolisticPrediction();
                 }
@@ -164,7 +178,7 @@ const PredictionPage = () => {
 
             // KP analysis - use effectiveHolistic to derive kpSignificators
             const effectiveHolistic = (typeof houseToRotate === 'number' && houseToRotate > 1) ? rotatedHolisticPrediction || holisticPrediction : holisticPrediction;
-            const kpKey = `${adjustedGocharDateTimeString}|${i18n.language}`;
+            const kpKey = `${birthDateString}|${adjustedGocharDateTimeString}|${i18n.language}`;
             if (effectiveHolistic?.planetDetails && lastKpKey !== kpKey) {
                 fetchKpAnalysis(effectiveHolistic.planetDetails);
             }
@@ -174,7 +188,7 @@ const PredictionPage = () => {
             setRotatedHolisticPrediction(null);
             setKpAnalysis({ analysis: '', isLoading: false, error: null });
         }
-    }, [mainResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language, fetchHolisticPrediction, fetchRotatedHolisticPrediction, fetchVarshphalPrediction, fetchKpAnalysis, varshphalData.prediction, varshphalData.year, houseToRotate, lastHolisticKey, lastRotatedHolisticKey, lastKpKey]);
+    }, [mainResult, calculationInputParams, adjustedBirthDateTimeString, adjustedGocharDateTimeString, i18n.language, fetchHolisticPrediction, fetchRotatedHolisticPrediction, fetchVarshphalPrediction, fetchKpAnalysis, varshphalData.prediction, varshphalData.year, houseToRotate, lastHolisticKey, lastRotatedHolisticKey, lastKpKey, holisticPrediction, rotatedHolisticPrediction]);
 
     const renderContent = () => {
         if (!calculationInputParams?.date) return <p className="info-text">{t('predictionPage.calculateFirst', 'Please calculate a chart first to see the predictions.')}</p>;
@@ -306,8 +320,17 @@ const PredictionPage = () => {
                             <div className="prediction-content">
                                 {Object.entries(effectiveHolistic.lifeAreaReports).map(([area, report]) => (
                                     <div key={area} className="life-area-report">
-                                        <h4><span className="life-area-icon">🏠</span>{t(`lifeAreas.${area}`, area)}</h4>
-                                        <p>{report.narrative}</p>
+                                        <h4><span className="life-area-icon">🏠</span>{t(`lifeAreas.${area}`, area.replace(/_/g, ' '))}</h4>
+                                        {report.intro && <p>{report.intro}</p>}
+                                        {report.analysis && (
+                                            <div className="analysis-section">
+                                                <p><strong>{t('predictionPage.supportive', 'Supportive Influences')}:</strong> {report.analysis.supportive}</p>
+                                                <p><strong>{t('predictionPage.challenging', 'Challenging Influences')}:</strong> {report.analysis.challenging}</p>
+                                                <p><strong>{t('predictionPage.summary', 'Summary')}:</strong> {report.analysis.summary}</p>
+                                            </div>
+                                        )}
+                                        {report.timing && <p><strong>{t('predictionPage.timing', 'Timing of Events')}:</strong> {report.timing}</p>}
+                                        {report.varga && <p><strong>{t('predictionPage.divisional', 'Divisional Chart')}:</strong> {report.varga}</p>}
                                     </div>
                                 ))}
                             </div>

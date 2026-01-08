@@ -3,6 +3,8 @@ import { query, param, validationResult } from 'express-validator'; // Import va
 
 import { MhahPanchang } from "mhah-panchang";
 import SunCalc from 'suncalc'; // Still used for Tithi festivals
+import swisseph from 'swisseph-v2'; // Import swisseph directly for precise calculations
+import moment from 'moment-timezone'; // Import moment-timezone for date handling
 
 // --- Import Logger ---
 import logger from '../utils/logger.js'; // Assuming logger uses ES Module export
@@ -14,7 +16,9 @@ import {
     getJulianDateUT,
     calculatePlanetaryPositions,
     getRashiDetails,
-    calculateEclipsesForYear // Import the eclipse calculation function
+    calculateEclipsesForYear, // Import the eclipse calculation function
+    findSunRashiIngressJD, // Import the new function for precise Sankranti calculation
+    RASHIS // Import RASHIS for naming Sankrantis
 } from '../utils/index.js'; // Adjust path if necessary and ensure utils/index.js exports these
 
 
@@ -438,102 +442,88 @@ router.get("/sankranti/:year",
         try {
             // Use validated values
             const { year } = req.params;
-            const lat = req.query.lat ?? defaultLat; // Needed for getJulianDateUT offset calculation
+            // Lat/Lon are not directly used in findSunRashiIngressJD, but could be passed if Ayanamsa calculation depends on location
+            // For now, these are not directly used as swisseph sidereal mode is set globally.
+            const lat = req.query.lat ?? defaultLat;
             const lon = req.query.lon ?? defaultLon;
 
-          
-
             const sankrantiList = [];
-            // Start slightly before the year and end slightly after to catch transitions near year boundaries
-            const startDate = new Date(Date.UTC(year - 1, 11, 15, 12, 0, 0));
-            const endDate = new Date(Date.UTC(year + 1, 0, 15, 12, 0, 0)); // Go into Jan of next year
-            let currentDate = new Date(startDate);
-            let previousSunRashi = null;
-            const foundRashis = new Set(); // Tracks Rashis found within the target year
+            
+            // Loop through all 12 Rashis to find each Sankranti
+            for (let i = 0; i < 12; i++) {
+                const targetRashiIndex = i;
+                const rashiName = RASHIS[targetRashiIndex]; // Get Rashi name (e.g., "Aries", "Taurus")
 
-            // Get initial Rashi
-            try {
-                const { julianDayUT: initialJd, momentLocal } = getJulianDateUT(currentDate.toISOString(), lat, lon);
-                const initialPositions = calculatePlanetaryPositions(initialJd);
-                const initialSunLon = initialPositions?.sidereal?.Sun?.longitude;
-                if (initialSunLon !== undefined && !isNaN(initialSunLon)) {
-                    previousSunRashi = getRashiDetails(initialSunLon)?.name;
+                const jd_ingress = findSunRashiIngressJD(year, targetRashiIndex);
+
+                if (jd_ingress !== null) {
+                    // Convert Julian Day (UT) to UTC Date and then to ISO string
+                    // swe_revjul returns [year, month, day, hour, minute, second]
+                    const datetime_utc_obj = swisseph.swe_revjul(jd_ingress, swisseph.SE_GREGORIAN);
+                   
+                    // swisseph.swe_get_errors() is not a function in swisseph-v2, removed check.
+                    // Validate elements of datetime_utc_obj before proceeding
+                    const isValidDateTimeObj = datetime_utc_obj &&
+                                               typeof datetime_utc_obj.year === 'number' && !isNaN(datetime_utc_obj.year) &&
+                                               typeof datetime_utc_obj.month === 'number' && !isNaN(datetime_utc_obj.month) &&
+                                               typeof datetime_utc_obj.day === 'number' && !isNaN(datetime_utc_obj.day) &&
+                                               typeof datetime_utc_obj.hour === 'number' && !isNaN(datetime_utc_obj.hour);
+
+                    if (!isValidDateTimeObj) {
+                        logger.error(`[Sankranti Route] Invalid datetime_utc_obj received from swe_revjul for ${rashiName} Sankranti (JD: ${jd_ingress}): ${JSON.stringify(datetime_utc_obj)}. Skipping this Sankranti.`);
+                        continue; // Skip this Sankranti if the object is invalid
+                    }
+
+                    // Extract all components, including minutes, seconds, and milliseconds from the hour float
+                    const year_utc = datetime_utc_obj.year;
+                    const month_utc = datetime_utc_obj.month - 1; // Date.UTC month is 0-indexed
+                    const day_utc = datetime_utc_obj.day;
+                    const hour_float = datetime_utc_obj.hour;
+
+                    const hours_int = Math.floor(hour_float);
+                    const minutes_float = (hour_float - hours_int) * 60;
+                    const minutes_int = Math.floor(minutes_float);
+                    const seconds_float = (minutes_float - minutes_int) * 60;
+                    const seconds_int = Math.floor(seconds_float);
+                    const milliseconds_int = Math.round((seconds_float - seconds_int) * 1000); // Round milliseconds
+
+                    
+                    const ingressDateTimeUTC = new Date(Date.UTC(
+                        year_utc, month_utc, day_utc,
+                        hours_int, minutes_int, seconds_int, milliseconds_int
+                    ));
+                    
+                    // Extract date part for the 'date' field
+                    const date_utc_string = ingressDateTimeUTC.toISOString().split('T')[0];
+
+                   // Only add Sankrantis that occur within the target year (or very close to it for boundary cases)
+                    // The binary search covers a broader range to ensure all ingresses are found.
+                    // This filter ensures we only return ingresses relevant to the requested year.
+                    if (ingressDateTimeUTC.getUTCFullYear() === year ||
+                        (ingressDateTimeUTC.getUTCFullYear() === year - 1 && targetRashiIndex === 0) || // Aries ingress can be end of prev year if calculation start is early
+                        (ingressDateTimeUTC.getUTCFullYear() === year + 1 && targetRashiIndex === 0) // Capricorn ingress (index 9) can be early next year
+                        ) {
+                         // Double check: ensure we don't add duplicate rashis for the same year
+                        if (!sankrantiList.some(s => s.rashi === rashiName)) {
+                            sankrantiList.push({
+                                name: `${rashiName} Sankranti`,
+                                rashi: rashiName,
+                                date: date_utc_string, // Date part only (YYYY-MM-DD)
+                                moment: ingressDateTimeUTC.toISOString() // Exact ISO datetime
+                            });
+                        }
+                    }
                 } else {
-                    logger.warn(`[Sankranti] Initial Sun longitude unavailable for ${startDate.toISOString().split("T")[0]}`);
+                    logger.warn(`[Sankranti Route] findSunRashiIngressJD returned null for year ${year}, Rashi Index ${targetRashiIndex} (${rashiName}).`);
                 }
-            } catch (initError) {
-                logger.error(`[Sankranti] Error getting initial Sun Rashi: ${initError.message}`);
-                // Potentially throw or handle this more gracefully if initial state is critical
             }
-
-            while (currentDate <= endDate) {
-                const currentDateString = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
-                let currentSunRashi = undefined;
-
-                try {
-                    // Calculate Sun's position using Swisseph via utils
-                  const { julianDayUT, momentLocal } = getJulianDateUT(currentDate.toISOString(), lat, lon); // Pass lat too if needed by util
-
-                  // *** ADD NULL CHECK ***
-                  if (julianDayUT === null) {
-                      logger.error(`[Sankranti] Failed to get Julian Day for ${currentDate.toISOString()}. Skipping day.`);
-                      throw new Error(`Julian Day calculation failed for ${currentDate.toISOString()}`); // Throw to skip rest of try block
-                  }
-                    const planetaryPositions = calculatePlanetaryPositions(julianDayUT);
-                    const sunLongitude = planetaryPositions?.sidereal?.Sun?.longitude;
-
-                    if (sunLongitude !== undefined && !isNaN(sunLongitude)) {
-                        currentSunRashi = getRashiDetails(sunLongitude)?.name;
-                    } else {
-                        // Log only periodically if Sun data is missing to avoid flooding logs
-                        if (currentDate.getUTCDate() === 1) { // Log once per month if missing
-                           logger.warn(`[Sankranti] ${currentDateString} | Sun longitude unavailable.`);
-                        }
-                    }
-
-                    // --- Ingress Detection ---
-                    if (currentSunRashi && previousSunRashi && currentSunRashi !== previousSunRashi) {
-                        const ingressDate = new Date(currentDate); // Date when the change was detected
-
-                        // *** Only add if the ingress date falls within the TARGET year ***
-                        if (ingressDate.getUTCFullYear() === year) {
-                            // Avoid adding duplicates for the same Rashi within the target year
-                            if (!foundRashis.has(currentSunRashi)) {
-                                // Finding the *exact* moment requires more complex iteration (binary search or similar)
-                                // For now, we report the date the ingress was detected (at UTC noon)
-                                const ingressMomentApprox = `${currentDateString} (Approx. Ingress Date)`;
-
-                                sankrantiList.push({
-                                    name: `${currentSunRashi} Sankranti`,
-                                    rashi: currentSunRashi,
-                                    date: currentDateString,
-                                    moment: ingressMomentApprox // Placeholder
-                                });
-                                foundRashis.add(currentSunRashi); // Mark this Rashi as found for the target year
-                            }
-                        }
-                    }
-
-                    // Update previousSunRashi only if currentSunRashi was valid
-                    if (currentSunRashi !== undefined) {
-                        previousSunRashi = currentSunRashi;
-                    }
-
-                } catch (e) {
-                    logger.error(`[Sankranti] Error processing date ${currentDateString}: ${e.message}`);
-                    // Error is logged, loop will continue to the next day
-                }
-
-                // Move to the next day
-                currentDate.setUTCDate(currentDate.getUTCDate() + 1);
-            }
-
+            
             // Sort final list by date
-            sankrantiList.sort((a, b) => new Date(a.date) - new Date(b.date));
+            sankrantiList.sort((a, b) => new Date(a.moment) - new Date(b.moment));
 
             // Check if we found roughly 12 Sankrantis *for the target year*
-            if (sankrantiList.length < 11 || sankrantiList.length > 12) { // Allow 11 if calculation near year end is tricky
-                logger.warn(`[Sankranti] Expected 12 Sankrantis for year ${year}, but found ${sankrantiList.length}. Check calculation logic near year boundaries.`);
+            if (sankrantiList.length !== 12) {
+                logger.warn(`[Sankranti Route] Expected 12 Sankrantis for year ${year}, but found ${sankrantiList.length}.`);
             }
 
             res.json(sankrantiList);
@@ -543,6 +533,7 @@ router.get("/sankranti/:year",
         }
     }
 );
+
 
 
 // Use ES Module export if consistent, otherwise use module.exports

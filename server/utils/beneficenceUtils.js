@@ -72,14 +72,22 @@ function calculateFBS(planetName, chartData) {
         return 0;
     }
 
-    // Get the rashi lord of each house cusp
-    // Important: FBS is based on ownership of signs at house cusps, not where the planet sits.
-    // The 'houses' data from backend provides 'start_rashi_lord'
     for (let i = 0; i < houses.length; i++) {
         const houseNum = houses[i].house_number;
         const houseLord = houses[i]?.start_rashi_lord;
+        const rashi = houses[i]?.start_rashi;
 
-        if (houseLord === planetName) {
+        let isConsideredLord = (houseLord === planetName);
+
+        // Add co-lordship logic for Rahu and Ketu
+        if (planetName === 'Rahu' && rashi === 'Aquarius') {
+            isConsideredLord = true;
+        } else if (planetName === 'Ketu' && rashi === 'Scorpio') {
+            isConsideredLord = true;
+        }
+
+
+        if (isConsideredLord) {
             // A planet can lord multiple houses. Sum up the scores for each house it lords.
             switch (houseNum) {
                 case 1: score += 2; break; // Benefic
@@ -127,8 +135,8 @@ function calculateSS(planetName, chartData) {
     const { shadbala, d9_planets, planetaryPositions } = chartData;
     let score = 0;
 
-    // Shadbala
-    if (shadbala && Object.keys(shadbala).length > 0) { // Check if shadbala exists and is not empty
+    // Shadbala - Not applicable for Rahu/Ketu
+    if (shadbala && Object.keys(shadbala).length > 0 && shadbala[planetName]) {
         const shadbalaEntry = shadbala[planetName];
         if (shadbalaEntry && !isNaN(parseFloat(shadbalaEntry.percentage))) {
             const percentage = parseFloat(shadbalaEntry.percentage);
@@ -178,7 +186,7 @@ function calculateCRS(planetName, chartData) {
     let score = 0;
     const { isCombust, isRetrograde } = planetAvasthas;
 
-    // Combustion
+    // Combustion - Not applicable to Rahu/Ketu
     if (isCombust) {
         // Doc: Strong -2, Mild -1. Without criteria, assume -2 for all combustion.
         score += -2;
@@ -186,7 +194,7 @@ function calculateCRS(planetName, chartData) {
 
     // Retrograde
     if (isRetrograde) {
-        // Doc: Benefic +1, Malefic -1.
+        // For Rahu/Ketu, they are always retrograde, this will consistently apply.
         const naturalNature = getNaturalPlanetNature(planetName);
         if (naturalNature.type === "Benefic") score += 1;
         else if (naturalNature.type === "Malefic") score += -1;
@@ -338,15 +346,23 @@ function calculateASC(planetName, chartData) {
 
 
 // 10. FINAL FORMULA (UPBS)
+const UPBS_WEIGHTS = {
+    NBS: 1.0, // Natural Beneficence
+    FBS: 1.5, // Functional Beneficence (often more important)
+    PDS: 1.0, // Dignity
+    SS: 1.0,  // Shadbala & Avasthas
+    CRS: 0.8, // Combustion/Retrograde (slightly less weight as it's a specific condition)
+    HPS: 1.2, // House Placement (very important for results)
+    ARS: 1.2, // Aspects Received
+    NLM: 0.5, // Nakshatra Lord (subtle influence)
+    ASC: 1.0, // Associations
+};
+
+
 export function calculateUPBS(planetName, chartData) {
     if (!chartData || !chartData.planetaryPositions || !chartData.planetHousePlacements || !chartData.planetDetails || !chartData.shadbala || !chartData.d9_planets || !chartData.ascendant || !chartData.houses) {
         logger.warn(`Missing required chartData for UPBS calculation for ${planetName}.`);
         return { total: NaN, breakdown: {} };
-    }
-
-    // Only calculate for the 7 classical planets (Sun to Saturn)
-    if (!FRIENDSHIP_PLANETS_ORDER.includes(planetName)) {
-        return { total: 0, breakdown: {} }; // Rahu/Ketu, Uranus, etc. not included in this beneficence
     }
 
     const breakdown = {
@@ -361,7 +377,20 @@ export function calculateUPBS(planetName, chartData) {
         ASC: calculateASC(planetName, chartData),
     };
 
-    const total = Object.values(breakdown).reduce((sum, score) => sum + score, 0);
+    // For Rahu/Ketu, some scores are not applicable (e.g. Shadbala). We should reflect that.
+    // The functions themselves handle missing data, so we can proceed.
+    // The SS function will return a lower score for Rahu/Ketu as Shadbala part is skipped.
+
+    const total = (breakdown.NBS * UPBS_WEIGHTS.NBS) +
+                  (breakdown.FBS * UPBS_WEIGHTS.FBS) +
+                  (breakdown.PDS * UPBS_WEIGHTS.PDS) +
+                  (breakdown.SS * UPBS_WEIGHTS.SS) +
+                  (breakdown.CRS * UPBS_WEIGHTS.CRS) +
+                  (breakdown.HPS * UPBS_WEIGHTS.HPS) +
+                  (breakdown.ARS * UPBS_WEIGHTS.ARS) +
+                  (breakdown.NLM * UPBS_WEIGHTS.NLM) +
+                  (breakdown.ASC * UPBS_WEIGHTS.ASC);
 
     return { total, breakdown };
 }
+

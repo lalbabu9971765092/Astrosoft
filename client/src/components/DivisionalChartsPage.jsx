@@ -32,7 +32,6 @@ const DivisionalChartsPage = () => {
     const [d10ChartData, setD10ChartData] = useState(null);
     const [d6ChartData, setD6ChartData] = useState(null);
     const [rotatedResult, setRotatedResult] = useState(null);
-    const [isLoadingRotated, setIsLoadingRotated] = useState(false);
 
     // Update divisional chart state when main calculation result or input params change
     useEffect(() => {
@@ -117,7 +116,6 @@ const DivisionalChartsPage = () => {
                 setRotatedResult(null);
                 return;
             }
-            setIsLoadingRotated(true);
             try {
                 const payload = {
                     date: calculationInputParams.date,
@@ -131,9 +129,7 @@ const DivisionalChartsPage = () => {
             } catch (err) {
                 console.warn('DivisionalChartsPage: rotated fetch failed', err.response?.data || err.message || err);
                 if (!cancelled) setRotatedResult(null);
-            } finally {
-                if (!cancelled) setIsLoadingRotated(false);
-            }
+            } 
         };
         fetchRotated();
         return () => { cancelled = true; };
