@@ -43,7 +43,7 @@ const formatDisplayDateTime = (isoString, t) => {
 };
 
 const VarshphalPage = () => {
-  const { t } = useTranslation(); // Call the hook
+  const { t, i18n } = useTranslation(); // Call the hook and destructure i18n
   // --- Get Context from SharedInputLayout ---
   const {
     calculationInputParams,
@@ -189,6 +189,7 @@ const VarshphalPage = () => {
           natalLongitude: calculationInputParams.longitude,
           natalPlaceName: calculationInputParams.placeName || t('utils.notAvailable', 'N/A'), // Translate N/A
           varshphalYear: yearNum,
+          lang: i18n.language, // Add current language
         };
         setInputDetailsUsed(payload);
     
@@ -212,7 +213,7 @@ const VarshphalPage = () => {
         } finally {
           setIsLoading(false);
         }
-      }, [calculationInputParams, selectedVarshphalYear, birthYear, t]); // Add t dependency
+      }, [calculationInputParams.date, calculationInputParams.latitude, calculationInputParams.longitude, calculationInputParams.placeName, selectedVarshphalYear, birthYear, t, i18n.language]); // Add t dependency
     
       useEffect(() => {
         const fetchRotatedData = async () => {
@@ -222,7 +223,7 @@ const VarshphalPage = () => {
                 let response;
                 if (selectedHouse === 1) {
                     // If House 1 is selected, fetch the original (non-rotated) data
-                    const payload = { ...inputDetailsUsed }; // Use the original input details
+                    const payload = { ...inputDetailsUsed, lang: i18n.language }; // Use the original input details and add language
                     response = await api.post("/calculate-varshphal", payload);
                     setVarshphalResult(response.data); // Update the main result
                     setRotatedVarshphalResult(null); // Clear rotated result
@@ -230,7 +231,8 @@ const VarshphalPage = () => {
                     // Otherwise, fetch the rotated data
                     const payload = {
                         ...inputDetailsUsed,
-                        house_to_rotate: selectedHouse
+                        house_to_rotate: selectedHouse,
+                        lang: i18n.language, // Add current language
                     };
                     response = await api.post('/calculate-varshphal/rotated', payload);
                     setRotatedVarshphalResult(response.data); // Update rotated result
@@ -250,7 +252,7 @@ const VarshphalPage = () => {
         if (inputDetailsUsed) {
             fetchRotatedData();
         }
-    }, [selectedHouse, inputDetailsUsed, t]);
+    }, [selectedHouse, inputDetailsUsed, t, i18n.language]);
     
       // --- Effect to Trigger Calculation Automatically ---
       useEffect(() => {

@@ -87,6 +87,12 @@ const eventNames_hi = {
     'Success in Litigation': 'मुकदमे में सफलता'
 };
 
+const muddaThemes = {
+    en: { Sun: "authority, leadership, and self-expression", Moon: "emotional sensitivity, intuition, and adaptability", Mars: "energy, drive, and courage", Mercury: "intellect, communication, and logical analysis", Jupiter: "wisdom, expansion, and opportunities", Venus: "love, beauty, and harmony", Saturn: "discipline, responsibility, and long-term goals", Rahu: "ambition, innovation, and worldly desire", Ketu: "detachment, spirituality, and deep insight" },
+    hi: { Sun: "अधिकार, नेतृत्व और आत्म-अभिव्यक्ति", Moon: "भावनात्मक संवेदनशीलता, अंतर्ज्ञान और अनुकूलनशीलता", Mars: "ऊर्जा, कार्रवाई और साहस", Mercury: "बुद्धि, संचार और तार्किक विश्लेषण", Jupiter: "ज्ञान, विस्तार और आशावाद", Venus: "प्रेम, सौंदर्य और सद्भाव", Saturn: "अनुशासन, जिम्मेदारी और दीर्घकालिक लक्ष्य", Rahu: "महत्वाकांक्षा, नवाचार और सांसारिक इच्छाएं", Ketu: "आत्मनिरीक्षण, जाने देना और आध्यात्मिक अंतर्दृष्टि" }
+};
+
+
 const planetInHouse_en = {
     Sun: [
         "Sun in the 1st house amplifies your sense of self, bestowing leadership, vitality, and a strong desire for recognition. You have a commanding presence but should be mindful of ego.",
@@ -798,19 +804,63 @@ ${p.whenTheseThree}`;
 return result.trim();
 }
 
-// ---------------------------------------------------------
-//  VARSHAPHAL (ANNUAL) PREDICTION GENERATOR
-// ---------------------------------------------------------
+// Helper function to interpret Mudda Dasha periods
+function getMuddaDashaInterpretation(dashaLord, dashaLordHouse, lang = 'en', muddaThemes, houseThemes) {
+    const muddaThemesLang = muddaThemes[lang] || muddaThemes['en'];
+    const houseThemesLang = houseThemes[lang] || houseThemes['en'];
 
-// ---------------------------------------------------------
-//  VARSHAPHAL (ANNUAL) PREDICTION GENERATOR
-// ---------------------------------------------------------
+    const generalTheme = muddaThemesLang[dashaLord] || '';
+    const houseTheme = houseThemesLang[dashaLordHouse] || '';
+    const translatedDashaLord = getPlanetName(dashaLord, lang);
+    const ordinalHouse = getOrdinal(dashaLordHouse);
+
+    if (lang === 'hi') {
+        if (generalTheme && houseTheme) {
+            return `**${translatedDashaLord} की अवधि:** यह चरण आपके जीवन में **${ordinalHouse}वें घर (${houseTheme})** से संबंधित मामलों के माध्यम से **${generalTheme}** के विषयों को सक्रिय करेगा। इस दौरान आपको इन क्षेत्रों पर विशेष ध्यान देना चाहिए।`;
+        } else if (generalTheme) {
+            return `**${translatedDashaLord} की अवधि:** यह चरण आपके जीवन में **${generalTheme}** के विषयों पर ध्यान केंद्रित करेगा।`;
+        }
+        return `**${translatedDashaLord} की अवधि**।`; // Fallback
+    } else { // English
+        if (generalTheme && houseTheme) {
+            return `**${translatedDashaLord} Period:** This phase will activate themes of **${generalTheme}** through matters related to your **${ordinalHouse} house (${houseTheme})**. Expect a strong focus on these areas.`;
+        } else if (generalTheme) {
+            return `**${translatedDashaLord} Period:** This phase will bring a focus on themes of **${generalTheme}**.`;
+        }
+        return `**${translatedDashaLord} Period.**`; // Fallback
+    }
+}
 
 export function getVarshphalPrediction(payload = {}, lang = 'en') {
 
     const { varshphalChart = {}, muntha = null, yearLord = null, muddaDasha = [], varshphalYear = null } = payload;
     const { ascendant, planetHousePlacements, planetDetails } = varshphalChart || {};
     const upbsScores = planetDetails?.upbsScores || {};
+
+    const planetThemes = {
+        en: {
+            Sun: "authority, vitality, and leadership",
+            Moon: "emotional sensitivity, intuition, and adaptability",
+            Mars: "energy, drive, and courage",
+            Mercury: "intellect, communication, and logical analysis",
+            Jupiter: "wisdom, expansion, and optimism",
+            Venus: "love, beauty, and harmony",
+            Saturn: "discipline, structure, and perseverance",
+            Rahu: "ambition, innovation, and worldly desire",
+            Ketu: "detachment, spirituality, and deep insight"
+        },
+        hi: {
+            Sun: "अधिकार, जीवन शक्ति और नेतृत्व",
+            Moon: "भावनात्मक संवेदनशीलता, अंतर्ज्ञान और अनुकूलनशीलता",
+            Mars: "ऊर्जा, प्रेरणा और साहस",
+            Mercury: "बुद्धि, संचार और तार्किक विश्लेषण",
+            Jupiter: "ज्ञान, विस्तार और आशावाद",
+            Venus: "प्रेम, सौंदर्य और सद्भाव",
+            Saturn: "अनुशासन, संरचना और दृढ़ता",
+            Rahu: "महत्वाकांक्षा, नवाचार और सांसारिक इच्छा",
+            Ketu: "वैराग्य, आध्यात्मिकता और गहरी अंतर्दृष्टि"
+        }
+    };
 
     const P_VARS = {
         en: {
@@ -823,9 +873,9 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             ascendant: (sign, lord, theme) => `Finally, the annual ascendant in **${sign}** (ruled by **${lord}**) colors your personal outlook and how you project yourself, emphasizing themes of **${theme}** throughout the year.`,
             synthesis: `\nThe interplay between these factors is key. You'll find the most success where you can align the year's broader theme of {yearLordTheme} with your personal focus on {munthaTheme}, all while expressing yourself through the lens of {ascendantTheme}.`,
             strengthHeader: `\n\n#### Key Planetary Influences\n`,
-            strongestPlanet: (planet, score, yearLordName) => `While **${yearLordName}** sets the overarching tone for the year, the most influential planet is **${planet}** (with a UPBS score of ${score.toFixed(2)}). Its themes of discipline, structure, and long-term planning will be a dominant force, demanding attention and rewarding thoroughness in the areas it influences.`,
+            strongestPlanet: (planet, score, yearLordName, planetTheme) => `While **${yearLordName}** sets the overarching tone for the year, the most influential planet is **${planet}** (with a UPBS score of ${score.toFixed(2)}). Its themes of **${planetTheme}** will be a dominant force, demanding attention and rewarding thoroughness in the areas it influences.`,
             muddaDashaHeader: `\n\n#### Timeline of the Year (Mudda Dasha)\nThe year's focus will shift according to these planetary sub-periods:\n`,
-            dashaPeriod: (lord, start, end, theme) => `*   **${lord} Period (${start.toLocaleDateString()} - ${end.toLocaleDateString()}):** A time to focus on ${theme}.\n`,
+            dashaPeriod: (interpretation, start, end) => `*   ${interpretation} (${start.toLocaleDateString()} - ${end.toLocaleDateString()}).\n`,
             conclusionHeader: `\n\n#### Summary & Advice\n`,
             conclusion: `This year is a complex tapestry woven from these interacting themes. Navigate the shifting priorities of the Mudda Dasha periods effectively, and pay close attention to **{strongestPlanet}**, as it holds the key to unlocking opportunities and managing challenges. Harmonizing the energies of the houses highlighted by the Year Lord and the Muntha will lead to the most fruitful outcomes.`
         },
@@ -839,9 +889,9 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             ascendant: (sign, lord, theme) => `अंत में, **${sign}** में वार्षिक लग्न (जिसका स्वामी **${lord}** है) आपके व्यक्तिगत दृष्टिकोण को रंग देता है, जो पूरे वर्ष आपकी अभिव्यक्ति में **${theme}** के विषयों पर जोर देता है।`,
             synthesis: `\nइन कारकों के बीच की परस्पर क्रिया महत्वपूर्ण है। आप सबसे अधिक सफलता तब पाएंगे जब आप {yearLordTheme} के व्यापक विषय की सेवा के लिए {munthaTheme} पर अपना व्यक्तिगत ध्यान केंद्रित करना चाहिए। और यह सब {ascendantTheme} के लेंस के माध्यम से खुद को व्यक्त करते हुए।`,
             strengthHeader: `\n\n#### प्रमुख ग्रहों के प्रभाव\n`,
-            strongestPlanet: (planet, score) => `इस वर्ष सबसे प्रभावशाली ग्रह **${planet}** है (UPBS स्कोर ${score.toFixed(2)} के साथ)। इसके अनुशासन, संरचना और दीर्घकालिक योजना के विषय एक प्रमुख शक्ति होंगे, जो इसके द्वारा प्रभावित क्षेत्रों में ध्यान और संपूर्णता की मांग करेंगे।`,
+            strongestPlanet: (planet, score, yearLordName, planetTheme) => `जबकि **${yearLordName}** वर्ष के लिए व्यापक स्वर निर्धारित करता है, सबसे प्रभावशाली ग्रह **${planet}** है (UPBS स्कोर ${score.toFixed(2)} के साथ)। इसके **${planetTheme}** के विषय एक प्रमुख शक्ति होंगे, जो इसके द्वारा प्रभावित क्षेत्रों में ध्यान और संपूर्णता की मांग करेंगे।`,
             muddaDashaHeader: `\n\n#### वर्ष की समयरेखा (मुद्दा दशा)\nवर्ष का ध्यान इन ग्रहों की उप-अवधियों के अनुसार बदल जाएगा:\n`,
-            dashaPeriod: (lord, start, end, theme) => `*   **${lord} की अवधि (${start.toLocaleDateString()} - ${end.toLocaleDateString()}):** ${theme} पर ध्यान केंद्रित करने का समय।\n`,
+            dashaPeriod: (interpretation, start, end) => `*   ${interpretation} (${start.toLocaleDateString()} - ${end.toLocaleDateString()}).\n`,
             conclusionHeader: `\n\n#### सारांश और सलाह\n`,
             conclusion: `यह वर्ष इन परस्पर क्रिया करने वाले विषयों से बुना हुआ एक जटिल ताना-बाना है। मुद्दा दशा की बदलती प्राथमिकताओं को प्रभावी ढंग से नेविगेट करें, और **{strongestPlanet}** पर पूरा ध्यान दें, क्योंकि यह अवसरों को अनलॉक करने और चुनौतियों का प्रबंधन करने की कुंजी रखता है। वर्ष के स्वामी और मुंथा द्वारा उजागर किए गए घरों की ऊर्जाओं का सामंजस्य सबसे फलदायी परिणाम देगा।`
         }
@@ -899,16 +949,17 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
     if (strongestPlanet) {
         parts.push(phrases.strengthHeader);
         const translatedStrongestPlanet = getPlanetName(strongestPlanet, lang);
-        parts.push(phrases.strongestPlanet(translatedStrongestPlanet, strongestPlanetScore, translatedYearLord));
+        const pTheme = (lang === 'hi' ? planetThemes.hi[strongestPlanet] : planetThemes.en[strongestPlanet]) || '';
+        parts.push(phrases.strongestPlanet(translatedStrongestPlanet, strongestPlanetScore, translatedYearLord, pTheme));
     }
     
     // 6. Mudda Dasha
     if (muddaDasha && muddaDasha.length > 0) {
         parts.push(phrases.muddaDashaHeader);
         muddaDasha.forEach(dasha => {
-            const translatedDashaLord = getPlanetName(dasha.lord, lang);
-            const theme = muddaThemesLang[dasha.lord] || '';
-            parts.push(phrases.dashaPeriod(translatedDashaLord, new Date(dasha.start), new Date(dasha.end), theme));
+            const dashaLordHouse = planetHousePlacements[dasha.lord]; // Get house placement for the dasha lord
+            const interpretation = getMuddaDashaInterpretation(dasha.lord, dashaLordHouse, lang, muddaThemes, { en: houseThemes_en, hi: houseThemes_hi });
+            parts.push(phrases.dashaPeriod(interpretation, new Date(dasha.start), new Date(dasha.end)));
         });
     }
 
@@ -964,6 +1015,61 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
             (ascendantThemeKeywords.includes('self') || ascendantThemeKeywords.includes('identity') || ascendantThemeKeywords.includes('health'))) {
              suggestions.push(lang === 'hi' ? 'नई दर्शनशास्त्रों या विश्वास प्रणालियों (उच्च शिक्षा, यात्रा, विश्वास) की अपनी खोज को मार्गदर्शन करने के लिए अपनी व्यक्तिगत अंतर्दृष्टि और आत्म-जागरूकता (स्वयं, पहचान, स्वास्थ्य) का उपयोग करें।' : 'Using your personal insights and self-awareness (self, identity, health) to guide your exploration of new philosophies or belief systems (higher learning, travel, faith).');
         }
+
+        // Suggestion 3: Creativity + Spirituality (5 + 12)
+        if ((yearLordThemeKeywords.includes('creativity') || yearLordThemeKeywords.includes('children')) &&
+            (munthaThemeKeywords.includes('spirituality') || munthaThemeKeywords.includes('secrets'))) {
+             suggestions.push(lang === 'hi' ? 'अपनी रचनात्मक प्रतिभा का उपयोग आध्यात्मिक अभिव्यक्ति या उपचार के लिए करें। एकांत में किया गया रचनात्मक कार्य बहुत फलदायी हो सकता है।' : 'Channel your creative energy into spiritual expression or healing practices. Solitary creative work may prove very fruitful.');
+        }
+
+        // Suggestion 4: Career + Gains (10 + 11)
+        if ((yearLordThemeKeywords.includes('career') || yearLordThemeKeywords.includes('reputation')) &&
+            (munthaThemeKeywords.includes('gains') || munthaThemeKeywords.includes('networks'))) {
+             suggestions.push(lang === 'hi' ? 'अपने करियर को बढ़ावा देने के लिए नेटवर्किंग पर ध्यान दें। आपकी व्यावसायिक सफलता आपके सामाजिक दायरे से जुड़ी है।' : 'Focus on networking to boost your career. Your professional success is closely linked to your social circle and professional networks.');
+        }
+        
+        // Suggestion 5: Career + Home (10 + 4)
+        if ((yearLordThemeKeywords.includes('career') || yearLordThemeKeywords.includes('reputation')) &&
+            (munthaThemeKeywords.includes('home') || munthaThemeKeywords.includes('family'))) {
+             suggestions.push(lang === 'hi' ? 'व्यावसायिक महत्वाकांक्षाओं और घरेलू जिम्मेदारियों के बीच संतुलन बनाना महत्वपूर्ण होगा। घर से काम करना या रियल एस्टेट फायदेमंद हो सकता है।' : 'Balancing professional ambitions with domestic responsibilities will be key. Working from home or real estate ventures might be favored.');
+        }
+
+        // Suggestion 6: Health + Self (6 + 1)
+        if ((yearLordThemeKeywords.includes('health') || yearLordThemeKeywords.includes('work')) &&
+            (ascendantThemeKeywords.includes('self') || ascendantThemeKeywords.includes('identity'))) {
+             suggestions.push(lang === 'hi' ? 'अपनी जीवन शक्ति और प्रभावशीलता बनाए रखने के लिए अपने स्वास्थ्य और दैनिक दिनचर्या को प्राथमिकता दें।' : 'Prioritize your health and daily routines to maintain your vitality and personal effectiveness.');
+        }
+
+        // Suggestion 7: Financial Prudence for Spiritual/Hidden Matters (2 + 12)
+        if ((yearLordThemeKeywords.includes('finance') || yearLordThemeKeywords.includes('possessions')) &&
+            (munthaThemeKeywords.includes('secrets') || munthaThemeKeywords.includes('expenses') || munthaThemeKeywords.includes('spirituality'))) {
+             suggestions.push(lang === 'hi' ? 'आध्यात्मिक या गुप्त मामलों से संबंधित वित्तीय निर्णयों में सावधानी बरतें। खर्चों को समझदारी से प्रबंधित करें।' : 'Exercise financial prudence regarding spiritual or hidden matters. Manage expenses wisely in these areas.');
+        }
+        
+        // Suggestion 8: Communication and Self-expression for Relationships (3 + 7)
+        if ((yearLordThemeKeywords.includes('communication') || yearLordThemeKeywords.includes('siblings')) &&
+            (munthaThemeKeywords.includes('partnerships') || munthaThemeKeywords.includes('marriage'))) {
+             suggestions.push(lang === 'hi' ? 'अपने रिश्तों में आत्म-अभिव्यक्ति और संचार को बढ़ावा दें। यह आपके बंधनों को मजबूत करेगा।' : 'Foster open communication and self-expression within your relationships. This will strengthen your bonds.');
+        }
+
+        // Suggestion 9: Nurturing Home for Creative Projects (4 + 5)
+        if ((yearLordThemeKeywords.includes('home') || yearLordThemeKeywords.includes('family')) &&
+            (munthaThemeKeywords.includes('creativity') || munthaThemeKeywords.includes('children'))) {
+             suggestions.push(lang === 'hi' ? 'अपने घर को अपनी रचनात्मक परियोजनाओं और बच्चों के लिए एक पोषण स्थान बनाएं। घरेलू स्थिरता रचनात्मकता को बढ़ावा देगी।' : 'Create a nurturing home environment that supports your creative projects and children. Domestic stability will foster creativity.');
+        }
+        
+        // Suggestion 10: Higher Learning for Career Advancement (9 + 10)
+        if ((yearLordThemeKeywords.includes('higher learning') || yearLordThemeKeywords.includes('travel')) &&
+            (munthaThemeKeywords.includes('career') || munthaThemeKeywords.includes('reputation'))) {
+             suggestions.push(lang === 'hi' ? 'अपने करियर में आगे बढ़ने के लिए उच्च शिक्षा या विशेष प्रशिक्षण प्राप्त करें। यात्रा व्यावसायिक अवसरों को भी बढ़ा सकती है।' : 'Pursue higher education or specialized training to advance your career. Travel may also enhance professional opportunities.');
+        }
+        
+        // Suggestion 11: Transformative Healing/Service (8 + 6)
+        if ((yearLordThemeKeywords.includes('shared resources') || yearLordThemeKeywords.includes('transformation')) &&
+            (munthaThemeKeywords.includes('work') || munthaThemeKeywords.includes('health') || munthaThemeKeywords.includes('service'))) {
+             suggestions.push(lang === 'hi' ? 'दूसरों की सेवा या स्वास्थ्य देखभाल में परिवर्तनकारी भूमिकाओं पर विचार करें। यह उपचार और व्यक्तिगत विकास का मार्ग हो सकता है।' : 'Consider transformative roles in service to others or in healthcare. This can be a path of healing and personal growth.');
+        }
+
 
         // Default generic suggestion if no specific ones are matched
         if (suggestions.length === 0) {
@@ -1142,151 +1248,151 @@ function getKpCuspSignificatorInterpretation(planet, dignity, houseNumber, lang)
     const interpretations = {
         en: {
             Sun: {
-                Exalted: `The **exalted ${planetName}** as a primary significator for your **${ordinalHouse} house (${houseTheme})** promises outstanding leadership, vitality, and success in matters of ${houseTheme}. Expect a significant boost in confidence and influence.`,
-                'Own Sign': `With **${planetName}** in its own sign, its role as a significator for **${ordinalHouse} house (${houseTheme})** brings strong willpower, authority, and a stable sense of self. You will have robust control over these matters.`,
-                Friend: `**${planetName}** is in a friendly sign, making its influence supportive and helpful for your **${ordinalHouse} house (${houseTheme})**. You'll find natural assertion and vitality in these areas.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** suggests balanced effects, but its influence will be susceptible to other planetary conditions. Its impact will be moderate.`,
-                Enemy: `**${planetName}** in an enemy sign, as a significator for **${ordinalHouse} house (${houseTheme})**, indicates potential challenges or conflicts. Asserting yourself in these matters may require extra effort and strategic handling.`,
-                Debilitated: `A **debilitated ${planetName}** signifying **${ordinalHouse} house (${houseTheme})** can indicate struggles with confidence, leadership, or vitality in these areas. Self-esteem and proactive effort will be key to overcoming hurdles.`
+                Exalted: `being exalted, brings exceptional leadership, vitality, and success to your **${ordinalHouse} house (${houseTheme})**. It indicates that your ego and identity are powerfully and positively expressed, leading to recognition and influence in these life areas.`,
+                'Own Sign': `in its own sign, provides a strong and stable sense of self regarding your **${ordinalHouse} house (${houseTheme})**. You'll have natural authority and willpower to direct these matters with confidence.`,
+                Friend: `in a friendly sign, offers supportive energy to your **${ordinalHouse} house (${houseTheme})**. This suggests that your efforts in these areas will be productive and met with favor from others.`,
+                Neutral: `in a neutral sign, provides a balanced but adaptable influence on your **${ordinalHouse} house (${houseTheme})**. The outcome of your efforts will largely depend on other conjoining or aspecting planets.`,
+                Enemy: `in an enemy sign, may test your ego and authority in your **${ordinalHouse} house (${houseTheme})**. You might face challenges to your leadership or a lack of recognition, requiring you to develop resilience.`,
+                Debilitated: `being debilitated, can signify struggles with confidence and vitality concerning your **${ordinalHouse} house (${houseTheme})**. Your self-esteem in these areas may need deliberate nurturing to overcome obstacles.`
             },
             Moon: {
-                Exalted: `The **exalted ${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** promises exceptional emotional stability, high receptivity, and nurturing outcomes. Your feelings will be a strong, positive guide in these matters.`,
-                'Own Sign': `With **${planetName}** in its own sign, its signification for **${ordinalHouse} house (${houseTheme})** brings a strong connection to emotions, home, and family. Expect emotional security and nurturing experiences in these areas.`,
-                Friend: `**${planetName}** in a friendly sign, signifying **${ordinalHouse} house (${houseTheme})**, ensures emotional happiness and supportive relationships. You will find comfort and ease in dealing with these matters.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** suggests emotional balance but also susceptibility to external influences. Its impact will be moderate and adaptable.`,
-                Enemy: `An unfavorably placed **${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** may cause emotional restlessness or fluctuations in these areas. Inner peace might be elusive, requiring conscious effort.`,
-                Debilitated: `A **debilitated ${planetName}** for **${ordinalHouse} house (${houseTheme})** can indicate emotional turmoil, insecurity, or difficulty forming supportive bonds. You may struggle with emotional well-being and finding comfort in these areas.`
+                Exalted: `being exalted, ensures profound emotional stability and receptivity in your **${ordinalHouse} house (${houseTheme})**. Your intuition will be a powerful and reliable guide in these matters, leading to nurturing outcomes.`,
+                'Own Sign': `in its own sign, deeply connects your emotional well-being to your **${ordinalHouse} house (${houseTheme})**. You will seek and find emotional security and comfort by focusing on these life areas.`,
+                Friend: `in a friendly sign, fosters emotional happiness and harmonious relationships related to your **${ordinalHouse} house (${houseTheme})**. You will find it easy to connect with others and find contentment here.`,
+                Neutral: `in a neutral sign, brings a moderate and adaptable emotional tone to your **${ordinalHouse} house (${houseTheme})**. Your feelings are balanced but can be easily influenced by your environment.`,
+                Enemy: `in an enemy sign, may cause emotional restlessness and inner conflict regarding your **${ordinalHouse} house (${houseTheme})**. Achieving peace of mind in these matters will require conscious effort and emotional management.`,
+                Debilitated: `being debilitated, suggests emotional turmoil and insecurity related to your **${ordinalHouse} house (${houseTheme})**. You may find it difficult to form supportive bonds or find comfort in these areas.`
             },
             Mars: {
-                Exalted: `The **exalted ${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** provides immense courage, drive, and determination. Expect powerful and effective actions, ensuring success through dynamic effort in these matters.`,
-                'Own Sign': `With **${planetName}** in its own sign, its signification for **${ordinalHouse} house (${houseTheme})** brings strong logical abilities and abundant energy to pursue goals. You will be a natural executor and achieve results through decisive action.`,
-                Friend: `**${planetName}** in a friendly sign, signifying **${ordinalHouse} house (${houseTheme})**, ensures productive actions and efforts. This leads to constructive assertion and beneficial outcomes in these areas.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** acts according to its associates. Energy is present, but needs clear direction to be effective and avoid misapplication.`,
-                Enemy: `**${planetName}** in an enemy sign, as a significator for **${ordinalHouse} house (${houseTheme})**, may lead to arguments, conflicts, or misdirected energy. Patience and careful strategy are required to navigate these challenges.`,
-                Debilitated: `A **debilitated ${planetName}** signifying **${ordinalHouse} house (${houseTheme})** can result in a lack of motivation, frustrated energy, or difficulty asserting yourself. Overcoming inertia and external opposition will be a key challenge.`
+                Exalted: `being exalted, provides immense courage, drive, and strategic assertiveness for your **${ordinalHouse} house (${houseTheme})**. Your actions will be powerful and effective, leading to clear success.`,
+                'Own Sign': `in its own sign, gives you strong logical abilities and the energy to decisively pursue goals related to your **${ordinalHouse} house (${houseTheme})**. You are a natural executor in these matters.`,
+                Friend: `in a friendly sign, promotes productive and constructive efforts concerning your **${ordinalHouse} house (${houseTheme})**. Your actions are likely to be well-received and lead to beneficial outcomes.`,
+                Neutral: `in a neutral sign, brings a baseline of energy to your **${ordinalHouse} house (${houseTheme})** that needs clear direction. Its effectiveness will depend on the other planets influencing it.`,
+                Enemy: `in an enemy sign, can manifest as arguments, conflicts, or misdirected energy within your **${ordinalHouse} house (${houseTheme})**. Patience and careful planning are required to avoid disputes.`,
+                Debilitated: `being debilitated, may result in a lack of motivation or frustrated energy regarding your **${ordinalHouse} house (${houseTheme})**. Asserting yourself and overcoming obstacles will be a key challenge.`
             },
             Mercury: {
-                Exalted: `The **exalted ${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** grants superior intellect, analytical skills, and communication abilities. Your mind will be sharp and articulate, bringing success in intellectual and communicative endeavors related to these matters.`,
-                'Own Sign': `With **${planetName}** in its own sign, its signification for **${ordinalHouse} house (${houseTheme})** brings a sharp mind, adaptability, and skill in commerce. You are quick-witted and versatile, excelling in communication and intellectual pursuits here.`,
-                Friend: `**${planetName}** in a friendly sign, signifying **${ordinalHouse} house (${houseTheme})**, ensures intelligence is used effectively and communication flows smoothly. This facilitates learning, negotiation, and clear expression.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** is influenced by the planets it conjoins. Your thought process will be balanced but can be swayed, leading to adaptable but sometimes indecisive outcomes.`,
-                Enemy: `**${planetName}** in an enemy sign, as a significator for **${ordinalHouse} house (${houseTheme})**, can lead to communication issues, nervous energy, or challenges in clear expression. Misunderstandings and mental friction may arise.`,
-                Debilitated: `A **debilitated ${planetName}** signifying **${ordinalHouse} house (${houseTheme})** may cause difficulties in decision-making, learning, or mental clarity. Careful consideration and focus are essential to overcome these intellectual hurdles.`
+                Exalted: `being exalted, grants superior intellect and articulate communication regarding your **${ordinalHouse} house (${houseTheme})**. Your analytical skills will be sharp, leading to success in intellectual pursuits.`,
+                'Own Sign': `in its own sign, brings a sharp, adaptable mind and commercial skill to your **${ordinalHouse} house (${houseTheme})**. You are versatile and excel at communication and commerce in these areas.`,
+                Friend: `in a friendly sign, ensures your intelligence is applied effectively for your **${ordinalHouse} house (${houseTheme})**. Communication flows smoothly, and learning is favored.`,
+                Neutral: `in a neutral sign, makes your thought process for your **${ordinalHouse} house (${houseTheme})** balanced but easily swayed by other influences. Your adaptability is a strength, but indecisiveness can be a challenge.`,
+                Enemy: `in an enemy sign, can lead to communication issues or nervous energy affecting your **${ordinalHouse} house (${houseTheme})**. Mental friction and misunderstandings are possible.`,
+                Debilitated: `being debilitated, may cause difficulties in decision-making and learning related to your **${ordinalHouse} house (${houseTheme})**. Mental clarity will require conscious focus.`
             },
             Jupiter: {
-                Exalted: `The **exalted ${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** is a sign of great wisdom, fortune, and divine grace. Opportunities and growth will abound, bringing expansion and blessings in these matters.`,
-                'Own Sign': `With **${planetName}** in its own sign, its signification for **${ordinalHouse} house (${houseTheme})** provides strong principles, optimism, and ample opportunities for growth. Your inherent wisdom is powerful, guiding favorable outcomes.`,
-                Friend: `**${planetName}** in a friendly sign, signifying **${ordinalHouse} house (${houseTheme})**, implies wisdom is well-received and supported, inspiring confidence. This fosters benevolence and positive expansion.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** gives balanced results in its areas of influence. Growth will be steady but not overtly dramatic, depending on supporting factors.`,
-                Enemy: `**${planetName}** in an enemy sign, as a significator for **${ordinalHouse} house (${houseTheme})**, may cause rigid beliefs or challenges with mentors. This can hinder expansion and create friction in learning or faith.`,
-                Debilitated: `A **debilitated ${planetName}** signifying **${ordinalHouse} house (${houseTheme})** can indicate a lack of judgment or missed opportunities in these areas. Fortune may be elusive or hard-won in these areas.`
+                Exalted: `being exalted, bestows great wisdom, fortune, and grace upon your **${ordinalHouse} house (${houseTheme})**. This is a sign of abundant growth, opportunities, and blessings in these matters.`,
+                'Own Sign': `in its own sign, provides strong principles and optimism for your **${ordinalHouse} house (${houseTheme})**. Your inherent wisdom will guide you toward expansive and favorable outcomes.`,
+                Friend: `in a friendly sign, indicates that your wisdom and guidance concerning your **${ordinalHouse} house (${houseTheme})** will be well-received and supported, inspiring confidence.`,
+                Neutral: `in a neutral sign, offers balanced and steady growth in your **${ordinalHouse} house (${houseTheme})**. The results will be positive but not necessarily dramatic, depending on other factors.`,
+                Enemy: `in an enemy sign, may cause rigid beliefs or challenges with mentors related to your **${ordinalHouse} house (${houseTheme})**. This can hinder expansion and create philosophical friction.`,
+                Debilitated: `being debilitated, can indicate a lack of judgment or missed opportunities regarding your **${ordinalHouse} house (${houseTheme})**. Fortune may feel elusive or hard-won.`
             },
             Venus: {
-                Exalted: `The **exalted ${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** promises refinement, artistic talent, and happiness in relationships. Harmony is a key theme, bringing joy and favorable circumstances in these matters.`,
-                'Own Sign': `With **${planetName}** in its own sign, its signification for **${ordinalHouse} house (${houseTheme})** gives a love for beauty, harmony, and pleasure. You naturally attract comfort, luxury, and supportive relationships here.`,
-                Friend: `**${planetName}** in a friendly sign, signifying **${ordinalHouse} house (${houseTheme})**, implies a happy social life and good fortune in love. Expect supportive relationships and ease in creative pursuits.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** provides a balanced approach to relationships and comforts. Aesthetics and diplomacy will be important, with moderate but stable outcomes.`,
-                Enemy: `**${planetName}** in an enemy sign, as a significator for **${ordinalHouse} house (${houseTheme})**, may create dissatisfaction or challenges in relationships. Harmony might be hard to find, requiring extra effort in reconciliation.`,
-                Debilitated: `A **debilitated ${planetName}** signifying **${ordinalHouse} house (${houseTheme})** can lead to difficulties in finding happiness and refinement. Relationships may struggle, or there might be a lack of fulfillment in aesthetic pursuits.`
+                Exalted: `being exalted, promises exceptional refinement, artistic talent, and happiness in your **${ordinalHouse} house (${houseTheme})**. Harmony and beauty will flow into these areas of your life.`,
+                'Own Sign': `in its own sign, gives a natural love for beauty, harmony, and pleasure concerning your **${ordinalHouse} house (${houseTheme})**. You will easily attract comfort and supportive relationships here.`,
+                Friend: `in a friendly sign, points to a happy social life and good fortune in matters of your **${ordinalHouse} house (${houseTheme})**. Expect creative ease and supportive relationships.`,
+                Neutral: `in a neutral sign, provides a balanced and diplomatic approach to your **${ordinalHouse} house (${houseTheme})**. Aesthetics and social graces will be important, leading to moderate but stable outcomes.`,
+                Enemy: `in an enemy sign, may create dissatisfaction or challenges in relationships connected to your **${ordinalHouse} house (${houseTheme})**. Finding harmony may require extra effort and compromise.`,
+                Debilitated: `being debilitated, can lead to difficulties in finding happiness and refinement in your **${ordinalHouse} house (${houseTheme})**. A lack of fulfillment in aesthetic or relational pursuits is possible.`
             },
             Saturn: {
-                Exalted: `The **exalted ${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** gives profound discipline, patience, and the ability to achieve long-lasting success through structured effort. Expect significant and stable achievements in these matters.`,
-                'Own Sign': `With **${planetName}** in its own sign, its signification for **${ordinalHouse} house (${houseTheme})** indicates a strong sense of duty, responsibility, and a structured approach. You are naturally disciplined and capable of managing these areas effectively.`,
-                Friend: `**${planetName}** in a friendly sign, signifying **${ordinalHouse} house (${houseTheme})**, indicates hard work and discipline are rewarded. This leads to tangible results and steady progress in these matters.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** delivers results based on your karma and efforts. Lessons are learned through experience and practical application, with gradual but sure outcomes.`,
-                Enemy: `**${planetName}** in an enemy sign, as a significator for **${ordinalHouse} house (${houseTheme})**, can bring delays, frustrations, or a feeling of being burdened. Patience and perseverance are vital to overcome these challenges.`,
-                Debilitated: `A **debilitated ${planetName}** signifying **${ordinalHouse} house (${houseTheme})** may indicate struggles with discipline, enduring hardships, or significant responsibilities. Progress may feel slow and arduous, requiring immense resilience.`
+                Exalted: `being exalted, grants profound discipline and the patience to achieve long-lasting success in your **${ordinalHouse} house (${houseTheme})**. Your structured efforts will lead to significant and stable achievements.`,
+                'Own Sign': `in its own sign, indicates a strong sense of duty and a structured approach to your **${ordinalHouse} house (${houseTheme})**. You are naturally disciplined and can manage these areas with great responsibility.`,
+                Friend: `in a friendly sign, indicates that your hard work and discipline regarding your **${ordinalHouse} house (${houseTheme})** will be rewarded with tangible results and steady progress.`,
+                Neutral: `in a neutral sign, delivers results based on your karma and efforts in your **${ordinalHouse} house (${houseTheme})**. Lessons will be learned through practical experience, leading to gradual but sure outcomes.`,
+                Enemy: `in an enemy sign, can bring delays, frustrations, or a sense of being burdened in your **${ordinalHouse} house (${houseTheme})**. Patience and perseverance will be essential to overcome these trials.`,
+                Debilitated: `being debilitated, may signify struggles with discipline and enduring hardships related to your **${ordinalHouse} house (${houseTheme})**. Responsibilities may feel heavy, and progress slow.`
             },
             Rahu: {
-                Exalted: `The **exalted ${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** can give immense worldly success and the ability to achieve great ambition. Unconventional paths often lead to prominence and unexpected gains in these matters.`,
-                'Own Sign': `With **${planetName}** in its own sign, its signification for **${ordinalHouse} house (${houseTheme})** provides a strong drive for innovation and unconventional success. You effectively break new ground and pursue unique opportunities here.`,
-                Friend: `**${planetName}** in a friendly sign, signifying **${ordinalHouse} house (${houseTheme})**, implies ambitions find supportive environments, and desires manifest easily. This brings opportunities through unusual connections.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** amplifies the results of its house placement. Its influence will be unpredictable but strong, often pushing boundaries and creating sudden shifts.`,
-                Enemy: `**${planetName}** in an enemy sign, as a significator for **${ordinalHouse} house (${houseTheme})**, can create insatiable desires or dissatisfaction. This may lead to empty material pursuits or a feeling of never being content in these matters.`,
-                Debilitated: `A **debilitated ${planetName}** signifying **${ordinalHouse} house (${houseTheme})** may lead to confusion, deception, or unfulfilled desires. A clear sense of direction and ethical conduct is crucial to navigate these challenging energies.`
+                Exalted: `being exalted, can trigger immense worldly success and ambition in your **${ordinalHouse} house (${houseTheme})**. Unconventional methods will lead to prominence and unexpected gains.`,
+                'Own Sign': `in its own sign, provides a powerful drive for innovation and unconventional success regarding your **${ordinalHouse} house (${houseTheme})**. You are poised to break new ground and pursue unique opportunities.`,
+                Friend: `in a friendly sign, suggests that your ambitions concerning your **${ordinalHouse} house (${houseTheme})** will find supportive environments, allowing your desires to manifest more easily.`,
+                Neutral: `in a neutral sign, amplifies the affairs of your **${ordinalHouse} house (${houseTheme})**. The influence will be strong but unpredictable, pushing boundaries and creating sudden shifts.`,
+                Enemy: `in an enemy sign, can create insatiable desires and dissatisfaction in your **${ordinalHouse} house (${houseTheme})**. This may lead to a feeling of being unfulfilled despite material gains.`,
+                Debilitated: `being debilitated, may lead to confusion, deception, or unfulfilled desires concerning your **${ordinalHouse} house (${houseTheme})**. A clear, ethical direction is crucial to navigate this energy.`
             },
             Ketu: {
-                Exalted: `The **exalted ${planetName}** as a significator for **${ordinalHouse} house (${houseTheme})** can provide profound spiritual insights and detachment from worldly affairs. Intuition is heightened, leading to deeper understanding and spiritual progress in these matters.`,
-                'Own Sign': `With **${planetName}** in its own sign, its signification for **${ordinalHouse} house (${houseTheme})** indicates a strong intuitive ability and a clear path towards spiritual liberation. Your inner guidance is strong here.`,
-                Friend: `**${planetName}** in a friendly sign, signifying **${ordinalHouse} house (${houseTheme})**, implies the spiritual journey is supported, and detachment brings peace. You will find ease in letting go of material attachments.`,
-                Neutral: `The **${planetName}** in a neutral sign for **${ordinalHouse} house (${houseTheme})** brings a sense of detachment. Your focus is more internal, seeking spiritual solutions and inner peace rather than external gratification.`,
-                Enemy: `**${planetName}** in an enemy sign, as a significator for **${ordinalHouse} house (${houseTheme})**, may create confusion, loss, or unexpected obstacles. Letting go and acceptance can be challenging, but are necessary for growth.`,
-                Debilitated: `A **debilitated ${planetName}** signifying **${ordinalHouse} house (${houseTheme})** can indicate a lack of direction or feelings of helplessness. The spiritual path may be unclear, requiring extra introspection and resilience to find clarity.`
+                Exalted: `being exalted, can provide profound spiritual insights and detachment from worldly matters in your **${ordinalHouse} house (${houseTheme})**. Your intuition is heightened, leading to deep understanding.`,
+                'Own Sign': `in its own sign, indicates a strong intuitive ability and a path toward spiritual liberation through your **${ordinalHouse} house (${houseTheme})**. Your inner guidance is a powerful asset here.`,
+                Friend: `in a friendly sign, suggests your spiritual journey related to your **${ordinalHouse} house (${houseTheme})** is supported. Detachment from material outcomes will bring peace.`,
+                Neutral: `in a neutral sign, brings a sense of detachment to your **${ordinalHouse} house (${houseTheme})**. The focus is more internal, seeking spiritual solutions rather than external results.`,
+                Enemy: `in an enemy sign, may create confusion, loss, or unexpected obstacles in your **${ordinalHouse} house (${houseTheme})**. The key lesson is learning to let go, which will be challenging but necessary.`,
+                Debilitated: `being debilitated, can indicate a lack of direction or feelings of helplessness in your **${ordinalHouse} house (${houseTheme})**. The path may be unclear, requiring introspection to find clarity.`
             },
         },
         hi: {
             Sun: {
-                Exalted: `आपके **${ordinalHouse} भाव (${houseTheme})** के एक प्राथमिक कारक के रूप में, **${planetName}** उच्च का है, जो इन मामलों में उत्कृष्ट नेतृत्व, आत्मविश्वास और जीवन शक्ति का वादा करता है। आत्मविश्वास और प्रभाव में उल्लेखनीय वृद्धि की उम्मीद करें।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में इसकी भूमिका मजबूत इच्छाशक्ति, अधिकार और आत्म-बोध की एक स्थिर भावना लाती है। इन मामलों पर आपका मजबूत नियंत्रण होगा और अनुकूल परिणाम मिलेंगे।`,
-                Friend: `**${planetName}** एक मित्र राशि में है, जो **${ordinalHouse} भाव (${houseTheme})** के लिए इसके प्रभाव को सहायक और उपयोगी बनाता है। आपको इन क्षेत्रों में स्वाभाविक मुखरता और जीवन शक्ति मिलेगी, जिससे लाभकारी परिणाम मिलेंगे।`,
-                Neutral: `**${planetName}** एक सम राशि में है, जो **${ordinalHouse} भाव (${houseTheme})** पर इसके प्रभाव को संतुलित लेकिन अन्य ग्रहों के प्रभावों के प्रति संवेदनशील इंगित करता है। इसका प्रभाव मध्यम और बाहरी कारकों पर निर्भर करेगा।`,
-                Enemy: `**${planetName}** एक शत्रु राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, संभावित चुनौतियों या संघर्षों का संकेत देता है। इन मामलों में खुद को मुखर करने के लिए अतिरिक्त प्रयास और रणनीतिक प्रबंधन की आवश्यकता हो सकती है।`,
-                Debilitated: `${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** इन क्षेत्रों में आत्मविश्वास, नेतृत्व या जीवन शक्ति के साथ संघर्ष का संकेत दे सकता है। बाधाओं को दूर करने के लिए आत्म-सम्मान और सक्रिय प्रयास महत्वपूर्ण होंगे।`
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के लिए असाधारण नेतृत्व, जीवन शक्ति और सफलता लाता है। यह इंगित करता है कि आपका अहंकार और पहचान शक्तिशाली और सकारात्मक रूप से व्यक्त होती है, जिससे इन जीवन क्षेत्रों में मान्यता और प्रभाव पड़ता है।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के संबंध में स्वयं की एक मजबूत और स्थिर भावना प्रदान करता है। आपके पास इन मामलों को आत्मविश्वास के साथ निर्देशित करने के लिए प्राकृतिक अधिकार और इच्छाशक्ति होगी।`,
+                Friend: `मित्र राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** को सहायक ऊर्जा प्रदान करता है। यह बताता है कि इन क्षेत्रों में आपके प्रयास उत्पादक होंगे और दूसरों से faveur प्राप्त करेंगे।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** पर एक संतुलित लेकिन अनुकूलनीय प्रभाव प्रदान करता है। आपके प्रयासों का परिणाम काफी हद तक अन्य संयुक्त या पहलू ग्रहों पर निर्भर करेगा।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में आपके अहंकार और अधिकार का परीक्षण कर सकता है। आपको अपने नेतृत्व के लिए चुनौतियों का सामना करना पड़ सकता है या मान्यता की कमी हो सकती है, जिससे आपको लचीलापन विकसित करने की आवश्यकता होगी।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित आत्मविश्वास और जीवन शक्ति के साथ संघर्ष का संकेत दे सकता है। इन क्षेत्रों में आपके आत्म-सम्मान को बाधाओं को दूर करने के लिए जानबूझकर पोषण की आवश्यकता हो सकती है।`
             },
             Moon: {
-                Exalted: `**${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में उच्च का **${planetName}** असाधारण भावनात्मक स्थिरता, उच्च ग्रहणशीलता और पोषण संबंधी परिणामों का वादा करता है। इन मामलों में आपकी भावनाएं एक मजबूत, सकारात्मक मार्गदर्शक होंगी।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए इसकी कारकत्व भावनाओं, घर और परिवार से एक मजबूत संबंध लाता है। इन मामलों में भावनात्मक सुरक्षा और आराम सर्वोपरि हैं।`,
-                Friend: `**${planetName}** एक मित्र राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, भावनात्मक खुशी और सहायक रिश्तों को सुनिश्चित करता है। इन मामलों से निपटने में आसानी और आराम मिलेगा।`,
-                Neutral: `**${planetName}** एक सम राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए अपने संबंधित ग्रहों के भावनात्मक माहौल को दर्शाता है। भावनाएं संतुलित होंगी लेकिन पर्यावरण से आसानी से प्रभावित होंगी।`,
-                Enemy: `**${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में प्रतिकूल रूप से स्थित **${planetName}** इन क्षेत्रों में भावनात्मक बेचैनी या उतार-चढ़ाव का कारण बन सकता है। इन मामलों से संबंधित आंतरिक शांति मायावी हो सकती है, जिसके लिए सचेत प्रयास की आवश्यकता होगी।`,
-                Debilitated: `**${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** इन मामलों में भावनात्मक उथल-पुथल, असुरक्षा, या सहायक बंधन बनाने में कठिनाई का संकेत दे सकता है। आपको यहां भावनात्मक कल्याण के साथ संघर्ष करना पड़ सकता है।`
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में गहन भावनात्मक स्थिरता और ग्रहणशीलता सुनिश्चित करता है। इन मामलों में आपकी अंतर्ज्ञान एक शक्तिशाली और विश्वसनीय मार्गदर्शक होगी, जिससे पोषण संबंधी परिणाम प्राप्त होंगे।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपकी भावनात्मक भलाई को आपके **${ordinalHouse} भाव (${houseTheme})** से गहराई से जोड़ता है। आप इन जीवन क्षेत्रों पर ध्यान केंद्रित करके भावनात्मक सुरक्षा और आराम की तलाश करेंगे और पाएंगे।`,
+                Friend: `मित्र राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित भावनात्मक खुशी और सामंजस्यपूर्ण संबंधों को बढ़ावा देता है। आपको यहां दूसरों से जुड़ना और संतोष पाना आसान लगेगा।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में एक मध्यम और अनुकूलनीय भावनात्मक स्वर लाता है। आपकी भावनाएं संतुलित हैं लेकिन आपके पर्यावरण से आसानी से प्रभावित हो सकती हैं।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के संबंध में भावनात्मक बेचैनी और आंतरिक संघर्ष का कारण बन सकता है। इन मामलों में मन की शांति प्राप्त करने के लिए सचेत प्रयास और भावनात्मक प्रबंधन की आवश्यकता होगी।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित भावनात्मक उथल-पुथल और असुरक्षा का सुझाव देता है। आपको सहायक बंधन बनाने या इन क्षेत्रों में आराम पाने में कठिनाई हो सकती है।`
             },
             Mars: {
-                Exalted: `आपके **${ordinalHouse} भाव (${houseTheme})** के एक प्राथमिक कारक के रूप में, उच्च का **${planetName}** अपार साहस, प्रेरणा और दृढ़ संकल्प प्रदान करता है, जो इन मामलों में शक्तिशाली और प्रभावी कार्यों को सुनिश्चित करता है। गतिशील प्रयास के माध्यम से सफलता लाएगा।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए इसका कारकत्व मजबूत तार्किक क्षमताएं और लक्ष्यों को प्राप्त करने के लिए प्रचुर ऊर्जा लाता है। आप इन क्षेत्रों में एक प्राकृतिक निष्पादक होंगे और निर्णायक कार्रवाई के माध्यम से परिणाम प्राप्त करेंगे।`,
-                Friend: `**${planetName}** एक मित्र राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, उत्पादक कार्यों और प्रयासों को सुनिश्चित करता है। यह इन क्षेत्रों में रचनात्मक मुखरता और लाभकारी परिणामों की ओर ले जाता है।`,
-                Neutral: `**${planetName}** एक सम राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए अपने सहयोगियों के अनुसार कार्य करता है। ऊर्जा मौजूद है, लेकिन प्रभावी होने और दुरुपयोग से बचने के लिए स्पष्ट दिशा की आवश्यकता है।`,
-                Enemy: `**${planetName}** एक शत्रु राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, तर्क, संघर्ष या गलत दिशा में ऊर्जा का कारण बन सकता है। इन चुनौतियों का सामना करने के लिए धैर्य और सावधानीपूर्वक रणनीति की आवश्यकता है।`,
-                Debilitated: `**${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** प्रेरणा की कमी, निराश ऊर्जा, या खुद को मुखर करने में कठिनाई का परिणाम हो सकता है। जड़ता और बाहरी विरोध को दूर करना एक महत्वपूर्ण चुनौती होगी।`
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के लिए अपार साहस, प्रेरणा और रणनीतिक मुखरता प्रदान करता है। आपके कार्य शक्तिशाली और प्रभावी होंगे, जिससे स्पष्ट सफलता मिलेगी।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपको अपने **${ordinalHouse} भाव (${houseTheme})** से संबंधित लक्ष्यों को निर्णायक रूप से आगे बढ़ाने के लिए मजबूत तार्किक क्षमताएं और ऊर्जा देता है। आप इन मामलों में एक प्राकृतिक निष्पादक हैं।`,
+                Friend: `मित्र राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित उत्पादक और रचनात्मक प्रयासों को बढ़ावा देता है। आपके कार्यों को अच्छी तरह से प्राप्त होने और लाभकारी परिणाम देने की संभावना है।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में ऊर्जा का एक आधार रेखा लाता है जिसे स्पष्ट दिशा की आवश्यकता होती है। इसकी प्रभावशीलता इसे प्रभावित करने वाले अन्य ग्रहों पर निर्भर करेगी।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के भीतर तर्क, संघर्ष या गलत दिशा में ऊर्जा के रूप में प्रकट हो सकता है। विवादों से बचने के लिए धैर्य और सावधानीपूर्वक योजना की आवश्यकता है।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के संबंध में प्रेरणा की कमी या निराश ऊर्जा का परिणाम हो सकता है। खुद को मुखर करना और बाधाओं को दूर करना एक प्रमुख चुनौती होगी।`
             },
             Mercury: {
-                Exalted: `आपके **${ordinalHouse} भाव (${houseTheme})** के एक प्राथमिक कारक के रूप में, उच्च का **${planetName}** श्रेष्ठ बुद्धि, विश्लेषणात्मक कौशल और संचार क्षमता प्रदान करता है। आपका मन तेज और स्पष्ट होगा, जो इन मामलों से संबंधित बौद्धिक और संचारी प्रयासों में सफलता लाएगा।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए इसका कारकत्व एक तेज दिमाग, अनुकूलनशीलता और वाणिज्य में कौशल लाता है। आप इन क्षेत्रों में हाजिरजवाब और बहुमुखी होंगे, संचार और बौद्धिक गतिविधियों में उत्कृष्टता प्राप्त करेंगे।`,
-                Friend: `**${planetName}** एक मित्र राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, इंगित करता है कि बुद्धि का प्रभावी ढंग से उपयोग किया जाता है और संचार ${houseTheme} के मामलों में सुचारू रूप से बहता है। यह सीखने, बातचीत और स्पष्ट अभिव्यक्ति की सुविधा प्रदान करता है।`,
-                Neutral: `**${planetName}** एक सम राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए अपने संबंधित ग्रहों से प्रभावित होता है। आपकी विचार प्रक्रिया संतुलित होगी लेकिन इसे प्रभावित किया जा सकता है, जिससे अनुकूलनीय लेकिन कभी-कभी अनिश्चित परिणाम प्राप्त होंगे।`,
-                Enemy: `**${planetName}** एक शत्रु राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, संचार समस्याओं, घबराहट वाली ऊर्जा, या स्पष्ट अभिव्यक्ति में चुनौतियों का कारण बन सकता है। गलतफहमी और मानसिक घर्षण उत्पन्न हो सकता है।`,
-                Debilitated: `**${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** इन क्षेत्रों में निर्णय लेने, सीखने, या मानसिक स्पष्टता में कठिनाइयों का कारण बन सकता है। इन बौद्धिक बाधाओं को दूर करने के लिए सावधानीपूर्वक विचार और ध्यान आवश्यक है।`
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के संबंध में बेहतर बुद्धि और स्पष्ट संचार प्रदान करता है। आपकी विश्लेषणात्मक कौशल तेज होगी, जिससे बौद्धिक गतिविधियों में सफलता मिलेगी।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में एक तेज, अनुकूलनीय दिमाग और व्यावसायिक कौशल लाता है। आप इन क्षेत्रों में बहुमुखी हैं और संचार और वाणिज्य में उत्कृष्टता प्राप्त करते हैं।`,
+                Friend: `मित्र राशि में होने के कारण, यह सुनिश्चित करता है कि आपकी बुद्धि आपके **${ordinalHouse} भाव (${houseTheme})** के लिए प्रभावी ढंग से लागू हो। संचार सुचारू रूप से बहता है, और सीखने का पक्ष लिया जाता है।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के लिए आपकी विचार प्रक्रिया को संतुलित लेकिन अन्य प्रभावों से आसानी से प्रभावित करता है। आपकी अनुकूलनशीलता एक ताकत है, लेकिन अनिर्णय एक चुनौती हो सकती है।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** को प्रभावित करने वाली संचार समस्याओं या घबराहट वाली ऊर्जा का कारण बन सकता है। मानसिक घर्षण और गलतफहमी संभव है।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित निर्णय लेने और सीखने में कठिनाइयों का कारण बन सकता है। मानसिक स्पष्टता के लिए सचेत ध्यान की आवश्यकता होगी।`
             },
             Jupiter: {
-                Exalted: `आपके **${ordinalHouse} भाव (${houseTheme})** के एक प्राथमिक कारक के रूप में, उच्च का **${planetName}** महान ज्ञान, भाग्य और दिव्य कृपा का संकेत है। इन मामलों में अवसर और विकास प्रचुर मात्रा में होंगे, जिससे विस्तार और आशीर्वाद प्राप्त होगा।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए इसका कारकत्व मजबूत सिद्धांत, आशावाद और विकास के लिए प्रचुर अवसर प्रदान करता है। यहां आपकी अंतर्निहित बुद्धि शक्तिशाली है, जो अनुकूल परिणामों का मार्गदर्शन करती है।`,
-                Friend: `**${planetName}** एक मित्र राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, इंगित करता है कि ज्ञान को अच्छी तरह से प्राप्त और समर्थित किया जाता है, जो ${houseTheme} के मामलों में आत्मविश्वास को प्रेरित करता है। यह परोपकार और सकारात्मक विस्तार को बढ़ावा देता है।`,
-                Neutral: `**${planetName}** एक सम राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए अपने प्रभाव के क्षेत्रों में संतुलित परिणाम देता है। विकास स्थिर होगा लेकिन अत्यधिक नाटकीय नहीं, सहायक कारकों पर निर्भर करता है।`,
-                Enemy: `**${planetName}** एक शत्रु राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, कठोर विश्वासों या गुरुओं के साथ चुनौतियों का कारण बन सकता है, जिससे विस्तार में बाधा आ सकती है और सीखने या विश्वास में घर्षण हो सकता है।`,
-                Debilitated: `आपके **${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** इन क्षेत्रों में निर्णय की कमी या चूके हुए अवसरों का संकेत दे सकता है। भाग्य मायावी हो सकता है या इन क्षेत्रों में कड़ी मेहनत से प्राप्त होगा।`
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** पर महान ज्ञान, भाग्य और कृपा प्रदान करता है। यह इन मामलों में प्रचुर वृद्धि, अवसरों और आशीर्वाद का संकेत है।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के लिए मजबूत सिद्धांत और आशावाद प्रदान करता है। आपकी अंतर्निहित बुद्धि आपको विशाल और अनुकूल परिणामों की ओर मार्गदर्शन करेगी।`,
+                Friend: `मित्र राशि में होने के कारण, यह इंगित करता है कि आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित आपके ज्ञान और मार्गदर्शन को अच्छी तरह से प्राप्त और समर्थित किया जाएगा, जिससे आत्मविश्वास प्रेरित होगा।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में संतुलित और स्थिर विकास प्रदान करता है। परिणाम सकारात्मक होंगे लेकिन जरूरी नहीं कि नाटकीय हों, यह अन्य कारकों पर निर्भर करता है।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित कठोर विश्वासों या गुरुओं के साथ चुनौतियों का कारण बन सकता है। यह विस्तार में बाधा डाल सकता है और दार्शनिक घर्षण पैदा कर सकता है।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के संबंध में निर्णय की कमी या चूके हुए अवसरों का संकेत दे सकता है। भाग्य मायावी या कठिन परिश्रम से प्राप्त हो सकता है।`
             },
             Venus: {
-                Exalted: `आपके **${ordinalHouse} भाव (${houseTheme})** के एक प्राथमिक कारक के रूप में, उच्च का **${planetName}** शोधन, कलात्मक प्रतिभा और रिश्तों में खुशी का वादा करता है। इन मामलों में सद्भाव एक प्रमुख विषय है, जो खुशी और अनुकूल परिस्थितियां लाता है।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए इसका कारकत्व सुंदरता, सद्भाव और आनंद के प्रति प्रेम देता है। आप स्वाभाविक रूप से आराम, विलासिता और सहायक रिश्तों को आकर्षित करते हैं।`,
-                Friend: `**${planetName}** एक मित्र राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, इंगित करता है कि एक खुशहाल सामाजिक जीवन और प्यार में सौभाग्य है। सहायक रिश्तों और रचनात्मक pursuits में आसानी की उम्मीद करें।`,
-                Neutral: `**${planetName}** एक सम राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए रिश्तों और सुख-सुविधाओं के लिए एक संतुलित दृष्टिकोण प्रदान करता है। सौंदर्यशास्त्र और कूटनीति महत्वपूर्ण होंगे, जिसमें मध्यम लेकिन स्थिर परिणाम होंगे।`,
-                Enemy: `**${planetName}** एक शत्रु राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, रिश्तों में असंतोष या चुनौतियों का कारण बन सकता है। सद्भाव खोजना मुश्किल हो सकता है, सुलह में अतिरिक्त प्रयास की आवश्यकता होगी।`,
-                Debilitated: `आपके **${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** इन क्षेत्रों में खुशी और शोधन खोजने में कठिनाइयों का कारण बन सकता है। रिश्तों में संघर्ष हो सकता है, या सौंदर्य pursuits में पूर्ति की कमी हो सकती है।`
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में असाधारण शोधन, कलात्मक प्रतिभा और खुशी का वादा करता है। सद्भाव और सुंदरता आपके जीवन के इन क्षेत्रों में प्रवाहित होगी।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित सौंदर्य, सद्भाव और आनंद के लिए एक स्वाभाविक प्रेम देता है। आप यहां आसानी से आराम और सहायक रिश्तों को आकर्षित करेंगे।`,
+                Friend: `मित्र राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के मामलों में एक खुशहाल सामाजिक जीवन और सौभाग्य की ओर इशारा करता है। रचनात्मक सहजता और सहायक संबंधों की अपेक्षा करें।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के लिए एक संतुलित और राजनयिक दृष्टिकोण प्रदान करता है। सौंदर्यशास्त्र और सामाजिक अनुग्रह महत्वपूर्ण होंगे, जिससे मध्यम लेकिन स्थिर परिणाम प्राप्त होंगे।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से जुड़े रिश्तों में असंतोष या चुनौतियां पैदा कर सकता है। सद्भाव खोजने के लिए अतिरिक्त प्रयास और समझौते की आवश्यकता हो सकती है।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में खुशी और शोधन खोजने में कठिनाइयों का कारण बन सकता है। सौंदर्य या संबंधपरक गतिविधियों में पूर्ति की कमी संभव है।`
             },
             Saturn: {
-                Exalted: `आपके **${ordinalHouse} भाव (${houseTheme})** के एक प्राथमिक कारक के रूप में, उच्च का **${planetName}** गहरा अनुशासन, धैर्य और संरचित प्रयास के माध्यम से दीर्घकालिक सफलता प्राप्त करने की क्षमता देता है। इन मामलों में महत्वपूर्ण और स्थिर उपलब्धियों की उम्मीद करें।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए इसका कारकत्व कर्तव्य, जिम्मेदारी की एक मजबूत भावना और एक संरचित दृष्टिकोण को इंगित करता है। आप इन क्षेत्रों में स्वाभाविक रूप से अनुशासित और प्रभावी ढंग से प्रबंधन करने में सक्षम हैं।`,
-                Friend: `**${planetName}** एक मित्र राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, इंगित करता है कि कड़ी मेहनत और अनुशासन को पुरस्कृत किया जाता है। यह इन मामलों में ठोस परिणाम और स्थिर प्रगति की ओर ले जाता है।`,
-                Neutral: `**${planetName}** एक सम राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए आपके कर्म और प्रयासों के आधार पर परिणाम देता है। अनुभव और व्यावहारिक अनुप्रयोग के माध्यम से सबक सीखे जाते हैं, जिसमें क्रमिक लेकिन निश्चित परिणाम होते हैं।`,
-                Enemy: `**${planetName}** एक शत्रु राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, देरी, निराशा, या बोझ महसूस करने की भावना ला सकता है। इन चुनौतियों को दूर करने के लिए धैर्य और दृढ़ता महत्वपूर्ण हैं।`,
-                Debilitated: `आपके **${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** अनुशासन, स्थायी कठिनाइयों, या महत्वपूर्ण जिम्मेदारियों के साथ संघर्ष का संकेत दे सकता है। प्रगति धीमी और कठिन महसूस हो सकती है, जिसमें अत्यधिक लचीलेपन की आवश्यकता होगी।`
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में स्थायी सफलता प्राप्त करने के लिए गहरा अनुशासन और धैर्य प्रदान करता है। आपके संरचित प्रयासों से महत्वपूर्ण और स्थिर उपलब्धियां प्राप्त होंगी।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के प्रति कर्तव्य की एक मजबूत भावना और एक संरचित दृष्टिकोण को इंगित करता है। आप स्वाभाविक रूप से अनुशासित हैं और इन क्षेत्रों को बड़ी जिम्मेदारी के साथ प्रबंधित कर सकते हैं।`,
+                Friend: `मित्र राशि में होने के कारण, यह इंगित करता है कि आपके **${ordinalHouse} भाव (${houseTheme})** के संबंध में आपकी कड़ी मेहनत और अनुशासन को ठोस परिणामों और स्थिर प्रगति के साथ पुरस्कृत किया जाएगा।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में आपके कर्म और प्रयासों के आधार पर परिणाम देता है। सबक व्यावहारिक अनुभव के माध्यम से सीखे जाएंगे, जिससे क्रमिक लेकिन निश्चित परिणाम प्राप्त होंगे।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में देरी, निराशा, या बोझ महसूस करने की भावना ला सकता है। इन परीक्षणों को दूर करने के लिए धैर्य और दृढ़ता आवश्यक होगी।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित अनुशासन और स्थायी कठिनाइयों के साथ संघर्ष का संकेत दे सकता है। जिम्मेदारियां भारी महसूस हो सकती हैं, और प्रगति धीमी हो सकती है।`
             },
             Rahu: {
-                Exalted: `आपके **${ordinalHouse} भाव (${houseTheme})** के एक प्राथमिक कारक के रूप में, उच्च का **${planetName}** अपार सांसारिक सफलता और महान महत्वाकांक्षा प्राप्त करने की क्षमता दे सकता है। इन मामलों में अपरंपरागत रास्ते अक्सर प्रमुखता और अप्रत्याशित लाभ की ओर ले जाते हैं।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए इसका कारकत्व नवाचार और अपरंपरागत सफलता के लिए एक मजबूत प्रेरणा प्रदान करता है। आप यहां प्रभावी ढंग से नई जमीन तोड़ते हैं और अद्वितीय अवसरों का पीछा करते हैं।`,
-                Friend: `**${planetName}** एक मित्र राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, इंगित करता है कि महत्वाकांक्षाओं को सहायक वातावरण मिलते हैं, और इच्छाएं आसानी से प्रकट होती हैं। यह असामान्य कनेक्शनों के माध्यम से अवसर लाता है।`,
-                Neutral: `**${planetName}** एक सम राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए अपनी भाव स्थिति के परिणामों को बढ़ाता है। इसका प्रभाव अप्रत्याशित लेकिन मजबूत होगा, अक्सर सीमाओं को आगे बढ़ाएगा और अचानक बदलाव करेगा।`,
-                Enemy: `**${planetName}** एक शत्रु राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, अतृप्त इच्छाओं या असंतोष का कारण बन सकता है। यह इन मामलों में खाली भौतिकवादी pursuits या कभी संतुष्ट न होने की भावना को जन्म दे सकता है।`,
-                Debilitated: `आपके **${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** भ्रम, धोखे या अधूरी इच्छाओं का कारण बन सकता है। इन चुनौतीपूर्ण ऊर्जाओं को नेविगेट करने के लिए एक स्पष्ट दिशा और नैतिक आचरण महत्वपूर्ण है।`
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में अपार सांसारिक सफलता और महत्वाकांक्षा को गति प्रदान कर सकता है। अपरंपरागत तरीके प्रमुखता और अप्रत्याशित लाभ की ओर ले जाएंगे।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के संबंध में नवाचार और अपरंपरागत सफलता के लिए एक शक्तिशाली प्रेरणा प्रदान करता है। आप नई जमीन तोड़ने और अद्वितीय अवसरों का पीछा करने के लिए तैयार हैं।`,
+                Friend: `मित्र राशि में होने के कारण, यह बताता है कि आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित आपकी महत्वाकांक्षाओं को सहायक वातावरण मिलेगा, जिससे आपकी इच्छाएं अधिक आसानी से प्रकट होंगी।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के मामलों को बढ़ाता है। प्रभाव मजबूत लेकिन अप्रत्याशित होगा, सीमाओं को आगे बढ़ाएगा और अचानक बदलाव पैदा करेगा।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में अतृप्त इच्छाओं और असंतोष का कारण बन सकता है। इससे भौतिक लाभ के बावजूद अधूरापन महसूस हो सकता है।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित भ्रम, धोखे या अधूरी इच्छाओं का कारण बन सकता है। इस ऊर्जा को नेविगेट करने के लिए एक स्पष्ट, नैतिक दिशा महत्वपूर्ण है।`
             },
             Ketu: {
-                Exalted: `आपके **${ordinalHouse} भाव (${houseTheme})** के एक प्राथमिक कारक के रूप में, उच्च का **${planetName}** गहन आध्यात्मिक अंतर्दृष्टि और सांसारिक मामलों से वैराग्य प्रदान कर सकता है। इन मामलों में अंतर्ज्ञान बढ़ता है, जिससे गहरी समझ और आध्यात्मिक प्रगति होती है।`,
-                'Own Sign': `अपनी स्वराशि में **${planetName}** के साथ, **${ordinalHouse} भाव (${houseTheme})** के लिए इसका कारकत्व एक मजबूत सहज क्षमता और आध्यात्मिक मुक्ति की ओर एक स्पष्ट मार्ग इंगित करता है। यहां आपका आंतरिक मार्गदर्शन मजबूत है, जो वैराग्य और आध्यात्मिक विकास को बढ़ावा देता है।`,
-                Friend: `**${planetName}** एक मित्र राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, इंगित करता है कि आध्यात्मिक यात्रा समर्थित है, और वैराग्य शांति लाता है। आपको भौतिक आसक्तियों को छोड़ने में आसानी होगी।`,
-                Neutral: `**${planetName}** एक सम राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए अपने भाव पर वैराग्य की भावना लाता है। आपका ध्यान अधिक आंतरिक है, आध्यात्मिक समाधान और आंतरिक शांति की तलाश में है, न कि बाहरी संतुष्टि की।`,
-                Enemy: `**${planetName}** एक शत्रु राशि में, **${ordinalHouse} भाव (${houseTheme})** के लिए एक कारक के रूप में, भ्रम, हानि या अप्रत्याशित बाधाएं पैदा कर सकता है। जाने देना और स्वीकृति चुनौतीपूर्ण हो सकती है, लेकिन विकास के लिए आवश्यक है।`,
-                Debilitated: `आपके **${ordinalHouse} भाव (${houseTheme})** के लिए एक नीच का **${planetName}** दिशा की कमी या लाचारी की भावनाओं का संकेत दे सकता है। आध्यात्मिक मार्ग अस्पष्ट हो सकता है, जिसके लिए अतिरिक्त आत्मनिरीक्षण और लचीलेपन की आवश्यकता होती है ताकि स्पष्टता मिल सके।`
-            }
+                Exalted: `उच्च का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में गहन आध्यात्मिक अंतर्दृष्टि और सांसारिक मामलों से वैराग्य प्रदान कर सकता है। आपकी अंतर्ज्ञान बढ़ जाती है, जिससे गहरी समझ प्राप्त होती है।`,
+                'Own Sign': `स्वराशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** के माध्यम से एक मजबूत सहज क्षमता और आध्यात्मिक मुक्ति की ओर एक मार्ग इंगित करता है। आपका आंतरिक मार्गदर्शन यहां एक शक्तिशाली संपत्ति है।`,
+                Friend: `मित्र राशि में होने के कारण, यह बताता है कि आपके **${ordinalHouse} भाव (${houseTheme})** से संबंधित आपकी आध्यात्मिक यात्रा समर्थित है। भौतिक परिणामों से वैराग्य शांति लाएगा।`,
+                Neutral: `सम राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में वैराग्य की भावना लाता है। ध्यान बाहरी परिणामों के बजाय आध्यात्मिक समाधानों की तलाश में अधिक आंतरिक है।`,
+                Enemy: `शत्रु राशि में होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में भ्रम, हानि या अप्रत्याशित बाधाएं पैदा कर सकता है। जाने देना सीखना महत्वपूर्ण सबक है, जो चुनौतीपूर्ण लेकिन आवश्यक होगा।`,
+                Debilitated: `नीच का होने के कारण, यह आपके **${ordinalHouse} भाव (${houseTheme})** में दिशा की कमी या लाचारी की भावनाओं का संकेत दे सकता है। मार्ग अस्पष्ट हो सकता है, जिसके लिए स्पष्टता खोजने के लिए आत्मनिरीक्षण की आवश्यकता होती है।`
+            },
         }
     };
 
@@ -1313,30 +1419,37 @@ function getPlanetSignificatorDetailedDescription(planetName, dignity, signified
             : `${translatedPlanet} is not a strong significator for any house in this chart, suggesting a neutral role.`;
     }
 
-    const houseLinks = signifiedHouses.map(h => `**${houseThemes[h] || `भाव ${h}`} (भाव ${h})**`).join(', ');
+    const houseLinks = signifiedHouses.map(h => {
+        const theme = houseThemes[h] || (lang === 'hi' ? `भाव ${h}` : `House ${h}`);
+        const houseNum = lang === 'hi' ? `(भाव ${h})` : `(House ${h})`;
+        return `**${theme} ${houseNum}**`;
+    }).join(', ');
 
     let description = '';
 
     if (lang === 'hi') {
         const dignityTemplates_hi = {
-            Exalted: `उच्च का होने के कारण, ${translatedPlanet} **अत्यधिक शुभ और शक्तिशाली परिणाम** देगा। इसकी दशा में, आप इन क्षेत्रों में उत्कृष्ट प्रगति की उम्मीद कर सकते हैं: ${houseLinks}।`,
-            'Own Sign': `अपनी स्वराशि में होने के कारण, ${translatedPlanet} **स्थिर और मजबूत परिणाम** देगा। इसकी दशा में, इन क्षेत्रों में आत्मविश्वास और नियंत्रण रहेगा: ${houseLinks}।`,
-            Friend: `मित्र राशि में होने के कारण, ${translatedPlanet} **अनुकूल और सहायक परिणाम** देगा। इसकी दशा में, आप इन क्षेत्रों में सुचारू प्रगति और अवसरों की उम्मीद कर सकते हैं: ${houseLinks}।`,
-            Neutral: `सम राशि में होने के कारण, ${translatedPlanet} **संतुलित परिणाम** देगा। इसकी दशा में, इन क्षेत्रों में परिणाम अन्य ग्रहों के प्रभाव पर निर्भर करेंगे: ${houseLinks}।`,
-            Enemy: `शत्रु राशि में होने के कारण, ${translatedPlanet} **चुनौतियां और बाधाएं** ला सकता है। इसकी दशा में, इन क्षेत्रों में सचेत प्रयास और धैर्य की आवश्यकता होगी: ${houseLinks}।`,
-            Debilitated: `नीच का होने के कारण, ${translatedPlanet} **गंभीर बाधाएं और कठिनाइयां** ला सकता है। इसकी दशा में, आपको इन क्षेत्रों में महत्वपूर्ण चुनौतियों का सामना करना पड़ सकता है: ${houseLinks}।`
+            Exalted: `उच्च का होने के कारण, यह **अत्यधिक शुभ और शक्तिशाली परिणाम** देगा। इसकी दशा में, आप इन क्षेत्रों में उत्कृष्ट प्रगति की उम्मीद कर सकते हैं: ${houseLinks}।`,
+            'Own Sign': `अपनी स्वराशि में होने के कारण, यह **स्थिर और मजबूत परिणाम** देगा। इसकी दशा में, इन क्षेत्रों में आत्मविश्वास और नियंत्रण रहेगा: ${houseLinks}।`,
+            Friend: `मित्र राशि में होने के कारण, यह **अनुकूल और सहायक परिणाम** देगा। इसकी दशा में, आप इन क्षेत्रों में सुचारू प्रगति और अवसरों की उम्मीद कर सकते हैं: ${houseLinks}।`,
+            Neutral: `सम राशि में होने के कारण, यह **संतुलित परिणाम** देगा। इसकी दशा में, इन क्षेत्रों में परिणाम अन्य ग्रहों के प्रभाव पर निर्भर करेंगे: ${houseLinks}।`,
+            Enemy: `शत्रु राशि में होने के कारण, यह **चुनौतियां और बाधाएं** ला सकता है। इसकी दशा में, इन क्षेत्रों में सचेत प्रयास और धैर्य की आवश्यकता होगी: ${houseLinks}।`,
+            Debilitated: `नीच का होने के कारण, यह **गंभीर बाधाएं और कठिनाइयां** ला सकता है। इसकी दशा में, आपको इन क्षेत्रों में महत्वपूर्ण चुनौतियों का सामना करना पड़ सकता है: ${houseLinks}।`,
+            Moolatrikona: `मूलत्रिकोण राशि में होने के कारण, यह **अत्यधिक शुभ और शक्तिशाली परिणाम** देगा। इसकी दशा में, आप इन क्षेत्रों में उत्कृष्ट प्रगति की उम्मीद कर सकते हैं: ${houseLinks}।`
         };
-        description = dignityTemplates_hi[dignity] || `अपनी ${dignity} स्थिति के कारण, ${translatedPlanet} अपनी क्षमता के अनुसार परिणाम देगा, जो इन क्षेत्रों को प्रभावित करेगा: ${houseLinks}।`;
+        const translatedDignity = { 'Standard': 'सामान्य', 'Unknown': 'अज्ञात' }[dignity] || dignity;
+        description = dignityTemplates_hi[dignity] || `अपनी ${translatedDignity} स्थिति के कारण, यह अपनी क्षमता के अनुसार परिणाम देगा, जो इन क्षेत्रों को प्रभावित करेगा: ${houseLinks}।`;
     } else { // English
         const dignityTemplates_en = {
-            Exalted: `Due to its **Exalted** status, ${translatedPlanet} will deliver **highly favorable and powerful results**. During its periods, this will positively influence matters of: ${houseLinks}.`,
-            'Own Sign': `In its **Own Sign**, ${translatedPlanet} will deliver **stable and strong results**. Its periods will bring confidence and control regarding: ${houseLinks}.`,
-            Friend: `In a **Friendly** sign, ${translatedPlanet} is well-positioned to deliver **favorable and supportive results**. Expect smooth progress and opportunities concerning: ${houseLinks}.`,
+            Exalted: `Due to its **Exalted** status, it will deliver **highly favorable and powerful results**. During its periods, this will positively influence matters of: ${houseLinks}.`,
+            'Own Sign': `In its **Own Sign**, it will deliver **stable and strong results**. Its periods will bring confidence and control regarding: ${houseLinks}.`,
+            Friend: `In a **Friendly** sign, it is well-positioned to deliver **favorable and supportive results**. Expect smooth progress and opportunities concerning: ${houseLinks}.`,
             Neutral: `Its **Neutral** status suggests **balanced results**. Outcomes during its periods will depend on other influences regarding: ${houseLinks}.`,
-            Enemy: `In an **Enemy** sign, ${translatedPlanet} may bring **challenges and obstacles**. Conscious effort will be required during its periods for matters of: ${houseLinks}.`,
-            Debilitated: `Being **Debilitated**, ${translatedPlanet} may indicate **significant hurdles and difficulties**. You may face considerable challenges during its periods concerning: ${houseLinks}.`
+            Enemy: `In an **Enemy** sign, it may bring **challenges and obstacles**. Conscious effort will be required during its periods for matters of: ${houseLinks}.`,
+            Debilitated: `Being **Debilitated**, it may indicate **significant hurdles and difficulties**. You may face considerable challenges during its periods concerning: ${houseLinks}.`,
+            Moolatrikona: `In its **Moolatrikona** sign, it will deliver **highly favorable and powerful results**. During its periods, this will positively influence matters of: ${houseLinks}.`
         };
-        description = dignityTemplates_en[dignity] || `Due to its ${dignity} status, ${translatedPlanet} will deliver results according to its capacity, affecting areas of: ${houseLinks}.`;
+        description = dignityTemplates_en[dignity] || `Due to its ${dignity} status, it will deliver results according to its capacity, affecting areas of: ${houseLinks}.`;
     }
     return description;
 }
@@ -1390,8 +1503,45 @@ function rankSignificators(event, eventType, keyHouses, karaka, kpSignificators,
     if (topSignificators.length > 0) {
         analysis += `**${translatedEvent}:**\n`;
         analysis += `*   **${lang === 'hi' ? 'प्रमुख कारक' : 'Top Significators'}:** ${topSignificators.map(p => `${getPlanetName(p[0], lang)} (${lang === 'hi' ? 'स्कोर' : 'Score'}: ${p[1]})`).join(', ')}.\n`;
-        analysis += `*   **${lang === 'hi' ? 'घटना का समय' : 'Timing of Event'}:** ${lang === 'hi' ? `इन शीर्ष कारक ग्रहों की महादशा, भुक्ति, या अंतर दशा के दौरान ${translatedEvent} की संभावना सबसे अधिक होती है।` : `The event is most likely to manifest during the Mahadasha, Bhukti, or Antara of these top-ranked significator planets.`}
-`;
+
+        // --- NEW LOGIC for Timing of Event ---
+        const favorablePeriods = [];
+        const challengingPeriods = [];
+        const neutralPeriods = [];
+
+        topSignificators.forEach(p_arr => {
+            const planetName = p_arr[0];
+            const planetDetail = planetDetailsMap.get(planetName);
+            const dignity = planetDetail?.avasthas?.dignity || 'Unknown';
+            const translatedPlanetName = getPlanetName(planetName, lang);
+            
+            if (['Exalted', 'Own Sign', 'Friend', 'Moolatrikona'].includes(dignity)) {
+                favorablePeriods.push(translatedPlanetName);
+            } else if (['Debilitated', 'Enemy'].includes(dignity)) {
+                challengingPeriods.push(translatedPlanetName);
+            } else {
+                neutralPeriods.push(translatedPlanetName);
+            }
+        });
+
+        let timingText = '';
+        if (favorablePeriods.length > 0) {
+            timingText += (lang === 'hi' ? `**अनुकूल अवधि:** ${favorablePeriods.join(', ')} की दशा/अंतर्दशा के दौरान उन्नति और सफलता की संभावना है। ` : `**Favorable Periods:** The Dasha/Antardasha of **${favorablePeriods.join(', ')}** are particularly promising for growth and success. `);
+        }
+        if (challengingPeriods.length > 0) {
+            timingText += (lang === 'hi' ? `**चुनौतीपूर्ण अवधि:** ${challengingPeriods.join(', ')} की अवधि में बाधाएं आ सकती हैं या अधिक प्रयास की आवश्यकता हो सकती है। ` : `**Challenging Periods:** The periods of **${challengingPeriods.join(', ')}** may bring obstacles or require more effort. `);
+        }
+        if (neutralPeriods.length > 0) {
+            timingText += (lang === 'hi' ? `**मिश्रित अवधि:** ${neutralPeriods.join(', ')} की अवधि में परिणाम अन्य गोचरों पर निर्भर करेंगे। ` : `**Mixed Periods:** The periods of **${neutralPeriods.join(', ')}** will yield mixed results dependent on other transits. `);
+        }
+        
+        if (timingText.trim() === '') {
+            // Fallback to old generic text if no planets are categorized
+            timingText = (lang === 'hi' ? `इन शीर्ष कारक ग्रहों की महादशा, भुक्ति, या अंतर दशा के दौरान ${translatedEvent} की संभावना सबसे अधिक होती है।` : `The event is most likely to manifest during the Mahadasha, Bhukti, or Antara of these top-ranked significator planets.`);
+        }
+
+        analysis += `*   **${lang === 'hi' ? 'घटना का समय' : 'Timing of Event'}:** ${timingText.trim()}\n`;
+
 
         const topScore = topSignificators[0][1];
         let eventConclusion = '';
@@ -1429,6 +1579,78 @@ function rankSignificators(event, eventType, keyHouses, karaka, kpSignificators,
 }
 
 
+function generateHouseSummary(houseNumber, significators, planetDetailsMap, lang) {
+    const themes = lang === 'hi' ? houseThemes_hi : houseThemes_en;
+    const houseTheme = themes[houseNumber];
+
+    const positive = [];
+    const negative = [];
+    const neutral = [];
+
+    significators.forEach(p => {
+        const planetDetail = planetDetailsMap.get(p);
+        const dignity = planetDetail?.avasthas?.dignity || 'Unknown';
+        const planetName = getPlanetName(p, lang);
+        if (['Exalted', 'Own Sign', 'Friend', 'Moolatrikona'].includes(dignity)) {
+            positive.push(planetName);
+        } else if (['Debilitated', 'Enemy'].includes(dignity)) {
+            negative.push(planetName);
+        } else {
+            neutral.push(planetName);
+        }
+    });
+
+    if (positive.length === 0 && negative.length === 0 && neutral.length === 0) {
+        return '';
+    }
+
+    let summary = `**${lang === 'hi' ? 'भाव ' + houseNumber : 'House ' + houseNumber} (${houseTheme}):** `;
+    
+    let parts = [];
+
+    if (positive.length > 0) {
+        const part = (lang === 'hi' ? 
+            `यह भाव ${positive.join(' और ')} से मजबूत समर्थन प्राप्त करता है, जो सकारात्मक ऊर्जा और उत्पादक प्रयासों का संकेत देता है।` :
+            `This house receives strong support from **${positive.join(' and ')}**, indicating positive energy and productive efforts.`
+        );
+        parts.push(part);
+    }
+
+    if (negative.length > 0) {
+        const part = (lang === 'hi' ?
+            `${negative.join(' और ')} द्वारा चुनौतियां पेश की जा सकती हैं, जो घर्षण या बाधाओं का सुझाव देती हैं।` :
+            `Challenges may be presented by **${negative.join(' and ')}**, suggesting friction or obstacles.`
+        );
+        parts.push(part);
+    }
+    
+    if (neutral.length > 0) {
+        const part = (lang === 'hi' ?
+            `का प्रभाव तटस्थ है, और परिणाम अन्य ग्रहों के प्रभाव पर निर्भर करेगा।` :
+            `The influence of **${neutral.join(' and ')}** is neutral, and outcomes will depend on other planetary influences.`
+        );
+        parts.push(part);
+    }
+
+    summary += parts.join(' ');
+
+    // Add overall assessment
+    if (positive.length > negative.length) {
+        summary += (lang === 'hi' ? ' कुल मिलाकर, इस भाव में एक सकारात्मक झुकाव है।' : ' Overall, this house has a positive leaning.');
+    } else if (negative.length > positive.length) {
+        summary += (lang === 'hi' ? ' कुल मिलाकर, इस भाव को चुनौतियों का सामना करना पड़ सकता है।' : ' Overall, this house may face challenges.');
+    } else {
+        summary += (lang === 'hi' ? ' कुल मिलाकर, यह भाव एक मिश्रित प्रभाव दिखाता है।' : ' Overall, this house shows a mixed influence.');
+    }
+
+    summary += (lang === 'hi' ?
+        ` इन ग्रहों की दशा/अंतर्दशा के दौरान प्रभाव सबसे प्रमुख होंगे।` :
+        ` The effects will be most prominent during the Dasha/Antardasha of these planets.`
+    );
+
+    return summary + '\n\n';
+}
+
 export function getKpAnalysis(payload = {}, lang = 'en') {
     const { kpSignificators, planetDetails } = payload;
     if (!kpSignificators || !kpSignificators.overview || !kpSignificators.detailedPlanets || !planetDetails) {
@@ -1447,30 +1669,24 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
 
     let analysisText = '';
 
+    analysisText += lang === 'hi' ? '### केपी कारक विश्लेषण\n\n' : '### KP Significator Analysis\n\n';
+
     analysisText += lang === 'hi' ? '**भाव कारक विश्लेषण:**\n' : '**Cusp Significators Analysis:**\n';
     analysisText += lang === 'hi'
         ? 'यह खंड बताता है कि प्रत्येक भाव (जीवन का क्षेत्र) के लिए परिणाम देने के लिए कौन से ग्रह सशक्त हैं। जब इन ग्रहों की दशा/अंतर्दशा सक्रिय होती है, तो उस भाव से संबंधित घटनाएं प्रकट हो सकती हैं।\n\n'
-        : 'This section details which planets are empowered to deliver results for each house (area of life). When the periods (Dasha/Antardasha) of these planets are active, events related to that house can manifest.\n\n';
+        : 'This section identifies the planets influencing each area of your life (house). When a planet’s period (Dasha/Antardasha) is active, you can expect events related to the houses it signifies.\n\n';
 
     for (let i = 1; i <= 12; i++) {
         const significators = overview.cusps[i] || [];
         if (significators.length > 0) {
-            analysisText += `**${lang === 'hi' ? 'भाव ' + i : 'House ' + i} (${houseThemes[i]}):**\n`;
-            significators.forEach(p => {
-                const planetDetail = planetDetailsMap.get(p);
-                const dignity = planetDetail?.avasthas?.dignity || 'Unknown';
-                const translatedDignity = lang === 'hi' ? (dignity_hi[dignity] || dignity) : dignity;
-                const interpretation = getKpCuspSignificatorInterpretation(p, dignity, i, lang);
-                analysisText += `*   **${getPlanetName(p, lang)} (${translatedDignity}):** ${interpretation}\n`;
-            });
-            analysisText += '\n';
+            analysisText += generateHouseSummary(i, significators, planetDetailsMap, lang);
         }
     }
 
     analysisText += lang === 'hi' ? '\n**ग्रह कारक विश्लेषण:**\n' : '\n**Planet Significators Analysis:**\n';
     analysisText += lang === 'hi'
         ? 'यह खंड दिखाता है कि प्रत्येक ग्रह किन भावों का कारक है। जब किसी ग्रह की दशा या अंतर्दशा सक्रिय होती है, तो वह उन भावों से संबंधित परिणाम देगा जिनका वह प्रतिनिधित्व करता है।\n\n'
-        : 'This section shows which houses each planet signifies. When a planet\'s Dasha or Antardasha is active, it will deliver results pertaining to the houses it represents.\n\n';
+        : 'This section details which life areas (houses) each planet influences. During a planet’s period (Dasha/Antardasha), it will deliver results related to the houses it signifies.\n\n';
 
     const planetOrder = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu'];
     planetOrder.forEach(planet => {
@@ -1487,8 +1703,8 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
 
     const synthesisHeader = lang === 'hi' ? '\n**संश्लेषण और मुख्य भविष्यवाणियां:**\n' : '\n**Synthesis & Key Predictions:**\n';
     const synthesisIntroText = lang === 'hi' 
-        ? 'आपके चार्ट में प्रमुख जीवन की घटनाओं के लिए ज्योतिषीय क्षमता का विश्लेषण नीचे दिया गया है। ये भविष्यवाणियां शीर्ष कारक ग्रहों के स्कोर पर आधारित हैं।\n\n'
-        : 'The astrological potential for major life events in your chart is analyzed below. These predictions are based on the scores of the top significator planets.\n\n';
+        ? 'आपके चार्ट में प्रमुख जीवन की घटनाओं के लिए ज्योतिषीय क्षमता का विश्लेषण नीचे दिया गया है। ये भविष्यवाणियां शीर्ष कारक ग्रहों के स्कोर पर आधारित हैं। **एक उच्च स्कोर उस घटना पर उस ग्रह से एक मजबूत प्रभाव का संकेत देता है।**\n\n'
+        : 'The astrological potential for major life events in your chart is analyzed below. These predictions are based on the scores of the top significator planets. **A higher score indicates a stronger influence from that planet on the event.**\n\n';
     
     analysisText += synthesisHeader + synthesisIntroText;
 
@@ -1516,3 +1732,4 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
         kpSignificatorsOverview: overview, // This might also be useful
     };
 }
+

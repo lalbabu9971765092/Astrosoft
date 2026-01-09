@@ -205,6 +205,8 @@
     "loadingDashaPrediction": "दशा भविष्यवाणी लोड हो रही है...",
     "dashaPredictionFetchError": "दशा भविष्यवाणी लाने में विफल।",
     "noCurrentDasha": "कोई वर्तमान दशा अवधि नहीं मिली।",
+    "kpSignificatorsTitle": "के पी सिग्निफिकेटर्स विश्लेषण",
+    "dashaAnalysisTitle": "दशा विश्लेषण चयनित तिथि के लिए",
     "langCode": "hi",
     "dashaLordsTitle": "दशा स्वामी चार्ट में",
     "lifeAreasTitle": "जीवन क्षेत्र सारांश",

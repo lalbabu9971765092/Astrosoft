@@ -1,11 +1,11 @@
 import { getHouseOfPlanet, calculatePlanetaryPositions, getRashiDetails, calculateAtmakaraka } from './planetaryUtils.js';
-import { convertDMSToDegrees, getJulianDateUT } from './coreUtils.js';
+import { convertDMSToDegrees, getJulianDateUT, normalizeAngle } from './coreUtils.js';
 import { getCombinedPredictionLong, getUPBSDescription, getOrdinal } from './predictionTextGenerator.js';
 import { calculateAllBirthChartYogas as detectAllYogas } from './birthChartYogaUtils.js';
 import { RASHI_LORDS, RASHIS, PLANET_EXALTATION_SIGN, PLANET_DEBILITATION_SIGN } from './constants.js';
 import { PLANET_NAMES_HI, getPlanetName } from './birthChartYogaUtils.js';
 import { calculateUPBS } from './beneficenceUtils.js'; // Import calculateUPBS
-
+import { transitInterpretations_en, transitInterpretations_hi } from './transitInterpretations.js';
 /* ======================================================
    Constants & Utilities
 ====================================================== */
@@ -114,21 +114,20 @@ async function analyzeTransits(chartData, planetaryPowers, lang = 'en') {
   const natalPositions = chartData.planetaryPositions.sidereal;
   const cuspDegrees = chartData.houses.map(h => toDegrees(h.start_dms));
   
+  const interpretations = lang === 'hi' ? transitInterpretations_hi : transitInterpretations_en;
+
   const transitEvents = [];
-  const slowMovingPlanets = ['Saturn', 'Jupiter', 'Rahu', 'Ketu'];
 
-  // Sade Sati Check (Saturn transiting 12th, 1st, or 2nd from natal Moon)
-  const natalMoonRashi = natalPositions.Moon?.rashi_number; // Assuming rashi_number is 1-12
+  // Sade Sati Check
+  const natalMoonRashi = natalPositions.Moon?.rashi_number;
   const transitingSaturnRashi = transits.sidereal.Saturn?.rashi_number;
-
   if (natalMoonRashi && transitingSaturnRashi) {
       const relativeRashi = (transitingSaturnRashi - natalMoonRashi + 12) % 12;
-      if (relativeRashi === 11 || relativeRashi === 0 || relativeRashi === 1) { // 12th, 1st, 2nd from Moon
+      if (relativeRashi === 11 || relativeRashi === 0 || relativeRashi === 1) {
           let sadeSatiPhase = '';
           if (relativeRashi === 11) sadeSatiPhase = (lang === 'hi' ? 'पहला चरण (साढ़े साती)' : 'First Phase (Sade Sati)');
           else if (relativeRashi === 0) sadeSatiPhase = (lang === 'hi' ? 'दूसरा चरण (साढ़े साती)' : 'Second Phase (Sade Sati)');
           else if (relativeRashi === 1) sadeSatiPhase = (lang === 'hi' ? 'तीसरा चरण (साढ़े साती)' : 'Third Phase (Sade Sati)');
-
           const sadeSatiNarration = lang === 'hi'
               ? `आप वर्तमान में शनि की साढ़े साती के ${sadeSatiPhase} से गुजर रहे हैं। यह अवधि गहन आत्मनिरीक्षण, चुनौतियों और महत्वपूर्ण जीवन परिवर्तनों को ला सकती है। धैर्य, अनुशासन और आध्यात्मिक अभ्यास महत्वपूर्ण हैं।`
               : `You are currently undergoing the ${sadeSatiPhase} of Saturn's Sade Sati. This period can bring intense introspection, challenges, and significant life transformations. Patience, discipline, and spiritual practices are crucial.`;
@@ -140,66 +139,32 @@ async function analyzeTransits(chartData, planetaryPowers, lang = 'en') {
     if (!transitData?.longitude || !PLANETS.includes(transitingPlanet)) continue;
 
     const transitedHouse = getHouseOfPlanet(transitData.longitude, cuspDegrees);
-    const translatedTransitingPlanet = getPlanetName(transitingPlanet, lang);
-    const transitedRashi = getRashiDetails(transitData.longitude).rashi;
-    const transitedRashiNum = getRashiDetails(transitData.longitude).rashi_number;
+    const narrationParts = [];
 
-    let narration = lang === 'hi'
-      ? `${translatedTransitingPlanet} का ${transitedHouse}वें घर में गोचर इस घर से संबंधित मामलों पर ध्यान केंद्रित करेगा। `
-      : `The transit of ${transitingPlanet} through your ${getOrdinal(transitedHouse)} house will focus your energy on matters related to this house. `;
-    
-    // Impact based on planet speed
-    if (slowMovingPlanets.includes(transitingPlanet)) {
-        narration += lang === 'hi'
-            ? 'यह एक महत्वपूर्ण और दीर्घकालिक प्रभाव है जो इन विषयों पर आपकी एकाग्रता को बढ़ाएगा। '
-            : 'This is a significant and long-term influence that will heighten your focus on these themes. ';
+    // 1. Get base house transit interpretation
+    if (interpretations[transitingPlanet]?.house?.[transitedHouse]) {
+        narrationParts.push(interpretations[transitingPlanet].house[transitedHouse]);
     } else {
-        narration += lang === 'hi'
-            ? 'यह एक अल्पकालिक प्रभाव है, जो इन क्षेत्रों में त्वरित घटनाओं या परिवर्तनों को लाएगा। '
-            : 'This is a short-term influence, bringing quick events or changes in these areas. ';
+        // Fallback for missing interpretation
+        narrationParts.push(lang === 'hi'
+          ? `${getPlanetName(transitingPlanet, lang)} का ${transitedHouse}वें घर में गोचर इस घर से संबंधित मामलों पर ध्यान केंद्रित करेगा।`
+          : `The transit of ${transitingPlanet} through your ${getOrdinal(transitedHouse)} house will focus your energy on matters related to this house.`);
     }
 
-    // Ashtakavarga influence
-    if (chartData.ashtakavarga?.bhinnashtakavarga?.[transitingPlanet] && chartData.ashtakavarga.bhinnashtakavarga[transitingPlanet][transitedRashiNum - 1] !== undefined) {
-        const ashtakavargaPoints = chartData.ashtakavarga.bhinnashtakavarga[transitingPlanet][transitedRashiNum - 1];
-        if (ashtakavargaPoints >= 5) { // Good points
-            narration += lang === 'hi'
-                ? `इस गोचर को अनुकूल अष्टकवर्ग बिंदुओं (${ashtakavargaPoints} बिंदु) का समर्थन प्राप्त है, जो इस अवधि के दौरान शुभ परिणाम और सफल प्रयासों का वादा करता है। `
-                : `This transit is supported by favorable Ashtakavarga points (${ashtakavargaPoints} points), promising auspicious results and successful endeavors during this period. `;
-        } else if (ashtakavargaPoints <= 3) { // Low points
-            narration += lang === 'hi'
-                ? `हालांकि, कम अष्टकवर्ग बिंदु (${ashtakavargaPoints} बिंदु) इस गोचर के दौरान कुछ चुनौतियों या धीमे परिणामों का संकेत दे सकते हैं। `
-                : `However, low Ashtakavarga points (${ashtakavargaPoints} points) may indicate some challenges or slower results during this transit. `;
-        }
-    }
-
-    // Find and interpret conjunctions
+    // 2. Find and interpret conjunctions
     const natalPlanetsInHouse = Object.entries(natalPositions)
       .filter(([p, d]) => d?.longitude && getHouseOfPlanet(d.longitude, cuspDegrees) === transitedHouse && p !== transitingPlanet)
       .map(([p]) => p);
       
     if (natalPlanetsInHouse.length > 0) {
-      const translatedNatalPlanets = natalPlanetsInHouse.map(p => getPlanetName(p, lang)).join(', ');
-      narration += lang === 'hi'
-        ? `यहां यह आपके जन्मकालीन ${translatedNatalPlanets} से युति करेगा, जिससे इन ग्रहों की ऊर्जाएं विलीन हो जाएंगी। `
-        : `Here, it will conjoin your natal ${translatedNatalPlanets}, merging their energies. `;
-        
-      // Add natal promise based on UPBS for conjuncted planets
-      natalPlanetsInHouse.forEach(natalPlanet => {
-          const natalPlanetUPBS = planetaryPowers[natalPlanet]?.total || 0;
-          if (natalPlanetUPBS >= 5) {
-              narration += lang === 'hi'
-                  ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की मजबूत स्थिति (${natalPlanetUPBS.toFixed(2)}) इस युति के सकारात्मक परिणामों को बढ़ाएगी। `
-                  : `The strong position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart will amplify the positive outcomes of this conjunction. `;
-          } else if (natalPlanetUPBS <= -5) {
-              narration += lang === 'hi'
-                  ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की पीड़ित स्थिति (${natalPlanetUPBS.toFixed(2)}) इस युति के दौरान चुनौतियां पेश कर सकती है। `
-                  : `The afflicted position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart may present challenges during this conjunction. `;
-          }
-      });
+        natalPlanetsInHouse.forEach(natalPlanet => {
+            if (interpretations[transitingPlanet]?.conjunction?.[natalPlanet]) {
+                narrationParts.push(interpretations[transitingPlanet].conjunction[natalPlanet]);
+            }
+        });
     }
 
-    // Find and interpret other major aspects
+    // 3. Find and interpret other major aspects
     const aspects = { trine: [], square: [], opposition: [] };
     for (const [natalPlanet, natalData] of Object.entries(natalPositions)) {
       if (!natalData?.longitude || natalPlanet === transitingPlanet || natalPlanetsInHouse.includes(natalPlanet)) continue;
@@ -207,59 +172,35 @@ async function analyzeTransits(chartData, planetaryPowers, lang = 'en') {
       const angle = Math.abs(transitData.longitude - natalData.longitude);
       const normalizedAngle = Math.min(angle, 360 - angle);
 
-      if (normalizedAngle > 175 && normalizedAngle < 185) { // Opposition
-        aspects.opposition.push(natalPlanet);
-      } else if (normalizedAngle > 115 && normalizedAngle < 125) { // Trine
-        aspects.trine.push(natalPlanet);
-      } else if (normalizedAngle > 85 && normalizedAngle < 95) { // Square
-        aspects.square.push(natalPlanet);
-      }
+      if (normalizedAngle > 175 && normalizedAngle < 185) aspects.opposition.push(natalPlanet);
+      else if (normalizedAngle > 115 && normalizedAngle < 125) aspects.trine.push(natalPlanet);
+      else if (normalizedAngle > 85 && normalizedAngle < 95) aspects.square.push(natalPlanet);
     }
     
     if (aspects.trine.length > 0) {
-      const trinePlanets = aspects.trine.map(p => getPlanetName(p, lang));
-      narration += lang === 'hi'
-        ? `${trinePlanets.join(', ')} से एक सामंजस्यपूर्ण त्रिकोण पहलू इस अवधि के दौरान सहज प्रवाह और समर्थन का वादा करता है। `
-        : `A harmonious trine aspect from ${trinePlanets.join(', ')} promises smooth flow and support during this period. `;
-        trinePlanets.forEach(natalPlanet => { // Add natal promise for aspecting planets
-            const natalPlanetUPBS = planetaryPowers[natalPlanet]?.total || 0;
-            if (natalPlanetUPBS >= 5) {
-                narration += lang === 'hi'
-                    ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की मजबूत स्थिति (${natalPlanetUPBS.toFixed(2)}) इन सहायक प्रभावों को बढ़ाएगी। `
-                    : `The strong position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart will amplify these supportive influences. `;
-            }
-        });
+      aspects.trine.forEach(natalPlanet => {
+        if(interpretations[transitingPlanet]?.trine?.[natalPlanet]) {
+            narrationParts.push(interpretations[transitingPlanet].trine[natalPlanet]);
+        }
+      });
     }
     if (aspects.square.length > 0) {
-      const squarePlanets = aspects.square.map(p => getPlanetName(p, lang));
-      narration += lang === 'hi'
-        ? `${squarePlanets.join(', ')} से एक चुनौतीपूर्ण वर्ग पहलू घर्षण पैदा कर सकता है और कार्रवाई की मांग कर सकता है। `
-        : `A challenging square aspect from ${squarePlanets.join(', ')} may create friction and demand action. `;
-        squarePlanets.forEach(natalPlanet => { // Add natal promise for aspecting planets
-            const natalPlanetUPBS = planetaryPowers[natalPlanet]?.total || 0;
-            if (natalPlanetUPBS <= -5) {
-                narration += lang === 'hi'
-                    ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की पीड़ित स्थिति (${natalPlanetUPBS.toFixed(2)}) इन चुनौतीपूर्ण प्रभावों को बढ़ाएगी। `
-                    : `The afflicted position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart will intensify these challenging influences. `;
+        aspects.square.forEach(natalPlanet => {
+            if(interpretations[transitingPlanet]?.square?.[natalPlanet]) {
+                const aspectNarration = (lang === 'hi' ? `${getPlanetName(natalPlanet, lang)} से एक वर्ग पहलू तनाव पैदा करता है और कार्रवाई की मांग करता है। ` : `A square aspect from ${getPlanetName(natalPlanet, lang)} creates tension and demands action. `) + interpretations[transitingPlanet].square[natalPlanet];
+                narrationParts.push(aspectNarration);
             }
         });
     }
     if (aspects.opposition.length > 0) {
-      const oppositionPlanets = aspects.opposition.map(p => getPlanetName(p, lang));
-      narration += lang === 'hi'
-        ? `${oppositionPlanets.join(', ')} से एक विरोधाभासी पहलू संतुलन की आवश्यकता या दूसरों के माध्यम से जागरूकता का संकेत देता है।`
-        : `An opposition aspect from ${oppositionPlanets.join(', ')} signals a need for balance or awareness through others.`;
-        oppositionPlanets.forEach(natalPlanet => { // Add natal promise for aspecting planets
-            const natalPlanetUPBS = planetaryPowers[natalPlanet]?.total || 0;
-            if (natalPlanetUPBS <= -5) {
-                narration += lang === 'hi'
-                    ? `आपके चार्ट में ${getPlanetName(natalPlanet, lang)} की पीड़ित स्थिति (${natalPlanetUPBS.toFixed(2)}) इन विरोधाभासी प्रभावों को बढ़ाएगी। `
-                    : `The afflicted position of natal ${natalPlanet} (${natalPlanetUPBS.toFixed(2)}) in your chart will heighten these oppositional influences. `;
-            }
-        });
+      aspects.opposition.forEach(natalPlanet => {
+        if(interpretations[transitingPlanet]?.opposition?.[natalPlanet]) {
+            narrationParts.push(interpretations[transitingPlanet].opposition[natalPlanet]);
+        }
+      });
     }
 
-    transitEvents.push({ planet: transitingPlanet, house: transitedHouse, narration: narration.trim() });
+    transitEvents.push({ planet: transitingPlanet, house: transitedHouse, narration: narrationParts.join('\n\n') });
   }
 
   return transitEvents;
@@ -393,7 +334,7 @@ function analyzeDashaLordsInChart(chartData, planetaryPowers, currentDasha, curr
       if (lang === 'hi') {
         narrative = `**${level.name_hi} स्वामी ${translatedPlanet}:** यह ग्रह आपके ${natalHouse}वें घर में ${dignityDesc} में स्थित है। यह ${strengthDescription}। `;
         if (ruledHouses.length > 0) {
-          narrative += `इसकी अवधि के दौरान, ${ruledHouses.map(getOrdinal).join(' और ')} भावों से संबंधित मामले प्रमुख होंगे। `;
+          narrative += `इसकी अवधि के दौरान, ${ruledHouses.join(' और ')} भावों से संबंधित मामले प्रमुख होंगे। `;
         }
         if (involvedYogas.length > 0) {
             narrative += `यह ${involvedYogas.map(y => y.name).join(', ')} जैसे योगों में शामिल है, जो इस अवधि के दौरान इन योगों के परिणामों को सक्रिय करेगा। `;
@@ -428,11 +369,11 @@ function analyzeDashaLordsInChart(chartData, planetaryPowers, currentDasha, curr
           if (lang === 'hi') {
               placementNarrative = `${getPlanetName(parent, lang)} के साथ इसका ${relationshipDesc} संबंध है। यह ${getPlanetName(parent, lang)} से ${relativeHouse}वें घर में स्थित है। `;
               if ([6, 8, 12].includes(relativeHouse)) {
-                  placementNarrative += `यह एक चुनौतीपूर्ण स्थिति है, जो बताती है कि इस उप-अवधि में महादशा के विषयों के संबंध में बाधाएं या संघर्ष उत्पन्न हो सकते हैं।`;
+                  placementNarrative += `यह एक चुनौतीपूर्ण स्थिति है, जो बताती है कि इस उप-अवधि में ${level.parentLord ? 'महादशा' : 'दशा'} के विषयों के संबंध में बाधाएं या संघर्ष उत्पन्न हो सकते हैं।`;
               } else if ([1, 5, 9].includes(relativeHouse)) {
-                  placementNarrative += `यह एक अत्यधिक शुभ स्थिति है, जो महादशा के विषयों का समर्थन करने वाली चिकनी प्रगति और भाग्य का वादा करती है।`;
+                  placementNarrative += `यह एक अत्यधिक शुभ स्थिति है, जो ${level.parentLord ? 'महादशा' : 'दशा'} के विषयों का समर्थन करने वाली चिकनी प्रगति और भाग्य का वादा करती है।`;
               } else if ([4, 7, 10].includes(relativeHouse)) {
-                  placementNarrative += `यह एक सहायक स्थिति है, जो महादशा के लक्ष्यों को प्राप्त करने के लिए कार्रवाई और प्रयास का संकेत देती है।`;
+                  placementNarrative += `यह एक सहायक स्थिति है, जो ${level.parentLord ? 'महादशा' : 'दशा'} के लक्ष्यों को प्राप्त करने के लिए कार्रवाई और प्रयास का संकेत देती है।`;
               }
           } else {
               placementNarrative = `It has a ${relationshipDesc} relationship with ${parent}. It is placed in the ${getOrdinal(relativeHouse)} house from ${parent}. `;
@@ -862,7 +803,7 @@ PredictionEngine.generateHolisticPrediction = async (chartData, lang = 'en') => 
 
   const lifeAreaReports = generateLifeAreaReports(chartData, planetaryPowers, chartData.ashtakavarga, yogas, aspects, lang);
 
-  const eventTimeline = await analyzeTransits(chartData, lang);
+  const eventTimeline = await analyzeTransits(chartData, planetaryPowers, lang);
 
   const summary = generateSummary(overallReport, lifeAreaReports, eventTimeline, yogas, dashaLordAnalysis, lang);
 

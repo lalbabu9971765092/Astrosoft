@@ -11,7 +11,7 @@ const PredictionPage = () => {
     const [openSections, setOpenSections] = useState({ general: true });
     const toggleSection = (section) => setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
 
-    const [varshphalData, setVarshphalData] = useState({ prediction: '', isLoading: false, error: null, year: null });
+    const [varshphalData, setVarshphalData] = useState({ prediction: '', isLoading: false, error: null, year: null, lang: null });
 
     const [holisticPrediction, setHolisticPrediction] = useState(null);
     const [isLoadingHolisticPrediction, setIsLoadingHolisticPrediction] = useState(false);
@@ -29,7 +29,7 @@ const PredictionPage = () => {
     const fetchVarshphalPrediction = useCallback(async () => {
         if (!calculationInputParams || !adjustedGocharDateTimeString) return;
         const yearValue = new Date(adjustedGocharDateTimeString).getFullYear();
-        setVarshphalData({ prediction: '', isLoading: true, error: null, year: yearValue });
+        setVarshphalData({ prediction: '', isLoading: true, error: null, year: yearValue, lang: i18n.language });
         try {
             const natalDate = adjustedBirthDateTimeString || calculationInputParams.date;
             const payload = {
@@ -37,6 +37,7 @@ const PredictionPage = () => {
                 natalLatitude: calculationInputParams.latitude,
                 natalLongitude: calculationInputParams.longitude,
                 varshphalYear: yearValue,
+                lang: i18n.language, // Add current language
             };
             const varResp = await api.post('/calculate-varshphal', payload);
             const varData = varResp.data;
@@ -53,14 +54,14 @@ const PredictionPage = () => {
                     varshphalYear: yearValue,
                 };
                 const predResp = await api.post('/predictions/varshaphal', varshphalPayload);
-                setVarshphalData({ prediction: predResp.data.prediction || '', isLoading: false, error: null, year: yearValue });
+                setVarshphalData({ prediction: predResp.data.prediction || '', isLoading: false, error: null, year: yearValue, lang: i18n.language });
             } else {
                 throw new Error(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
             }
         } catch (err) {
             console.error('Error fetching/calculating varshphal:', err.response?.data || err.message || err);
             const errorMsg = err.response?.data?.error || err.message || t('predictionPage.varshphalCalculationFailed');
-            setVarshphalData({ prediction: '', isLoading: false, error: errorMsg, year: yearValue });
+            setVarshphalData({ prediction: '', isLoading: false, error: errorMsg, year: yearValue, lang: i18n.language });
         }
     }, [adjustedBirthDateTimeString, adjustedGocharDateTimeString, calculationInputParams, i18n.language, t]);
 
@@ -173,8 +174,8 @@ const PredictionPage = () => {
 
             // Varshphal
             const yearForVarshphal = new Date(adjustedGocharDateTimeString).getFullYear();
-            const shouldFetchVarshphal = !varshphalData.prediction || varshphalData.year !== yearForVarshphal;
-            if (shouldFetchVarshphal) fetchVarshphalPrediction();
+            const shouldFetchVarshphal = (!varshphalData.prediction && !varshphalData.error) || varshphalData.year !== yearForVarshphal || varshphalData.lang !== i18n.language;
+            if (shouldFetchVarshphal && !varshphalData.isLoading) fetchVarshphalPrediction();
 
             // KP analysis - use effectiveHolistic to derive kpSignificators
             const effectiveHolistic = (typeof houseToRotate === 'number' && houseToRotate > 1) ? rotatedHolisticPrediction || holisticPrediction : holisticPrediction;
@@ -183,12 +184,12 @@ const PredictionPage = () => {
                 fetchKpAnalysis(effectiveHolistic.planetDetails);
             }
         } else {
-            setVarshphalData({ prediction: '', isLoading: false, error: null, year: null });
+            setVarshphalData({ prediction: '', isLoading: false, error: null, year: null, lang: null });
             setHolisticPrediction(null);
             setRotatedHolisticPrediction(null);
             setKpAnalysis({ analysis: '', isLoading: false, error: null });
         }
-    }, [mainResult, calculationInputParams, adjustedBirthDateTimeString, adjustedGocharDateTimeString, i18n.language, fetchHolisticPrediction, fetchRotatedHolisticPrediction, fetchVarshphalPrediction, fetchKpAnalysis, varshphalData.prediction, varshphalData.year, houseToRotate, lastHolisticKey, lastRotatedHolisticKey, lastKpKey, holisticPrediction, rotatedHolisticPrediction]);
+    }, [mainResult, calculationInputParams, adjustedBirthDateTimeString, adjustedGocharDateTimeString, i18n.language, fetchHolisticPrediction, fetchRotatedHolisticPrediction, fetchVarshphalPrediction, fetchKpAnalysis, varshphalData.prediction, varshphalData.year, varshphalData.lang, varshphalData.error, varshphalData.isLoading, houseToRotate, lastHolisticKey, lastRotatedHolisticKey, lastKpKey, holisticPrediction, rotatedHolisticPrediction]);
 
     const renderContent = () => {
         if (!calculationInputParams?.date) return <p className="info-text">{t('predictionPage.calculateFirst', 'Please calculate a chart first to see the predictions.')}</p>;
@@ -349,7 +350,12 @@ const PredictionPage = () => {
                             <div className="prediction-content">
                                 <ul className="prediction-list">
                                     {effectiveHolistic.eventTimeline.map((event, index) => (
-                                        <li key={index}><strong>{t(`planets.${event.planet}`)} {t('predictionPage.inHouse', { houseNumber: event.house })}:</strong> {event.narration}</li>
+                                        <li key={index}>
+                                            <strong>{t(`planets.${event.planet}`)} {t('predictionPage.inHouse', { houseNumber: event.house })}:</strong>
+                                            {event.narration.split('\n\n').map((paragraph, i) => (
+                                                <p key={i} className="prediction-text" style={{ textIndent: '1em', margin: '0.5em 0' }}>{paragraph}</p>
+                                            ))}
+                                        </li>
                                     ))}
                                 </ul>
                             </div>
