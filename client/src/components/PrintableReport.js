@@ -1453,6 +1453,18 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             </div>
                         </div>
                     )}
+                    <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                        <p style={{ fontFamily: 'sans-serif', fontSize: '1.2em', margin: '10px 0' }}>
+                        आ नो भद्राः क्रतवो यन्तु विश्वतः।
+                        अदब्धासो अपरीतास उद्भिदः।
+                        देवा नो यथा सदमिद् वृधे।
+                        असन्नप्रायुवो रक्षितारो दिवे॥</p>
+                        {displayInputParams?.name && <h1 style={{ margin: '5px 0' }}>{displayInputParams.name}</h1>}
+                    </div> <div style={{ textAlign: 'right', marginBottom: '20px' }}>
+                        <p style={{ fontFamily: 'sans-serif', fontSize: '1.2em', margin: '10px 0' }}>
+                        रबिन्द्र मोहन झा 
+                        {displayInputParams?.name && <h1 style={{ margin: '5px 0' }}>{displayInputParams.name}</h1>}
+                    </div>
                 </>
             )}
 
