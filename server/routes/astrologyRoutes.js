@@ -1123,7 +1123,7 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         const srPlanetaryPositions = calculatePlanetaryPositions(solarReturnJD_UT);
 
         // Calculate aspects for the Varshphal chart
-        const srAspects = calculateAspects(srPlanetaryPositions.sidereal, srSiderealCuspStartDegrees);
+        const srAspects = calculateAspects(srPlanetaryPositions.sidereal);
 
         // Populate SR Ascendant details
         const srAscNakDetails = getNakshatraDetails(srSiderealAscDeg);
@@ -1199,7 +1199,6 @@ router.post('/calculate-varshphal', varshphalValidation, async (req, res) => {
         // Calculate Shadbala for Varshphal chart
         const srShadbala = calculateShadbala(srPlanetaryPositions.sidereal, srHousesData, srAspects.directAspects, { sunrise: solarReturnUTCDate, sunset: solarReturnUTCDate }, solarReturnUTCDate, srDivisionalPositions);
 
-        // Calculate planet house placements for Bhava Chalit chart
         const srPlanetHousePlacements = {};
         PLANET_ORDER.forEach(planetName => {
             const planetData = srPlanetaryPositions.sidereal[planetName];
@@ -1324,13 +1323,14 @@ router.post('/calculate-varshphal/rotated', rotatedVarshphalValidation, async (r
         const srAscendantLord = srAscendantDetails.lord;
         const srPlanetaryPositions = calculatePlanetaryPositions(solarReturnJD_UT);
 
-        const srAspects = calculateAspects(srPlanetaryPositions.sidereal, rotatedSrSiderealCuspStartDegrees);
+        const srAspects = calculateAspects(srPlanetaryPositions.sidereal);
 
-        const srAscNakDetails = getNakshatraDetails(srSiderealAscDeg);
-        const srAscRashiDetails = getRashiDetails(srSiderealAscDeg);
-        const srAscPada = calculateNakshatraPada(srSiderealAscDeg);
+        const rotatedAscendantDeg = rotatedSrSiderealCuspStartDegrees[0]; // The actual rotated ascendant degree
+        const srAscNakDetails = getNakshatraDetails(rotatedAscendantDeg);
+        const srAscRashiDetails = getRashiDetails(rotatedAscendantDeg);
+        const srAscPada = calculateNakshatraPada(rotatedAscendantDeg);
         const srAscendantData = {
-            sidereal_dms: convertToDMS(srSiderealAscDeg),
+            sidereal_dms: convertToDMS(rotatedAscendantDeg),
             nakshatra: srAscNakDetails.name, nakLord: srAscNakDetails.lord,
             rashi: srAscRashiDetails.name, rashiLord: srAscRashiDetails.lord,
             pada: srAscPada
@@ -1365,16 +1365,9 @@ router.post('/calculate-varshphal/rotated', rotatedVarshphalValidation, async (r
         const ageAtVarshphalStart = varshphalYear - birthYear;
         const munthaResult = calculateMuntha(natalAscendantSignIndex, ageAtVarshphalStart);
         const munthaSignName = RASHIS[munthaResult.signIndex] || 'N/A';
-        let munthaHouse = null;
-        for(let i=0; i<12; i++) {
-            // Check the Rashi of the *start* of the house cusp in the SR chart
-            const houseStartDeg = srSiderealCuspStartDegrees[i];
-            const houseRashiIndex = getRashiDetails(houseStartDeg).index;
-            if (houseRashiIndex === munthaResult.signIndex) {
-                munthaHouse = i + 1;
-                break;
-            }
-        }
+        // Calculate Muntha House using the precise degree and rotated cusps, consistent with unrotated logic
+        const munthaDegree = munthaResult.signIndex * 30; // Approximating to the start of the sign for getHouseOfPlanet
+        const munthaHouse = getHouseOfPlanet(munthaDegree, rotatedSrSiderealCuspStartDegrees);
         const munthaData = { sign: munthaSignName, signIndex: munthaResult.signIndex, house: munthaHouse };
 
         const solarReturnWeekDay = solarReturnUTCDate.getUTCDay();

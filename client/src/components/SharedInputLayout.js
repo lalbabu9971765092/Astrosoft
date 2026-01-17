@@ -51,9 +51,49 @@ const SharedInputLayout = () => {
     const [isCalculatingTransit, setIsCalculatingTransit] = useState(false);
     const [transitError, setTransitError] = useState(null);
     const [isPrinting, setIsPrinting] = useState(false);
+    const [showSectionSelection, setShowSectionSelection] = useState(false);
     const [selectedVarshphalYear, setSelectedVarshphalYear] = useState(new Date().getFullYear().toString());
+    const [reportSections, setReportSections] = useState({
+        natalCharts: true,
+        nirayanChart: true,
+        d9Chart: true,
+        houseCusps: true,
+        planetDetails: true,
+        planetaryAspects: true,
+        planetaryFriendships: true,
+        shadbala: true,
+        upbs: true,
+        dashaPeriods: true,
+        ashtakavarga: true,
+        kpSignificators: true,
+        varshphal: true,
+        transit: true,
+        overallReport: true,
+        birthChartYogas: true,
+        kpSignificatorsPred: true,
+        lifeAreaReports: true,
+        eventTimeline: true,
+        dashaLordAnalysis: true,
+        varshphalPrediction: true,
+    });
     // Default rotation is House 1. Ignore any stored value on initial load.
     const [houseToRotate, setHouseToRotate] = useState(1);
+
+    const handleSectionChange = (event) => {
+        const { id, checked } = event.target;
+        setReportSections(prev => ({ ...prev, [id]: checked }));
+    };
+
+    const handleSelectAll = () => {
+        const allSelected = Object.keys(reportSections).reduce((acc, key) => ({ ...acc, [key]: true }), {});
+        setReportSections(allSelected);
+    };
+
+    const handleDeselectAll = () => {
+        const allDeselected = Object.keys(reportSections).reduce((acc, key) => ({ ...acc, [key]: false }), {});
+        setReportSections(allDeselected);
+    };
+
 
 
     const fetchSavedCharts = useCallback(async () => {
@@ -600,6 +640,8 @@ const SharedInputLayout = () => {
                         adjustedGocharDateTimeString={adjustedGocharDateTimeString}
                         locationForGocharTool={locationForGocharTool}
                         transitPlaceName={transitPlaceName}
+                        reportSections={reportSections}
+                        houseToRotate={houseToRotate}
                     />
                 ) : (
                     <>
@@ -611,9 +653,30 @@ const SharedInputLayout = () => {
                                 ))}
                             </select>
                         </label>
-                        <button onClick={() => setIsPrinting(true)} style={{ marginLeft: '5px' }} className="nav-button" disabled={!calculationInputParams}>
-                            {t('print')}
+                        <button onClick={() => setShowSectionSelection(!showSectionSelection)} style={{ marginLeft: '5px' }} className="nav-button">
+                            {t('Print')}
                         </button>
+                        {showSectionSelection && (
+                            <div className="section-selection">
+                                <h3>{t('Select Sections to Print')}</h3>
+                                <div className="section-selection-buttons">
+                                    <button onClick={handleSelectAll}>{t('Select All')}</button>
+                                    <button onClick={handleDeselectAll}>{t('Deselect All')}</button>
+                                </div>
+                                {Object.keys(reportSections).map(section => (
+                                    <div key={section}>
+                                        <input
+                                            type="checkbox"
+                                            id={section}
+                                            checked={reportSections[section]}
+                                            onChange={handleSectionChange}
+                                        />
+                                        <label htmlFor={section}>{t(`reportSections.${section}`)}</label>
+                                    </div>
+                                ))}
+                                <button onClick={() => { setIsPrinting(true); setShowSectionSelection(false); }}>{t('Print Selected')}</button>
+                            </div>
+                        )}
                         <Outlet context={{
                             mainResult, isLoading, error, calculationInputParams,
                             adjustedBirthDateTimeString, handleBirthTimeChange,

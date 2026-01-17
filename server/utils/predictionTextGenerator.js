@@ -5,14 +5,14 @@ import { getNakshatraPada } from './nakshatraUtils.js';
 import { NAKSHATRA_PADA_MEANINGS_EN, NAKSHATRA_PADA_MEANINGS_HI } from './nakshatraPadaMeanings.js';
 
 const houseThemes_en = {
-    1: 'self, identity, health', 2: 'finance, possessions, speech', 3: 'siblings, communication, short trips',
-    4: 'home, family, roots', 5: 'creativity, children, education', 6: 'work, health, service',
-    7: 'partnerships, marriage, contracts', 8: 'shared resources, transformation, losses', 9: 'higher learning, travel, faith',
-    10: 'career, reputation, public life', 11: 'gains, friends, networks', 12: 'secrets, expenses, spirituality'
+    1: 'Self, Identity, Health', 2: 'Finance, Possessions, Speech', 3: 'Siblings, Courage, Communication',
+    4: 'Home, Family, Roots', 5: 'Creativity, Children, Education', 6: 'Work, Health, Service',
+    7: 'Partnerships, Marriage, Contracts', 8: 'Shared Resources, Transformation, Losses', 9: 'Higher Learning, Travel, Faith',
+    10: 'Career, Reputation, Public Life', 11: 'Gains, Friends, Networks', 12: 'Secrets, Expenses, Spirituality'
 };
 
 const houseThemes_hi = {
-    1: 'स्वयं, पहचान, स्वास्थ्य', 2: 'वित्त, संपत्ति, वाणी', 3: 'भाई-बहन, संचार, छोटी यात्राएं',
+    1: 'स्वयं, पहचान, स्वास्थ्य', 2: 'वित्त, संपत्ति, वाणी', 3: 'भाई-बहन, साहस, संचार',
     4: 'घर, परिवार, जड़ें', 5: 'रचनात्मकता, बच्चे, शिक्षा', 6: 'काम, स्वास्थ्य, सेवा',
     7: 'साझेदारी, विवाह, अनुबंध', 8: 'साझा संसाधन, परिवर्तन, हानि', 9: 'उच्च शिक्षा, यात्रा, विश्वास',
     10: 'करियर, प्रतिष्ठा, सार्वजनिक जीवन', 11: 'लाभ, दोस्त, नेटवर्क', 12: 'रहस्य, खर्च, आध्यात्मिकता'
@@ -88,7 +88,7 @@ const eventNames_hi = {
 };
 
 const muddaThemes = {
-    en: { Sun: "authority, leadership, and self-expression", Moon: "emotional sensitivity, intuition, and adaptability", Mars: "energy, drive, and courage", Mercury: "intellect, communication, and logical analysis", Jupiter: "wisdom, expansion, and opportunities", Venus: "love, beauty, and harmony", Saturn: "discipline, responsibility, and long-term goals", Rahu: "ambition, innovation, and worldly desire", Ketu: "detachment, spirituality, and deep insight" },
+    en: { Sun: "Authority, Leadership, and Self-expression", Moon: "Emotional Sensitivity, Intuition, and Adaptability", Mars: "Energy, Drive, and Courage", Mercury: "Intellect, Communication, and Logical Analysis", Jupiter: "Wisdom, Expansion, and Opportunities", Venus: "Love, Beauty, and Harmony", Saturn: "Discipline, Responsibility, and Long-term Goals", Rahu: "Ambition, Innovation, and Worldly Desire", Ketu: "Detachment, Spirituality, and Deep Insight" },
     hi: { Sun: "अधिकार, नेतृत्व और आत्म-अभिव्यक्ति", Moon: "भावनात्मक संवेदनशीलता, अंतर्ज्ञान और अनुकूलनशीलता", Mars: "ऊर्जा, कार्रवाई और साहस", Mercury: "बुद्धि, संचार और तार्किक विश्लेषण", Jupiter: "ज्ञान, विस्तार और आशावाद", Venus: "प्रेम, सौंदर्य और सद्भाव", Saturn: "अनुशासन, जिम्मेदारी और दीर्घकालिक लक्ष्य", Rahu: "महत्वाकांक्षा, नवाचार और सांसारिक इच्छाएं", Ketu: "आत्मनिरीक्षण, जाने देना और आध्यात्मिक अंतर्दृष्टि" }
 };
 
@@ -97,9 +97,9 @@ const planetInHouse_en = {
     Sun: [
         "Sun in the 1st house amplifies your sense of self, bestowing leadership, vitality, and a strong desire for recognition. You have a commanding presence but should be mindful of ego.",
         "Sun in the 2nd house ties your identity to wealth, family heritage, and values. You may have a powerful voice and focus on accumulating significant assets.",
-        "Sun in the 3rd house grants courage, a powerful will, and authority in communication. You express yourself with confidence and may excel in marketing, writing, or performance.",
+        "Sun in the 3rd house grants Courage, a powerful will, and authority in Communication. You express yourself with confidence and may excel in marketing, writing, or performance.",
         "Sun in the 4th house places your focus on home, family, and emotional foundations. You may take a leading role in domestic life and seek a prominent home environment.",
-        "Sun in the 5th house brings creativity, intelligence, and a dramatic flair. You shine in areas of romance, performance, and leadership, with a strong connection to children.",
+        "Sun in the 5th house brings creativity, intelligence, and a dramatic flair. You shine in areas of romance, performance, and leadership, with a strong connection to Children.",
         "Sun in the 6th house indicates a drive to lead in your daily work and service. You take pride in overcoming challenges and can be a powerful figure in healthcare or administration.",
         "Sun in the 7th house places your ego and identity in partnerships. You seek a prominent partner and may define yourself through your relationships, for better or worse.",
         "Sun in the 8th house gives a powerful interest in mysteries, psychology, and joint resources. Your life path involves deep transformations and dealing with hidden power dynamics.",
@@ -113,11 +113,11 @@ const planetInHouse_en = {
         "Moon in the 2nd house links your emotional security to financial stability and family values. Your income may fluctuate, and you find comfort in nurturing your possessions.",
         "Moon in the 3rd house creates a mind that is curious, communicative, and changeable. Your thoughts are deeply tied to your feelings, making you an imaginative writer or speaker.",
         "Moon in the 4th house (its own house) is extremely strong for emotional happiness. Your well-being is deeply connected to your home, mother, and a sense of belonging.",
-        "Moon in the 5th house makes you emotionally creative and romantic. You have a nurturing connection with children and find emotional fulfillment through creative self-expression.",
+        "Moon in the 5th house makes you emotionally creative and romantic. You have a nurturing connection with Children and find emotional fulfillment through creative self-expression.",
         "Moon in the 6th house ties your emotions to your work and daily routines. You may have a nurturing approach to service but can be prone to worry about health and conflicts.",
         "Moon in the 7th house seeks emotional fulfillment through partnerships. Your happiness depends greatly on the harmony and connection you feel with your significant other.",
         "Moon in the 8th house gives a mind that is deep, intuitive, and drawn to mysteries. You experience profound emotional transformations and have a natural psychic ability.",
-        "Moon in the 9th house connects your emotions to your beliefs, higher learning, and travel. You find emotional peace through philosophy, spirituality, and exploring different cultures.",
+        "Moon in the 9th house connects your emotions to your beliefs, higher learning, and Travel. You find emotional peace through philosophy, spirituality, and exploring different cultures.",
         "Moon in the 10th house places your emotions in the public eye. Your career may be related to the public, caregiving, or food, and your reputation is subject to ups and downs.",
         "Moon in the 11th house finds emotional satisfaction through friendships, social networks, and achieving goals. You are nurtured by your community and group involvements.",
         "Moon in the 12th house creates a highly imaginative, intuitive, and compassionate mind. You need periods of solitude to recharge and may feel a deep connection to spiritual or otherworldly realms."
@@ -125,7 +125,7 @@ const planetInHouse_en = {
     Mars: [
         "Mars in the 1st house gives an assertive, energetic, and courageous persona. You are a natural go-getter, but must watch for impulsiveness and a tendency to be accident-prone.",
         "Mars in the 2nd house brings drive and conflict to finances and speech. You are aggressive in earning money, but may also have financial disputes or use harsh words.",
-        "Mars in the 3rd house grants immense courage, initiative, and a direct communication style. You are a powerful advocate for your ideas, though can be argumentative.",
+        "Mars in the 3rd house grants immense Courage, initiative, and a direct Communication style. You are a powerful advocate for your ideas, though can be argumentative.",
         "Mars in the 4th house can create conflict and arguments within the home and with family. It indicates a need to channel your energy into productive domestic projects.",
         "Mars in the 5th house provides a passionate and competitive drive in creativity, sports, and romance. You pursue your hobbies and love interests with great energy.",
         "Mars in the 6th house is excellent for overcoming enemies and obstacles. You are a formidable competitor and a tireless worker, but must guard against inflammation and injuries.",
@@ -139,13 +139,13 @@ const planetInHouse_en = {
     Mercury: [
         "Mercury in the 1st house makes you highly intelligent, communicative, and adaptable. Your identity is tied to your intellect, and you present yourself in a youthful, curious manner.",
         "Mercury in the 2nd house grants intelligence in financial matters and a skillful, often humorous or versatile, manner of speech. Your mind is focused on accumulating resources and data.",
-        "Mercury in the 3rd house (its own house) is excellent for communication, writing, and learning. You have a quick, logical mind and excel in media, marketing, or short-distance travel.",
+        "Mercury in the 3rd house (its own house) is excellent for Communication, writing, and learning. You have a quick, logical mind and excel in media, marketing, or short-distance Travel.",
         "Mercury in the 4th house focuses your intelligence on domestic matters. You may enjoy learning at home, have a family business, or be constantly thinking about real estate and family.",
-        "Mercury in the 5th house gives a playful, creative, and intelligent mind. You excel at games of skill, intellectual hobbies, and communicating with children.",
+        "Mercury in the 5th house gives a playful, creative, and intelligent mind. You excel at games of skill, intellectual hobbies, and communicating with Children.",
         "Mercury in the 6th house applies your analytical skills to problems, health, and work. You are a detail-oriented worker and an excellent troubleshooter, but may worry excessively.",
         "Mercury in the 7th house seeks an intelligent and communicative partner. Dialogue and mental connection are crucial for you in all one-on-one relationships.",
         "Mercury in the 8th house creates a mind drawn to research, investigation, and uncovering secrets. You have a natural talent for psychology, astrology, or investigative journalism.",
-        "Mercury in the 9th house makes you a student of higher knowledge. You love to learn and communicate about philosophy, law, religion, and long-distance travel.",
+        "Mercury in the 9th house makes you a student of higher knowledge. You love to learn and communicate about philosophy, law, religion, and long-distance Travel.",
         "Mercury in the 10th house uses communication as a primary tool in your career. You may have multiple jobs or a profession in media, writing, teaching, or consulting.",
         "Mercury in the 11th house grants a wide social network and intelligence in achieving goals. You connect with many different people and excel at group communication.",
         "Mercury in the 12th house gives a mind that is intuitive, imaginative, and focused on behind-the-scenes research or spiritual topics. You think deeply about hidden things."
@@ -153,9 +153,9 @@ const planetInHouse_en = {
     Jupiter: [
         "Jupiter in the 1st house brings optimism, wisdom, and good fortune to your personality. You are seen as a person of high principles, and you naturally attract opportunities.",
         "Jupiter in the 2nd house is excellent for wealth and finance. It indicates a path of abundance, a generous nature, and wisdom in handling resources.",
-        "Jupiter in the 3rd house expands your communication and courage. You are an optimistic and inspiring speaker or writer, with good relationships with siblings.",
+        "Jupiter in the 3rd house expands your Communication and Courage. You are an optimistic and inspiring speaker or writer, with good relationships with Siblings.",
         "Jupiter in the 4th house (a strong placement) blesses you with a happy home life, a large property, and strong support from your mother. It indicates deep inner peace.",
-        "Jupiter in the 5th house is a blessing for children, creativity, and good fortune through investments or speculation. Your intelligence is broad and your creativity is expansive.",
+        "Jupiter in the 5th house is a blessing for Children, creativity, and good fortune through investments or speculation. Your intelligence is broad and your creativity is expansive.",
         "Jupiter in the 6th house helps in overcoming conflicts and health issues with wisdom. You are generous in your service and can be a great teacher or counselor in your work.",
         "Jupiter in the 7th house promises a wise, fortunate, and principled partner. Your relationships are a source of growth and expansion in your life.",
         "Jupiter in the 8th house can bring wealth through inheritance or partners, and gives a deep, philosophical interest in life's mysteries and longevity.",
@@ -167,7 +167,7 @@ const planetInHouse_en = {
     Venus: [
         "Venus in the 1st house blesses you with charm, grace, and a love for beauty and harmony. You are naturally attractive, diplomatic, and have a pleasant demeanor.",
         "Venus in the 2nd house is excellent for wealth, giving a love for luxury items, fine food, and a beautiful speaking voice. You attract money easily through your charm.",
-        "Venus in the 3rd house makes your communication style artistic and pleasant. You have a talent for creative writing, poetry, or design and enjoy harmonious sibling relationships.",
+        "Venus in the 3rd house makes your Communication style artistic and pleasant. You have a talent for creative writing, poetry, or design and enjoy harmonious Sibling relationships.",
         "Venus in the 4th house indicates a beautiful home, a love of comfort, and a happy domestic life. You may own luxury vehicles and have a strong, loving bond with your mother.",
         "Venus in the 5th house grants creativity, romance, and artistic talent. You are highly charismatic and find great joy in love affairs, the arts, and entertainment.",
         "Venus in the 6th house can bring harmony to the workplace, but also indicates that health issues may arise from overindulgence. You may serve others through art or design.",
@@ -181,9 +181,9 @@ const planetInHouse_en = {
     Saturn: [
         "Saturn in the 1st house adds seriousness, discipline, and responsibility to your personality. You may feel burdened by responsibilities from a young age but develop great endurance.",
         "Saturn in the 2nd house can restrict finances and family wealth, demanding hard work and savings over time. It gives a serious, practical, and sometimes somber speech.",
-        "Saturn in the 3rd house can create challenges with siblings or communication. However, it gives immense perseverance and discipline in any skill you set out to master.",
+        "Saturn in the 3rd house can create challenges with Siblings or Communication. However, it gives immense perseverance and discipline in any skill you set out to master.",
         "Saturn in the 4th house can indicate a restrictive or emotionally cold home environment. It builds security slowly over time through discipline and hard work.",
-        "Saturn in the 5th house can bring delays or a serious approach to children, romance, and creativity. Your creative pursuits are structured and may manifest later in life.",
+        "Saturn in the 5th house can bring delays or a serious approach to Children, romance, and creativity. Your creative pursuits are structured and may manifest later in life.",
         "Saturn in the 6th house is a powerful placement for overcoming enemies through perseverance. It shows a diligent worker but can indicate chronic health issues that require discipline.",
         "Saturn in the 7th house can delay marriage or bring a mature, older, or very responsible partner. It demands commitment, structure, and patience in relationships.",
         "Saturn in the 8th house is a strong placement for longevity. It can bring inheritance through long, patient waiting, and gives a deep, serious interest in research and metaphysics.",
@@ -195,9 +195,9 @@ const planetInHouse_en = {
     Rahu: [
         "Rahu in the 1st house creates a powerful, ambitious, and unconventional personality. You have an insatiable desire for recognition and may feel like an outsider trying to prove yourself.",
         "Rahu in the 2nd house gives a great desire to accumulate wealth and property. It can bring wealth from unconventional sources, but also a tendency for untruthful speech.",
-        "Rahu in the 3rd house provides immense courage and a powerful, persuasive communication style. You may excel in media, technology, or marketing, but can also be manipulative.",
+        "Rahu in the 3rd house provides immense Courage and a powerful, persuasive Communication style. You may excel in media, technology, or marketing, but can also be manipulative.",
         "Rahu in the 4th house can create restlessness regarding home and emotional peace. There may be foreign elements in your domestic life or a feeling of never being truly settled.",
-        "Rahu in the 5th house brings a passionate drive for creativity, romance, and speculation. It can grant fame through entertainment but also an unconventional approach to children.",
+        "Rahu in the 5th house brings a passionate drive for creativity, romance, and speculation. It can grant fame through entertainment but also an unconventional approach to Children.",
         "Rahu in the 6th house provides an uncanny ability to overcome enemies and solve complex problems through unconventional means. It can give success in technology or healing.",
         "Rahu in the 7th house creates a strong desire for partnership, often with someone from a different background or culture. Relationships are a major focus and can be unconventional.",
         "Rahu in the 8th house gives a powerful and obsessive interest in secrets, metaphysics, and sudden wealth. It can bring unexpected gains and losses and a talent for research.",
@@ -209,9 +209,9 @@ const planetInHouse_en = {
     Ketu: [
         "Ketu in the 1st house creates a detached, introspective, and spiritually-inclined personality. You may feel a sense of rootlessness or question your own identity, leading to a spiritual search.",
         "Ketu in the 2nd house can create a detached attitude towards wealth and family. It may lead to financial uncertainty or a lack of focus on material accumulation.",
-        "Ketu in the 3rd house brings an intuitive and non-linear communication style. You may lack interest in conventional media but have powerful psychic or symbolic insights.",
+        "Ketu in the 3rd house brings an intuitive and non-linear Communication style. You may lack interest in conventional media but have powerful psychic or symbolic insights.",
         "Ketu in the 4th house can indicate a detached or unsettled feeling about your home and roots. It promotes a search for a spiritual 'home' rather than a physical one.",
-        "Ketu in the 5th house creates a detached and critical view of romance, creativity, and children. You may have highly intuitive intelligence but struggle with conventional creative expression.",
+        "Ketu in the 5th house creates a detached and critical view of romance, creativity, and Children. You may have highly intuitive intelligence but struggle with conventional creative expression.",
         "Ketu in the 6th house provides a powerful ability to intuitively diagnose and solve problems or diseases. However, it can also indicate strange, hard-to-diagnose health issues.",
         "Ketu in the 7th house brings a spiritual, detached, or critical approach to partnership. You may feel a karmic connection to your partner but also a sense of dissatisfaction.",
         "Ketu in the 8th house is a powerful placement for deep mystical and occult research. You have a natural ability to see through illusions and understand deep metaphysical truths.",
@@ -649,6 +649,80 @@ export function getPlanetUPBSBreakdownDescription(planetName, breakdown, lang = 
     return description.trim();
 }
 
+export function getCareerFieldSuggestions(houseLord, placementHouse, lang = 'en') {
+    const suggestions = {
+        en: {
+            // By Planet
+            Sun: ['government service', 'leadership roles', 'positions of authority', 'medicine'],
+            Moon: ['public service', 'nursing', 'hospitality', 'sailing', 'dairy industry', 'dealing with liquids'],
+            Mars: ['engineering', 'military', 'surgery', 'policing', 'sports', 'real estate', 'firefighting'],
+            Mercury: ['communication', 'writing', 'teaching', 'commerce', 'accounting', 'IT', 'astrology', 'media'],
+            Jupiter: ['law', 'teaching', 'consulting', 'finance', 'religion', 'advisory roles', 'banking'],
+            Venus: ['arts', 'entertainment', 'fashion', 'beauty', 'luxury goods', 'diplomacy', 'acting', 'music'],
+            Saturn: ['manual labor', 'agriculture', 'mining', 'law', 'history', 'architecture', 'civil service', 'social service'],
+            Rahu: ['technology', 'research', 'aviation', 'unconventional fields', 'foreign-related jobs', 'IT', 'pharmaceuticals'],
+            Ketu: ['spirituality', 'research', 'programming', 'metaphysics', 'healing', 'alternative medicine', 'language expertise'],
+
+            // By House
+            1: ['self-employment', 'entrepreneurship', 'roles where your personality is key'],
+            2: ['finance', 'banking', 'family business', 'food industry', 'public speaking', 'teaching'],
+            3: ['Communication', 'media', 'writing', 'sales', 'marketing', 'short-distance Travel', 'performing arts'],
+            4: ['real estate', 'agriculture', 'home-based business', 'psychology', 'vehicle industry', 'education'],
+            5: ['education', 'speculation', 'stock market', 'entertainment', 'politics', 'working with Children', 'creative arts'],
+            6: ['service industry', 'healthcare', 'law', 'social work', 'military', 'dealing with disputes'],
+            7: ['business partnerships', 'foreign trade', 'diplomacy', 'law', 'consulting'],
+            8: ['research', 'investigation', 'insurance', 'occult sciences', 'inheritance law', 'mining', 'psychology'],
+            9: ['higher education (professor)', 'law', 'religion (priest/preacher)', 'long-distance Travel', 'publishing', 'philosophy'],
+            10: ['strong leadership roles', 'public recognition', 'government service', 'independent enterprise'],
+            11: ['large organizations', 'NGOs', 'networks', 'financial gains', 'fulfilling ambitions through social circles'],
+            12: ['foreign lands', 'hospitals', 'ashrams', 'spiritual institutions', 'behind-the-scenes work', 'research', 'import-export']
+        },
+        hi: {
+            // By Planet
+            Sun: ['सरकारी सेवा', 'नेतृत्व की भूमिकाएँ', 'अधिकार के पद', 'चिकित्सा'],
+            Moon: ['सार्वजनिक सेवा', 'नर्सिंग', 'अतिथि सत्कार', 'नाविक', 'डेयरी उद्योग', 'तरल पदार्थों से संबंधित कार्य'],
+            Mars: ['इंजीनियरिंग', 'सेना', 'सर्जरी', 'पुलिस', 'खेल', 'अचल संपत्ति', 'अग्निशमन'],
+            Mercury: ['संचार', 'लेखन', 'शिक्षण', 'वाणिज्य', 'लेखा', 'आईटी', 'ज्योतिष', 'मीडिया'],
+            Jupiter: ['कानून', 'शिक्षण', 'परामर्श', 'वित्त', 'धर्म', 'सलाहकार की भूमिकाएँ', 'बैंकिंग'],
+            Venus: ['कला', 'मनोरंजन', 'फैशन', 'सौंदर्य', 'विलासिता के सामान', 'कूटनीति', 'अभिनय', 'संगीत'],
+            Saturn: ['शारीरिक श्रम', 'कृषि', 'खनन', 'कानून', 'इतिहास', 'वास्तुशिल्प', 'सिविल सेवा', 'समाज सेवा'],
+            Rahu: ['प्रौद्योगिकी', 'अनुसंधान', 'विमानन', 'अपरंपरागत क्षेत्र', 'विदेश से संबंधित नौकरियां', 'आईटी', 'फार्मास्यूटिकल्स'],
+            Ketu: ['अध्यात्म', 'अनुसंधान', 'प्रोग्रामिंग', 'तत्वमीमांसा', 'उपचार', 'वैकल्पिक चिकित्सा', 'भाषा विशेषज्ञता'],
+
+            // By House
+            1: ['स्वरोजगार', 'उद्यमिता', 'ऐसी भूमिकाएँ जहाँ आपका व्यक्तित्व महत्वपूर्ण है'],
+            2: ['वित्त', 'बैंकिंग', 'पारिवारिक व्यवसाय', 'खाद्य उद्योग', 'सार्वजनिक भाषण', 'शिक्षण'],
+            3: ['संचार', 'मीडिया', 'लेखन', 'बिक्री', 'विपणन', 'छोटी दूरी की यात्रा', 'प्रदर्शन कला'],
+            4: ['अचल संपत्ति', 'कृषि', 'गृह-आधारित व्यवसाय', 'मनोविज्ञान', 'वाहन उद्योग', 'शिक्षा'],
+            5: ['शिक्षा', 'सट्टा', 'शेयर बाजार', 'मनोरंजन', 'राजनीति', 'बच्चों के साथ काम करना', 'रचनात्मक कला'],
+            6: ['सेवा उद्योग', 'स्वास्थ्य सेवा', 'कानून', 'सामाजिक कार्य', 'सेना', 'विवादों से निपटना'],
+            7: ['व्यावसायिक साझेदारी', 'विदेश व्यापार', 'कूटनीति', 'कानून', 'परामर्श'],
+            8: ['अनुसंधान', 'जांच', 'बीमा', 'गूढ़ विज्ञान', 'विरासत कानून', 'खनन', 'मनोविज्ञान'],
+            9: ['उच्च शिक्षा (प्रोफेसर)', 'कानून', 'धर्म (पुजारी/उपदेशक)', 'लंबी दूरी की यात्रा', 'प्रकाशन', 'दर्शन'],
+            10: ['मजबूत नेतृत्व की भूमिकाएँ', 'सार्वजनिक मान्यता', 'सरकारी सेवा', 'स्वतंत्र उद्यम'],
+            11: ['बड़े संगठन', 'गैर-सरकारी संगठन', 'नेटवर्क', 'वित्तीय लाभ', 'सामाजिक हलकों के माध्यम से महत्वाकांक्षाओं को पूरा करना'],
+            12: ['विदेश', 'अस्पताल', 'आश्रम', 'आध्यात्मिक संस्थान', 'पर्दे के पीछे का काम', 'अनुसंधान', 'आयात-निर्यात']
+        }
+    };
+
+    const currentSuggestions = suggestions[lang];
+    const fromPlanet = currentSuggestions[houseLord] || [];
+    const fromHouse = currentSuggestions[placementHouse] || [];
+
+    const combined = [...new Set([...fromPlanet, ...fromHouse])]; // Combine and remove duplicates
+
+    if (combined.length === 0) {
+        return '';
+    }
+    const translatedHouseLord = getPlanetName(houseLord, lang);
+
+    const suggestionText = lang === 'hi'
+        ? `\n**संभावित करियर क्षेत्र:** आपकी कुंडली के आधार पर, निम्नलिखित करियर क्षेत्र विशेष रूप से आपके लिए अनुकूल हो सकते हैं: ${combined.join(', ')}। ये सुझाव आपके दसवें घर के स्वामी (${translatedHouseLord}) और इसकी घर में स्थिति (${placementHouse}) के संयोजन पर आधारित हैं।`
+        : `\n**Potential Career Fields:** Based on your chart, the following career fields may be particularly suitable for you: ${combined.join(', ')}. These suggestions are based on the combination of your 10th house lord (${houseLord}) and its house placement (${placementHouse}).`;
+        
+    return suggestionText;
+}
+
 
 // ---------------------------------------------------------
 //  FULL COMBINED PREDICTION GENERATOR (Lagna, Rashi, Nakshatra)
@@ -814,21 +888,52 @@ function getMuddaDashaInterpretation(dashaLord, dashaLordHouse, lang = 'en', mud
     const translatedDashaLord = getPlanetName(dashaLord, lang);
     const ordinalHouse = getOrdinal(dashaLordHouse);
 
-    if (lang === 'hi') {
-        if (generalTheme && houseTheme) {
-            return `**${translatedDashaLord} की अवधि:** यह चरण आपके जीवन में **${ordinalHouse}वें घर (${houseTheme})** से संबंधित मामलों के माध्यम से **${generalTheme}** के विषयों को सक्रिय करेगा। इस दौरान आपको इन क्षेत्रों पर विशेष ध्यान देना चाहिए।`;
-        } else if (generalTheme) {
-            return `**${translatedDashaLord} की अवधि:** यह चरण आपके जीवन में **${generalTheme}** के विषयों पर ध्यान केंद्रित करेगा।`;
+    const P_MUDDA = {
+        en: {
+            period: `**${translatedDashaLord} Period:**`,
+            intro: `This phase activates themes of **${generalTheme}**.`,
+            focus: `Your focus will be drawn to matters of your **${ordinalHouse} house (${houseTheme})**.`,
+            positive_sun: "This is an excellent time for taking on leadership roles, launching new projects, and seeking recognition for your work. Your vitality will be high.",
+            positive_moon: "A period for emotional connection, nurturing relationships, and finding comfort in your home life. Your intuition will be a strong guide.",
+            positive_mars: "Expect a surge of energy and drive. This is the time to take action, tackle difficult tasks, and assert yourself with courage.",
+            positive_mercury: "Communication, learning, and commerce are highlighted. An excellent time for negotiations, writing, and intellectual pursuits.",
+            positive_jupiter: "Opportunities for growth, learning, and expansion will appear. This is a fortunate period for education, travel, and seeking wisdom.",
+            positive_venus: "A time for love, creativity, and social enjoyment. Relationships will flourish, and you will find pleasure in artistic and beautiful things.",
+            positive_saturn: "Focus on long-term goals, discipline, and responsibility. Hard work during this period will build a solid foundation for the future.",
+            positive_rahu: "Expect sudden opportunities and a drive for unconventional success. A great time for innovation, technology, and pursuing worldly ambitions.",
+            positive_ketu: "A period for introspection, spiritual growth, and letting go of the past. Your intuition will be sharp, leading to profound insights.",
+        },
+        hi: {
+            period: `**${translatedDashaLord} की अवधि:**`,
+            intro: `यह चरण **${generalTheme}** के विषयों को सक्रिय करेगा।`,
+            focus: `आपका ध्यान आपके **${ordinalHouse} घर (${houseTheme})** के मामलों की ओर खींचा जाएगा।`,
+            positive_sun: "नेतृत्व की भूमिका निभाने, नई परियोजनाओं को शुरू करने और अपने काम के लिए मान्यता प्राप्त करने का यह एक उत्कृष्ट समय है। आपकी जीवन शक्ति उच्च होगी।",
+            positive_moon: "भावनात्मक संबंध, रिश्तों को पोषित करने और अपने घरेलू जीवन में आराम पाने की अवधि। आपकी अंतर्ज्ञान एक मजबूत मार्गदर्शक होगी।",
+            positive_mars: "ऊर्जा और प्रेरणा की वृद्धि की अपेक्षा करें। यह कार्रवाई करने, कठिन कार्यों से निपटने और साहस के साथ खुद को मुखर करने का समय है।",
+            positive_mercury: "संचार, सीखना और वाणिज्य पर प्रकाश डाला गया है। बातचीत, लेखन और बौद्धिक गतिविधियों के लिए एक उत्कृष्ट समय।",
+            positive_jupiter: "विकास, सीखने और विस्तार के अवसर दिखाई देंगे। यह शिक्षा, यात्रा और ज्ञान प्राप्त करने के लिए एक भाग्यशाली अवधि है।",
+            positive_venus: "प्रेम, रचनात्मकता और सामाजिक आनंद का समय। रिश्ते फलेंगे-फूलेंगे, और आपको कलात्मक और सुंदर चीजों में आनंद मिलेगा।",
+            positive_saturn: "दीर्घकालिक लक्ष्यों, अनुशासन और जिम्मेदारी पर ध्यान दें। इस अवधि के दौरान की गई कड़ी मेहनत भविष्य के लिए एक ठोस आधार बनाएगी।",
+            positive_rahu: "अचानक अवसरों और अपरंपरागत सफलता के लिए एक प्रेरणा की अपेक्षा करें। नवाचार, प्रौद्योगिकी और सांसारिक महत्वाकांक्षाओं को आगे बढ़ाने का एक बढ़िया समय।",
+            positive_ketu: "आत्मनिरीक्षण, आध्यात्मिक विकास और अतीत को जाने देने की अवधि। आपकी अंतर्ज्ञान तेज होगी, जिससे गहन अंतर्दृष्टि प्राप्त होगी।",
         }
-        return `**${translatedDashaLord} की अवधि**।`; // Fallback
-    } else { // English
-        if (generalTheme && houseTheme) {
-            return `**${translatedDashaLord} Period:** This phase will activate themes of **${generalTheme}** through matters related to your **${ordinalHouse} house (${houseTheme})**. Expect a strong focus on these areas.`;
-        } else if (generalTheme) {
-            return `**${translatedDashaLord} Period:** This phase will bring a focus on themes of **${generalTheme}**.`;
-        }
-        return `**${translatedDashaLord} Period.**`; // Fallback
     }
+    const phrases = P_MUDDA[lang] || P_MUDDA['en'];
+    let interpretation = `${phrases.period} ${phrases.intro} ${phrases.focus} `;
+    
+    switch(dashaLord) {
+        case 'Sun': interpretation += phrases.positive_sun; break;
+        case 'Moon': interpretation += phrases.positive_moon; break;
+        case 'Mars': interpretation += phrases.positive_mars; break;
+        case 'Mercury': interpretation += phrases.positive_mercury; break;
+        case 'Jupiter': interpretation += phrases.positive_jupiter; break;
+        case 'Venus': interpretation += phrases.positive_venus; break;
+        case 'Saturn': interpretation += phrases.positive_saturn; break;
+        case 'Rahu': interpretation += phrases.positive_rahu; break;
+        case 'Ketu': interpretation += phrases.positive_ketu; break;
+    }
+
+    return interpretation;
 }
 
 export function getVarshphalPrediction(payload = {}, lang = 'en') {
@@ -839,15 +944,15 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
 
     const planetThemes = {
         en: {
-            Sun: "authority, vitality, and leadership",
-            Moon: "emotional sensitivity, intuition, and adaptability",
-            Mars: "energy, drive, and courage",
-            Mercury: "intellect, communication, and logical analysis",
-            Jupiter: "wisdom, expansion, and optimism",
-            Venus: "love, beauty, and harmony",
-            Saturn: "discipline, structure, and perseverance",
-            Rahu: "ambition, innovation, and worldly desire",
-            Ketu: "detachment, spirituality, and deep insight"
+            Sun: "Authority, Vitality, and Leadership",
+            Moon: "Emotional Sensitivity, Intuition, and Adaptability",
+            Mars: "Energy, Drive, and Courage",
+            Mercury: "Intellect, Communication, and Logical Analysis",
+            Jupiter: "Wisdom, Expansion, and Optimism",
+            Venus: "Love, Beauty, and Harmony",
+            Saturn: "Discipline, Structure, and Perseverance",
+            Rahu: "Ambition, Innovation, and Worldly Desire",
+            Ketu: "Detachment, Spirituality, and Deep Insight"
         },
         hi: {
             Sun: "अधिकार, जीवन शक्ति और नेतृत्व",
@@ -864,36 +969,34 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
 
     const P_VARS = {
         en: {
-            predictionForYear: `### Prediction for the Varshphal Year: ${varshphalYear}\n\n`,
-            intro: `This year's chart offers a unique blueprint for the opportunities and challenges ahead. The primary influences are the Year Lord, the Muntha's placement, and the annual ascendant.`,
-            yearLord: (lord, house, theme) => `The overarching theme is set by the Year Lord, **${lord}**. Its placement in house **${house}** directs the year's primary energy towards matters of **${theme}**.`,
-            yearLordBenefic: (lord) => ` As a natural benefic, ${lord} suggests this theme will manifest through growth, learning, and opportunities.`,
-            yearLordMalefic: (lord) => ` As a natural malefic, ${lord} indicates this theme will involve discipline, overcoming obstacles, and hard-won results.`,
-            muntha: (sign, house, theme) => `Your personal focus and area of self-development, shown by the Muntha, falls in **${sign}** in house **${house}**. This pulls your attention towards **${theme}**.`,
-            ascendant: (sign, lord, theme) => `Finally, the annual ascendant in **${sign}** (ruled by **${lord}**) colors your personal outlook and how you project yourself, emphasizing themes of **${theme}** throughout the year.`,
-            synthesis: `\nThe interplay between these factors is key. You'll find the most success where you can align the year's broader theme of {yearLordTheme} with your personal focus on {munthaTheme}, all while expressing yourself through the lens of {ascendantTheme}.`,
+            predictionForYear: `### Detailed Prediction for Your Varshphal Year: ${varshphalYear}\n\n`,
+            intro: `This annual chart, or Varshphal, provides a detailed forecast for your year ahead, highlighting the specific opportunities and challenges you will encounter. Your experience will be shaped by three key astrological markers: the **Year Lord (Varshphal Lord)**, the **Muntha**, and the **Annual Ascendant**. Understanding their interplay is the key to navigating the year successfully.`,
+            yearLord: (lord, house, theme) => `\n\n**1. The Year's Main Theme: The Year Lord**\nThe overarching theme for your year is set by the Year Lord, **${lord}**. As the "captain" of the year, its position and nature dictate the primary energy and focus. Placed in house **${house}**, it directs the year's energy towards matters of **${theme}**.`,
+            yearLordBenefic: (lord) => ` Since ${lord} is a natural benefic, this theme will likely manifest through **opportunities for growth, learning, and positive new beginnings**. You will find that progress in these areas comes more naturally.`,
+            yearLordMalefic: (lord) => ` Since ${lord} is a natural malefic, this theme will involve **discipline, overcoming obstacles, and achieving results through perseverance**. Progress in this area will require your dedicated effort and patience.`,
+            muntha: (sign, house, theme) => `\n\n**2. Your Personal Focus: The Muntha**\nThe Muntha represents your personal focus and the primary area of self-development for the year. This year, it falls in the sign of **${sign}** within your **${house}**th house. This placement pulls your personal attention and efforts towards **${theme}**. This is where you are meant to concentrate your energy for personal growth.`,
+            ascendant: (sign, lord, theme) => `\n\n**3. Your Outlook and Approach: The Annual Ascendant**\nFinally, the annual ascendant, which is **${sign}** (ruled by **${lord}**), colors your personal outlook and how you project yourself to the world. It emphasizes themes of **${theme}** in your approach to all of life's events throughout the year.`,
+            synthesis: `\n\n**Synthesizing the Themes:**\nThe interplay between these three factors is crucial. The most successful path this year lies in aligning the year's broader theme of **{yearLordTheme}** with your personal area of development, **{munthaTheme}**, all while expressing yourself through the lens of **{ascendantTheme}**. In essence, you are being asked to use your personal focus to achieve the year's main goal.`,
             strengthHeader: `\n\n#### Key Planetary Influences\n`,
-            strongestPlanet: (planet, score, yearLordName, planetTheme) => `While **${yearLordName}** sets the overarching tone for the year, the most influential planet is **${planet}** (with a UPBS score of ${score.toFixed(2)}). Its themes of **${planetTheme}** will be a dominant force, demanding attention and rewarding thoroughness in the areas it influences.`,
-            muddaDashaHeader: `\n\n#### Timeline of the Year (Mudda Dasha)\nThe year's focus will shift according to these planetary sub-periods:\n`,
-            dashaPeriod: (interpretation, start, end) => `*   ${interpretation} (${start.toLocaleDateString()} - ${end.toLocaleDateString()}).\n`,
-            conclusionHeader: `\n\n#### Summary & Advice\n`,
-            conclusion: `This year is a complex tapestry woven from these interacting themes. Navigate the shifting priorities of the Mudda Dasha periods effectively, and pay close attention to **{strongestPlanet}**, as it holds the key to unlocking opportunities and managing challenges. Harmonizing the energies of the houses highlighted by the Year Lord and the Muntha will lead to the most fruitful outcomes.`
+            strongestPlanet: (planet, score, yearLordName, planetTheme) => `While **${yearLordName}** sets the overarching tone, the planet with the most power to influence events this year is **${planet}** (with a high UPBS score of ${score.toFixed(2)}). Its core themes of **${planetTheme}** will be a dominant force, demanding your attention. Areas of life influenced by this planet will be amplified, for better or worse, and will reward your focus.`,
+            muddaDashaHeader: `\n\n#### Timeline of the Year: The Mudda Dasha Periods\nYour year is divided into smaller planetary periods called Mudda Dashas. Each period brings a different theme to the forefront, creating a dynamic timeline of focus areas. Here is what to expect:\n`,
+            dashaPeriod: (interpretation, start, end) => `*   ${interpretation} (from ${start.toLocaleDateString()} to ${end.toLocaleDateString()}).\n`,
+            conclusionHeader: `\n\n#### Final Summary & Strategic Advice\n`,
         },
         hi: {
-            predictionForYear: `### वर्षफल भविष्यवाणी: ${varshphalYear}\n\n`,
-            intro: `इस वर्ष का चार्ट आने वाले अवसरों और चुनौतियों का एक अनूठा खाका प्रस्तुत करता है। मुख्य प्रभाव वर्ष के स्वामी (वर्षेश्वर), मुंथा की स्थिति और वार्षिक लग्न से आते हैं।`,
-            yearLord: (lord, house, theme) => `मुख्य विषय वर्ष के स्वामी, **${lord}**, द्वारा निर्धारित किया गया है। इसका **${house}**वें घर में होना वर्ष की प्राथमिक ऊर्जा को **${theme}** के मामलों की ओर निर्देशित करता है।`,
-            yearLordBenefic: (lord) => ` एक नैसर्गिक शुभ ग्रह के रूप में, ${lord} बताता है कि यह विषय विकास, सीखने और अवसरों के माध्यम से प्रकट होगा।`,
-            yearLordMalefic: (lord) => ` एक नैसर्गिक पापी ग्रह के रूप में, ${lord} इंगित करता है कि इस विषय में अनुशासन, बाधाओं पर काबू पाना और कड़ी मेहनत से जीते गए परिणाम शामिल होंगे।`,
-            muntha: (sign, house, theme) => `आपका व्यक्तिगत ध्यान और आत्म-विकास का क्षेत्र, जो मुंथा द्वारा दर्शाया गया है, **${house}**वें घर में **${sign}** में पड़ता है। यह आपका ध्यान **${theme}** की ओर खींचता है।`,
-            ascendant: (sign, lord, theme) => `अंत में, **${sign}** में वार्षिक लग्न (जिसका स्वामी **${lord}** है) आपके व्यक्तिगत दृष्टिकोण को रंग देता है, जो पूरे वर्ष आपकी अभिव्यक्ति में **${theme}** के विषयों पर जोर देता है।`,
-            synthesis: `\nइन कारकों के बीच की परस्पर क्रिया महत्वपूर्ण है। आप सबसे अधिक सफलता तब पाएंगे जब आप {yearLordTheme} के व्यापक विषय की सेवा के लिए {munthaTheme} पर अपना व्यक्तिगत ध्यान केंद्रित करना चाहिए। और यह सब {ascendantTheme} के लेंस के माध्यम से खुद को व्यक्त करते हुए।`,
+            predictionForYear: `### आपके वर्षफल वर्ष के लिए विस्तृत भविष्यवाणी: ${varshphalYear}\n\n`,
+            intro: `यह वार्षिक चार्ट, या वर्षफल, आपके आने वाले वर्ष के लिए एक विस्तृत पूर्वानुमान प्रदान करता है, जो आपके सामने आने वाले विशिष्ट अवसरों और चुनौतियों पर प्रकाश डालता है। आपका अनुभव तीन प्रमुख ज्योतिषीय मार्करों द्वारा आकार दिया जाएगा: **वर्ष के स्वामी (वर्षेश्वर)**, **मुंथा**, और **वार्षिक लग्न**। उनकी परस्पर क्रिया को समझना वर्ष को सफलतापूर्वक नेविगेट करने की कुंजी है।`,
+            yearLord: (lord, house, theme) => `\n\n**१. वर्ष का मुख्य विषय: वर्ष के स्वामी**\nआपके वर्ष का मुख्य विषय वर्ष के स्वामी, **${lord}**, द्वारा निर्धारित किया गया है। वर्ष के "कप्तान" के रूप में, इसकी स्थिति और प्रकृति प्राथमिक ऊर्जा और ध्यान को निर्देशित करती है। **${house}**वें घर में स्थित होने के कारण, यह वर्ष की ऊर्जा को **${theme}** के मामलों की ओर निर्देशित करता है।`,
+            yearLordBenefic: (lord) => ` चूंकि ${lord} एक नैसर्गिक शुभ ग्रह है, इसलिए यह विषय संभवतः **विकास, सीखने और सकारात्मक नई शुरुआत के अवसरों** के माध्यम से प्रकट होगा। आप पाएंगे कि इन क्षेत्रों में प्रगति अधिक स्वाभाविक रूप से होती है।`,
+            yearLordMalefic: (lord) => ` चूंकि ${lord} एक नैसर्गिक पापी ग्रह है, इसलिए इस विषय में **अनुशासन, बाधाओं पर काबू पाना और दृढ़ता के माध्यम से परिणाम प्राप्त करना** शामिल होगा। इस क्षेत्र में प्रगति के लिए आपके समर्पित प्रयास और धैर्य की आवश्यकता होगी।`,
+            muntha: (sign, house, theme) => `\n\n**२. आपका व्यक्तिगत ध्यान: मुंथा**\nमुंथा आपके व्यक्तिगत ध्यान और वर्ष के लिए आत्म-विकास के प्राथमिक क्षेत्र का प्रतिनिधित्व करता है। इस वर्ष, यह आपके **${house}**वें घर के भीतर **${sign}** राशि में पड़ता है। यह स्थान आपके व्यक्तिगत ध्यान और प्रयासों को **${theme}** की ओर खींचता है। यह वह जगह है जहाँ आपको व्यक्तिगत विकास के लिए अपनी ऊर्जा केंद्रित करनी है।`,
+            ascendant: (sign, lord, theme) => `\n\n**३. आपका दृष्टिकोण और तरीका: वार्षिक लग्न**\nअंत में, वार्षिक लग्न, जो **${sign}** है (जिसका स्वामी **${lord}** है), आपके व्यक्तिगत दृष्टिकोण और आप खुद को दुनिया के सामने कैसे प्रस्तुत करते हैं, को रंग देता है। यह पूरे वर्ष जीवन की सभी घटनाओं के प्रति आपके दृष्टिकोण में **${theme}** के विषयों पर जोर देता है।`,
+            synthesis: `\n\n**विषयों का संश्लेषण:**\nइन तीन कारकों के बीच की परस्पर क्रिया महत्वपूर्ण है। इस वर्ष सबसे सफल मार्ग वर्ष के व्यापक विषय **{yearLordTheme}** को आपके व्यक्तिगत विकास के क्षेत्र, **{munthaTheme}** के साथ संरेखित करने में निहित है, यह सब **{ascendantTheme}** के लेंस के माध्यम से खुद को व्यक्त करते हुए। संक्षेप में, आपको वर्ष के मुख्य लक्ष्य को प्राप्त करने के लिए अपने व्यक्तिगत ध्यान का उपयोग करने के लिए कहा जा रहा है।`,
             strengthHeader: `\n\n#### प्रमुख ग्रहों के प्रभाव\n`,
-            strongestPlanet: (planet, score, yearLordName, planetTheme) => `जबकि **${yearLordName}** वर्ष के लिए व्यापक स्वर निर्धारित करता है, सबसे प्रभावशाली ग्रह **${planet}** है (UPBS स्कोर ${score.toFixed(2)} के साथ)। इसके **${planetTheme}** के विषय एक प्रमुख शक्ति होंगे, जो इसके द्वारा प्रभावित क्षेत्रों में ध्यान और संपूर्णता की मांग करेंगे।`,
-            muddaDashaHeader: `\n\n#### वर्ष की समयरेखा (मुद्दा दशा)\nवर्ष का ध्यान इन ग्रहों की उप-अवधियों के अनुसार बदल जाएगा:\n`,
-            dashaPeriod: (interpretation, start, end) => `*   ${interpretation} (${start.toLocaleDateString()} - ${end.toLocaleDateString()}).\n`,
-            conclusionHeader: `\n\n#### सारांश और सलाह\n`,
-            conclusion: `यह वर्ष इन परस्पर क्रिया करने वाले विषयों से बुना हुआ एक जटिल ताना-बाना है। मुद्दा दशा की बदलती प्राथमिकताओं को प्रभावी ढंग से नेविगेट करें, और **{strongestPlanet}** पर पूरा ध्यान दें, क्योंकि यह अवसरों को अनलॉक करने और चुनौतियों का प्रबंधन करने की कुंजी रखता है। वर्ष के स्वामी और मुंथा द्वारा उजागर किए गए घरों की ऊर्जाओं का सामंजस्य सबसे फलदायी परिणाम देगा।`
+            strongestPlanet: (planet, score, yearLordName, planetTheme) => `जबकि **${yearLordName}** व्यापक स्वर सेट करता है, इस वर्ष की घटनाओं को प्रभावित करने की सबसे अधिक शक्ति वाला ग्रह **${planet}** है (उच्च UPBS स्कोर ${score.toFixed(2)} के साथ)। इसके मूल विषय **${planetTheme}** एक प्रमुख शक्ति होंगे, जो आपके ध्यान की मांग करेंगे। इस ग्रह से प्रभावित जीवन के क्षेत्र, अच्छे या बुरे के लिए, बढ़ जाएंगे और आपके ध्यान को पुरस्कृत करेंगे।`,
+            muddaDashaHeader: `\n\n#### वर्ष की समयरेखा: मुद्दा दशा अवधि\nआपका वर्ष मुद्दा दशा नामक छोटी ग्रहों की अवधियों में विभाजित है। प्रत्येक अवधि एक अलग विषय को सबसे आगे लाती है, जिससे फोकस क्षेत्रों की एक गतिशील समयरेखा बनती है। यहाँ क्या उम्मीद की जाए:\n`,
+            dashaPeriod: (interpretation, start, end) => `*   ${interpretation} (${start.toLocaleDateString()} से ${end.toLocaleDateString()} तक).\n`,
+            conclusionHeader: `\n\n#### अंतिम सारांश और रणनीतिक सलाह\n`,
         }
     };
     
@@ -901,7 +1004,7 @@ export function getVarshphalPrediction(payload = {}, lang = 'en') {
     const themes = lang === 'hi' ? houseThemes_hi : houseThemes_en;
 
     const muddaThemes = {
-        en: { Sun: "authority, leadership, and self-expression", Moon: "emotions, home, and public connection", Mars: "energy, action, and conflict resolution", Mercury: "communication, intellect, and commerce", Jupiter: "wisdom, expansion, and opportunities", Venus: "relationships, creativity, and pleasure", Saturn: "discipline, responsibility, and long-term goals", Rahu: "ambition, unconventional thinking, and worldly desires", Ketu: "introspection, letting go, and spiritual insights" },
+        en: { Sun: "Authority, Leadership, and Self-expression", Moon: "Emotions, Home, and Public Connection", Mars: "Energy, Action, and Conflict Resolution", Mercury: "Communication, Intellect, and Commerce", Jupiter: "Wisdom, Expansion, and Opportunities", Venus: "Relationships, Creativity, and Pleasure", Saturn: "Discipline, Responsibility, and Long-term Goals", Rahu: "Ambition, Unconventional Thinking, and Worldly Desires", Ketu: "Introspection, Letting Go, and Spiritual Insights" },
         hi: { Sun: "अधिकार, नेतृत्व और आत्म-अभिव्यक्ति", Moon: "भावनाओं, घर और सार्वजनिक संबंध", Mars: "ऊर्जा, कार्रवाई और संघर्ष समाधान", Mercury: "संचार, बुद्धि और वाणिज्य", Jupiter: "ज्ञान, विस्तार और अवसर", Venus: "रिश्ते, रचनात्मकता और आनंद", Saturn: "अनुशासन, जिम्मेदारी और दीर्घकालिक लक्ष्य", Rahu: "महत्वाकांक्षा, अपरंपरागत सोच और सांसारिक इच्छाएं", Ketu: "आत्मनिरीक्षण, जाने देना और आध्यात्मिक अंतर्दृष्टि" }
     };
     
@@ -1732,4 +1835,3 @@ export function getKpAnalysis(payload = {}, lang = 'en') {
         kpSignificatorsOverview: overview, // This might also be useful
     };
 }
-

@@ -90,11 +90,12 @@ const interpretUPBS = (score, t) => {
     };
 
 
-const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting, adjustedGocharDateTimeString, locationForGocharTool, transitPlaceName, adjustedBirthDateTimeString }) => {
+const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting, adjustedGocharDateTimeString, locationForGocharTool, transitPlaceName, adjustedBirthDateTimeString, reportSections, houseToRotate }) => {
     const [mainResult, setMainResult] = useState(null);
     const [mainError, setMainError] = useState(null); // Re-added mainError
     const [kpResult, setKpResult] = useState(null);
     const [varshphalResult, setVarshphalResult] = useState(null);
+    const [rotatedVarshphalResult, setRotatedVarshphalResult] = useState(null);
     const [kpError, setKpError] = useState(null);
     const [varshphalError, setVarshphalError] = useState(null);
     // New state for Transit data
@@ -216,7 +217,8 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
 
     const varshphalSignificatorDetailsMap = useMemo(() => {
         const finalMap = new Map();
-        const kpData = varshphalResult?.kpSignificators?.detailedPlanets;
+        const targetResult = (houseToRotate !== 1 && rotatedVarshphalResult) ? rotatedVarshphalResult : varshphalResult;
+        const kpData = targetResult?.kpSignificators?.detailedPlanets;
 
         if (!kpData || !Array.isArray(kpData) || kpData.length === 0) {
             return finalMap;
@@ -286,7 +288,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
         });
 
         return finalMap;
-    }, [varshphalResult]);
+    }, [varshphalResult, rotatedVarshphalResult, houseToRotate]);
 
 
     useEffect(() => {
@@ -305,6 +307,15 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                     varshphalYear: varshphalYear
                 };
 
+                const rotatedVarshphalPayload = {
+                    natalDate: calculationInputParams.date,
+                    natalLatitude: calculationInputParams.latitude,
+                    natalLongitude: calculationInputParams.longitude,
+                    natalPlaceName: calculationInputParams.placeName,
+                    varshphalYear: varshphalYear,
+                    house_to_rotate: houseToRotate
+                };
+
                 // Payload for transit, using current date but natal location
                 const transitPayload = {
                     date: adjustedGocharDateTimeString || new Date().toISOString(),
@@ -314,10 +325,11 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                     lang: i18n.language
                 };
 
-                const [mainResponse, kpResponse, varshphalResponse, transitResponse] = await Promise.all([
+                const [mainResponse, kpResponse, varshphalResponse, rotatedVarshphalResponse, transitResponse] = await Promise.all([
                     api.post('/calculate', calculationInputParams).catch(err => ({ error: err })),
                     api.post('/kp-significators', calculationInputParams).catch(err => ({ error: err })),
                     api.post('/calculate-varshphal', varshphalPayload).catch(err => ({ error: err })),
+                    houseToRotate !== 1 ? api.post('/calculate-varshphal/rotated', rotatedVarshphalPayload).catch(err => ({ error: err })) : Promise.resolve({ data: null }),
                     api.post('/calculate', transitPayload).catch(err => ({ error: err })) // Fetch transit data
                 ]);
 
@@ -333,6 +345,9 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                 if (varshphalResponse.error) setVarshphalError(varshphalResponse.error.response?.data?.error || varshphalResponse.error.message || 'Failed to fetch Varshphal data.');
                 else setVarshphalResult(varshphalResponse.data);
 
+                if (rotatedVarshphalResponse && rotatedVarshphalResponse.error) setVarshphalError(rotatedVarshphalResponse.error.response?.data?.error || rotatedVarshphalResponse.error.message || 'Failed to fetch Rotated Varshphal data.');
+                else setRotatedVarshphalResult(rotatedVarshphalResponse?.data || null);
+
                 if (transitResponse.error) setTransitError(transitResponse.error.response?.data?.error || transitResponse.error.message || 'Failed to fetch transit chart data.');
                 else setTransitResult(transitResponse.data);
                
@@ -345,13 +360,16 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
         };
 
         fetchPrintData();
-    }, [calculationInputParams, varshphalYear, i18n.language, adjustedGocharDateTimeString, locationForGocharTool, transitPlaceName]);
+    }, [calculationInputParams, varshphalYear, i18n.language, adjustedGocharDateTimeString, locationForGocharTool, transitPlaceName, houseToRotate]);
 
     useEffect(() => {
         const fetchPredictions = async () => {
-            if (!mainResult || !varshphalResult || !calculationInputParams) {
+            if (isLoading || !mainResult || !varshphalResult || !calculationInputParams) {
                 return;
             }
+
+            // Define displayVarshphalResult within this scope
+            const currentDisplayVarshphalResult = houseToRotate !== 1 && rotatedVarshphalResult ? rotatedVarshphalResult : varshphalResult;
 
             // Fetch Holistic Prediction
             setHolisticPredictionError(null);
@@ -362,7 +380,12 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                     longitude: calculationInputParams.longitude,
                     transitDate: adjustedGocharDateTimeString,
                     lang: i18n.language,
-                    houseSystem: "placidus"
+                    houseSystem: "placidus",
+                    house_to_rotate: houseToRotate,
+                    houseToRotate: houseToRotate,
+                    rotatedHouse: houseToRotate,
+                    rotate_house: houseToRotate,
+                    rotated_house: houseToRotate
                 };
                 const holisticResponse = await api.post('/predictions/holistic', holisticPayload);
                 setHolisticPrediction(holisticResponse.data);
@@ -394,18 +417,26 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
             const yearValue = new Date(adjustedGocharDateTimeString).getFullYear();
             setVarshphalPrediction({ prediction: "", isLoading: true, error: null, year: yearValue });
             try {
-                const varData = varshphalResult;
+                const varData = currentDisplayVarshphalResult; // Use the current display result (rotated if applicable)
                 const varChart = varData.varshphalChart;
                 if (varChart && varChart.ascendant && varChart.planetaryPositions && varChart.planetaryPositions.sidereal) {
                     const varshphalPredPayload = {
                         natalDate: adjustedBirthDateTimeString || calculationInputParams.date, // Use adjusted birth date
-                        varshphalChart: varChart,
-                        muntha: varData.muntha,
+                        varshphalChart: {
+                            ...varChart,
+                            muntha: varData.muntha // Ensure muntha from the correct source is inside
+                        },
+                        muntha: varData.muntha, // Use muntha from the correct source (rotated if applicable)
                         yearLord: varData.yearLord,
                         muddaDasha: varData.muddaDasha,
                         kpSignificators: varData.kpSignificators,
                         lang: i18n.language,
-                        varshphalYear: yearValue
+                        varshphalYear: yearValue,
+                        house_to_rotate: houseToRotate,
+                        houseToRotate: houseToRotate,
+                        rotatedHouse: houseToRotate,
+                        rotate_house: houseToRotate,
+                        rotated_house: houseToRotate
                     };
                     const predResp = await api.post('/predictions/varshaphal', varshphalPredPayload);
                     setVarshphalPrediction({ prediction: predResp.data.prediction || '', isLoading: false, error: null, year: yearValue });
@@ -419,7 +450,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
         };
 
         fetchPredictions();
-    }, [mainResult, varshphalResult, calculationInputParams, adjustedGocharDateTimeString, i18n.language, adjustedBirthDateTimeString]);
+    }, [isLoading, mainResult, varshphalResult, rotatedVarshphalResult, houseToRotate, calculationInputParams, adjustedGocharDateTimeString, i18n.language, adjustedBirthDateTimeString]);
 
     useEffect(() => {
             if (!isLoading && !mainError && !kpError && !varshphalError && !transitError && mainResult && kpResult && varshphalResult && transitResult && holisticPrediction && !varshphalPrediction.isLoading && !kpAnalysis.isLoading) {
@@ -473,22 +504,23 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
     const moonDeg = convertDMSToDegrees(moonSiderealData?.dms);
     const moonRashiKey = getRashiFromDegree(moonDeg, t);
     const moonNakshatraKey = birthNakshatra?.name_en_IN ?? moonSiderealData?.nakshatra;
-    const moonPada = calculateNakshatraPada(moonDeg, t);
-
-    const formattedBirthTithi = birthTithi
-        ? `${t(`pakshas.${birthPakshaKey}`, { defaultValue: birthPakshaKey })} ${birthTithi.number || ''} (${t(`tithis.${birthTithiNameKey}`, { defaultValue: birthTithiNameKey || 'N/A' })})`
-        : t('utils.notAvailable', 'N/A');
-
-    // Define columns for the two tables for vertical split
-    const COLUMNS_TABLE_1 = [
-        'planet', 'position', 'nakPada', 'nakLord', 'subLord', 'subSub', 'nakDeg', 'rashi', 'rashiLord', 'bhava'
-    ];
-    const COLUMNS_TABLE_2 = [
-        'planet', 'dignity', 'balaadi', 'jagradadi', 'deeptaadi', 'speed', 'retrograde', 'combust'
-    ];
-
-
-    return (
+        const moonPada = calculateNakshatraPada(moonDeg, t);
+    
+        const formattedBirthTithi = birthTithi
+            ? `${t(`pakshas.${birthPakshaKey}`, { defaultValue: birthPakshaKey })} ${birthTithi.number || ''} (${t(`tithis.${birthTithiNameKey}`, { defaultValue: birthTithiNameKey || 'N/A' })})`
+            : t('utils.notAvailable', 'N/A');
+    
+        // Define columns for the two tables for vertical split
+        const COLUMNS_TABLE_1 = [
+            'planet', 'position', 'nakPada', 'nakLord', 'subLord', 'subSub', 'nakDeg', 'rashi', 'rashiLord', 'bhava'
+        ];
+        const COLUMNS_TABLE_2 = [
+            'planet', 'dignity', 'balaadi', 'jagradadi', 'deeptaadi', 'speed', 'retrograde', 'combust'
+        ];
+    
+        const displayVarshphalResult = houseToRotate !== 1 && rotatedVarshphalResult ? rotatedVarshphalResult : varshphalResult;
+    
+        return (
         <div>
             {mainResult && (
                 <>
@@ -614,8 +646,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
 
-                    {/* Natal Charts */}
-                    {/* D1 - Lagna Chart */}
+{reportSections.natalCharts && (
                     <div style={{ pageBreakInside: 'avoid' }}>
                         <h3>{t('astrologyForm.mainChartsTitle', 'Natal Charts')}</h3>
                         <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartD1Title')}</h4>
@@ -629,8 +660,9 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             />
                         </div>
                     </div>
+)}
 
-                    {/* 9. Nirayan Chart */}
+{reportSections.nirayanChart && (
                     <div style={{ pageBreakInside: 'avoid' }}>
                         <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartNirayanTitle')}</h4>
                         <div style={{ display: 'flex', justifyContent: 'center' }}> {/* Center the chart */}
@@ -643,9 +675,9 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             />
                         </div>
                     </div>
+)}
 
-                    {/* 10. D9 - Navamsha Chart */}
-                    {mainResult.d9_planets && mainResult.d9_ascendant_dms && (
+{reportSections.d9Chart && mainResult.d9_planets && mainResult.d9_ascendant_dms && (
                         <div style={{ pageBreakInside: 'avoid' }}>
                             <h4 style={{ margin: '5px 0' }}>{t('astrologyForm.chartD9Title')}</h4>
                             <div style={{ display: 'flex', justifyContent: 'center' }}> {/* Center the chart */}
@@ -659,8 +691,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             </div>
                         </div>
                     )}
-                    {/* Birth Chart House Cusps Table */}
-                    {mainResult?.houses && (
+{reportSections.houseCusps && mainResult?.houses && (
                         <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
                             <h3 style={{ pageBreakBefore: 'always' }}>Birth Chart House Cusps</h3>
                             <div className="table-wrapper">
@@ -703,7 +734,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
                     
-                    {/* 11. Planet Details Table */}
+{reportSections.planetDetails && (
                     <div className="portrait-section" style={{ pageBreakInside: 'avoid' }}>
                         <h2 style={{ width: '100%', textAlign: 'center' }}>Planet Details</h2>
                         <div style={{ marginBottom: '20px' }}> {/* Wrapper for first table */}
@@ -725,9 +756,9 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             />
                         </div>
                     </div>
+)}
 
-                    {/* 12. Planetary Aspects */}
-                    {displayResult?.planetDetails?.aspects?.directAspects && (
+{reportSections.planetaryAspects && displayResult?.planetDetails?.aspects?.directAspects && (
                         <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
                             <h3 style={{ pageBreakBefore: 'always' }}>{t('planetDetailsPage.aspectsTitle')}</h3>
                             <div className="table-wrapper">
@@ -755,8 +786,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
                     
-                    {/* 13. Planetary Friendships */}
-                    {displayResult?.planetDetails?.resultingFriendship && (
+{reportSections.planetaryFriendships && displayResult?.planetDetails?.resultingFriendship && (
                         <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
                             <h3>{t('planetDetailsPage.friendshipsTitle')}</h3>
                             <div className="table-wrapper">
@@ -792,8 +822,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
 
-                    {/* 14. Shadbala */}
-                    {displayResult?.planetDetails?.shadbala && (
+{reportSections.shadbala && displayResult?.planetDetails?.shadbala && (
                         <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
                             <h3 style={{ pageBreakBefore: 'always' }}>{t('planetDetailsPage.shadbalaTitle')}</h3>
                             <div className="table-wrapper">
@@ -862,8 +891,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
 
-                    {/* 15. Uncommon Planetary Beneficence Score (UPBS) */}
-                    {displayResult?.planetDetails?.upbsScores && (
+{reportSections.upbs && displayResult?.planetDetails?.upbsScores && (
                         <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
                             <h3 >{t('planetDetailsPage.upbsTitle')}</h3>
                             <div className="table-wrapper upbs-table-wrapper">
@@ -935,8 +963,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
 
-                    {/* 16. Full Expanded Dasha Periods */}
-                    {mainResult.dashaPeriods && (
+{reportSections.dashaPeriods && mainResult.dashaPeriods && (
                         <div className="report-section" style={{ pageBreakBefore: 'always' }}>
                             <h3>{t('astrologyForm.dashaPeriodsTitle', 'Dasha Periods')}</h3>
                             <ExpandedDashaTable dashaPeriods={mainResult.dashaPeriods} />
@@ -945,8 +972,10 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
 
                     {/* 17. Ashtakavarga Charts */}
                     
+{reportSections.ashtakavarga && (
                     <AshtakavargaReport ashtakavargaData={mainResult.ashtakavarga} houses={mainResult.houses} inputParams={displayInputParams} />
-                    {kpResult && (
+)}
+{reportSections.kpSignificators && kpResult && (
                         <div className="report-section" style={{ pageBreakBefore: 'always' }}>
                             <h3 className="result-sub-title">{t('kpSignificatorsPrintableTitle')}</h3>
                             <KpSignificatorGrid
@@ -957,7 +986,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
 
-                    {varshphalResult && (
+{reportSections.varshphal && displayVarshphalResult && (
                         <div style={{ pageBreakBefore: 'always' }}>
                             <h2 style={{ width: '100%', textAlign: 'center' }}>{t('varshphalPage.pageTitle')}</h2>
 
@@ -966,7 +995,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                 <h3>{t('varshphalPage.inputSummaryTitle')}</h3>
                                 <p>{t('varshphalPage.inputSummary', {
                                     date: formatDisplayDateTime(calculationInputParams.date, t, i18n),
-                                    varshphalDate: (varshphalResult.muddaDasha && varshphalResult.muddaDasha.length > 0) ? formatDisplayDateTime(varshphalResult.muddaDasha[0].start, t, i18n) : t('utils.notAvailable', 'N/A'),
+                                    varshphalDate: (displayVarshphalResult.muddaDasha && displayVarshphalResult.muddaDasha.length > 0) ? formatDisplayDateTime(displayVarshphalResult.muddaDasha[0].start, t, i18n) : t('utils.notAvailable', 'N/A'),
                                     place: calculationInputParams.placeName,
                                     lat: calculationInputParams.latitude.toFixed(4),
                                     lon: calculationInputParams.longitude.toFixed(4),
@@ -977,31 +1006,30 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             {/* Key Details */}
                             <div className="report-section">
                                 <h3>{t('varshphalPage.keyDetailsTitle')}</h3>
-                                {varshphalResult.muntha && (
+                                {displayVarshphalResult.muntha && (
                                     <p>
                                         <strong>{t('varshphalPage.munthaLabel')}</strong>{' '}
                                         {t('varshphalPage.munthaText', {
-                                            house: varshphalResult.muntha.house,
-                                            sign: t(`signs.${varshphalResult.muntha.sign}`, varshphalResult.muntha.sign)
-                                        })}
+                                        house: displayVarshphalResult.muntha.house,
+                                                                                 sign: t(`signs.${displayVarshphalResult.muntha.sign}`, displayVarshphalResult.muntha.sign)                                        })}
                                     </p>
                                 )}
-                                {varshphalResult.yearLord && (
+                                {displayVarshphalResult.yearLord && (
                                     <p>
                                         <strong>{t('varshphalPage.yearLordLabel')}</strong>{' '}
-                                        {t(`planets.${varshphalResult.yearLord}`, varshphalResult.yearLord)}
+                                        {t(`planets.${displayVarshphalResult.yearLord}`, displayVarshphalResult.yearLord)}
                                     </p>
                                 )}
                             </div>
 
                             {/* Varshphal Chart */}
-                            {varshphalResult.varshphalChart && (
+                            {displayVarshphalResult.varshphalChart && (
                                 <div style={{ pageBreakInside: 'avoid' }}>
                                     <h4 style={{ margin: '5px 0' }}>{t('varshphalPage.chartTitle', { year: varshphalYear })}</h4>
                                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                                         <DiamondChart
-                                            houses={varshphalResult.varshphalChart.houses}
-                                            planets={varshphalResult.varshphalChart.planetaryPositions.sidereal}
+                                            houses={displayVarshphalResult.varshphalChart.houses}
+                                            planets={displayVarshphalResult.varshphalChart.planetaryPositions.sidereal}
                                             size={400}
                                             chartType="lagna"
                                         />
@@ -1010,13 +1038,13 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             )}
 
                             {/* Nirayan Bhava Chalit Chart */}
-                            {varshphalResult.varshphalChart?.planetHousePlacements && (
+                            {displayVarshphalResult.varshphalChart?.planetHousePlacements && (
                                 <div style={{ pageBreakInside: 'avoid' }}>
                                     <h4 style={{ margin: '5px 0' }}>{t('varshphalPage.bhavaChalitChartTitle', { year: varshphalYear })}</h4>
                                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                                         <DiamondChart
-                                            houses={varshphalResult.varshphalChart.houses}
-                                            planetHousePlacements={varshphalResult.varshphalChart.planetHousePlacements}
+                                            houses={displayVarshphalResult.varshphalChart.houses}
+                                            planetHousePlacements={displayVarshphalResult.varshphalChart.planetHousePlacements}
                                             size={400}
                                             chartType="bhava"
                                         />
@@ -1025,15 +1053,15 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             )}
                             
                             {/* Mudda Dasha */}
-                            {varshphalResult.muddaDasha && (
+                            {displayVarshphalResult.muddaDasha && (
                                 <div className="report-section" style={{ pageBreakBefore: 'always' }}>
                                     <h3>{t('varshphalPage.muddaDashaTitle')}</h3>
-                                    <DashaTable dashaPeriods={varshphalResult.muddaDasha} />
+                                    <DashaTable dashaPeriods={displayVarshphalResult.muddaDasha} />
                                 </div>
                             )}
                             
                             {/* House Cusps */}
-                            {varshphalResult.varshphalChart?.houses && (
+                            {displayVarshphalResult.varshphalChart?.houses && (
                                 <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
                                     <h3>{t('varshphalPage.houseCuspsTitle')}</h3>
                                     <div className="table-wrapper">
@@ -1050,7 +1078,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {varshphalResult.varshphalChart.houses.map((house) => (
+                                                {displayVarshphalResult.varshphalChart.houses.map((house) => (
                                                 <tr key={house.house_number}>
                                                     <td>{house.house_number}</td>
                                                     <td>{house.start_dms || 'N/A'}</td>
@@ -1072,18 +1100,18 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                 <h2 style={{ width: '100%', textAlign: 'center' }}>{t('varshphalPage.siderealPlanetaryPositionsTitle')}</h2>
                                 <div style={{ marginBottom: '20px' }}>
                                     <CustomDetailedPlanetTable 
-                                        planets={varshphalResult.varshphalChart.planetaryPositions.sidereal} 
-                                        houses={varshphalResult.varshphalChart.houses} 
-                                        planetDetails={varshphalResult.varshphalChart.planetDetails} 
+                                        planets={displayVarshphalResult.varshphalChart.planetaryPositions.sidereal} 
+                                        houses={displayVarshphalResult.varshphalChart.houses} 
+                                        planetDetails={displayVarshphalResult.varshphalChart.planetDetails} 
                                         planetOrder={PLANET_ORDER} 
                                         columns={COLUMNS_TABLE_1}
                                     />
                                 </div>
                                 <div>
                                     <CustomDetailedPlanetTable 
-                                        planets={varshphalResult.varshphalChart.planetaryPositions.sidereal} 
-                                        houses={varshphalResult.varshphalChart.houses} 
-                                        planetDetails={varshphalResult.varshphalChart.planetDetails} 
+                                        planets={displayVarshphalResult.varshphalChart.planetaryPositions.sidereal} 
+                                        houses={displayVarshphalResult.varshphalChart.houses} 
+                                        planetDetails={displayVarshphalResult.varshphalChart.planetDetails} 
                                         planetOrder={PLANET_ORDER} 
                                         columns={COLUMNS_TABLE_2}
                                     />
@@ -1091,7 +1119,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             </div>
                             
                             {/* KP Significators */}
-                            {varshphalResult.kpSignificators && (
+                            {displayVarshphalResult.kpSignificators && (
                                 <div className="report-section" style={{ pageBreakBefore: 'always' }}>
                                     <h3>{t('varshphalPage.kpSignificatorsTitle')}</h3>
                                     <KpSignificatorGrid significatorDetailsMap={varshphalSignificatorDetailsMap} selectedEvent="" />
@@ -1099,7 +1127,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                             )}
 
                             {/* UPBS Table */}
-                            {varshphalResult.varshphalChart?.planetDetails?.upbsScores && (
+                            {displayVarshphalResult.varshphalChart?.planetDetails?.upbsScores && (
                                 <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
                                     <h3>{t('varshphalPage.upbsTitle')}</h3>
                                     <div className="table-wrapper upbs-table-wrapper">
@@ -1122,7 +1150,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                             </thead>
                                             <tbody>
                                                 {PLANET_ORDER.filter(p => p !== 'Uranus' && p !== 'Neptune' && p !== 'Pluto').map(planet => {
-                                                    const planetUPBS = varshphalResult.varshphalChart.planetDetails.upbsScores[planet];
+                                                    const planetUPBS = displayVarshphalResult.varshphalChart.planetDetails.upbsScores[planet];
                                                     if (!planetUPBS || isNaN(planetUPBS.total)) {
                                                     return (
                                                         <tr key={`upbs-${planet}`}>
@@ -1157,7 +1185,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
                     
-                    {transitResult && (
+{reportSections.transit && transitResult && (
                         <div style={{ pageBreakBefore: 'always' }}>
                             <h2 style={{ width: '100%', textAlign: 'center' }}>Transit Details</h2>
 
@@ -1306,18 +1334,18 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         </div>
                     )}
 
-                    {holisticPrediction && (
+{holisticPrediction && (
                         <div className="report-section" style={{ pageBreakBefore: 'always' }}>
                             <h2 style={{ width: '100%', textAlign: 'center' }}>{t('predictionPage.title')}</h2>
                             
-                            {holisticPrediction.overallReport && (
+                            {reportSections.overallReport && holisticPrediction.overallReport && (
                                 <div className="prediction-section">
                                     <h3>{t('predictionPage.generalPredictionTitle')}</h3>
                                     <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{holisticPrediction.overallReport}</p>
                                 </div>
                             )}
 
-                            {holisticPrediction.yogas?.length > 0 && (
+                            {reportSections.birthChartYogas && holisticPrediction.yogas?.length > 0 && (
                                 <div className="prediction-section">
                                     <h3>{t('predictionPage.birthChartYogasTitle')}</h3>
                                     <table className="yoga-table">
@@ -1341,7 +1369,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                 </div>
                             )}
 
-                            {holisticPrediction.planetDetails?.kpSignificators && (
+                            {reportSections.kpSignificatorsPred && holisticPrediction.planetDetails?.kpSignificators && (
                                 <div className="prediction-section">
                                     <h3>{t('predictionPage.kpSignificatorsTitle')}</h3>
                                     {holisticPrediction.planetDetails.kpSignificators.cusps && Object.keys(holisticPrediction.planetDetails.kpSignificators.cusps).length > 0 && (
@@ -1400,7 +1428,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                 </div>
                             )}
                            
-                            {holisticPrediction.lifeAreaReports && (
+                            {reportSections.lifeAreaReports && holisticPrediction.lifeAreaReports && (
                                 <div className="prediction-section">
                                     <h3>{t('predictionPage.lifeAreasTitle')}</h3>
                                     {Object.entries(holisticPrediction.lifeAreaReports).map(([area, report]) => (
@@ -1421,7 +1449,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                 </div>
                             )}
 
-                            {holisticPrediction.eventTimeline?.length > 0 && (
+                            {reportSections.eventTimeline && holisticPrediction.eventTimeline?.length > 0 && (
                                 <div className="prediction-section">
                                     <h3>{t('predictionPage.eventTimelineTitle')}</h3>
                                     <ul className="prediction-list">
@@ -1432,7 +1460,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                 </div>
                             )}
                             
-                            {holisticPrediction.dashaLordAnalysis?.length > 0 && (
+                            {reportSections.dashaLordAnalysis && holisticPrediction.dashaLordAnalysis?.length > 0 && (
                                 <div className="prediction-section">
                                     <h3>{t('predictionPage.dashaAnalysisTitle')}</h3>
                                     {holisticPrediction.dashaLordAnalysis.map((analysis, index) => (
@@ -1441,6 +1469,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                 </div>
                             )}
 
+{reportSections.varshphalPrediction && (
                             <div className="prediction-section">
                                 <h3>{t('predictionPage.varshphalPredictionTitle')}</h3>
                                 {varshphalPrediction.isLoading ? (
@@ -1451,6 +1480,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                     <p className="prediction-text" style={{ whiteSpace: 'pre-wrap' }}>{varshphalPrediction.prediction}</p>
                                 )}
                             </div>
+                            )}
                         </div>
                     )}
                     <div style={{ textAlign: 'center', marginBottom: '20px' }}>

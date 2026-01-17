@@ -29,17 +29,24 @@ const PredictionPage = () => {
     const fetchVarshphalPrediction = useCallback(async () => {
         if (!calculationInputParams || !adjustedGocharDateTimeString) return;
         const yearValue = new Date(adjustedGocharDateTimeString).getFullYear();
-        setVarshphalData({ prediction: '', isLoading: true, error: null, year: yearValue, lang: i18n.language });
+        setVarshphalData({ prediction: '', isLoading: true, error: null, year: yearValue, lang: i18n.language, houseToRotate: houseToRotate });
         try {
             const natalDate = adjustedBirthDateTimeString || calculationInputParams.date;
-            const payload = {
+            
+            // Determine which varshphal endpoint to call
+            const useRotatedVarshphal = typeof houseToRotate === 'number' && houseToRotate > 1;
+            const endpoint = useRotatedVarshphal ? '/calculate-varshphal/rotated' : '/calculate-varshphal';
+            
+            const varshphalCalcPayload = {
                 natalDate,
                 natalLatitude: calculationInputParams.latitude,
                 natalLongitude: calculationInputParams.longitude,
                 varshphalYear: yearValue,
-                lang: i18n.language, // Add current language
+                lang: i18n.language,
+                ...(useRotatedVarshphal && { house_to_rotate: houseToRotate }) // Add house_to_rotate if rotated
             };
-            const varResp = await api.post('/calculate-varshphal', payload);
+
+            const varResp = await api.post(endpoint, varshphalCalcPayload);
             const varData = varResp.data;
             const varChart = varData.varshphalChart;
 
@@ -54,16 +61,16 @@ const PredictionPage = () => {
                     varshphalYear: yearValue,
                 };
                 const predResp = await api.post('/predictions/varshaphal', varshphalPayload);
-                setVarshphalData({ prediction: predResp.data.prediction || '', isLoading: false, error: null, year: yearValue, lang: i18n.language });
+                setVarshphalData({ prediction: predResp.data.prediction || '', isLoading: false, error: null, year: yearValue, lang: i18n.language, houseToRotate: houseToRotate });
             } else {
                 throw new Error(t('predictionPage.varshphalCalculationFailed', 'Varshphal calculation failed.'));
             }
         } catch (err) {
             console.error('Error fetching/calculating varshphal:', err.response?.data || err.message || err);
             const errorMsg = err.response?.data?.error || err.message || t('predictionPage.varshphalCalculationFailed');
-            setVarshphalData({ prediction: '', isLoading: false, error: errorMsg, year: yearValue, lang: i18n.language });
+            setVarshphalData({ prediction: '', isLoading: false, error: errorMsg, year: yearValue, lang: i18n.language, houseToRotate: houseToRotate });
         }
-    }, [adjustedBirthDateTimeString, adjustedGocharDateTimeString, calculationInputParams, i18n.language, t]);
+    }, [adjustedBirthDateTimeString, adjustedGocharDateTimeString, calculationInputParams, i18n.language, t, houseToRotate]); // Add houseToRotate to dependencies
 
     const fetchHolisticPrediction = useCallback(async () => {
         if (!calculationInputParams?.date || !calculationInputParams?.latitude || !calculationInputParams?.longitude) {
@@ -174,7 +181,12 @@ const PredictionPage = () => {
 
             // Varshphal
             const yearForVarshphal = new Date(adjustedGocharDateTimeString).getFullYear();
-            const shouldFetchVarshphal = (!varshphalData.prediction && !varshphalData.error) || varshphalData.year !== yearForVarshphal || varshphalData.lang !== i18n.language;
+            const shouldFetchVarshphal = (
+                (!varshphalData.prediction && !varshphalData.error) ||
+                varshphalData.year !== yearForVarshphal ||
+                varshphalData.lang !== i18n.language ||
+                varshphalData.houseToRotate !== houseToRotate // New condition for houseToRotate
+            );
             if (shouldFetchVarshphal && !varshphalData.isLoading) fetchVarshphalPrediction();
 
             // KP analysis - use effectiveHolistic to derive kpSignificators
@@ -189,7 +201,7 @@ const PredictionPage = () => {
             setRotatedHolisticPrediction(null);
             setKpAnalysis({ analysis: '', isLoading: false, error: null });
         }
-    }, [mainResult, calculationInputParams, adjustedBirthDateTimeString, adjustedGocharDateTimeString, i18n.language, fetchHolisticPrediction, fetchRotatedHolisticPrediction, fetchVarshphalPrediction, fetchKpAnalysis, varshphalData.prediction, varshphalData.year, varshphalData.lang, varshphalData.error, varshphalData.isLoading, houseToRotate, lastHolisticKey, lastRotatedHolisticKey, lastKpKey, holisticPrediction, rotatedHolisticPrediction]);
+    }, [mainResult, calculationInputParams, adjustedBirthDateTimeString, adjustedGocharDateTimeString, i18n.language, fetchHolisticPrediction, fetchRotatedHolisticPrediction, fetchVarshphalPrediction, fetchKpAnalysis, varshphalData.prediction, varshphalData.year, varshphalData.lang, varshphalData.error, varshphalData.isLoading, houseToRotate, lastHolisticKey, lastRotatedHolisticKey, lastKpKey, holisticPrediction, rotatedHolisticPrediction, varshphalData.houseToRotate]);
 
     const renderContent = () => {
         if (!calculationInputParams?.date) return <p className="info-text">{t('predictionPage.calculateFirst', 'Please calculate a chart first to see the predictions.')}</p>;
@@ -330,6 +342,7 @@ const PredictionPage = () => {
                                                 <p><strong>{t('predictionPage.summary', 'Summary')}:</strong> {report.analysis.summary}</p>
                                             </div>
                                         )}
+                                        {report.quality && <p><strong>{t('predictionPage.quality', 'Quality of Career')}:</strong> {report.quality}</p>}
                                         {report.timing && <p><strong>{t('predictionPage.timing', 'Timing of Events')}:</strong> {report.timing}</p>}
                                         {report.varga && <p><strong>{t('predictionPage.divisional', 'Divisional Chart')}:</strong> {report.varga}</p>}
                                     </div>

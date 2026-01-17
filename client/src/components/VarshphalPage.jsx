@@ -49,31 +49,11 @@ const VarshphalPage = () => {
     calculationInputParams,
     isLoading: isInitialLoading,
     error: initialError,
-    selectedVarshphalYear,
-    setSelectedVarshphalYear,
+    adjustedGocharDateTimeString,
+    houseToRotate,
+    setHouseToRotate,
   } = useOutletContext() || {};
-  const outletHouseToRotate = (useOutletContext() || {}).houseToRotate;
-  const outletSetHouseToRotate = (useOutletContext() || {}).setHouseToRotate;
-  const [selectedHouse, setSelectedHouse] = useState(() => (typeof outletHouseToRotate === 'number' ? outletHouseToRotate : 1));
 
-  const handleHouseChange = (event) => {
-    setSelectedHouse(parseInt(event.target.value, 10));
-  };
-
-  // Keep selectedHouse in sync with global outlet houseToRotate
-  useEffect(() => {
-    if (typeof outletHouseToRotate === 'number' && outletHouseToRotate !== selectedHouse) {
-      setSelectedHouse(outletHouseToRotate);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [outletHouseToRotate]);
-
-  useEffect(() => {
-    if (typeof outletSetHouseToRotate === 'function') {
-      try { outletSetHouseToRotate(selectedHouse); } catch (e) {}
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedHouse]);
 
   // --- State for Calculation ---
   const [isLoading, setIsLoading] = useState(false);
@@ -81,6 +61,23 @@ const VarshphalPage = () => {
   const [varshphalResult, setVarshphalResult] = useState(null);
   const [rotatedVarshphalResult, setRotatedVarshphalResult] = useState(null);
   const [inputDetailsUsed, setInputDetailsUsed] = useState(null);
+  const [selectedHouse, setSelectedHouse] = useState(() => (typeof houseToRotate === 'number' ? houseToRotate : 1));
+
+  
+  // Keep selectedHouse in sync with global outlet houseToRotate
+  useEffect(() => {
+    if (typeof houseToRotate === 'number' && houseToRotate !== selectedHouse) {
+      setSelectedHouse(houseToRotate);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [houseToRotate]);
+
+  useEffect(() => {
+    if (typeof setHouseToRotate === 'function') {
+      try { setHouseToRotate(selectedHouse); } catch (e) {}
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedHouse]);
 
   // State for UI
   const [openSections, setOpenSections] = useState({
@@ -139,13 +136,11 @@ const VarshphalPage = () => {
         }
       }, [calculationInputParams?.date, t]); // Add t dependency
   
-      // --- Calculation Handler ---
       const handleCalculateVarshphal = useCallback(async () => {
         setCalculationError(null);
         setVarshphalResult(null);
         setRotatedVarshphalResult(null);
         setInputDetailsUsed(null);
-        setSelectedHouse(1);
     
         // --- Validation ---
         if (
@@ -153,106 +148,82 @@ const VarshphalPage = () => {
           calculationInputParams?.latitude === undefined ||
           calculationInputParams?.longitude === undefined
         ) {
-          // Translate error
           setCalculationError(t('varshphalPage.errorBaseChartNeeded'));
           setIsLoading(false);
           return;
         }
     
-        const yearNum = parseInt(selectedVarshphalYear, 10);
-        if (isNaN(yearNum) || yearNum < 1900 || yearNum > 2100) {
-          // Translate error
-          setCalculationError(t('varshphalPage.errorInvalidYear'));
-          setIsLoading(false);
-          return;
-        }
-    
+        const yearNum = new Date(adjustedGocharDateTimeString).getFullYear();
+
         if (birthYear === null) {
-          // Translate error
           setCalculationError(t('varshphalPage.errorBirthYearUnknown'));
           setIsLoading(false);
           return;
         }
         if (yearNum < birthYear) {
-          // Translate error with interpolation
           setCalculationError(t('varshphalPage.errorYearBeforeBirth', { yearNum, birthYear }));
           setIsLoading(false);
           return;
         }
-        // --- END VALIDATION ---
-    
         setIsLoading(true);
     
         const payload = {
           natalDate: calculationInputParams.date,
           natalLatitude: calculationInputParams.latitude,
           natalLongitude: calculationInputParams.longitude,
-          natalPlaceName: calculationInputParams.placeName || t('utils.notAvailable', 'N/A'), // Translate N/A
+          natalPlaceName: calculationInputParams.placeName || t('utils.notAvailable', 'N/A'),
           varshphalYear: yearNum,
-          lang: i18n.language, // Add current language
+          lang: i18n.language,
         };
         setInputDetailsUsed(payload);
     
         try {
-          
           const response = await api.post("/calculate-varshphal", payload);
-    
           if (response.data) {
             setVarshphalResult(response.data);
-           
           } else {
-            // Translate error
             throw new Error(t('varshphalPage.errorEmptyResponse'));
           }
         } catch (err) {
           console.error("Varshphal calculation error:", err);
-          // Translate error
           const errMsg = err.response?.data?.error || err.message || t('varshphalPage.errorCalculationFailed');
           setCalculationError(errMsg);
           setVarshphalResult(null);
         } finally {
           setIsLoading(false);
         }
-      }, [calculationInputParams.date, calculationInputParams.latitude, calculationInputParams.longitude, calculationInputParams.placeName, selectedVarshphalYear, birthYear, t, i18n.language]); // Add t dependency
+      }, [calculationInputParams.date, calculationInputParams.latitude, calculationInputParams.longitude, calculationInputParams.placeName, adjustedGocharDateTimeString, birthYear, t, i18n.language]); // Add t dependency
     
-      useEffect(() => {
-        const fetchRotatedData = async () => {
-            setIsLoading(true);
-            setCalculationError(null);
-            try {
-                let response;
-                if (selectedHouse === 1) {
-                    // If House 1 is selected, fetch the original (non-rotated) data
-                    const payload = { ...inputDetailsUsed, lang: i18n.language }; // Use the original input details and add language
-                    response = await api.post("/calculate-varshphal", payload);
-                    setVarshphalResult(response.data); // Update the main result
-                    setRotatedVarshphalResult(null); // Clear rotated result
-                } else {
-                    // Otherwise, fetch the rotated data
-                    const payload = {
-                        ...inputDetailsUsed,
-                        house_to_rotate: selectedHouse,
-                        lang: i18n.language, // Add current language
-                    };
-                    response = await api.post('/calculate-varshphal/rotated', payload);
-                    setRotatedVarshphalResult(response.data); // Update rotated result
-                    setVarshphalResult(null); // Clear main result
-                }
-            } catch (error) {
-                console.error("Varshphal Chart calculation error:", error);
-                const errMsg = error.response?.data?.error || error.message || t('varshphalPage.errorChartFetch');
-                setCalculationError(errMsg);
-                setVarshphalResult(null);
-                setRotatedVarshphalResult(null);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-    
-        if (inputDetailsUsed) {
-            fetchRotatedData();
+      const fetchRotatedData = useCallback(async () => {
+        setIsLoading(true);
+        setCalculationError(null);
+        try {
+            const payload = {
+                ...inputDetailsUsed,
+                house_to_rotate: selectedHouse,
+                lang: i18n.language,
+            };
+            const response = await api.post('/calculate-varshphal/rotated', payload);
+            setRotatedVarshphalResult(response.data);
+        } catch (error) {
+            console.error("Varshphal Chart calculation error:", error);
+            const errMsg = error.response?.data?.error || error.message || t('varshphalPage.errorChartFetch');
+            setCalculationError(errMsg);
+            setRotatedVarshphalResult(null);
+        } finally {
+            setIsLoading(false);
         }
-    }, [selectedHouse, inputDetailsUsed, t, i18n.language]);
+    }, [inputDetailsUsed, selectedHouse, t, i18n.language]);
+
+    useEffect(() => {
+        if (inputDetailsUsed && selectedHouse !== 1) {
+            fetchRotatedData();
+        } else if (inputDetailsUsed && selectedHouse === 1) {
+            // If house is reset to 1, clear rotated result and show original
+            setRotatedVarshphalResult(null);
+        }
+    }, [inputDetailsUsed, selectedHouse, fetchRotatedData]);
+
     
       // --- Effect to Trigger Calculation Automatically ---
       useEffect(() => {
@@ -263,12 +234,10 @@ const VarshphalPage = () => {
             setVarshphalResult(null);
             return;
           }
-          const yearNum = parseInt(selectedVarshphalYear, 10);
+          const yearNum = new Date(adjustedGocharDateTimeString).getFullYear();
           if (
             !isNaN(yearNum) &&
-            yearNum >= birthYear &&
-            yearNum >= 1900 &&
-            yearNum <= 2100
+            yearNum >= birthYear
           ) {
             
             handleCalculateVarshphal();
@@ -292,7 +261,7 @@ const VarshphalPage = () => {
         }
       }, [
         calculationInputParams,
-        selectedVarshphalYear,
+        adjustedGocharDateTimeString,
         isInitialLoading,
         initialError,
         handleCalculateVarshphal,
@@ -660,45 +629,7 @@ const VarshphalPage = () => {
       <h1>{t('varshphalPage.pageTitle')}</h1>
 
       {/* --- Input Controls (Only Year) --- */}
-      <div className="section-header" onClick={() => toggleSection('inputBlock')}>
-        <h2 className="result-sub-title">{t('varshphalPage.inputBlockTitle', 'Input Details')}</h2>
-        <button className="toggle-button">{openSections.inputBlock ? '−' : '+'}</button>
-      </div>
-      {openSections.inputBlock && <div className="varshphal-controls">
-        {/* Translate description */}
-        <p>{t('varshphalPage.description')}</p>
 
-        {/* Varshphal Year Input */}
-        <div className="form-row">
-          <div className="input-group">
-            {/* Translate label */}
-            <label htmlFor="varshphal-year">{t('varshphalPage.yearLabel')}</label>
-            <input
-              id="varshphal-year"
-              type="number"
-              value={selectedVarshphalYear}
-              onChange={(e) => setSelectedVarshphalYear(e.target.value)}
-              required
-              min="1900"
-              max="2100"
-              step="1"
-              disabled={isLoading || isInitialLoading}
-              // Translate placeholder
-              placeholder={t('varshphalPage.yearPlaceholder')}
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="house-select">Rotate from House:</label>
-            <select id="house-select" value={selectedHouse} onChange={handleHouseChange}>
-              {[...Array(12).keys()].map(i => (
-                <option key={i + 1} value={i + 1}>
-                  House {i + 1}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>}
 
       {/* --- Results --- */}
       <div className="varshphal-results">{renderResults()}</div>
