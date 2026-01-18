@@ -30,8 +30,7 @@
     "Hu": "Hu",
     "He": "He",
     "Ho": "Ho",
-    
-   
+
     "Ma": "Ma",
     "Mi": "Mi",
     "Mu": "Mu",
@@ -46,8 +45,7 @@
     "Pi": "Pi",
     "Pu": "Pu",
     "Sha": "Sha",
-   
-   
+
     "Pe": "Pe",
     "Po": "Po",
     "Ra": "Ra",
@@ -55,7 +53,7 @@
     "Ru": "Ru",
     "Re": "Re",
     "Ro": "Ro",
-    
+
     "Ni": "Ni",
     "Nu": "Nu",
     "Ne": "Ne",
@@ -160,25 +158,26 @@
     "Kimstughna": "Kimstughna",
     "Unknown": "Unknown"
   },
-      "nav": {
-        "mainChart": "Main Chart",
-        "planetDetails": "Planet Details",
-        "gochar": "Transit",
-        "kpSignificators": "KP Significators",
-        "ashtakavarga": "Ashtakavarga",
-        "festivals": "Festivals",
-        "prashnaTime": "Prashna (Time)",
-        "prashnaNumber": "Prashna (Number)",
-        "remedies": "Remedies",
-        "varshphal": "Varshphal",
-        "muhurta": "Muhurta",
-        "monthlyYogas": "Monthly Yogas",
-        "birthChartYogas": "Birth Chart Yogas",
-        "predictions": "Predictions",
-        "divisionalCharts": "Divisional Charts",
-        "logout": "Logout",
-        "savedCharts": "Saved Charts"
-      },  "monthlyYogasPage": {
+  "nav": {
+    "mainChart": "Main Chart",
+    "planetDetails": "Planet Details",
+    "gochar": "Transit",
+    "kpSignificators": "KP Significators",
+    "ashtakavarga": "Ashtakavarga",
+    "festivals": "Festivals",
+    "prashnaTime": "Prashna (Time)",
+    "prashnaNumber": "Prashna (Number)",
+    "remedies": "Remedies",
+    "varshphal": "Varshphal",
+    "muhurta": "Muhurta",
+    "monthlyYogas": "Monthly Yogas",
+    "birthChartYogas": "Birth Chart Yogas",
+    "predictions": "Predictions",
+    "divisionalCharts": "Divisional Charts",
+    "logout": "Logout",
+    "savedCharts": "Saved Charts"
+  },
+  "monthlyYogasPage": {
     "pageTitle": "Monthly Yogas",
     "year": "Year",
     "month": "Month",
@@ -232,6 +231,9 @@
     "education": "Education",
     "marriage": "Marriage",
     "health": "Health",
+    "children": "Children",
+    "siblings_courage_communication": "Siblings Courage Communication",
+    "travel": "Travel",
     "litigation": "Litigation",
     "spirituality": "Spirituality"
   },
@@ -497,7 +499,7 @@
     "transitPanchangaTitle": "Transit Panchanga",
     "invalidPanchangTime": "Invalid",
     "errorPanchangTime": "Error",
-   "validLocationNeeded": "Valid location needed to view transit details.",
+    "validLocationNeeded": "Valid location needed to view transit details.",
     "mahaDashaLabel": "Mahadasha:",
     "antarDashaLabel": "Antardasha:",
     "pratyantarDashaLabel": "Pratyantar dasha:",
@@ -587,7 +589,7 @@
     "eclipseHeaderNature": "Nature",
     "eclipseHeaderPeakTime": "Peak Time",
     "eclipseHeaderStartTime": "Start Time",
-    "eclipseHeaderEndTime" : "End Time ",
+    "eclipseHeaderEndTime": "End Time ",
     "eclipseHeaderDate": "Date",
     "eclipseHeaderTime": "Time",
     "eclipseHeaderMagnitude": "Magnitude",
@@ -701,9 +703,10 @@
       "kartik_purnima": "Kartik Purnima",
       "ahoi_ashtami": "Ahoi Ashtami",
       "shravana_putrada_ekadashi": "Shravana Putrada Ekadashi",
-      "hartalika_teej": "Hartalika Teej"
-    }
-    ,
+      "hartalika_teej": "Hartalika Teej",
+      "holi_holika_dahan": "Holi (Holika Dahan)",
+      "holi_rangwali_holi": "Holi (Rangwali Holi)"
+    },
     "eclipseTypes": {
       "Lunar": "Lunar",
       "Solar": "Solar"
@@ -714,7 +717,6 @@
       "annular": "Annular",
       "penumbral": "Penumbral"
     }
-    
   },
   "hindiMonths": {
     "Chaitra": "Chaitra",
@@ -927,7 +929,7 @@
     "shadbalaNotePrefix": "Note:",
     "invalidAdjustedDateError": "Invalid adjusted date: {{error}}",
     "fetchRectifiedDataFailed": "Failed to fetch rectified data.",
-    "upbsTitle": "Unconditional Planetary Beneficence Score (UPBS)",
+    "upbsTitle": "Uncommon Planetary Beneficence Score (UPBS)",
     "upbsDataUnavailable": "UPBS data unavailable.",
     "upbsDataMissing": "Data Missing"
   },
@@ -959,7 +961,7 @@
     "NLM": "Nakshatra-Lord Modifier (NLM)",
     "ASC": "Association Score (ASC)"
   },
- 
+
   "upbsBreakdownShort": {
     "NBS": "NBS",
     "FBS": "FBS",
@@ -1018,7 +1020,7 @@
     "errorGeolocationNotSupported": "This browser does not support Geolocation.",
     "alertEnterPlace": "Please enter a specific place name to search.",
     "errorGeocodingNotFound": "Location not found: {{place}}",
-    "errorGeocodingFailed": "Geocoding failed: {{message}",
+    "errorGeocodingFailed": "Geocoding failed: {{message}}",
     "errorInvalidNumber": "Please enter a valid Prashna Number (1-249).",
     "errorCurrentTime": "Could not determine current time for calculation.",
     "errorChartFetch": "Failed to calculate Prashna Chart.",
@@ -1040,7 +1042,7 @@
     "kpErrorPrefix": "KP Error",
     "kpUnavailable": "KP Significator data unavailable.",
     "inputSummary": "Calculated for Number {{num}} at {{dateTime}} in {{place}} ({{lat}}, {{lon}})",
-    "analyzeEventLabel": "Analyze for Event:",    
+    "analyzeEventLabel": "Analyze for Event:",
     "inputBlockTitle": "Input Details",
     "dashaTitle": "Vimshottari Dasha Periods",
     "favorableHousesLabel": "Favorable:",
@@ -1058,7 +1060,7 @@
     "useCurrentLocationButton": "Use Current",
     "unfavorableHousesLabel": "Unfavorable:",
     "significatorPlanetLabel": "Significator:",
-    "calculatingButton": "Calculating...",    
+    "calculatingButton": "Calculating...",
     "calculateButton": "Calculate Prashna"
   },
   "prashnaTimeLocPage": {
@@ -1117,7 +1119,11 @@
     "deityLabel": "Deity Worship:",
     "stutiLabel": "Stuti/Chanting:",
     "otherLabel": "Other General Remedies:",
-    "selectPlanetPrompt": "Select a planet to view remedies."
+    "selectPlanetPrompt": "Select a planet to view remedies.",
+    "fullStutiLabel": "Full Stuti",
+    "fullStutiTitle": "Full Stuti (Full Text)",
+    "fullStutiDescription": "Download the complete text of the Stuti in both Hindi (Devanagari) and English Transliteration.",
+    "downloadFullStutiPdf": "Download Full Stuti PDF"
   },
   "planets": {
     "Sun": "Sun",
@@ -1190,7 +1196,7 @@
       "metal": "Gold, Brass",
       "herb": "Vidharamool Root",
       "charity": "Green Moong Dal, Green Clothes, Green Vegetables, Bangles on Wednesday",
-      "stuti": "Vishnu Sahasranama",
+      "stuti": "Budha Stotram",
       "deity": "Lord Vishnu",
       "other": "Feed green fodder to cows. Maintain good communication. Read books."
     },
@@ -1212,7 +1218,7 @@
       "metal": "Silver, Platinum",
       "herb": "Arandmool Root",
       "charity": "Rice, Sugar, Ghee, White Clothes, Curd, Silver, Perfume on Friday",
-      "stuti": "Shri Suktam, Lakshmi Stuti",
+      "stuti": "Shukra Stotram",
       "deity": "Goddess Lakshmi, Goddess Durga",
       "other": "Maintain cleanliness. Appreciate beauty and art. Respect women."
     },
@@ -1223,7 +1229,7 @@
       "metal": "Iron, Steel, Lead",
       "herb": "Bichhu Booti Root (Nettle Root)",
       "charity": "Black Sesame Seeds, Urad Dal (Black Gram), Black Clothes, Mustard Oil, Iron items on Saturday",
-      "stuti": "Hanuman Chalisa, Shani Stotra",
+      "stuti": "Shani Stotram",
       "deity": "Lord Hanuman, Lord Shiva (as Mahakaal)",
       "other": "Serve the poor and needy. Be disciplined and patient. Avoid laziness."
     },
@@ -1234,7 +1240,7 @@
       "metal": "Mixed Metal (Panchdhatu), Lead",
       "herb": "White Sandalwood piece",
       "charity": "Urad Dal, Coconut, Lead, Black Clothes, Mustard Oil on Saturday",
-      "stuti": "Durga Saptashati, Bhairav Stuti",
+      "stuti": "Kalabhairava Ashtakam",
       "deity": "Goddess Durga, Lord Bhairav",
       "other": "Avoid intoxication and deception. Serve leprosy patients. Maintain clarity of thought."
     },
@@ -1245,7 +1251,7 @@
       "metal": "Mixed Metal (Panchdhatu)",
       "herb": "Ashwagandha Root",
       "charity": "Black Sesame Seeds, Urad Dal, Blanket (multi-colored), Mustard Oil, Knife on Tuesday/Saturday",
-      "stuti": "Ganesha Stotra, Shiva Stuti",
+      "stuti": "Ganesha Ashtakam",
       "deity": "Lord Ganesha, Lord Shiva",
       "other": "Feed stray dogs. Donate blankets. Practice detachment and spirituality."
     }
@@ -1307,7 +1313,6 @@
     "houseCuspsTitle": "House Cusps (Sidereal)",
     "bhavaChalitChartTitle": "Nirayana Bhava Chalit Chart ({{year}})",
     "bhavaChalitChartTitleFull": "Nirayana Bhava Chalit {{year}}",
-    "bhavaChalitChartUnavailable": "Bhava Chalit Chart data unavailable.",
     "kpSignificatorsTitle": "KP Significators",
     "inputBlockTitle": "Input Details",
     "inputSummaryTitle": "Input Summary",
@@ -1328,7 +1333,8 @@
     "end": "End",
     "login": "Login",
     "no": "No",
-    "yes": "Yes"
+    "yes": "Yes",
+    "print": "Print"
   },
   "avasthas": {
     "Kumara": "Youthful",
@@ -1451,7 +1457,7 @@
     "Meena": "Pisces",
     "Unknown": "Unknown"
   },
-  
+
   "weekdays": {
     "Sunday": "Sunday",
     "Monday": "Monday",
@@ -1525,13 +1531,13 @@
     "Mars in house 7 from Ascendant. Mars in house 7 (by Rashi count) from Moon.": "Mars in house 7 from Ascendant. Mars in house 7 (by Rashi count) from Moon.",
     "Planets are found on both sides of the Rahu-Ketu axis": "Planets are found on both sides of the Rahu-Ketu axis",
     "Moon is in Purva Bhadrapada, which is not a Gand Mool Nakshatra": "Moon is in Purva Bhadrapada, which is not a Gand Mool Nakshatra",
-  
-        
+
     "Moon": "Moon",
     "Venus": "Venus"
-   },
+  },
   "doshaSources": {
-    "Venus": "Venus"
+    "Venus": "Venus",
+    "Ascendant": "Ascendant"
   },
   "kaalsarpaTypes": {
     "Anant": "Anant",
@@ -1630,7 +1636,7 @@
   "Ascendant Lord": "Ascendant Lord",
   "Transit Ascendent": "Transit Ascendent",
   "Transit Ascendent Detail": "Transit Ascendent Detail",
-   "Day Lord": "Day Lord",
+  "Day Lord": "Day Lord",
   "choghadiyaTypes": {
     "Day": "Day",
     "Night": "Night"
@@ -1649,22 +1655,71 @@
     "inauspicious": "inauspicious"
   },
   "muhurtaNames": {
-    "abhijit_muhurta": { "name": "Abhijit Muhurta", "description": "A generally auspicious period around midday, ideal for starting new ventures." },
-    "rahu_kaal": { "name": "Rahu Kaal", "description": "An inauspicious period to avoid new beginnings, travel, or important decisions." },
-    "yam_ghanta": { "name": "Yam Ghanta", "description": "An inauspicious period, generally avoided for new beginnings." },
-    "guli_kaal_day": { "name": "Gulika Kaal (Day)", "description": "An inauspicious period; actions performed during this time tend to repeat." },
-    "guli_kaal_night": { "name": "Gulika Kaal (Night)", "description": "An inauspicious period during the night." },
-    "pradosh_kaal": { "name": "Pradosh Kaal", "description": "An auspicious period around sunset, ideal for Shiva worship." },
-    "varjyam": { "name": "Varjyam", "description": "Simplified calculation: An inauspicious period associated with Bharani Nakshatra. Actual start/end times vary by detailed Nakshatra rules." },
-    "gand_mool_dosha": { "name": "Gand Mool Dosha", "description": "Moon is in Bharani, which is a Gand Mool Nakshatra." },
-    "unknown": { "name": "Unknown Muhurta", "description": "No description available." },
-    "dur_muhurta_day": { "name": "Dur Muhurta (Day)", "description": "An inauspicious period. Avoid important activities." },
-    "dur_muhurta_1": { "name": "Dur Muhurta (Day) 1", "description": "An inauspicious period. Avoid important activities." },
-    "dur_muhurta_2": { "name": "Dur Muhurta (Day) 2", "description": "An inauspicious period. Avoid important activities." },
-    "dur_muhurta_night": { "name": "Dur Muhurta (Night)", "description": "An inauspicious period. Avoid important activities." },
-    "day_ardha_prahar": { "name": "Day Ardhaprahara", "description": "Ardhaprahara is an inauspicious period." },
-    "night_ardha_prahar": { "name": "Night Ardhaprahara", "description": "Ardhaprahara is an inauspicious period." },
-    "bhadra": { "name": "Bhadra", "description": "An inauspicious period (Vishti Karan). Avoid important activities." },
+    "abhijit_muhurta": {
+      "name": "Abhijit Muhurta",
+      "description": "A generally auspicious period around midday, ideal for starting new ventures."
+    },
+    "rahu_kaal": {
+      "name": "Rahu Kaal",
+      "description": "An inauspicious period to avoid new beginnings, travel, or important decisions."
+    },
+    "yam_ghanta": {
+      "name": "Yam Ghanta",
+      "description": "An inauspicious period, generally avoided for new beginnings."
+    },
+    "guli_kaal_day": {
+      "name": "Gulika Kaal (Day)",
+      "description": "An inauspicious period; actions performed during this time tend to repeat."
+    },
+    "guli_kaal_night": {
+      "name": "Gulika Kaal (Night)",
+      "description": "An inauspicious period during the night."
+    },
+    "pradosh_kaal": {
+      "name": "Pradosh Kaal",
+      "description": "An auspicious period around sunset, ideal for Shiva worship."
+    },
+    "varjyam": {
+      "name": "Varjyam",
+      "description": "Simplified calculation: An inauspicious period associated with Bharani Nakshatra. Actual start/end times vary by detailed Nakshatra rules."
+    },
+    "gand_mool_dosha": {
+      "name": "Gand Mool Dosha",
+      "description": "Moon is in Bharani, which is a Gand Mool Nakshatra."
+    },
+    "unknown": {
+      "name": "Unknown Muhurta",
+      "description": "No description available."
+    },
+    "dur_muhurta_day": {
+      "name": "Dur Muhurta (Day)",
+      "description": "An inauspicious period. Avoid important activities."
+    },
+    "dur_muhurta_1": {
+      "name": "Dur Muhurta (Day) 1",
+      "description": "An inauspicious period. Avoid important activities."
+    },
+    "dur_muhurta_2": {
+      "name": "Dur Muhurta (Day) 2",
+      "description": "An inauspicious period. Avoid important activities."
+    },
+    "dur_muhurta_night": {
+      "name": "Dur Muhurta (Night)",
+      "description": "An inauspicious period. Avoid important activities."
+    },
+    "day_ardha_prahar": {
+      "name": "Day Ardhaprahara",
+      "description": "Ardhaprahara is an inauspicious period."
+    },
+    "night_ardha_prahar": {
+      "name": "Night Ardhaprahara",
+      "description": "Ardhaprahara is an inauspicious period."
+    },
+    "bhadra": {
+      "name": "Bhadra",
+      "description": "An inauspicious period (Vishti Karan). Avoid important activities."
+    }
+  },
   "muhurtaDescriptions": {
     "abhijit_muhurta": "A generally auspicious period around midday, ideal for starting new ventures.",
     "rahu_kaal": "An inauspicious period to avoid new beginnings, travel, or important decisions.",
@@ -1704,8 +1759,8 @@
     "ashlesha_description": "Ashlesha Yoga",
     "chitra_name": "Chitra Yoga",
     "chitra_description": "Chitra Yoga",
-    "dhanishta_name": "Dhanishta Yoga",
-    "dhanishta_description": "Dhanishta Yoga",
+    "dhanishta_name": "Dhanishtha Yoga",
+    "dhanishta_description": "Dhanishtha Yoga",
     "dwipushkar_name": "Dwipushkar Yoga",
     "dwipushkar_description": "Dwipushkar Yoga",
     "harshana_name": "Harshana Yoga",
@@ -1786,50 +1841,50 @@
     "night_ardha_prahar_7_description": "Inauspicious period. (Friday, Wednesday)",
     "night_ardha_prahar_8_name": "Night Ardha Prahar 8",
     "night_ardha_prahar_8_description": "Inauspicious period. (Thursday, Saturday)",
-    "Variyan_name": "Variyan"
+    "Variyan_name": "Variyan",
+    "Parigha_name": "Parigha"
   },
-      "login": {
-        "title": "Sign In",
-        "email": "Email Address",
-        "enterEmail": "Enter email",
-        "password": "Password",
-        "enterPassword": "Enter password",
-        "signIn": "Sign In",
-        "forgotPassword": "Forgot Password?",
-        "newCustomer": "New Customer?",
-        "register": "Register"
-      },
-      "forgotPassword": {
-        "title": "Forgot Password",
-        "email": "Email Address",
-        "enterEmail": "Enter email",
-        "sendResetLink": "Send Reset Link",
-        "emailSent": "Password reset email sent. Please check your inbox."
-      },
-      "resetPassword": {
-        "success": "Password has been reset successfully.",
-        "passwordsDoNotMatch": "Passwords do not match.",
-        "title": "Reset Password",
-        "newPassword": "New Password",
-        "enterNewPassword": "Enter new password",
-        "confirmNewPassword": "Confirm New Password",
-        "resetPassword": "Reset Password"
-      },
-      "register": {
-        "title": "Register",
-        "name": "Name",
-        "enterName": "Enter name",
-        "email": "Email Address",
-        "enterEmail": "Enter email",
-        "password": "Password",
-        "enterPassword": "Enter password",
-        "confirmPassword": "Confirm Password",
-        "register": "Register",
-        "haveAccount": "Have an account?",
-        "login": "Login",
-        "passwordsDoNotMatch": "Passwords do not match"
-      },
-
+  "login": {
+    "title": "Sign In",
+    "email": "Email Address",
+    "enterEmail": "Enter email",
+    "password": "Password",
+    "enterPassword": "Enter password",
+    "signIn": "Sign In",
+    "forgotPassword": "Forgot Password?",
+    "newCustomer": "New Customer?",
+    "register": "Register"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "email": "Email Address",
+    "enterEmail": "Enter email",
+    "sendResetLink": "Send Reset Link",
+    "emailSent": "Password reset email sent. Please check your inbox."
+  },
+  "resetPassword": {
+    "success": "Password has been reset successfully.",
+    "passwordsDoNotMatch": "Passwords do not match.",
+    "title": "Reset Password",
+    "newPassword": "New Password",
+    "enterNewPassword": "Enter new password",
+    "confirmNewPassword": "Confirm New Password",
+    "resetPassword": "Reset Password"
+  },
+  "register": {
+    "title": "Register",
+    "name": "Name",
+    "enterName": "Enter name",
+    "email": "Email Address",
+    "enterEmail": "Enter email",
+    "password": "Password",
+    "enterPassword": "Enter password",
+    "confirmPassword": "Confirm Password",
+    "register": "Register",
+    "haveAccount": "Have an account?",
+    "login": "Login",
+    "passwordsDoNotMatch": "Passwords do not match"
+  },
   "divisionalChartsPage": {
     "title": "Divisional Charts",
     "loading": "Loading divisional charts...",
@@ -1843,7 +1898,6 @@
     "d1PlanetsUnavailable": "D1 Planetary Positions Unavailable",
     "d2ChartTitle": "D2 - Hora Chart",
     "d2ChartUnavailable": "D2 Chart Unavailable",
-    
     "d2HouseDetails": "D2 House Details",
     "d2PlanetDetails": "D2 Planetary Positions",
     "d2PlanetsUnavailable": "D2 Planetary Positions Unavailable",
@@ -1878,6 +1932,54 @@
     "d60PlanetDetails": "D60 Planetary Positions",
     "d60PlanetsUnavailable": "D60 Planetary Positions Unavailable",
     "houseDataUnavailable": "House data unavailable."
-  }
+  },
+  "print": "Print",
+  "transitSearch": {
+    "title": "Transit Search (Gochar)",
+    "selectPlanets": "Select at least 3 planets:",
+    "dateRange": "Date Range:",
+    "endDate": "End Date",
+    "selectHouses": "Select exactly 3 houses:",
+    "searchFor": "Search for events where at least three selected planets:",
+    "options": {
+      "conjunction": "Conjunct each other",
+      "aspect": "Aspect each other",
+      "natalReturn": "Pass over their natal degree",
+      "inHouses": "Occupy the selected houses",
+      "aspectingHouses": "Aspect the selected houses"
+    },
+    "search": "Search",
+    "searching": "Searching...",
+    "noNatalData": "Please calculate a natal chart first.",
+    "selectAtLeast3Planets": "Please select at least three planets.",
+    "select3Houses": "Please select exactly 3 houses.",
+    "selectDateRange": "Please select a date range.",
+    "selectAtLeastOneOption": "Please select at least one search condition.",
+    "searchFailed": "Transit search failed.",
+    "resultsTitle": "Search Results",
+    "noResults": "No matching transits found in the selected range."
+  },
+  "reportSections": {
+    "natalCharts": "Natal Charts",
+    "nirayanChart": "Nirayan Chart",
+    "d9Chart": "D9 - Navamsha Chart",
+    "houseCusps": "Birth Chart House Cusps",
+    "planetDetails": "Planet Details",
+    "planetaryAspects": "Planetary Aspects",
+    "planetaryFriendships": "Planetary Friendships",
+    "shadbala": "Shadbala",
+    "upbs": "Uncommon Planetary Beneficence Score (UPBS)",
+    "dashaPeriods": "Full Expanded Dasha Periods",
+    "ashtakavarga": "Ashtakavarga Charts",
+    "kpSignificators": "KP Significators",
+    "varshphal": "Varshphal",
+    "transit": "Transit Details",
+    "overallReport": "Predictions: Overall Report",
+    "birthChartYogas": "Predictions: Birth Chart Yogas",
+    "kpSignificatorsPred": "Predictions: KP Significators",
+    "lifeAreaReports": "Predictions: Life Area Reports",
+    "eventTimeline": "Predictions: Event Timeline",
+    "dashaLordAnalysis": "Predictions: Dasha Lord Analysis",
+    "varshphalPrediction": "Predictions: Varshphal Prediction"
   }
 }

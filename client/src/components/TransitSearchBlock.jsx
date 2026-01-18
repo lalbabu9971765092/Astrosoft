@@ -4,7 +4,7 @@ import api from './api';
 import '../styles/TransitSearchBlock.css';
 
 const TransitSearchBlock = ({ natalData }) => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [selectedPlanets, setSelectedPlanets] = useState([]);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -110,7 +110,7 @@ const TransitSearchBlock = ({ natalData }) => {
                                     checked={selectedPlanets.includes(planet)}
                                     onChange={() => handlePlanetChange(planet)}
                                 />
-                                {t(`planets.${planet.toLowerCase()}`, planet)}
+                                {t(`planets.${planet}`, planet)}
                             </label>
                         ))}
                     </div>
@@ -184,7 +184,7 @@ const TransitSearchBlock = ({ natalData }) => {
                         <ul className="results-list">
                             {results.map((result, index) => (
                                 <li key={index}>
-                                    <strong>{new Date(result.date).toLocaleString()}:</strong> {result.event}
+                                    <strong>{new Date(result.date).toLocaleString(i18n.language)}:</strong> {result.event}
                                 </li>
                             ))}
                         </ul>

@@ -29,12 +29,12 @@
     "Hi": "ही",
     "Hu": "हू",
     "He": "हे",
-    "Ho": "हो",   
+    "Ho": "हो",
     "Ma": "मा",
     "Mi": "मी",
     "Mu": "मू",
     "Me": "मे",
-    "Mo": "मो",    
+    "Mo": "मो",
     "Ti": "टी",
     "Tu": "टू",
     "Te": "टे",
@@ -42,7 +42,7 @@
     "Pa": "पा",
     "Pi": "पी",
     "Pu": "पू",
-    "Sha": "ष",       
+    "Sha": "ष",
     "Pe": "पे",
     "Po": "पो",
     "Ra": "रा",
@@ -65,14 +65,14 @@
     "Bhi": "भी",
     "Bhu": "भू",
     "Dha": "धा",
-    "Pha": "फा",    
+    "Pha": "फा",
     "Bhe": "भे",
     "Bho": "भो",
     "Ja": "जा",
     "Ji": "जी",
     "Ju": "जू",
     "Je": "जे",
-    "Jo": "जो",   
+    "Jo": "जो",
     "Ga": "गा",
     "Gi": "गी",
     "Gu": "गू",
@@ -80,14 +80,14 @@
     "Go": "गो",
     "Sa": "सा",
     "Si": "सी",
-    "Su": "सू", 
+    "Su": "सू",
     "Se": "से",
     "So": "सो",
     "Da": "दा",
     "Di": "दी",
     "Du": "दू",
     "Tha": "थ",
-    "Jha": "झ",    
+    "Jha": "झ",
     "De": "दे",
     "Do": "दो",
     "Cha": "चा",
@@ -131,7 +131,7 @@
     "Sharada": "शरद",
     "Hemanta": "हेमन्त",
     "Shishira": "शिशिर",
-    "Spring": "वसन्त", 
+    "Spring": "वसन्त",
     "Summer": "ग्रीष्म",
     "Monsoon": "वर्षा",
     "Autumn": "शरद",
@@ -151,10 +151,11 @@
     "Chatushpada": "चतुष्पाद",
     "Naga": "नाग",
     "Kimstughna": "किंस्तुघ्न",
-    "Unknown": "अज्ञात"
+    "Unknown": "अज्ञात",
+    "Nagava": "नागव"
   },
   "nav": {
-    "mainChart": "मुख्य कुंडली",
+    "mainChart": "मुख्य कुंडली",    
     "planetDetails": "ग्रह विवरण",
     "gochar": "गोचर",
     "kpSignificators": "केपी सिग्निफिकेटर्स",
@@ -318,7 +319,7 @@
     "remedies": "ग्रहों के उपाय",
     "varshphal": "वर्षफल (वार्षिक कुंडली)"
   },
- "sharedLayout": {
+  "sharedLayout": {
     "birthDetailsTitle": "जन्म विवरण",
     "currentLocationDefault": "वर्तमान स्थान",
     "locationErrorPrefix": "स्थान त्रुटि: {{message}}",
@@ -411,7 +412,7 @@
     "unavailableMessage": "{{planetName}} के लिए भिन्नाष्टकवर्ग डेटा अनुपलब्ध है।",
     "title": "{{planetName}} - भिन्नाष्टकवर्ग (कुल: {{totalScore}})"
   },
-   "astrologyForm": {
+  "astrologyForm": {
     "loadingInitial": "प्रारंभिक जन्म विवरण लोड हो रहा है...",
     "errorInitial": "जन्म विवरण लोड करने में त्रुटि: {{error}}",
     "placeholderMessage": "परिणाम देखने के लिए ऊपर दिए गए बार में जन्म विवरण दर्ज करें और \"गणना करें\" पर क्लिक करें।",
@@ -422,7 +423,7 @@
     "coordsLabel": "निर्देशांक:",
     "placeLabel": "स्थान:",
     "basicInfoTitle": "मूल जानकारी",
-    "mainChartsTitle": "मुख्य चार्ट",
+    "mainChartsTitle": "मुख्य कुंडली",
     "birthAscendantLabel": "जन्म लग्न",
     "birthAscendantDetailLabel": "जन्म लग्न विवरण",
     "ascendantLabel": "लग्न (निरयन):",
@@ -472,15 +473,15 @@
     "loadingRectifiedData": "सुधारा हुआ डेटा लोड हो रहा है...",
     "rectificationErrorPrefix": "सुधार त्रुटि",
     "chartD1Title": "डी१ - लग्न कुंडली",
-    "chartNirayanTitle": "निरयन चार्ट",
+    "chartNirayanTitle": "निरयन कुंडली",
     "chartBhavaTitle": "निरयण भाव चलित",
-    "chartD2Title": "डी२ - होरा चार्ट",
-    "chartD3Title": "डी३ - द्रेष्काण चार्ट",
-    "chartD7Title": "डी७ - सप्तांश चार्ट",
+    "chartD2Title": "डी२ - होरा कुंडली",
+    "chartD3Title": "डी३ - द्रेष्काण कुंडली",
+    "chartD7Title": "डी७ - सप्तांश कुंडली",
     "chartD9Title": "नवांश (D9)",
-    "chartD12Title": "डी१२ - द्वादशांश चार्ट",
-    "chartD30Title": "डी३० - त्रिंशांश चार्ट",
-    "chartD60Title": "डी६० - षष्ट्यंश चार्ट",
+    "chartD12Title": "डी१२ - द्वादशांश कुंडली",
+    "chartD30Title": "डी३० - त्रिंशांश कुंडली",
+    "chartD60Title": "डी६० - षष्ट्यंश कुंडली",
     "chartGocharTitle": "डी१ - लग्न कुंडली-गोचर",
     "chartPlaceholderD1": "D1 डेटा अनुपलब्ध",
     "chartPlaceholderBhava": "भाव चलित डेटा अनुपलब्ध",
@@ -523,7 +524,7 @@
     "transitPanchangaTitle": "गोचर पंचांग",
     "invalidPanchangTime": "अमान्य",
     "errorPanchangTime": "त्रुटि",
-    "validLocationNeeded": "गोचर गणना के लिए मान्य स्थान आवश्यक है।",
+    "validLocationRequired": "गोचर गणना के लिए मान्य स्थान आवश्यक है।",
     "badhakTitle": "बाधक:",
     "badhakHouseLabel": "भाव",
     "longevityFactorsTitle": "आयु कारक",
@@ -531,7 +532,7 @@
     "yearsLabel": "वर्ष",
     "scoreALabel": "स्कोर A (जीवन+)",
     "scoreBLabel": "स्कोर B (जीवन-)",
-    "marakaPlanetsLabel": "मारक ग्रह (2nd & 7th Lords):",
+    "marakaPlanetsLabel": "मारक ग्रह (दूसरे और सातवें भाव के स्वामी):",
     "eighthLordLabel": "8वां स्वामी:",
     "badhakeshLabel": "बाधकेश (अवरोधक):",
     "sakaYearLabel": "साका वर्ष :",
@@ -542,11 +543,8 @@
     "currentDashaTitle": "वर्तमान दशा",
     "mahaDashaLabel": "महादशा:",
     "antarDashaLabel": "अंतर्दशा:",
-    "pratyantarDashaLabel": "प्रत्यंतर दशा:",
-    "transitCalculatedForLabel": "इसके लिए गणना की गई"
+    "pratyantarDashaLabel": "प्रत्यंतर दशा:"
   },
-  
-  
   "utils": {
     "notAvailable": "उपलब्ध नहीं",
     "validationErrorDateTimeMissing": "दिनांक और समय आवश्यक हैं।",
@@ -555,7 +553,8 @@
     "validationErrorCoordsInvalidFormat": "अमान्य निर्देशांक प्रारूप। 'अक्षांश,देशांतर' का उपयोग करें।",
     "validationErrorCoordsInvalidLat": "अमान्य अक्षांश। -90 और 90 के बीच होना चाहिए।",
     "validationErrorCoordsInvalidLon": "अमान्य देशांतर। -180 और 180 के बीच होना चाहिए।",
-    "unknown": "अज्ञात"
+    "unknown": "अज्ञात",
+    "or": "या"
   },
   "validation": {
     "dateTimeRequired": "कृपया दिनांक और समय दर्ज करें।",
@@ -575,9 +574,9 @@
     "headerLord": "स्वामी",
     "headerStartDate": "प्रारंभ तिथि",
     "headerEndDate": "अंतिम तिथि",
-    "levelMD": "महा",
-    "levelAD": "अंत",
-    "levelPD": "प्रत्य",
+    "levelMD": "महादशा",
+    "levelAD": "अंतर्दशा",
+    "levelPD": "प्रत्यंतर दशा",
     "expandMahadasha": "महादशा विस्तृत करें",
     "collapseMahadasha": "महादशा संक्षिप्त करें",
     "expandAntardasha": "अंतर्दशा विस्तृत करें",
@@ -739,7 +738,9 @@
       "kartik_purnima": "कार्तिक पूर्णिमा",
       "ahoi_ashtami": "अहोई अष्टमी",
       "shravana_putrada_ekadashi": "श्रावण पुत्रदा एकादशी",
-      "hartalika_teej": "हार्तालिका तीज"
+      "hartalika_teej": "हरतालिका तीज",
+      "holi_holika_dahan": "होली (होलिका दहन)",
+      "holi_rangwali_holi": "होली (रंगवाली होली)"
     }
   },
   "hindiMonths": {
@@ -811,9 +812,9 @@
     "headerSignificators": "सिग्निफिकेटर्स",
     "notAvailable": "अनुपलब्ध",
     "housesLabel": "भाव:",
-    "nakLordLabel": "नक्षत्र स्वामी ({{lordName}}):", 
-    "subLordLabel": "उप स्वामी ({{lordName}}):", 
-    "noHouses": "--" 
+    "nakLordLabel": "नक्षत्र स्वामी ({{lordName}}):",
+    "subLordLabel": "उप स्वामी ({{lordName}}):",
+    "noHouses": "--"
   },
   "kpSignificatorsPage": {
     "pageTitle": "केपी सिग्निफिकेटर विश्लेषण",
@@ -890,7 +891,6 @@
     "travel": "यात्रा",
     "coming_back_home": "घर वापसी",
     "job": "नौकरी",
-   
     "maximum_marks": "अधिकतम अंक",
     "average_marks": "औसत अंक",
     "fail": "असफल",
@@ -1012,6 +1012,15 @@
   "friendshipTableHeaders": {
     "planet": "ग्रह"
   },
+  "friendshipTerms": {
+    "Best Friend": "अधिमित्र",
+    "Friend": "मित्र",
+    "Neutral": "सम",
+    "Enemy": "शत्रु",
+    "Bitter Enemy": "अधिशत्रु",
+    "Unknown": "अज्ञात",
+    "N/A": "लागू नहीं"
+  },
   "shadbalaTableHeaders": {
     "planet": "ग्रह",
     "sthana": "स्थान बल",
@@ -1105,7 +1114,7 @@
     "calculatingButton": "गणना हो रही है...",
     "calculateButton": "प्रश्न गणना करें",
     "chartTitle": "प्रश्न चार्ट ( लग्न )",
-     "lagnaChartTitle": "लग्न चार्ट",
+    "lagnaChartTitle": "लग्न चार्ट",
     "bhavaChalitChartTitle": "निरयण भाव चलित चार्ट",
     "inputBlockTitle": "इनपुट विवरण"
   },
@@ -1129,14 +1138,13 @@
     "fullStutiDescription": "स्तुति का पूर्ण पाठ हिंदी (देवनागरी) और अंग्रेजी लिप्यंतरण दोनों में डाउनलोड करें।",
     "downloadFullStutiPdf": "पूर्ण स्तुति पीडीएफ डाउनलोड करें"
   },
- 
   "signs": {
     "Aries": "मेष",
     "Taurus": "वृषभ",
     "Gemini": "मिथुन",
     "Cancer": "कर्क",
     "Leo": "सिंह",
-    "Virgo": "कन्या",  
+    "Virgo": "कन्या",
     "Libra": "तुला",
     "Scorpio": "वृश्चिक",
     "Sagittarius": "धनु",
@@ -1157,7 +1165,7 @@
       "other": "सुबह सूर्य को जल (अर्घ्य) दें। पिता और बड़ों का सम्मान करें। अनुशासन बनाए रखें।"
     },
     "Moon": {
-      "vedicMantra": "ॐ इमं देवा असपत्नं सुवध्यं महते क्षत्राय महते ज्यैष्ठ्याय महते जानराज्यायेन्द्रस्येन्द्रियाय इमममुष्य पुत्रममुष्यै पुत्रमस्यै विश एष वोऽमी राजा सोमोऽस्माकं ब्राह्मणानां राजा॥",
+      "vedicMantra": "ॐ इमं देवा असपत्नं सुवध्यं महते क्षत्राय महate ज्यैष्ठ्याय महते जानराज्यायेन्द्रस्येन्द्रियाय इमममुष्य पुत्रममुष्यै पुत्रमस्यै विश एष वोऽमी राजा सोमोऽस्माकं ब्राह्मणानां राजा॥",
       "beejaMantra": "ॐ श्रां श्रीं श्रौं सः चंद्राय नमः॥",
       "gemstone": "मोती (Pearl)",
       "metal": "चांदी",
@@ -1190,7 +1198,7 @@
       "other": "गायों को हरा चारा खिलाएं। अच्छा संचार बनाए रखें। किताबें पढ़ें।"
     },
     "Jupiter": {
-      "vedicMantra": "ॐ बृहस्पते अति यदर्यो अर्हाद् द्युमद्विभाति क्रतुमज्जनेषु। यद्दीदयच्छवस ऋतप्रजात तदस्मासु द्रविणं धेहि चित्रम्॥",
+      "vedicMantra": "ॐ बृहस्पते अति यदर्यो अर्हाद् द्युमद्विभाति क्रतुं अजनेषु। यद्दीदयच्छवस ऋतप्रजात तदस्मासु द्रविणं धेहि चित्रम्॥",
       "beejaMantra": "ॐ ग्रां ग्रीं ग्रौं सः गुरवे नमः॥",
       "gemstone": "पीला पुखराज (Yellow Sapphire)",
       "metal": "सोना",
@@ -1223,7 +1231,7 @@
       "other": "गरीबों और जरूरतमंदों की सेवा करें। अनुशासित और धैर्यवान बनें। आलस्य से बचें।"
     },
     "Rahu": {
-      "vedicMantra": "ॐ कया नश्चित्र आ भुवदूती सदावृधः सखा। कया शचिष्ठया वृता॥",
+      "vedicMantra": "ॐ कया नश्चित्र आ भुवदूती सदावृधः सखा। कaya शचिष्ठया वृता॥",
       "beejaMantra": "ॐ भ्रां भ्रीं भ्रौं सः राहवे नमः॥",
       "gemstone": "गोमेद (Hessonite)",
       "metal": "मिश्रित धातु (पंचधातु), सीसा",
@@ -1296,7 +1304,6 @@
     "muddaDashaUnavailable": "मुद्दा दशा डेटा अनुपलब्ध है।",
     "description": "वार्षिक कुंडली के लिए वर्ष चुनें। जन्म विवरण मुख्य गणना से लिए जाते हैं।",
     "yearLabel": "वर्षफल वर्ष:",
-    
     "yearPlaceholder": "उदा., 2024",
     "inputBlockTitle": "इनपुट विवरण",
     "inputSummaryTitle": "इनपुट सारांश",
@@ -1331,13 +1338,11 @@
     "Kumbha": "कुंभ",
     "Meena": "मीन"
   },
-
   "pakshas": {
     "Shukla": "शुक्ल",
     "Krishna": "कृष्ण",
     "Unknown": "अज्ञात"
   },
-
   "tithis": {
     "1": "प्रतिपदा",
     "2": "द्वितीया",
@@ -1384,41 +1389,129 @@
     "Amavasya": "अमावस्या",
     "Unknown": "अज्ञात"
   },
-
   "yogas": {
-    "bhadra": { "name": "भद्रा", "description": "एक अशुभ अवधि (विष्टि करण)। महत्वपूर्ण गतिविधियों से बचें।" },
-    "gand_mool_dosha": { "name": "गण्ड मूल दोष", "description": "चंद्रमा भरणी में है, जो एक गण्ड मूल नक्षत्र है।" },
-    "vishaYoga": { "name": "विष योग", "description": "अशुभ विष योग" },
-    "Vishkumbha": { "name": "विष्कुम्भ", "description": "" },
-    "Priti": { "name": "प्रीति", "description": "" },
-    "Prithi": { "name": "प्रीति", "description": "" },
-    "Ayushman": { "name": "आयुष्मान", "description": "" },
-    "Saubhagya": { "name": "सौभाग्य", "description": "" },
-    "Shobhana": { "name": "शोभन", "description": "" },
-    "Atiganda": { "name": "अतिगण्ड", "description": "" },
-    "Sukarma": { "name": "सुकर्मा", "description": "" },
-    "Sukarman": { "name": "सुकर्मा", "description": "" },
-    "Sobhana": { "name": "शोभन", "description": "" },
-    "Dhriti": { "name": "धृति", "description": "" },
-    "Soola": { "name": "शूल", "description": "" },
-    "Vridhi": { "name": "वृद्धि", "description": "" },
-    "Variyan": { "name": "वरीयान्", "description": "" },
-    "Siva": { "name": "शिव", "description": "" },
-    "Subha": { "name": "शुभ", "description": "" },
-    "Sukla": { "name": "शुक्ल", "description": "" },
-    "Bramha": { "name": "ब्रह्म", "description": "" },
-    "Vaidhruthi": { "name": "वैधृति", "description": "" },
-    "Shoola": { "name": "शूल", "description": "" },
-    "Ganda": { "name": "गण्ड", "description": "" },
-    "Vriddhi": { "name": "वृद्धि", "description": "" },
-    "Dhruva": { "name": "ध्रुव", "description": "" },
-    "Vyaghata": { "name": "व्याघात", "description": "" },
-    "Harshana": { "name": "हर्षण", "description": "" },
-    "Vajra": { "name": "वज्र", "description": "" },
-    "Siddhi": { "name": "सिद्धि", "description": "" },
-    "Vyatipata": { "name": "व्यतीपात", "description": "" },
-    "Variyana": { "name": "वरीयान्", "description": "" },
-    "Parigha": { "name": "परिघ", "description": "" },
+    
+    "gand_mool_dosha": {
+      "name": "गण्ड मूल दोष",
+      "description": "चंद्रमा भरणी में है, जो एक गण्ड मूल नक्षत्र है।"
+    },
+    "vishaYoga": {
+      "name": "विष योग",
+      "description": "अशुभ विष योग"
+    },
+    "Vishkumbha": {
+      "name": "विष्कुम्भ",
+      "description": ""
+    },
+    "Priti": {
+      "name": "प्रीति",
+      "description": ""
+    },
+    "Prithi": {
+      "name": "प्रीति",
+      "description": ""
+    },
+    "Ayushman": {
+      "name": "आयुष्मान",
+      "description": ""
+    },
+    "Saubhagya": {
+      "name": "सौभाग्य",
+      "description": ""
+    },
+    "Shobhana": {
+      "name": "शोभन",
+      "description": ""
+    },
+    "Atiganda": {
+      "name": "अतिगण्ड",
+      "description": ""
+    },
+    "Sukarma": {
+      "name": "सुकर्मा",
+      "description": ""
+    },
+    "Sukarman": {
+      "name": "सुकर्मा",
+      "description": ""
+    },
+    "Sobhana": {
+      "name": "शोभन",
+      "description": ""
+    },
+    "Dhriti": {
+      "name": "धृति",
+      "description": ""
+    },
+    "Soola": {
+      "name": "शूल",
+      "description": ""
+    },
+    "Vridhi": {
+      "name": "वृद्धि",
+      "description": ""
+    },
+    "Variyan": {
+      "name": "वरीयान्",
+      "description": ""
+    },
+    "Siva": {
+      "name": "शिव",
+      "description": ""
+    },
+    "Subha": {
+      "name": "शुभ",
+      "description": ""
+    },
+   
+    "Vaidhruthi": {
+      "name": "वैधृति",
+      "description": ""
+    },
+    "Shoola": {
+      "name": "शूल",
+      "description": ""
+    },
+    "Ganda": {
+      "name": "गण्ड",
+      "description": ""
+    },
+    "Vriddhi": {
+      "name": "वृद्धि",
+      "description": ""
+    },
+    "Dhruva": {
+      "name": "ध्रुव",
+      "description": ""
+    },
+    "Vyaghata": {
+      "name": "व्याघात",
+      "description": ""
+    },
+    "Harshana": {
+      "name": "हर्षण",
+      "description": ""
+    },
+    "Vajra": {
+      "name": "वज्र",
+      "description": ""
+    },
+    "Siddhi": {
+      "name": "सिद्धि",
+      "description": ""
+    },
+    "Vyatipata": {
+      "name": "व्यतीपात",
+      "description": ""
+    },
+    "Variyana": {
+      "name": "वरीयान्",
+      "description": ""
+    },
+    "Parigha": {
+      "name": "परिघ",
+      "description": ""
+    },
     "Parigha_name": "परिघ",
     "Parigha_description": "",
     "Gaja Kesari Yoga_name": "गज केसरी योग",
@@ -1431,50 +1524,179 @@
     "Amala Yoga_description": "यह योग तब बनता है जब लग्न या चंद्रमा से 10वें घर में कोई शुभ ग्रह होता है। यह धन, प्रसिद्धि और एक अच्छा चरित्र देता है।",
     "Kahala Yoga_name": "काहल योग",
     "Kahala Yoga_description": "यह योग तब बनता है जब 4वें और 9वें घर के स्वामी एक दूसरे से केंद्र में होते हैं। यह हठ, साहस और सैन्य शक्ति देता है।",
-    "Shiva": { "name": "शिव", "description": "" },
-    "Siddha": { "name": "सिद्ध", "description": "" },
-    "Sadhya": { "name": "साध्य", "description": "" },
-    "Shubha": { "name": "शुभ", "description": "" },
-    "Shukla": { "name": "शुक्ल", "description": "" },
-    "Bramha": { "name": "ब्रह्म", "description": "" },
-    "Indra": { "name": "इन्द्र", "description": "" },
-    "Aindra": { "name": "ऐन्द्र", "description": "" },
-    "Vaidhriti": { "name": "वैधृति", "description": "" },
-    "raviYoga": { "name": "रवि योग", "description": "" },
-    "raviPushya": { "name": "रवि पुष्य योग", "description": "" },
+    "Shiva": {
+      "name": "शिव",
+      "description": ""
+    },
+    "Siddha": {
+      "name": "सिद्ध",
+      "description": ""
+    },
+    "Sadhya": {
+      "name": "साध्य",
+      "description": ""
+    },
+    "Shubha": {
+      "name": "शुभ",
+      "description": ""
+    },
+    "Sukla": {
+      "name": "शुक्ल",
+      "description": ""
+    },
+    "Bramha": {
+      "name": "ब्रह्म",
+      "description": ""
+    },
+    "Indra": {
+      "name": "इन्द्र",
+      "description": ""
+    },
+    "Aindra": {
+      "name": "ऐन्द्र",
+      "description": ""
+    },
+    "Vaidhriti": {
+      "name": "वैधृति",
+      "description": ""
+    },
+    "raviYoga": {
+      "name": "रवि योग",
+      "description": ""
+    },
+    "raviPushya": {
+      "name": "रवि पुष्य योग",
+      "description": ""
+    },
     "Unknown": "अज्ञात",
-    "sarvarthSiddhi": { "name": "सर्वार्थ सिद्धि योग", "description": "उत्तरा फाल्गुनी पर रविवार को बनने वाला शुभ योग।" },
-    "amritSiddhi": { "name": "अमृत सिद्धि योग", "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला शुभ योग।" },
-    "guruPushya": { "name": "गुरु पुष्य योग", "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला अत्यंत शुभ गुरु पुष्य योग।" },
-    "day_ardha_prahar_1": { "name": "दिन का अर्द्ध प्रहर १", "description": "अशुभ अवधि। (शुक्रवार)" },
-    "day_ardha_prahar_2": { "name": "दिन का अर्द्ध प्रहर २", "description": "अशुभ अवधि। (मंगलवार, सोमवार)" },
-    "day_ardha_prahar_3": { "name": "दिन का अर्द्ध प्रहर ३", "description": "अशुभ अवधि। (गुरुवार, बुधवार)" },
-    "day_ardha_prahar_4": { "name": "दिन का अर्द्ध प्रहर ४", "description": "अशुभ अवधि। (रविवार, शुक्रवार)" },
-    "day_ardha_prahar_5": { "name": "दिन का अर्द्ध प्रहर ५", "description": "अशुभ अवधि। (रविवार, शनिवार)" },
-    "day_ardha_prahar_6": { "name": "दिन का अर्द्ध प्रहर ६", "description": "अशुभ अवधि। (मंगलवार, शनिवार)" },
-    "day_ardha_prahar_7": { "name": "दिन का अर्द्ध प्रहर ७", "description": "अशुभ अवधि। (सोमवार, बुधवार, गुरुवार)" },
-    "day_ardha_prahar_8": { "name": "दिन का अर्द्ध प्रहर ८", "description": "अशुभ अवधि। (गुरुवार, शनिवार)" },
-    "night_ardha_prahar_1": { "name": "रात का अर्द्ध प्रहर १", "description": "अशुभ अवधि। (रविवार, शनिवार)" },
-    "night_ardha_prahar_2": { "name": "रात का अर्द्ध प्रहर २", "description": "अशुभ अवधि। (मंगलवार, शनिवार)" },
-    "night_ardha_prahar_3": { "name": "रात का अर्द्ध प्रहर ३", "description": "अशुभ अवधि। (सोमवार, शुक्रवार)" },
-    "night_ardha_prahar_4": { "name": "रात का अर्द्ध प्रहर ४", "description": "अशुभ अवधि। (रविवार, बुधवार)" },
-    "night_ardha_prahar_5": { "name": "रात का अर्द्ध प्रहर ५", "description": "अशुभ अवधि। (मंगलवार, गुरुवार, बुधवार)" },
-    "night_ardha_prahar_6": { "name": "रात का अर्द्ध प्रहर ६", "description": "अशुभ अवधि। (सोमवार, गुरुवार, शनिवार)" },
-    "night_ardha_prahar_7": { "name": "रात का अर्द्ध प्रहर ७", "description": "अशुभ अवधि। (शुक्रवार, बुधवार)" },
-    "night_ardha_prahar_8": { "name": "रात का अर्द्ध प्रहर ८", "description": "अशुभ अवधि। (गुरुवार, शनिवार)" },
-    "abhijit_muhurta": { "name": "अभिजित मुहूर्त", "description": "दोपहर के आसपास एक सामान्य रूप से शुभ अवधि, नए उद्यम शुरू करने के लिए आदर्श।"},
-    "yam_ghanta": { "name": "यम घण्टा", "description": "एक अशुभ अवधि, जिसे आमतौर पर नई शुरुआत के लिए टाला जाता है।"},
-    "guli_kaal_day": { "name": "गुलिक काल (दिन)", "description": "एक अशुभ अवधि; इस दौरान किए गए कार्य दोहराए जाते हैं।"},
-    "varjyam": { "name": "वर्ज्यम", "description": "सरलीकृत गणना: भरणी नक्षत्र से जुड़ी एक अशुभ अवधि। वास्तविक प्रारंभ/समाप्ति समय विस्तृत नक्षत्र नियमों के अनुसार भिन्न होते हैं।"},
-    "dur_muhurta_day": { "name": "दुर मुहूर्त (दिन)", "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।" },
-    "dur_muhurta_1": { "name": "दुर मुहूर्त (दिन) 1", "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।" },
-    "dur_muhurta_2": { "name": "दुर मुहूर्त (दिन) 2", "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें." },
-    "dur_muhurta_night": { "name": "दुर मुहूर्त (रात)", "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।" },
-    "day_ardha_prahar": { "name": "दिन का अर्धप्रहर", "description": "अर्धप्रहर एक अशुभ अवधि है।" },
-    "night_ardha_prahar": { "name": "रात का अर्धप्रहर", "description": "अर्धप्रहर एक अशुभ अवधि है।" },
-    "bhadra": { "name": "भद्रा", "description": "एक अशुभ अवधि (विष्टि करण)। महत्वपूर्ण गतिविधियों से बचें।" }
+    "sarvarthSiddhi": {
+      "name": "सर्वार्थ सिद्धि योग",
+      "description": "उत्तरा फाल्गुनी पर रविवार को बनने वाला शुभ योग।"
+    },
+    "amritSiddhi": {
+      "name": "अमृत सिद्धि योग",
+      "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला शुभ योग।"
+    },
+    "guruPushya": {
+      "name": "गुरु पुष्य योग",
+      "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला अत्यंत शुभ गुरु पुष्य योग।"
+    },
+    "day_ardha_prahar_1": {
+      "name": "दिन का अर्द्ध प्रहर १",
+      "description": "अशुभ अवधि। (शुक्रवार)"
+    },
+    "day_ardha_prahar_2": {
+      "name": "दिन का अर्द्ध प्रहर २",
+      "description": "अशुभ अवधि। (मंगलवार, सोमवार)"
+    },
+    "day_ardha_prahar_3": {
+      "name": "दिन का अर्द्ध प्रहर ३",
+      "description": "अशुभ अवधि। (गुरुवार, बुधवार)"
+    },
+    "day_ardha_prahar_4": {
+      "name": "दिन का अर्द्ध प्रहर ४",
+      "description": "अशुभ अवधि। (रविवार, शुक्रवार)"
+    },
+    "day_ardha_prahar_5": {
+      "name": "दिन का अर्द्ध प्रहर ५",
+      "description": "अशुभ अवधि। (रविवार, शनिवार)"
+    },
+    "day_ardha_prahar_6": {
+      "name": "दिन का अर्द्ध प्रहर ६",
+      "description": "अशुभ अवधि। (मंगलवार, शनिवार)"
+    },
+    "day_ardha_prahar_7": {
+      "name": "दिन का अर्द्ध प्रहर ७",
+      "description": "अशुभ अवधि। (सोमवार, बुधवार, गुरुवार)"
+    },
+    "day_ardha_prahar_8": {
+      "name": "दिन का अर्द्ध प्रहर ८",
+      "description": "अशुभ अवधि। (गुरुवार, शनिवार)"
+    },
+    "night_ardha_prahar_1": {
+      "name": "रात का अर्द्ध प्रहर १",
+      "description": "अशुभ अवधि। (रविवार, शनिवार)"
+    },
+    "night_ardha_prahar_2": {
+      "name": "रात का अर्द्ध प्रहर २",
+      "description": "अशुभ अवधि। (मंगलवार, शनिवार)"
+    },
+    "night_ardha_prahar_3": {
+      "name": "रात का अर्द्ध प्रहर ३",
+      "description": "अशुभ अवधि। (सोमवार, शुक्रवार)"
+    },
+    "night_ardha_prahar_4": {
+      "name": "रात का अर्द्ध प्रहर ४",
+      "description": "अशुभ अवधि। (रविवार, बुधवार)"
+    },
+    "night_ardha_prahar_5": {
+      "name": "रात का अर्द्ध प्रहर ५",
+      "description": "अशुभ अवधि। (मंगलवार, गुरुवार, बुधवार)"
+    },
+    "night_ardha_prahar_6": {
+      "name": "रात का अर्द्ध प्रहर ६",
+      "description": "अशुभ अवधि। (सोमवार, गुरुवार, शनिवार)"
+    },
+    "night_ardha_prahar_7": {
+      "name": "रात का अर्द्ध प्रहर ७",
+      "description": "अशुभ अवधि। (शुक्रवार, बुधवार)"
+    },
+    "night_ardha_prahar_8": {
+      "name": "रात का अर्द्ध प्रहर ८",
+      "description": "अशुभ अवधि। (गुरुवार, शनिवार)"
+    },
+    "abhijit_muhurta": {
+      "name": "अभिजित मुहूर्त",
+      "description": "दोपहर के आसपास एक सामान्य रूप से शुभ अवधि, नए उद्यम शुरू करने के लिए आदर्श।"
+    },
+    "yam_ghanta": {
+      "name": "यम घण्टा",
+      "description": "एक अशुभ अवधि, जिसे आमतौर पर नई शुरुआत के लिए टाला जाता है।"
+    },
+    "guli_kaal_day": {
+      "name": "गुलिक काल (दिन)",
+      "description": "एक अशुभ अवधि; इस दौरान किए गए कार्य दोहराए जाते हैं।"
+    },
+    "varjyam": {
+      "name": "वर्ज्यम",
+      "description": "सरलीकृत गणना: भरणी नक्षत्र से जुड़ी एक अशुभ अवधि। वास्तविक प्रारंभ/समाप्ति समय विस्तृत नक्षत्र नियमों के अनुसार भिन्न होते हैं।"
+    },
+    "dur_muhurta_day": {
+      "name": "दुर मुहूर्त (दिन)",
+      "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
+    },
+    "dur_muhurta_1": {
+      "name": "दुर मुहूर्त (दिन) 1",
+      "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
+    },
+    "dur_muhurta_2": {
+      "name": "दुर मुहूर्त (दिन) 2",
+      "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
+    },
+    "dur_muhurta_night": {
+      "name": "दुर मुहूर्त (रात)",
+      "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
+    },
+    "day_ardha_prahar": {
+      "name": "दिन का अर्धप्रहर",
+      "description": "अर्धप्रहर एक अशुभ अवधि है।"
+    },
+    "night_ardha_prahar": {
+      "name": "रात का अर्धप्रहर",
+      "description": "अर्धप्रहर एक अशुभ अवधि है."
+    },
+    "bhadra": {
+      "name": "भद्रा",
+      "description": "एक अशुभ अवधि (विष्टि करण)। महत्वपूर्ण गतिविधियों से बचें।"
+    },
+    "Harshana_name": "हर्षण योग",
+    "Raja Yoga_name": "राज योग",
+    "Dhana Yoga_name": "धन योग",
+    "Harsha Yoga_name": "हर्ष योग",
+    "Vimala Yoga_name": "विमल योग",
+    "Chandra Mangala Yoga_name": "चंद्र मंगल योग",
+    "Budhaditya Yoga_name": "बुधादित्य योग"
   },
-
   "months": {
     "January": "जनवरी",
     "February": "फ़रवरी",
@@ -1538,6 +1760,31 @@
     "navLabel": "चार्ट पर जाएं"
   },
   "print": "प्रिंट",
+  "transitSearch": {
+    "title": "गोचर खोज",
+    "selectPlanets": "कम से कम 3 ग्रह चुनें:",
+    "dateRange": "दिनांक सीमा:",
+    "endDate": "अंतिम तिथि",
+    "selectHouses": "ठीक 3 भाव चुनें:",
+    "searchFor": "उन घटनाओं की खोज करें जहां कम से कम तीन चयनित ग्रह:",
+    "options": {
+      "conjunction": "एक दूसरे के साथ युति करें",
+      "aspect": "एक दूसरे पर दृष्टि डालें",
+      "natalReturn": "अपने जन्म अंश से गुजरें",
+      "inHouses": "चयनित भावों में स्थित हों",
+      "aspectingHouses": "चयनित भावों पर दृष्टि डालें"
+    },
+    "search": "खोज",
+    "searching": "खोज रहा है...",
+    "noNatalData": "कृपया पहले एक जन्म कुंडली की गणना करें।",
+    "selectAtLeast3Planets": "कृपया कम से कम तीन ग्रह चुनें।",
+    "select3Houses": "कृपया ठीक 3 भाव चुनें।",
+    "selectDateRange": "कृपया एक दिनांक सीमा चुनें।",
+    "selectAtLeastOneOption": "कृपया कम से कम एक खोज शर्त चुनें।",
+    "searchFailed": "गोचर खोज विफल।",
+    "resultsTitle": "खोज परिणाम",
+    "noResults": "चयनित सीमा में कोई मेल खाने वाला गोचर नहीं मिला।"
+  },
   "reportSections": {
     "natalCharts": "जन्म कुंडली",
     "nirayanChart": "निरयन चार्ट",
@@ -1563,5 +1810,184 @@
   },
   "Select All": "सभी चुनें",
   "Deselect All": "सभी अचयनित करें",
-  "Print Selected": "चयनित प्रिंट करें"
+  "Print Selected": "चयनित प्रिंट करें",
+  "Birth Ascendant": "जन्म लग्न",
+  "Birth Ascendant Detail": "जन्म लग्न विवरण",
+  "Birth Time Lordship": "जन्म समय स्वामित्व",
+  "Birth Details": "जन्म विवरण",
+  "Day Lord": "दिन स्वामी",
+  "Ascendant Lord": "लग्न स्वामी",
+  "Ascendent Lord": "लग्न स्वामी",
+  "Ascendant Nakshatra Lord": "लग्न नक्षत्र स्वामी",
+  "Ascendant Nakshatra SubLord": "लग्न नक्षत्र उपस्वामी",
+  "Moon Rashi Lord": "चंद्र राशि स्वामी",
+  "Moon Nakshatra Lord": "चंद्र नक्षत्र स्वामी",
+  "Moon Nakshatra SubLord": "चंद्र नक्षत्र उपस्वामी",
+  "Transit Ascendent": "गोचर लग्न",
+  "Transit Ascendent Detail": "गोचर लग्न विवरण",
+  "Transit Time Lordship": "गोचर समय स्वामित्व",
+  "Transit Details": "गोचर विवरण",
+  "doshaReasons": {
+    "planetNotFoundInHousesFrom": "{{0}} दोष देने वाले भावों ({{1}}) में {{2}} से नहीं मिला",
+    "planetsBothSidesRahuKetu": "राहु-केतु अक्ष के दोनों ओर ग्रह पाए जाते हैं",
+    "moonNotInGandMool": "{{0}} {{1}} में है, जो एक गंड मूल नक्षत्र नहीं है",
+    "moonInGandMool": "{{0}} {{1}} में है, जो एक गंड मूल नक्षत्र है",
+    "planetInHouseFrom": "{{0}} {{2}} से {{1}} भाव में है",
+    "planetInHouseFromRashi": "{{0}} {{2}} से {{1}} भाव में (राशि गणना द्वारा) है",
+    "allPlanetsBetweenAxis": "सभी ग्रह ({{0}}) {{1}} के बीच स्थित हैं"
+  },
+  "doshaSources": {
+    "Ascendant": "लग्न",
+    "Moon": "चंद्रमा",
+    "Venus": "शुक्र"
+  },
+  "planets": {
+    "Sun": "सूर्य",
+    "Moon": "चंद्रमा",
+    "Mars": "मंगल",
+    "Mercury": "बुध",
+    "Jupiter": "बृहस्पति",
+    "Venus": "शुक्र",
+    "Saturn": "शनि",
+    "Rahu": "राहु",
+    "Ketu": "केतु",
+    "Uranus": "अरुण",
+    "Neptune": "वरुण",
+    "Pluto": "यम",
+    "Ascendant": "लग्न",
+    "Lagnam": "लग्न"
+  },
+  "samvatsaras": {
+    "Prabhava": "प्रभव",
+    "Vibhava": "विभव",
+    "Shukla": "शुक्ल",
+    "Pramoda": "प्रमोद",
+    "Prajapati": "प्रजापति",
+    "Angira": "अंगिरा",
+    "Shrimukha": "श्रीमुख",
+    "Bhava": "भाव",
+    "Yuva": "युवा",
+    "Dhatri": "धात्री",
+    "Ishwara": "ईश्वर",
+    "Bahudhanya": "बहुधान्य",
+    "Pramathi": "प्रमाथी",
+    "Vikrama": "विक्रम",
+    "Vishu": "विषु",
+    "Chitrabhanu": "चित्रभानु",
+    "Subhanu": "सुभानु",
+    "Tarana": "तारण",
+    "Parthiva": "पार्थिव",
+    "Vyaya": "व्यय",
+    "Sarvajit": "सर्वजित",
+    "Sarvadhari": "सर्वधारी",
+    "Virodhi": "विरोधी",
+    "Vikriti": "विकृति",
+    "Khara": "खर",
+    "Nandana": "नंदन",
+    "Vijaya": "विजय",
+    "Jaya": "जय",
+    "Manmatha": "न्मथ",
+    "Durmukha": "दुर्मुख",
+    "Hemalambi": "हेमलम्बी",
+    "Vilambi": "विलम्बी",
+    "Vikari": "विकारी",
+    "Sharvari": "शर्वरी",
+    "Plava": "प्लव",
+    "Shubhakrit": "शुभकृत",
+    "Shobhakrit": "शोभकृत",
+    "Krodhi": "क्रोधी",
+    "Vishvavasu": "विश्ववसु",
+    "Parabhava": "परभव",
+    "Plavanga": "प्लवंग",
+    "Kilaka": "कीलक",
+    "Saumya": "सौम्य",
+    "Sadharana": "साधारण",
+    "Virodhakrit": "विरोधकृत",
+    "Paridhavi": "परिधावी",
+    "Pramadicha": "प्रमादी",
+    "Ananda": "आनंद",
+    "Rakshasa": "राक्षस",
+    "Nala": "नल",
+    "Pingala": "पिंगल",
+    "Kalayukti": "कालयुक्ति",
+    "Siddharthi": "सिद्धार्थी",
+    "Raudra": "रौद्र",
+    "Durmati": "दुर्मति",
+    "Dundubhi": "दुंदुभि",
+    "Rudhirodgari": "रुधिरोद्गारी",
+    "Raktakshi": "रक्ताक्षी",
+    "Krodhana": "क्रोधन"
+  },
+  "rashis": {
+    "Aries": "मेष",
+    "Taurus": "वृषभ",
+    "Gemini": "मिथुन",
+    "Cancer": "कर्क",
+    "Leo": "सिंह",
+    "Virgo": "कन्या",
+    "Libra": "तुला",
+    "Scorpio": "वृश्चिक",
+    "Sagittarius": "धनु",
+    "Capricorn": "मकर",
+    "Aquarius": "कुंभ",
+    "Pisces": "मीन",
+    "Mesha": "मेष",
+    "Vrishabha": "वृषभ",
+    "Mithuna": "मिथुन",
+    "Karka": "कर्क",
+    "Simha": "सिंह",
+    "Kanya": "कन्या",
+    "Tula": "तुला",
+    "Vrishchika": "वृश्चिक",
+    "Dhanu": "धनु",
+    "Makara": "मकर",
+    "Kumbha": "कुंभ",
+    "Meena": "मीन",
+    "Unknown": "अज्ञात"
+  },
+  "common": {
+    "yes": "हाँ",
+    "no": "नहीं",
+    "Yes": "हाँ",
+    "No": "नहीं"
+  },
+  "weekdays": {
+    "Sunday": "रविवार",
+    "Monday": "सोमवार",
+    "Tuesday": "मंगलवार",
+    "Wednesday": "बुधवार",
+    "Thursday": "गुरुवार",
+    "Friday": "शुक्रवार",
+    "Saturday": "शनिवार",
+    "Unknown": "अज्ञात"
+  },
+  "planetStates": {
+    "Exalted": "उच्च",
+    "Debilitated": "नीच",
+    "Moolatrikona": "मूलत्रिकोण",
+    "Own Sign": "स्वराशि",
+    "Great Friend": "अधिमित्र राशि",
+    "Friend": "मित्र राशि",
+    "Neutral": "सम राशि",
+    "Enemy": "शत्रु राशि",
+    "Great Enemy": "अधिशत्रु राशि",
+    "Standard": "सामान्य",
+    "Unknown": "अज्ञात"
+  },
+  "avasthas": {
+    "Yuva": "युवा",
+    "Kumara": "कुमार",
+    "Swapna": "स्वप्न",
+    "Shayana": "शयन",
+    "Shanta": "शांत",
+    "Deena": "दीन",
+    "Pramudita": "प्रमुदित",
+    "Mrita": "मृत",
+    "Vriddha": "वृद्ध",
+    "Unknown": "अज्ञात",
+    "Bala": "बाल",
+    "Vikala": "विकला",
+    "Dukḥita": "दुःखित",
+    "Jagrata": "जाग्रत"
+  }
 }

@@ -64,7 +64,7 @@ const TITHI_FESTIVAL_RULES = [
     { name: "Dev Uthani Ekadashi", month: "Karttika", tithi: 11, paksha: "Shukla" },
     { name: "Kartik Purnima", month: "Karttika", tithi: 15, paksha: "Shukla" },
     { name: "Maha Shivaratri", month: "Phalguna", tithi: 14, paksha: "Krishna" },
-    { name: "Holi (Holika Dahan is previous Purnima)", month: "Phalguna", tithi: 15, paksha: "Shukla" }, // Purnima for Holika Dahan
+    { name: "Holi (Holika Dahan)", month: "Phalguna", tithi: 15, paksha: "Shukla" },
 ];
 // --- End Festival Rules ---
 
@@ -344,30 +344,42 @@ router.get("/tithi-festivals/:year",
             while (currentDate <= endDate) {
                 const currentDateString = currentDate.toISOString().split("T")[0];
 
-                // Pre-calculate Panchang/Calendar/Sun info for the day once
-                let detailedPanchang, calendarInfo, sunTimes, sunriseISO;
+                let sunTimes;
                 try {
                     sunTimes = SunCalc.getTimes(currentDate, lat, lon);
-                    const sunriseTime = sunTimes.sunrise;
-                    const calculationTime = (sunriseTime instanceof Date && !isNaN(sunriseTime))
-                                          ? sunriseTime
-                                          : new Date(new Date(currentDate).setUTCHours(12, 0, 0, 0));
-
-                    detailedPanchang = obj.calculate(calculationTime, lat, lon);
-                    calendarInfo = obj.calendar(calculationTime, lat, lon);
-                    sunriseISO = sunriseTime instanceof Date && !isNaN(sunriseTime) ? sunriseTime.toISOString() : null;
-                } catch (calcError) {
-                    logger.error(`[tithi-festivals] Error calculating base data for ${currentDateString}: ${calcError.message}`);
-                    currentDate.setUTCDate(currentDate.getUTCDate() + 1); // Move to next day on error
+                } catch (e) {
+                    logger.error(`Error getting sun times for ${currentDateString}: ${e.message}`);
+                    currentDate.setUTCDate(currentDate.getUTCDate() + 1);
                     continue;
                 }
-
+                
                 // Check against each festival rule
                 for (const rule of TITHI_FESTIVAL_RULES) {
                     const festivalKey = `${rule.name}-${currentDateString}`;
                     if (festivalDatesFound.has(festivalKey)) continue; // Skip if already found for this date
 
+                    let calculationTime;
+                    // For Maha Shivaratri, the tithi must be present at sunset (or Nishita kala)
+                    // We use sunset as a reliable proxy for this logic.
+                    if (rule.name === "Maha Shivaratri") {
+                        const sunsetTime = sunTimes.sunset;
+                        calculationTime = (sunsetTime instanceof Date && !isNaN(sunsetTime))
+                                          ? sunsetTime
+                                          : new Date(new Date(currentDate).setUTCHours(18, 0, 0, 0)); // Fallback to 6 PM local
+                    } else {
+                        // For most other festivals, sunrise tithi is the standard
+                        const sunriseTime = sunTimes.sunrise;
+                        calculationTime = (sunriseTime instanceof Date && !isNaN(sunriseTime))
+                                          ? sunriseTime
+                                          : new Date(new Date(currentDate).setUTCHours(6, 0, 0, 0)); // Fallback to 6 AM local
+                    }
+
+
                     try {
+                        const detailedPanchang = obj.calculate(calculationTime, lat, lon);
+                        const calendarInfo = obj.calendar(calculationTime, lat, lon);
+                        const sunriseISO = sunTimes.sunrise instanceof Date && !isNaN(sunTimes.sunrise) ? sunTimes.sunrise.toISOString() : null;
+
                         if (detailedPanchang?.Tithi && detailedPanchang?.Paksha && calendarInfo?.Masa) {
                             const calculatedTithiNumberIno = detailedPanchang.Tithi.ino;
                             const calculatedPaksha = detailedPanchang.Paksha.name_en_IN;
@@ -392,12 +404,58 @@ router.get("/tithi-festivals/:year",
                             const monthMatch = (!rule.month || (typeof purnimantaMonthName === 'string' && purnimantaMonthName.toLowerCase() === rule.month.toLowerCase())) && (!rule.gregorianMonth || currentDate.getUTCMonth() + 1 === rule.gregorianMonth);
 
                             if (tithiMatch && pakshaMatch && monthMatch) {
-                                foundFestivals.push({
-                                    name: rule.name, date: currentDateString, tithiNumber: adjustedTithiNumber,
-                                    paksha: calculatedPaksha, startTime: detailedPanchang.Tithi.start || null,
-                                    endTime: detailedPanchang.Tithi.end || null, sunrise: sunriseISO,
-                                });
-                                festivalDatesFound.add(festivalKey); // Mark as found for this date
+                                // Special handling for Holi
+                                if (rule.name === "Holi (Holika Dahan)") {
+                                    // Add Holika Dahan itself
+                                    const holikaDahanKey = `Holika Dahan-${currentDateString}`;
+                                    if (!festivalDatesFound.has(holikaDahanKey)) {
+                                        foundFestivals.push({
+                                            name: "Holi (Holika Dahan)",
+                                            date: currentDateString,
+                                            tithiNumber: adjustedTithiNumber,
+                                            paksha: calculatedPaksha,
+                                            startTime: detailedPanchang.Tithi.start || null,
+                                            endTime: detailedPanchang.Tithi.end || null,
+                                            sunrise: sunriseISO,
+                                        });
+                                        festivalDatesFound.add(holikaDahanKey);
+                                    }
+
+                                    // Add Holi (Rangwali Holi) for the next day
+                                    const nextDay = new Date(currentDate);
+                                    nextDay.setUTCDate(nextDay.getUTCDate() + 1);
+                                    const nextDayString = nextDay.toISOString().split("T")[0];
+                                    const rangwaliHoliKey = `Holi (Rangwali Holi)-${nextDayString}`;
+
+                                    if (!festivalDatesFound.has(rangwaliHoliKey)) {
+                                        // For Rangwali Holi, tithi/paksha/sunrise are not based on its own day's panchang
+                                        // but derived from Holika Dahan's context.
+                                        foundFestivals.push({
+                                            name: "Holi (Rangwali Holi)",
+                                            date: nextDayString,
+                                            // Tithi/Paksha/Sunrise for Rangwali Holi itself are typically not critical
+                                            // and can be null or derived if specifically needed.
+                                            // For simplicity, we mark them as null here as the main event is the date.
+                                            tithiNumber: null,
+                                            paksha: null,
+                                            startTime: null,
+                                            endTime: null,
+                                            sunrise: null,
+                                        });
+                                        festivalDatesFound.add(rangwaliHoliKey);
+                                    }
+                                } else {
+                                    // For all other festivals
+                                    const genericFestivalKey = `${rule.name}-${currentDateString}`;
+                                    if (!festivalDatesFound.has(genericFestivalKey)) {
+                                        foundFestivals.push({
+                                            name: rule.name, date: currentDateString, tithiNumber: adjustedTithiNumber,
+                                            paksha: calculatedPaksha, startTime: detailedPanchang.Tithi.start || null,
+                                            endTime: detailedPanchang.Tithi.end || null, sunrise: sunriseISO,
+                                        });
+                                        festivalDatesFound.add(genericFestivalKey);
+                                    }
+                                }
                             }
                         }
                     } catch (ruleError) {

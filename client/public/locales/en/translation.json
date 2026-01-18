@@ -703,7 +703,9 @@
       "kartik_purnima": "Kartik Purnima",
       "ahoi_ashtami": "Ahoi Ashtami",
       "shravana_putrada_ekadashi": "Shravana Putrada Ekadashi",
-      "hartalika_teej": "Hartalika Teej"
+      "hartalika_teej": "Hartalika Teej",
+      "holi_holika_dahan": "Holi (Holika Dahan)",
+      "holi_rangwali_holi": "Holi (Rangwali Holi)"
     },
     "eclipseTypes": {
       "Lunar": "Lunar",
@@ -1840,7 +1842,19 @@
     "night_ardha_prahar_8_name": "Night Ardha Prahar 8",
     "night_ardha_prahar_8_description": "Inauspicious period. (Thursday, Saturday)",
     "Variyan_name": "Variyan",
-    "Parigha_name": "Parigha"
+    "Parigha_name": "Parigha",
+    "Raja Yoga_name": "Raja Yoga",
+    "Raja Yoga_description": "A powerful yoga indicating royalty, leadership, and prosperity.",
+    "Dhana Yoga_name": "Dhana Yoga",
+    "Dhana Yoga_description": "Yoga indicating wealth and financial prosperity.",
+    "Harsha Yoga_name": "Harsha Yoga",
+    "Harsha Yoga_description": "Yoga indicating happiness, joy, and success.",
+    "Vimala Yoga_name": "Vimala Yoga",
+    "Vimala Yoga_description": "A Vipareeta Raja Yoga indicating purity, wealth, and good fortune after initial struggles.",
+    "Chandra Mangala Yoga_name": "Chandra Mangala Yoga",
+    "Chandra Mangala Yoga_description": "Yoga formed by the conjunction or aspect of Moon and Mars, indicating wealth and sometimes aggression.",
+    "Budhaditya Yoga_name": "Budhaditya Yoga",
+    "Budhaditya Yoga_description": "Yoga formed by the conjunction of Sun and Mercury, indicating intelligence and success."
   },
   "login": {
     "title": "Sign In",
@@ -1932,6 +1946,31 @@
     "houseDataUnavailable": "House data unavailable."
   },
   "print": "Print",
+  "transitSearch": {
+    "title": "Transit Search (Gochar)",
+    "selectPlanets": "Select at least 3 planets:",
+    "dateRange": "Date Range:",
+    "endDate": "End Date",
+    "selectHouses": "Select exactly 3 houses:",
+    "searchFor": "Search for events where at least three selected planets:",
+    "options": {
+      "conjunction": "Conjunct each other",
+      "aspect": "Aspect each other",
+      "natalReturn": "Pass over their natal degree",
+      "inHouses": "Occupy the selected houses",
+      "aspectingHouses": "Aspect the selected houses"
+    },
+    "search": "Search",
+    "searching": "Searching...",
+    "noNatalData": "Please calculate a natal chart first.",
+    "selectAtLeast3Planets": "Please select at least three planets.",
+    "select3Houses": "Please select exactly 3 houses.",
+    "selectDateRange": "Please select a date range.",
+    "selectAtLeastOneOption": "Please select at least one search condition.",
+    "searchFailed": "Transit search failed.",
+    "resultsTitle": "Search Results",
+    "noResults": "No matching transits found in the selected range."
+  },
   "reportSections": {
     "natalCharts": "Natal Charts",
     "nirayanChart": "Nirayan Chart",

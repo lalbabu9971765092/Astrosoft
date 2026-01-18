@@ -65,33 +65,25 @@ const FestivalsPage = () => {
 
     // --- Helper to generate translation key from festival name ---
     const getFestivalTranslationKey = useCallback((name) => {
-        if (!name) return 'unknown'; // Handle null/undefined names
+        if (!name) return 'unknown';
+
+        // Handle specific Holi names first
+        if (name === "Holi (Holika Dahan)") return 'holi_holika_dahan';
+        if (name === "Holi (Rangwali Holi)") return 'holi_rangwali_holi';
 
         let key = name.toLowerCase();
-
-        // Remove content in parentheses (e.g., "(Holika Dahan...)")
         key = key.replace(/\s*\(.*\)\s*/g, '').trim();
-
-        // Remove content after slash (e.g., "/ Lakshmi Puja")
         key = key.split('/')[0].trim();
-
-        // Replace spaces and hyphens with underscores
         key = key.replace(/[\s-]+/g, '_');
 
-        // Remove any remaining non-alphanumeric characters (except underscore)
-        // Consider if this is needed or too aggressive
-        // key = key.replace(/[^a-z0-9_]/g, '');
-
-        // Specific known mappings if the generated key doesn't match JSON
-        // Add more specific mappings here if needed based on your JSON keys
         if (key === 'vijayadashami') key = 'dussehra';
-        if (key === 'sharad_navratri_start') key = 'navaratri_start'; // Map to the key used in JSON
-        if (key === 'chaitra_navratri_start') key = 'navaratri_start'; // Also map Chaitra Navratri if needed
-        if (key === 'narak_chaturdashi') key = 'choti_diwali'; // Example mapping
-        if (key === 'diwali') key = 'diwali_lakshmi_puja'; // Example if JSON uses a more specific key
-        if (key === 'buddha_purnima') key = 'vaisakha_purnima'; // Example mapping
+        if (key === 'sharad_navratri_start') key = 'navaratri_start';
+        if (key === 'chaitra_navratri_start') key = 'navaratri_start';
+        if (key === 'narak_chaturdashi') key = 'choti_diwali';
+        if (key === 'diwali') key = 'diwali_lakshmi_puja';
+        if (key === 'buddha_purnima') key = 'vaisakha_purnima';
 
-        return key || 'unknown'; // Return 'unknown' if processing results in empty string
+        return key || 'unknown';
     }, []); // No dependencies needed if it only uses the name argument
 
 
@@ -710,6 +702,8 @@ const FestivalsPage = () => {
                                 <tbody>
                                     {calculatedTithiFestivals.map((festival, index) => {
                                         const translationKey = getFestivalTranslationKey(festival.name);
+                                        const isRangwaliHoli = festival.name === "Holi (Rangwali Holi)";
+
                                         return (
                                             <tr key={`${translationKey}-${index}-${festival.date}`}>
                                                 <td>
@@ -718,9 +712,9 @@ const FestivalsPage = () => {
                                                     })}
                                                 </td>
                                                 <td>{formatDateForDisplay(festival.date)}</td>
-                                                <td>{formatDateTimeForDisplay(festival.sunrise)}</td>
-                                                <td>{formatDateTimeForDisplay(festival.startTime)}</td>
-                                                <td>{formatDateTimeForDisplay(festival.endTime)}</td>
+                                                <td>{isRangwaliHoli ? '-' : formatDateTimeForDisplay(festival.sunrise)}</td>
+                                                <td>{isRangwaliHoli ? '-' : formatDateTimeForDisplay(festival.startTime)}</td>
+                                                <td>{isRangwaliHoli ? '-' : formatDateTimeForDisplay(festival.endTime)}</td>
                                             </tr>
                                         );
                                     })}

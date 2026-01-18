@@ -130,7 +130,13 @@ export function calculateMangalDosha(siderealPositions, siderealCuspStartDegrees
     }
 
     if (!result.present) {
-        result.reason = "Mars not found in dosha-causing houses (1, 4, 7, 8, 12) from Ascendant, Moon, or Venus.";
+        result.reason_key = "planetNotFoundInHousesFrom";
+        result.details = {
+            planet: "Mars",
+            houses: doshaHouses.join(', '),
+            sources: ["Ascendant", "Moon", "Venus"]
+        };
+        result.reason = `Mars not found in dosha-causing houses (${doshaHouses.join(', ')}) from Ascendant, Moon, or Venus.`;
     }
 
     result.reason = result.reason.trim(); // Clean up trailing space

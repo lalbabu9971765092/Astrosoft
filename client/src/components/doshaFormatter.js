@@ -6,88 +6,90 @@ import React from 'react';
  * @param {function} t - The translation function from i18next.
  * @returns {string} The translated reason string.
  */
-const translateReasonString = (reason, t) => {
-    if (!reason) return '';
+const translateReasonString = (doshaData, t) => {
+    if (!doshaData || (!doshaData.reason_key && !doshaData.reason)) {
+        return '';
+    }
 
-    // Split the reason into individual sentences to process them separately.
+    // If we have a reason_key, use the structured translation
+    if (doshaData.reason_key) {
+        const { reason_key, details } = doshaData;
+        const options = {};
+
+        if (details) {
+            // Translate planet names
+            if (details.planet) {
+                options[0] = t(`planets.${details.planet}`, { defaultValue: details.planet });
+            }
+            // Handle house numbers
+            if (details.houses) {
+                options[1] = Array.isArray(details.houses) ? details.houses.join(', ') : details.houses;
+            }
+            // Handle and translate sources
+            if (details.sources && Array.isArray(details.sources)) {
+                 const translatedSources = details.sources.map(s => t(`doshaSources.${s}`, { defaultValue: s }));
+                 if (translatedSources.length > 1) {
+                    const lastElement = translatedSources.pop();
+                    options[2] = translatedSources.join(', ') + ` ${t('utils.or', 'or')} ` + lastElement;
+                 } else {
+                    options[2] = translatedSources[0] || '';
+                 }
+            }
+             // Generic details for other patterns
+             if (details.nakshatra) {
+                options[1] = t(`nakshatras.${details.nakshatra}`, { defaultValue: details.nakshatra });
+             }
+             if (details.axis) {
+                 options[1] = details.axis;
+             }
+             if (details.planet_list) {
+                 options[0] = details.planet_list;
+             }
+        }
+
+        return t(`doshaReasons.${reason_key}`, options);
+    }
+    
+    // Fallback to the old sentence parsing if reason_key is not available
+    const reason = doshaData.reason;
     const sentences = reason.split('.').map(s => s.trim()).filter(s => s.length > 0);
 
     const translatedSentences = sentences.map(sentence => {
-        // Pattern 1: "Planet in house X (by Rashi count) from Y"
+        // This part remains as a fallback for old data structure
         let match = sentence.match(/(Mars|Sun|Moon|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu) in house (\d+) \(by Rashi count\) from (Ascendant|Moon|Venus)/i);
         if (match) {
-            const options = {
-                0: t(`planets.${match[1]}`, { defaultValue: match[1] }),
-                1: match[2],
-                2: t(`doshaSources.${match[3]}`, { defaultValue: match[3] })
-            };
+            const options = { 0: t(`planets.${match[1]}`), 1: match[2], 2: t(`doshaSources.${match[3]}`) };
             return t('doshaReasons.planetInHouseFromRashi', options);
         }
-
-        // Pattern 2: "Planet in house X from Y" (must be checked after the more specific Rashi count pattern)
         match = sentence.match(/(Mars|Sun|Moon|Mercury|Jupiter|Venus|Saturn|Rahu|Ketu) in house (\d+) from (Ascendant|Moon|Venus)/i);
         if (match) {
-            const options = {
-                0: t(`planets.${match[1]}`, { defaultValue: match[1] }),
-                1: match[2],
-                2: t(`doshaSources.${match[3]}`, { defaultValue: match[3] })
-            };
+            const options = { 0: t(`planets.${match[1]}`), 1: match[2], 2: t(`doshaSources.${match[3]}`) };
             return t('doshaReasons.planetInHouseFrom', options);
         }
-
-        // Pattern 3: Kaalsarpa reason
         if (/Planets are found on both sides of the Rahu-Ketu axis/i.test(sentence)) {
             return t('doshaReasons.planetsBothSidesRahuKetu');
         }
-
-        // Pattern 4: Mool Dosha reason
         match = sentence.match(/Moon is in ([\w\s]+), which is not a Gand Mool Nakshatra/i);
         if (match) {
-            const options = {
-                0: t('planets.Moon', { defaultValue: 'Moon' }),
-                1: t(`nakshatras.${match[1].trim()}`, { defaultValue: match[1].trim() })
-            };
+            const options = { 0: t('planets.Moon'), 1: t(`nakshatras.${match[1].trim()}`) };
             return t('doshaReasons.moonNotInGandMool', options);
         }
-
-        // Pattern 4.1: Mool Dosha reason for PRESENT dosha
         match = sentence.match(/Moon is in ([\w\s]+), which is a Gand Mool Nakshatra/i);
         if (match) {
-            const options = {
-                0: t('planets.Moon', { defaultValue: 'Moon' }),
-                1: t(`nakshatras.${match[1].trim()}`, { defaultValue: match[1].trim() })
-            };
+            const options = { 0: t('planets.Moon'), 1: t(`nakshatras.${match[1].trim()}`) };
             return t('doshaReasons.moonInGandMool', options);
         }
-
-
-        // Pattern 5: "Planet not found in dosha-causing houses (X, Y, Z) from A, B, or C"
         match = sentence.match(/(Mars) not found in dosha-causing houses \((.*?)\) from (.*)/i);
         if (match) {
-            const sources = match[3].split(/, | or /).map(source => t(`doshaSources.${source.trim()}`, { defaultValue: source.trim() })).join(', ');
-            const options = {
-                0: t(`planets.${match[1]}`, { defaultValue: match[1] }),
-                1: match[2],
-                2: sources
-            };
-            return t('doshaReasons.planetNotFoundInHousesFrom', options);
+            const sources = match[3].split(/, | or /).map(s => t(`doshaSources.${s.trim()}`, {defaultValue: s.trim()})).join(', ');
+            return t('doshaReasons.planetNotFoundInHousesFrom', { 0: t(`planets.${match[1]}`), 1: match[2], 2: sources });
         }
-
-        // Pattern 6: Kaalsarpa reason "All planets (X) are located between Y"
         match = sentence.match(/All planets \((.*?)\) are located between (Ketu->Rahu|Rahu->Ketu)/i);
         if (match) {
-            const options = {
-                0: match[1], // e.g., "Sun to Saturn"
-                1: match[2]  // e.g., "Ketu->Rahu"
-            };
-            return t('doshaReasons.allPlanetsBetweenAxis', options);
+            return t('doshaReasons.allPlanetsBetweenAxis', { 0: match[1], 1: match[2] });
         }
-
-        // Fallback for any unmatched sentences
-        return sentence;
+        return sentence; // Fallback
     });
-
-    // Join the translated sentences back together.
     return translatedSentences.join('. ');
 };
 /**
@@ -108,11 +110,8 @@ export const formatDosha = (doshaKey, birthDoshas, t) => {
         return <span className="dosha-status dosha-error">{t('astrologyForm.doshaStatusError', 'Error')}</span>;
     }
 
-    // Directly translate the reason string from the API response.
-    // The key in the JSON file must exactly match `doshaData.reason`.
-    // Provide the original English reason as a fallback.
-    // We will now use our intelligent translator.
-    const reasonText = doshaData.reason ? ` (${translateReasonString(doshaData.reason, t)})` : '';
+    // Pass the entire doshaData object to the translator
+    const reasonText = (doshaData.reason || doshaData.reason_key) ? ` (${translateReasonString(doshaData, t)})` : '';
 
     if (!doshaData.present) {
         return (
@@ -125,7 +124,7 @@ export const formatDosha = (doshaKey, birthDoshas, t) => {
 
     const cancellationText = (doshaData.cancellation && doshaData.cancellation.length > 0)
         ? ` (${t('astrologyForm.doshaCancelledLabel', 'Cancelled')}: ${
-            doshaData.cancellation.map(reason => translateReasonString(reason, t)).join(', ')
+            doshaData.cancellation.map(cancellation => translateReasonString(cancellation, t)).join(', ')
           })`
         : '';
 

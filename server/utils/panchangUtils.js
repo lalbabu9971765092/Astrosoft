@@ -27,10 +27,12 @@ async function findChaitraShuklaPratipada(year, latitude, longitude) {
             const calendarInfo = obj.calendar(calculationTime, latitude, longitude);
             const tithiInfo = obj.calculate(calculationTime, latitude, longitude)?.Tithi;
 
-            // Check for Chaitra month, Shukla paksha, and Tithi index 0 (Pratipada)
-            if (calendarInfo?.Masa?.name_en_IN === 'Chaitra' &&
+            // Check for Chaitra month, Shukla paksha.
+            // mhah-panchang uses 1-based month index (1 = Chaitra).
+            // Relaxed Tithi check to <= 1 (Pratipada or Dwitiya) to handle Kshaya Tithi cases where Pratipada doesn't exist at sunrise.
+            if (calendarInfo?.MoonMasa?.ino === 1 &&
                 calendarInfo?.Paksha?.name_en_IN === 'Shukla' &&
-                tithiInfo?.ino === 0) {
+                tithiInfo?.ino <= 1) {
                
                 return checkDate;
             }
@@ -47,39 +49,20 @@ async function findChaitraShuklaPratipada(year, latitude, longitude) {
 
 // --- Helper Function to Calculate Vikram Samvat ---
 function calculateVikramSamvat(targetDate, vsNewYearDate) {
-    if (!vsNewYearDate || !(targetDate instanceof Date) || !(vsNewYearDate instanceof Date)) {
-        return null; // Cannot calculate if dates are invalid
+    if (!vsNewYearDate || !(vsNewYearDate instanceof Date)) {
+        return null;
     }
-    const gregorianYear = targetDate.getUTCFullYear();
-
-    // Compare only date parts (ignoring time) for simplicity
-    const targetDay = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate()));
-    const newYearDay = new Date(Date.UTC(vsNewYearDate.getUTCFullYear(), vsNewYearDate.getUTCMonth(), vsNewYearDate.getUTCDate()));
-
-    if (targetDay < newYearDay) {
-        return gregorianYear + 56;
-    } else {
-        return gregorianYear + 57;
-    }
+    // Vikram Samvat = Gregorian Year of Chaitra Shukla Pratipada + 57
+    return vsNewYearDate.getUTCFullYear() + 57;
 }
 
 // --- Helper Function to Calculate Saka Year ---
 function calculateSakaYear(targetDate, vsNewYearDate) { // Saka also starts on Chaitra Shukla Pratipada
-    if (!vsNewYearDate || !(targetDate instanceof Date) || !(vsNewYearDate instanceof Date)) {
+    if (!vsNewYearDate || !(vsNewYearDate instanceof Date)) {
         return null;
     }
-    const gregorianYear = targetDate.getUTCFullYear();
-
-    const targetDay = new Date(Date.UTC(targetDate.getUTCFullYear(), targetDate.getUTCMonth(), targetDate.getUTCDate()));
-    const newYearDay = new Date(Date.UTC(vsNewYearDate.getUTCFullYear(), vsNewYearDate.getUTCMonth(), vsNewYearDate.getUTCDate()));
-
-    if (targetDay < newYearDay) {
-        // If before the new year in the Gregorian calendar, Saka year is Greg - 79
-        return gregorianYear - 79;
-    } else {
-        // If on or after the new year, Saka year is Greg - 78
-        return gregorianYear - 78;
-    }
+    // Saka Era = Gregorian Year of Chaitra Shukla Pratipada - 78
+    return vsNewYearDate.getUTCFullYear() - 78;
 }
 
 // --- Helper Function to Get Samvatsar Name from Saka Year ---
@@ -140,24 +123,23 @@ export async function calculatePanchang(dateString, latitude, longitude, planeta
             calendarInfo.Masa.solar_day = solarDay;
         }
 
-        // Correct the amanta month from mhah-panchang (off-by-one error)
-        if (calendarInfo && calendarInfo.MoonMasa) {
-            const originalIno = calendarInfo.MoonMasa.ino;
-            const correctedIno = (originalIno - 1 + 12) % 12;
-            calendarInfo.MoonMasa.ino = correctedIno;
-            calendarInfo.MoonMasa.name = obj.mhahLocalConstant.Masa.name[correctedIno];
-            calendarInfo.MoonMasa.name_en_IN = obj.mhahLocalConstant.Masa.name_en_IN[correctedIno];
-        }
-
         // Calculate Purnimanta month
         if (calendarInfo && calendarInfo.MoonMasa && calendarInfo.Paksha) {
-            const amantaMonthIndex = calendarInfo.MoonMasa.ino;
+            // mhah-panchang uses 1-based month index (1 = Chaitra).
+            const rawIndex = calendarInfo.MoonMasa.ino;
+            // Convert to 0-based index (0 = Chaitra)
+            const amantaMonthIndex = (rawIndex - 1 + 12) % 12;
             const paksha = calendarInfo.Paksha.name_en_IN;
 
             let purnimantaMonthIndex = amantaMonthIndex;
             if (paksha === 'Krishna') {
                 purnimantaMonthIndex = (amantaMonthIndex + 1) % 12;
             }
+
+            // Update MoonMasa to be 0-based Amanta
+            calendarInfo.MoonMasa.ino = amantaMonthIndex;
+            calendarInfo.MoonMasa.name = obj.mhahLocalConstant.Masa.name[amantaMonthIndex];
+            calendarInfo.MoonMasa.name_en_IN = obj.mhahLocalConstant.Masa.name_en_IN[amantaMonthIndex];
 
             calendarInfo.PurnimantaMasa = {
                 ino: purnimantaMonthIndex,
