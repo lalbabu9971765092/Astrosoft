@@ -78,9 +78,29 @@ export function convertDMSToDegrees(dms) {
         logger.warn(`Invalid numeric values in DMS input: d=${degrees}, m=${minutes}, s=${seconds}`);
         return NaN;
     }
-    if (minutes < 0 || minutes >= 60 || seconds < 0 || seconds >= 60) {
-         logger.warn(`Minutes/Seconds out of range in DMS input: m=${minutes}, s=${seconds}`);
-         return NaN; // Or handle differently? For now, consider invalid.
+    // Handle seconds overflow
+    if (seconds >= 60) {
+        const extraMinutes = Math.floor(seconds / 60);
+        minutes += extraMinutes;
+        seconds %= 60;
+    }
+    // Handle minutes overflow
+    if (minutes >= 60) {
+        const extraDegrees = Math.floor(minutes / 60);
+        // Apply extraDegrees considering the sign of the original degrees
+        if (degrees >= 0) {
+            degrees += extraDegrees;
+        } else {
+            degrees -= extraDegrees; // If original degrees was negative, adding extra degrees reduces its absolute value
+        }
+        minutes %= 60;
+    }
+
+    // After normalization, check if values are still out of expected range (e.g. negative or >59)
+    // Degrees can be negative, so only check minutes and seconds
+    if (minutes < 0 || seconds < 0 || minutes >= 60 || seconds >= 60) { // Check for negative after normalization
+        logger.warn(`Minutes/Seconds out of range in DMS input after normalization: m=${minutes}, s=${seconds}`);
+        return NaN; // Still invalid after aggressive normalization
     }
 
     const sign = degrees < 0 ? -1 : 1;
