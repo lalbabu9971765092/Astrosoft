@@ -74,6 +74,26 @@ export const PLANET_DEBILITATION_SIGN = {
     Saturn: "Aries",
 };
 
+export const PLANET_OWN_SIGNS = {
+    Sun: ["Leo"],
+    Moon: ["Cancer"],
+    Mars: ["Aries", "Scorpio"],
+    Mercury: ["Gemini", "Virgo"],
+    Jupiter: ["Sagittarius", "Pisces"],
+    Venus: ["Taurus", "Libra"],
+    Saturn: ["Capricorn", "Aquarius"],
+};
+
+export const PLANET_MOOLATRIKONA = {
+    Sun: "Leo",
+    Moon: "Taurus",
+    Mars: "Aries",
+    Mercury: "Virgo",
+    Jupiter: "Sagittarius",
+    Venus: "Libra",
+    Saturn: "Aquarius",
+};
+
 // Order for calculations and display
 export const PLANET_ORDER = [
     "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu", "Ketu"

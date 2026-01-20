@@ -112,6 +112,15 @@ const AstrologyForm = () => {
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const getTranslatedPlaceName = useCallback((placeName) => {
+    if (!placeName) return "";
+    const lowerPlace = placeName.trim().toLowerCase();
+    if (lowerPlace === "current location" || lowerPlace === "वर्तमान स्थान") {
+      return t("sharedLayout.birthDetails.currentLocationDefault", "Current Location");
+    }
+    return placeName;
+  }, [t]);
+
   // --- Effects ---
   useEffect(() => {
     if (
@@ -251,6 +260,7 @@ const AstrologyForm = () => {
     locationForGocharTool,
     t,
     transitPlaceName,
+    i18n.language,
   ]);
   // Fetch rotated chart when global `houseToRotate` or calculation params change
   useEffect(() => {
@@ -507,7 +517,9 @@ const AstrologyForm = () => {
             {(gocharData.inputParameters.placeName || gocharData.placeName) && (
               <p>
                 <strong>{t("astrologyForm.placeLabel")}</strong>{" "}
-                {gocharData.inputParameters.placeName || gocharData.placeName}
+                <span className={i18n.language === 'hi' ? 'hindi-font' : ''}>
+                  {getTranslatedPlaceName(gocharData.inputParameters.placeName || gocharData.placeName)}
+                </span>
               </p>
             )}
           </div>
@@ -827,7 +839,7 @@ const AstrologyForm = () => {
             {displayInputParams.placeName && (
               <p>
                 <strong>{t("astrologyForm.placeLabel")}</strong>{" "}
-                {displayInputParams.placeName}
+                <span className={i18n.language === 'hi' ? 'hindi-font' : ''}>{getTranslatedPlaceName(displayInputParams.placeName)}</span>
               </p>
             )}
           </div>
@@ -915,9 +927,7 @@ const AstrologyForm = () => {
             >
               <ul className="yoga-names-list">
                 {displayResult.yogas.map((yoga, index) => (
-                  <li key={index}>
-                    {t(`yogas.${yoga.name}`, { defaultValue: yoga.name })}
-                  </li>
+                  <li key={index}>{t(`yogas.${yoga.name}_name`, { defaultValue: yoga.name })}</li>
                 ))}
               </ul>
             </div>

@@ -110,6 +110,15 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
     const [varshphalPrediction, setVarshphalPrediction] = useState({ prediction: "", isLoading: false, error: null, year: null });
     const [kpAnalysis, setKpAnalysis] = useState({ analysis: "", isLoading: false, error: null });
 
+    const getTranslatedPlaceName = (placeName) => {
+        if (!placeName) return "";
+        const lowerPlace = placeName.trim().toLowerCase();
+        if (lowerPlace === "current location" || lowerPlace === "वर्तमान स्थान") {
+            return t("sharedLayout.birthDetails.currentLocationDefault", "Current Location");
+        }
+        return placeName;
+    };
+
     // --- Derived data for rendering ---
     const displayResult = mainResult; // No rectification for now in printable report
 
@@ -533,12 +542,12 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                     {/* 1. Name, Sex, Date & Time, Place with Coordinates */}
                     {displayInputParams && (
                         <div className="report-section input-summary">
-                            <h3>Basic Input Parameters</h3>
-                            {displayInputParams.name && <p><strong>Name:</strong> {displayInputParams.name}</p>}
-                            {displayInputParams.gender && <p><strong>Gender:</strong> {displayInputParams.gender}</p>}
-                            <p><strong>Date & Time:</strong> {formatDisplayDateTime(displayInputParams.date, t, i18n)}</p>
-                            <p><strong>Place:</strong> {displayInputParams.placeName}</p>
-                            <p><strong>Coordinates:</strong> {displayInputParams.latitude.toFixed(4)}, {displayInputParams.longitude.toFixed(4)}</p>
+                            <h3>{t('printableReport.basicInputParameters', 'Basic Input Parameters')}</h3>
+                            {displayInputParams.name && <p><strong>{t('printableReport.name', 'Name')}:</strong> {displayInputParams.name}</p>}
+                            {displayInputParams.gender && <p><strong>{t('printableReport.gender', 'Gender')}:</strong> {t(`sharedLayout.gender${displayInputParams.gender}`, displayInputParams.gender)}</p>}
+                            <p><strong>{t('printableReport.dateTime', 'Date & Time')}:</strong> {formatDisplayDateTime(displayInputParams.date, t, i18n)}</p>
+                            <p><strong>{t('printableReport.place', 'Place')}:</strong> {getTranslatedPlaceName(displayInputParams.placeName)}</p>
+                            <p><strong>{t('printableReport.coordinates', 'Coordinates')}:</strong> {displayInputParams.latitude.toFixed(4)}, {displayInputParams.longitude.toFixed(4)}</p>
                         </div>
                     )}
 
@@ -693,7 +702,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                     )}
 {reportSections.houseCusps && mainResult?.houses && (
                         <div className="report-section" style={{ pageBreakInside: 'avoid' }}>
-                            <h3 style={{ pageBreakBefore: 'always' }}>Birth Chart House Cusps</h3>
+                            <h3 style={{ pageBreakBefore: 'always' }}>{t('printableReport.birthChartHouseCusps', 'Birth Chart House Cusps')}</h3>
                             <div className="table-wrapper">
                                 <table className="results-table">
                                     <thead>
@@ -736,7 +745,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                     
 {reportSections.planetDetails && (
                     <div className="portrait-section" style={{ pageBreakInside: 'avoid' }}>
-                        <h2 style={{ width: '100%', textAlign: 'center' }}>Planet Details</h2>
+                        <h2 style={{ width: '100%', textAlign: 'center' }}>{t('printableReport.planetDetails', 'Planet Details')}</h2>
                         <div style={{ marginBottom: '20px' }}> {/* Wrapper for first table */}
                             <CustomDetailedPlanetTable 
                                 planets={mainResult.planetaryPositions.sidereal} 
@@ -965,7 +974,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
 
 {reportSections.dashaPeriods && mainResult.dashaPeriods && (
                         <div className="report-section" style={{ pageBreakBefore: 'always' }}>
-                            <h3>{t('astrologyForm.dashaPeriodsTitle', 'Dasha Periods')}</h3>
+                            <h3>{t('printableReport.dashaPeriods', 'Dasha Periods')}</h3>
                             <ExpandedDashaTable dashaPeriods={mainResult.dashaPeriods} />
                         </div>
                     )}
@@ -996,7 +1005,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                                 <p>{t('varshphalPage.inputSummary', {
                                     date: formatDisplayDateTime(calculationInputParams.date, t, i18n),
                                     varshphalDate: (displayVarshphalResult.muddaDasha && displayVarshphalResult.muddaDasha.length > 0) ? formatDisplayDateTime(displayVarshphalResult.muddaDasha[0].start, t, i18n) : t('utils.notAvailable', 'N/A'),
-                                    place: calculationInputParams.placeName,
+                                    place: getTranslatedPlaceName(calculationInputParams.placeName),
                                     lat: calculationInputParams.latitude.toFixed(4),
                                     lon: calculationInputParams.longitude.toFixed(4),
                                     year: varshphalYear
@@ -1187,7 +1196,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                     
 {reportSections.transit && transitResult && (
                         <div style={{ pageBreakBefore: 'always' }}>
-                            <h2 style={{ width: '100%', textAlign: 'center' }}>Transit Details</h2>
+                            <h2 style={{ width: '100%', textAlign: 'center' }}>{t('printableReport.transitDetails', 'Transit Details')}</h2>
 
                             {/* Transit Basic Info */}
                             <div className="report-section">
@@ -1225,7 +1234,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
 
                             {/* Transit Time Lordship */}
                             <div className="report-section">
-                                <h3>{t('Transit Time Lordship')}</h3>
+                                <h3>{t('printableReport.transitTimeLordship', 'Transit Time Lordship')}</h3>
                                 <div className="lordship-column">
                                     <p>{t('Day Lord')}: {t(`planets.${calculateVar(transitResult.inputParameters.date, t).dayLord}`, { defaultValue: 'N/A' })}</p>
                                     <p>{t('Ascendant Lord')}: {t(`planets.${transitResult.ascendant?.rashiLord}`, { defaultValue: transitResult.ascendant?.rashiLord ?? 'N/A' })}</p>
@@ -1489,11 +1498,10 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         अदब्धासो अपरीतास उद्भिदः।
                         देवा नो यथा सदमिद् वृधे।
                         असन्नप्रायुवो रक्षितारो दिवे॥</p>
-                        {displayInputParams?.name && <h1 style={{ margin: '5px 0' }}>{displayInputParams.name}</h1>}
+                        
                     </div> <div style={{ textAlign: 'right', marginBottom: '20px' }}>
                         <p style={{ fontFamily: 'sans-serif', fontSize: '1.2em', margin: '10px 0' }}>
-                        रबिन्द्र मोहन झा 
-                        {displayInputParams?.name && <h1 style={{ margin: '5px 0' }}>{displayInputParams.name}</h1>}
+                        रबिन्द्र मोहन झा                      
                         </p>
                     </div>
                 </>

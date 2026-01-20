@@ -142,6 +142,7 @@
   "karans": {
     "Vishti": "विष्टि (भद्रा)",
     "Bava": "बव",
+    "Bawa": "बव",
     "Balava": "बालव",
     "Kaulava": "कौलव",
     "Taitila": "तैतिल",
@@ -812,8 +813,8 @@
     "headerSignificators": "सिग्निफिकेटर्स",
     "notAvailable": "अनुपलब्ध",
     "housesLabel": "भाव:",
-    "nakLordLabel": "नक्षत्र स्वामी ({{lordName}}):",
-    "subLordLabel": "उप स्वामी ({{lordName}}):",
+    "nakLordLabel": "नक्षत्र स्वामी ({{lordName}})",
+    "subLordLabel": "उप स्वामी ({{lordName}})",
     "noHouses": "--"
   },
   "kpSignificatorsPage": {
@@ -1360,13 +1361,13 @@
     "14": "चतुर्दशी",
     "15": "पूर्णिमा / अमावस्या",
     "Pratipada": "प्रतिपदा",
+    "Padyami": "पद्यमी",
     "Dwitiya": "द्वितीया",
     "Tritiya": "तृतीया",
     "Chaturthi": "चतुर्थी",
     "Panchami": "पंचमी",
     "Shashthi": "षष्ठी",
     "Shasti": "षष्ठी",
-    "Padyami": "पद्यमी",
     "Vidhiya": "विदिया",
     "Thadiya": "तदिया",
     "Chavithi": "चविथि",
@@ -1389,306 +1390,333 @@
     "Amavasya": "अमावस्या",
     "Unknown": "अज्ञात"
   },
-  "yogas": {
-    
-    "gand_mool_dosha": {
-      "name": "गण्ड मूल दोष",
-      "description": "चंद्रमा भरणी में है, जो एक गण्ड मूल नक्षत्र है।"
-    },
-    "vishaYoga": {
-      "name": "विष योग",
-      "description": "अशुभ विष योग"
-    },
-    "Vishkumbha": {
-      "name": "विष्कुम्भ",
-      "description": ""
-    },
-    "Priti": {
-      "name": "प्रीति",
-      "description": ""
-    },
-    "Prithi": {
-      "name": "प्रीति",
-      "description": ""
-    },
-    "Ayushman": {
-      "name": "आयुष्मान",
-      "description": ""
-    },
-    "Saubhagya": {
-      "name": "सौभाग्य",
-      "description": ""
-    },
-    "Shobhana": {
-      "name": "शोभन",
-      "description": ""
-    },
-    "Atiganda": {
-      "name": "अतिगण्ड",
-      "description": ""
-    },
-    "Sukarma": {
-      "name": "सुकर्मा",
-      "description": ""
-    },
-    "Sukarman": {
-      "name": "सुकर्मा",
-      "description": ""
-    },
-    "Sobhana": {
-      "name": "शोभन",
-      "description": ""
-    },
-    "Dhriti": {
-      "name": "धृति",
-      "description": ""
-    },
-    "Soola": {
-      "name": "शूल",
-      "description": ""
-    },
-    "Vridhi": {
-      "name": "वृद्धि",
-      "description": ""
-    },
-    "Variyan": {
-      "name": "वरीयान्",
-      "description": ""
-    },
-    "Siva": {
-      "name": "शिव",
-      "description": ""
-    },
-    "Subha": {
-      "name": "शुभ",
-      "description": ""
-    },
-   
-    "Vaidhruthi": {
-      "name": "वैधृति",
-      "description": ""
-    },
-    "Shoola": {
-      "name": "शूल",
-      "description": ""
-    },
-    "Ganda": {
-      "name": "गण्ड",
-      "description": ""
-    },
-    "Vriddhi": {
-      "name": "वृद्धि",
-      "description": ""
-    },
-    "Dhruva": {
-      "name": "ध्रुव",
-      "description": ""
-    },
-    "Vyaghata": {
-      "name": "व्याघात",
-      "description": ""
-    },
-    "Harshana": {
-      "name": "हर्षण",
-      "description": ""
-    },
-    "Vajra": {
-      "name": "वज्र",
-      "description": ""
-    },
-    "Siddhi": {
-      "name": "सिद्धि",
-      "description": ""
-    },
-    "Vyatipata": {
-      "name": "व्यतीपात",
-      "description": ""
-    },
-    "Variyana": {
-      "name": "वरीयान्",
-      "description": ""
-    },
-    "Parigha": {
-      "name": "परिघ",
-      "description": ""
-    },
-    "Parigha_name": "परिघ",
-    "Parigha_description": "",
-    "Gaja Kesari Yoga_name": "गज केसरी योग",
-    "Gaja Kesari Yoga_description": "यह योग तब बनता है जब बृहस्पति चंद्रमा से केंद्र भाव (1, 4, 7, 10) में होता है। यह धन, बुद्धि और प्रसिद्धि देता है।",
-    "Kendruma Yoga_name": "केन्द्रुम योग",
-    "Kendruma Yoga_description": "यह योग तब बनता है जब चंद्रमा से दूसरे और बारहवें घर में कोई ग्रह नहीं होता है। यह संघर्ष और कठिनाइयां देता है।",
-    "Dharma Karma Adhipati Yoga_name": "धर्म कर्म अधिपतियोग",
-    "Dharma Karma Adhipati Yoga_description": "यह योग तब बनता है जब 9वें और 10वें घर के स्वामी एक दूसरे के साथ संबंध बनाते हैं। यह सफलता, प्रसिद्धि और धन देता है।",
-    "Amala Yoga_name": "अमल योग",
-    "Amala Yoga_description": "यह योग तब बनता है जब लग्न या चंद्रमा से 10वें घर में कोई शुभ ग्रह होता है। यह धन, प्रसिद्धि और एक अच्छा चरित्र देता है।",
-    "Kahala Yoga_name": "काहल योग",
-    "Kahala Yoga_description": "यह योग तब बनता है जब 4वें और 9वें घर के स्वामी एक दूसरे से केंद्र में होते हैं। यह हठ, साहस और सैन्य शक्ति देता है।",
-    "Shiva": {
-      "name": "शिव",
-      "description": ""
-    },
-    "Siddha": {
-      "name": "सिद्ध",
-      "description": ""
-    },
-    "Sadhya": {
-      "name": "साध्य",
-      "description": ""
-    },
-    "Shubha": {
-      "name": "शुभ",
-      "description": ""
-    },
-    "Sukla": {
-      "name": "शुक्ल",
-      "description": ""
-    },
-    "Bramha": {
-      "name": "ब्रह्म",
-      "description": ""
-    },
-    "Indra": {
-      "name": "इन्द्र",
-      "description": ""
-    },
-    "Aindra": {
-      "name": "ऐन्द्र",
-      "description": ""
-    },
-    "Vaidhriti": {
-      "name": "वैधृति",
-      "description": ""
-    },
-    "raviYoga": {
-      "name": "रवि योग",
-      "description": ""
-    },
-    "raviPushya": {
-      "name": "रवि पुष्य योग",
-      "description": ""
-    },
-    "Unknown": "अज्ञात",
-    "sarvarthSiddhi": {
-      "name": "सर्वार्थ सिद्धि योग",
-      "description": "उत्तरा फाल्गुनी पर रविवार को बनने वाला शुभ योग।"
-    },
-    "amritSiddhi": {
-      "name": "अमृत सिद्धि योग",
-      "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला शुभ योग।"
-    },
-    "guruPushya": {
-      "name": "गुरु पुष्य योग",
-      "description": "गुरुवार को पुष्य नक्षत्र से बनने वाला अत्यंत शुभ गुरु पुष्य योग।"
-    },
-    "day_ardha_prahar_1": {
-      "name": "दिन का अर्द्ध प्रहर १",
-      "description": "अशुभ अवधि। (शुक्रवार)"
-    },
-    "day_ardha_prahar_2": {
-      "name": "दिन का अर्द्ध प्रहर २",
-      "description": "अशुभ अवधि। (मंगलवार, सोमवार)"
-    },
-    "day_ardha_prahar_3": {
-      "name": "दिन का अर्द्ध प्रहर ३",
-      "description": "अशुभ अवधि। (गुरुवार, बुधवार)"
-    },
-    "day_ardha_prahar_4": {
-      "name": "दिन का अर्द्ध प्रहर ४",
-      "description": "अशुभ अवधि। (रविवार, शुक्रवार)"
-    },
-    "day_ardha_prahar_5": {
-      "name": "दिन का अर्द्ध प्रहर ५",
-      "description": "अशुभ अवधि। (रविवार, शनिवार)"
-    },
-    "day_ardha_prahar_6": {
-      "name": "दिन का अर्द्ध प्रहर ६",
-      "description": "अशुभ अवधि। (मंगलवार, शनिवार)"
-    },
-    "day_ardha_prahar_7": {
-      "name": "दिन का अर्द्ध प्रहर ७",
-      "description": "अशुभ अवधि। (सोमवार, बुधवार, गुरुवार)"
-    },
-    "day_ardha_prahar_8": {
-      "name": "दिन का अर्द्ध प्रहर ८",
-      "description": "अशुभ अवधि। (गुरुवार, शनिवार)"
-    },
-    "night_ardha_prahar_1": {
-      "name": "रात का अर्द्ध प्रहर १",
-      "description": "अशुभ अवधि। (रविवार, शनिवार)"
-    },
-    "night_ardha_prahar_2": {
-      "name": "रात का अर्द्ध प्रहर २",
-      "description": "अशुभ अवधि। (मंगलवार, शनिवार)"
-    },
-    "night_ardha_prahar_3": {
-      "name": "रात का अर्द्ध प्रहर ३",
-      "description": "अशुभ अवधि। (सोमवार, शुक्रवार)"
-    },
-    "night_ardha_prahar_4": {
-      "name": "रात का अर्द्ध प्रहर ४",
-      "description": "अशुभ अवधि। (रविवार, बुधवार)"
-    },
-    "night_ardha_prahar_5": {
-      "name": "रात का अर्द्ध प्रहर ५",
-      "description": "अशुभ अवधि। (मंगलवार, गुरुवार, बुधवार)"
-    },
-    "night_ardha_prahar_6": {
-      "name": "रात का अर्द्ध प्रहर ६",
-      "description": "अशुभ अवधि। (सोमवार, गुरुवार, शनिवार)"
-    },
-    "night_ardha_prahar_7": {
-      "name": "रात का अर्द्ध प्रहर ७",
-      "description": "अशुभ अवधि। (शुक्रवार, बुधवार)"
-    },
-    "night_ardha_prahar_8": {
-      "name": "रात का अर्द्ध प्रहर ८",
-      "description": "अशुभ अवधि। (गुरुवार, शनिवार)"
-    },
+    "muhurtaTypes": {
+    "auspicious": "शुभ",
+    "inauspicious": "अशुभ"
+  },
+  "choghadiyaNames": {
+    "Amrit": "अमृत",
+    "Char": "चर",
+    "Kaal": "काल",
+    "Labh": "लाभ",
+    "Rog": "रोग",
+    "Shubh": "शुभ",
+    "Udweg": "उद्वेग"
+  },
+    "choghadiyaTypes": {
+    "Day": "दिन",
+    "Night": "रात"
+  },
+  "muhurtas": {
     "abhijit_muhurta": {
       "name": "अभिजित मुहूर्त",
       "description": "दोपहर के आसपास एक सामान्य रूप से शुभ अवधि, नए उद्यम शुरू करने के लिए आदर्श।"
     },
-    "yam_ghanta": {
-      "name": "यम घण्टा",
-      "description": "एक अशुभ अवधि, जिसे आमतौर पर नई शुरुआत के लिए टाला जाता है।"
+    "rahu_kaal": {
+      "name": "राहु काल",
+      "description": "एक अशुभ अवधि, नई शुरुआत, यात्रा या महत्वपूर्ण निर्णयों से बचने के लिए।"
     },
-    "guli_kaal_day": {
+    "yam_ghanta": {
+      "name": "यम घंटा",
+      "description": "एक अशुभ अवधि, आमतौर पर नई शुरुआत के लिए टाला जाता है।"
+    },
+    "gulika_kaal_day": {
       "name": "गुलिक काल (दिन)",
       "description": "एक अशुभ अवधि; इस दौरान किए गए कार्य दोहराए जाते हैं।"
     },
+    "gulika_kaal_night": {
+      "name": "गुलिक काल (रात)",
+      "description": "रात के दौरान एक अशुभ अवधि।"
+    },
+    "pradosh_kaal": {
+      "name": "प्रदोष काल",
+      "description": "सूर्यास्त के आसपास एक शुभ अवधि, शिव पूजा के लिए आदर्श।"
+    },
     "varjyam": {
       "name": "वर्ज्यम",
-      "description": "सरलीकृत गणना: भरणी नक्षत्र से जुड़ी एक अशुभ अवधि। वास्तविक प्रारंभ/समाप्ति समय विस्तृत नक्षत्र नियमों के अनुसार भिन्न होते हैं।"
+      "description": "सभी महत्वपूर्ण कार्यों के लिए एक अशुभ अवधि।"
     },
     "dur_muhurta_day": {
       "name": "दुर मुहूर्त (दिन)",
       "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
     },
-    "dur_muhurta_1": {
-      "name": "दुर मुहूर्त (दिन) 1",
-      "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
+    "dur_muhurta_day_1": {
+        "name": "दुर मुहूर्त (दिन) 1",
+        "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
     },
-    "dur_muhurta_2": {
-      "name": "दुर मुहूर्त (दिन) 2",
-      "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
+    "dur_muhurta_day_2": {
+        "name": "दुर मुहूर्त (दिन) 2",
+        "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
     },
     "dur_muhurta_night": {
       "name": "दुर मुहूर्त (रात)",
       "description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
     },
-    "day_ardha_prahar": {
-      "name": "दिन का अर्धप्रहर",
-      "description": "अर्धप्रहर एक अशुभ अवधि है।"
-    },
-    "night_ardha_prahar": {
-      "name": "रात का अर्धप्रहर",
-      "description": "अर्धप्रहर एक अशुभ अवधि है."
-    },
     "bhadra": {
       "name": "भद्रा",
       "description": "एक अशुभ अवधि (विष्टि करण)। महत्वपूर्ण गतिविधियों से बचें।"
     },
+    "panchak": {
+        "name": "पंचक",
+        "description": "पांच नक्षत्रों की एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।"
+    },
+    "gand_mool": {
+        "name": "गंड मूल",
+        "description": "इंगित करता है कि चंद्रमा एक गंड मूल नक्षत्र में है, जो चुनौतीपूर्ण हो सकता है।"
+    },
+    "sarvarth_siddhi": {
+        "name": "सर्वार्थ सिद्धि योग",
+        "description": "एक शुभ योग जो सभी इच्छाओं को पूरा करने में मदद करता है।"
+    },
+    "amrit_siddhi": {
+        "name": "अमृत सिद्धि योग",
+        "description": "एक अत्यधिक शुभ योग जो अमृत जैसे परिणाम देता है।"
+    },
+    "guru_pushya": {
+        "name": "गुरु पुष्य योग",
+        "description": "जब पुष्य नक्षत्र गुरुवार को पड़ता है तो एक बहुत ही शुभ योग बनता है।"
+    },
+    "ravi_pushya": {
+        "name": "रवि पुष्य योग",
+        "description": "जब पुष्य नक्षत्र रविवार को पड़ता है तो एक शुभ योग बनता है।"
+    },
+    "dwipushkar": {
+        "name": "द्विपुष्कर योग",
+        "description": "एक शुभ योग जिसमें किया गया कोई भी कार्य दो बार दोहराया जाता है।"
+    },
+    "tripushkar": {
+        "name": "त्रिपुष्कर योग",
+        "description": "एक शुभ योग जिसमें किया गया कोई भी कार्य तीन बार दोहराया जाता है।"
+    },
+    "visha_yoga": {
+        "name": "विष योग",
+        "description": "एक अशुभ योग। महत्वपूर्ण गतिविधियों से बचें।"
+    },
+    "day_ardha_prahar_1": {
+        "name": "दिन का अर्द्ध प्रहर १",
+        "description": "अशुभ अवधि। (शुक्रवार)"
+    },
+    "day_ardha_prahar_2": {
+        "name": "दिन का अर्द्ध प्रहर २",
+        "description": "अशुभ अवधि। (मंगलवार, सोमवार)"
+    },
+    "day_ardha_prahar_3": {
+        "name": "दिन का अर्द्ध प्रहर ३",
+        "description": "अशुभ अवधि। (गुरुवार, बुधवार)"
+    },
+    "day_ardha_prahar_4": {
+        "name": "दिन का अर्द्ध प्रहर ४",
+        "description": "अशुभ अवधि। (रविवार, शुक्रवार)"
+    },
+    "day_ardha_prahar_5": {
+        "name": "दिन का अर्द्ध प्रहर ५",
+        "description": "अशुभ अवधि। (रविवार, शनिवार)"
+    },
+    "day_ardha_prahar_6": {
+        "name": "दिन का अर्द्ध प्रहर ६",
+        "description": "अशुभ अवधि। (मंगलवार, शनिवार)"
+    },
+    "day_ardha_prahar_7": {
+        "name": "दिन का अर्द्ध प्रहर ७",
+        "description": "अशुभ अवधि। (सोमवार, बुधवार, गुरुवार)"
+    },
+    "day_ardha_prahar_8": {
+        "name": "दिन का अर्द्ध प्रहर ८",
+        "description": "अशुभ अवधि। (गुरुवार, शनिवार)"
+    },
+    "night_ardha_prahar_1": {
+        "name": "रात का अर्द्ध प्रहर १",
+        "description": "अशुभ अवधि। (रविवार, शनिवार)"
+    },
+    "night_ardha_prahar_2": {
+        "name": "रात का अर्द्ध प्रहर २",
+        "description": "अशुभ अवधि। (मंगलवार, शनिवार)"
+    },
+    "night_ardha_prahar_3": {
+        "name": "रात का अर्द्ध प्रहर ३",
+        "description": "अशुभ अवधि। (सोमवार, शुक्रवार)"
+    },
+    "night_ardha_prahar_4": {
+        "name": "रात का अर्द्ध प्रहर ४",
+        "description": "अशुभ अवधि। (रविवार, बुधवार)"
+    },
+    "night_ardha_prahar_5": {
+        "name": "रात का अर्द्ध प्रहर ५",
+        "description": "अशुभ अवधि। (मंगलवार, गुरुवार, बुधवार)"
+    },
+    "night_ardha_prahar_6": {
+        "name": "रात का अर्द्ध प्रहर ६",
+        "description": "अशुभ अवधि। (सोमवार, गुरुवार, शनिवार)"
+    },
+    "night_ardha_prahar_7": {
+        "name": "रात का अर्द्ध प्रहर ७",
+        "description": "अशुभ अवधि। (शुक्रवार, बुधवार)"
+    },
+    "night_ardha_prahar_8": {
+        "name": "रात का अर्द्ध प्रहर ८",
+        "description": "अशुभ अवधि। (गुरुवार, शनिवार)"
+    }
+  },
+  "yogas": {
+    "gand_mool_dosha_name": "गण्ड मूल दोष",
+    "gand_mool_dosha_description": "चंद्रमा भरणी में है, जो एक गण्ड मूल नक्षत्र है।",
+    "vishaYoga_name": "विष योग",
+    "vishaYoga_description": "अशुभ विष योग",
+    "Vishkumbha_name": "विष्कुम्भ",
+    "Vishkumbha_description": "",
+    "Priti_name": "प्रीति",
+    "Priti_description": "",
+    "Prithi_name": "प्रीति",
+    "Prithi_description": "",
+    "Ayushman_name": "आयुष्मान",
+    "Ayushman_description": "",
+    "Saubhagya_name": "सौभाग्य",
+    "Saubhagya_description": "",
+    "Shobhana_name": "शोभन",
+    "Shobhana_description": "",
+    "Atiganda_name": "अतिगण्ड",
+    "Atiganda_description": "",
+    "Sukarma_name": "सुकर्मा",
+    "Sukarma_description": "",
+    "Sukarman_name": "सुकर्मा",
+    "Sukarman_description": "",
+    "Sobhana_name": "शोभन",
+    "Sobhana_description": "",
+    "Dhriti_name": "धृति",
+    "Dhriti_description": "",
+    "Soola_name": "शूल",
+    "Soola_description": "",
+    "Vridhi_name": "वृद्धि",
+    "Vridhi_description": "",
+    "Variyan_name": "वरीयान्",
+    "Variyan_description": "",
+    "Siva_name": "शिव",
+    "Siva_description": "",
+    "Subha_name": "शुभ",
+    "Subha_description": "",
+    "Vaidhruthi_name": "वैधृति",
+    "Vaidhruthi_description": "",
+    "Shoola_name": "शूल",
+    "Shoola_description": "",
+    "Ganda_name": "गण्ड",
+    "Ganda_description": "",
+    "Vriddhi_name": "वृद्धि",
+    "Vriddhi_description": "",
+    "Dhruva_name": "ध्रुव",
+    "Dhruva_description": "",
+    "Vyaghata_name": "व्याघात",
+    "Vyaghata_description": "",
+    "Harshana_name": "हर्षण",
+    "Harshana_description": "",
+    "Vajra_name": "वज्र",
+    "Vajra_description": "",
+    "Siddhi_name": "सिद्धि",
+    "Siddhi_description": "",
+    "Vyatipata_name": "व्यतीपात",
+    "Vyatipata_description": "",
+    "Variyana_name": "वरीयान्",
+    "Variyana_description": "",
+    "Parigha_name": "परिघ",
+    "Parigha_description": "",
+    "Gaja_Kesari_Yoga_name": "गज केसरी योग",
+    "Gaja_Kesari_Yoga_description": "यह योग तब बनता है जब बृहस्पति चंद्रमा से केंद्र भाव (1, 4, 7, 10) में होता है। यह धन, बुद्धि और प्रसिद्धि देता है।",
+    "Raja_Yoga_name": "राज योग",
+    "Raja_Yoga_description": "एक शक्तिशाली योग जो रॉयल्टी, नेतृत्व और समृद्धि को इंगित करता है।",
+    "Dhana_Yoga_name": "धन योग",
+    "Dhana_Yoga_description": "धन और वित्तीय समृद्धि का संकेत देने वाला योग।",
+    "Kendruma_Yoga_name": "केन्द्रुम योग",
+    "Kendruma_Yoga_description": "यह योग तब बनता है जब चंद्रमा से दूसरे और बारहवें घर में कोई ग्रह नहीं होता है। यह संघर्ष और कठिनाइयां देता है।",
+    "Chandra_Mangala_Yoga_name": "चंद्र मंगल योग",
+    "Chandra_Mangala_Yoga_description": "चंद्रमा और मंगल की युति या दृष्टि से बनने वाला योग, जो धन और कभी-कभी आक्रामकता का संकेत देता है।",
+    "Budhaditya_Yoga_name": "बुधादित्य योग",
+    "Budhaditya_Yoga_description": "सूर्य और बुध की युति से बनने वाला योग, जो बुद्धि और सफलता का संकेत देता है।",
+    "Dharma_Karma_Adhipati_Yoga_name": "धर्म कर्म अधिपतियोग",
+    "Dharma_Karma_Adhipati_Yoga_description": "यह योग तब बनता है जब 9वें और 10वें घर के स्वामी एक दूसरे के साथ संबंध बनाते हैं। यह सफलता, प्रसिद्धि और धन देता है।",
+    "Kahala_Yoga_name": "काहल योग",
+    "Kahala_Yoga_description": "यह योग तब बनता है जब चौथे और 9वें घर के स्वामी एक दूसरे से केंद्र में होते हैं। यह हठ, साहस और सैन्य शक्ति देता है।",
+    "Shiva_name": "शिव",
+    "Shiva_description": "",
+    "Siddha_name": "सिद्ध",
+    "Siddha_description": "",
+    "Sadhya_name": "साध्य",
+    "Sadhya_description": "",
+    "Shubha_name": "शुभ",
+    "Shubha_description": "",
+    "Sukla_name": "शुक्ल",
+    "Sukla_description": "",
+    "Bramha_name": "ब्रह्म",
+    "Bramha_description": "",
+    "Indra_name": "इन्द्र",
+    "Indra_description": "",
+    "Aindra_name": "ऐन्द्र",
+    "Aindra_description": "",
+    "Vaidhriti_name": "वैधृति",
+    "Vaidhriti_description": "",
+    "raviYoga_name": "रवि योग",
+    "raviYoga_description": "",
+    "raviPushya_name": "रवि पुष्य योग",
+    "raviPushya_description": "",
+    "Unknown_name": "अज्ञात",
+    "sarvarthSiddhi_name": "सर्वार्थ सिद्धि योग",
+    "sarvarthSiddhi_description": "उत्तरा फाल्गुनी पर रविवार को बनने वाला शुभ योग।",
+    "amritSiddhi_name": "अमृत सिद्धि योग",
+    "amritSiddhi_description": "गुरुवार को पुष्य नक्षत्र से बनने वाला शुभ योग।",
+    "guruPushya_name": "गुरु पुष्य योग",
+    "guruPushya_description": "गुरुवार को पुष्य नक्षत्र से बनने वाला अत्यंत शुभ गुरु पुष्य योग।",
+    "day_ardha_prahar_1_name": "दिन का अर्द्ध प्रहर १",
+    "day_ardha_prahar_1_description": "अशुभ अवधि। (शुक्रवार)",
+    "day_ardha_prahar_2_name": "दिन का अर्द्ध प्रहर २",
+    "day_ardha_prahar_2_description": "अशुभ अवधि। (मंगलवार, सोमवार)",
+    "day_ardha_prahar_3_name": "दिन का अर्द्ध प्रहर ३",
+    "day_ardha_prahar_3_description": "अशुभ अवधि। (गुरुवार, बुधवार)",
+    "day_ardha_prahar_4_name": "दिन का अर्द्ध प्रहर ४",
+    "day_ardha_prahar_4_description": "अशुभ अवधि। (रविवार, शुक्रवार)",
+    "day_ardha_prahar_5_name": "दिन का अर्द्ध प्रहर ५",
+    "day_ardha_prahar_5_description": "अशुभ अवधि। (रविवार, शनिवार)",
+    "day_ardha_prahar_6_name": "दिन का अर्द्ध प्रहर ६",
+    "day_ardha_prahar_6_description": "अशुभ अवधि। (मंगलवार, शनिवार)",
+    "day_ardha_prahar_7_name": "दिन का अर्द्ध प्रहर ७",
+    "day_ardha_prahar_7_description": "अशुभ अवधि। (सोमवार, बुधवार, गुरुवार)",
+    "day_ardha_prahar_8_name": "दिन का अर्द्ध प्रहर ८",
+    "day_ardha_prahar_8_description": "अशुभ अवधि। (गुरुवार, शनिवार)",
+    "night_ardha_prahar_1_name": "रात का अर्द्ध प्रहर १",
+    "night_ardha_prahar_1_description": "अशुभ अवधि। (रविवार, शनिवार)",
+    "night_ardha_prahar_2_name": "रात का अर्द्ध प्रहर २",
+    "night_ardha_prahar_2_description": "अशुभ अवधि। (मंगलवार, शनिवार)",
+    "night_ardha_prahar_3_name": "रात का अर्द्ध प्रहर ३",
+    "night_ardha_prahar_3_description": "अशुभ अवधि। (सोमवार, शुक्रवार)",
+    "night_ardha_prahar_4_name": "रात का अर्द्ध प्रहर ४",
+    "night_ardha_prahar_4_description": "अशुभ अवधि। (रविवार, बुधवार)",
+    "night_ardha_prahar_5_name": "रात का अर्द्ध प्रहर ५",
+    "night_ardha_prahar_5_description": "अशुभ अवधि। (मंगलवार, गुरुवार, बुधवार)",
+    "night_ardha_prahar_6_name": "रात का अर्द्ध प्रहर ६",
+    "night_ardha_prahar_6_description": "अशुभ अवधि। (सोमवार, गुरुवार, शनिवार)",
+    "night_ardha_prahar_7_name": "रात का अर्द्ध प्रहर ७",
+    "night_ardha_prahar_7_description": "अशुभ अवधि। (शुक्रवार, बुधवार)",
+    "night_ardha_prahar_8_name": "रात का अर्द्ध प्रहर ८",
+    "night_ardha_prahar_8_description": "अशुभ अवधि। (गुरुवार, शनिवार)",
+    "abhijit_muhurta_name": "अभिजित मुहूर्त",
+    "abhijit_muhurta_description": "दोपहर के आसपास एक सामान्य रूप से शुभ अवधि, नए उद्यम शुरू करने के लिए आदर्श।",
+    "yam_ghanta_name": "यम घण्टा",
+    "yam_ghanta_description": "एक अशुभ अवधि, जिसे आमतौर पर नई शुरुआत के लिए टाला जाता है।",
+    "guli_kaal_day_name": "गुलिक काल (दिन)",
+    "guli_kaal_day_description": "एक अशुभ अवधि; इस दौरान किए गए कार्य दोहराए जाते हैं।",
+    "varjyam_name": "वर्ज्यम",
+    "varjyam_description": "सरलीकृत गणना: भरणी नक्षत्र से जुड़ी एक अशुभ अवधि। वास्तविक प्रारंभ/समाप्ति समय विस्तृत नक्षत्र नियमों के अनुसार भिन्न होते हैं।",
+    "dur_muhurta_day_name": "दुर मुहूर्त (दिन)",
+    "dur_muhurta_day_description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।",
+    "dur_muhurta_1_name": "दुर मुहूर्त (दिन) 1",
+    "dur_muhurta_1_description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।",
+    "dur_muhurta_2_name": "दुर मुहूर्त (दिन) 2",
+    "dur_muhurta_2_description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।",
+    "dur_muhurta_night_name": "दुर मुहूर्त (रात)",
+    "dur_muhurta_night_description": "एक अशुभ अवधि। महत्वपूर्ण गतिविधियों से बचें।",
+    "day_ardha_prahar_name": "दिन का अर्धप्रहर",
+    "day_ardha_prahar_description": "अर्धप्रहर एक अशुभ अवधि है।",
+    "night_ardha_prahar_name": "रात का अर्धप्रहर",
+    "night_ardha_prahar_description": "अर्धप्रहर एक अशुभ अवधि है.",
+    "bhadra_name": "भद्रा",
+    "bhadra_description": "एक अशुभ अवधि (विष्टि करण)। महत्वपूर्ण गतिविधियों से बचें।",
     "Harshana_name": "हर्षण योग",
     "Raja Yoga_name": "राज योग",
     "Dhana Yoga_name": "धन योग",
@@ -1966,11 +1994,11 @@
     "Debilitated": "नीच",
     "Moolatrikona": "मूलत्रिकोण",
     "Own Sign": "स्वराशि",
-    "Great Friend": "अधिमित्र राशि",
-    "Friend": "मित्र राशि",
-    "Neutral": "सम राशि",
-    "Enemy": "शत्रु राशि",
-    "Great Enemy": "अधिशत्रु राशि",
+    "Great Friend": "अधिमित्र",
+    "Friend": "मित्र",
+    "Neutral": "सम",
+    "Enemy": "शत्रु",
+    "Great Enemy": "अधिशत्रु",
     "Standard": "सामान्य",
     "Unknown": "अज्ञात"
   },
@@ -1986,8 +2014,44 @@
     "Vriddha": "वृद्ध",
     "Unknown": "अज्ञात",
     "Bala": "बाल",
-    "Vikala": "विकला",
+    "Vikala": "विकल",
     "Dukḥita": "दुःखित",
-    "Jagrata": "जाग्रत"
+    "Jagrata": "जाग्रत",
+    "Deepta": "दीप्त",
+    "Swastha": "स्वस्थ",
+    "Khala": "खल"
+  },
+    "printableReport": {
+    "basicInputParameters": "मूल इनपुट पैरामीटर",
+    "name": "नाम",
+    "gender": "लिंग",
+    "dateTime": "दिनांक और समय",
+    "place": "स्थान",
+    "coordinates": "निर्देशांक",
+    "birthChartHouseCusps": "जन्म कुंडली भाव संधि",
+    "planetDetails": "ग्रह विवरण",
+    "dashaPeriods": "दशा अवधि",
+    "ashtakavarga": "अष्टकवर्ग",
+    "sarvaAshtakavarga": "सर्वाष्टकवर्ग",
+    "bhinnaAshtakavarga": "भिन्नाष्टकवर्ग",
+    "transitDetails": "गोचर विवरण",
+    "chart": "कुंडली",
+    "ashtakavargaFor": "{{name}} के लिए अष्टकवर्ग",
+    "transitTimeLordship": "गोचर समय स्वामित्व"
+  },
+  "common": {
+    "planet": "ग्रह",
+    "longitude": "देशांतर",
+    "rashi": "राशि",
+    "nakshatra": "नक्षत्र",
+    "subLord": "उप स्वामी",
+    "house": "भाव",
+    "start": "प्रारंभ",
+    "mean": "मध्य",
+    "end": "अंत",
+    "login": "लॉग इन करें",
+    "no": "नहीं",
+    "yes": "हाँ",
+    "print": "प्रिंट"
   }
 }

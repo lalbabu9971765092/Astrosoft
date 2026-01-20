@@ -1351,6 +1351,7 @@
     "Pramudita": "Delighted",
     "Unknown": "Unknown",
     "Vriddha": "Aged"
+   
   },
   "avasthas_extra": {
     "Kumara": "A planet in Kumara Avastha is neither too strong nor too weak; it gives moderate results.",
@@ -1654,7 +1655,7 @@
     "auspicious": "auspicious",
     "inauspicious": "inauspicious"
   },
-  "muhurtaNames": {
+  "muhurtas": {
     "abhijit_muhurta": {
       "name": "Abhijit Muhurta",
       "description": "A generally auspicious period around midday, ideal for starting new ventures."
@@ -1718,6 +1719,38 @@
     "bhadra": {
       "name": "Bhadra",
       "description": "An inauspicious period (Vishti Karan). Avoid important activities."
+    },
+    "sarvarth_siddhi": {
+      "name": "Sarvarth Siddhi Yoga",
+      "description": "A highly auspicious yoga for success in all endeavors."
+    },
+    "amrit_siddhi": {
+      "name": "Amrit Siddhi Yoga",
+      "description": "An auspicious yoga that bestows longevity and success."
+    },
+    "guru_pushya": {
+      "name": "Guru Pushya Yoga",
+      "description": "Highly auspicious yoga formed by Pushya Nakshatra on a Thursday."
+    },
+    "ravi_pushya": {
+      "name": "Ravi Pushya Yoga",
+      "description": "Auspicious yoga formed by Pushya Nakshatra on a Sunday."
+    },
+    "ravi_yoga": {
+      "name": "Ravi Yoga",
+      "description": "Auspicious yoga formed by the Sun, destroying doshas."
+    },
+    "gand_mool": {
+      "name": "Gand Mool Dosha",
+      "description": "Moon is in a Gand Mool Nakshatra."
+    },
+    "panchak": {
+      "name": "Panchak",
+      "description": "A group of five nakshatras, inauspicious for certain activities."
+    },
+    "visha_yoga": {
+      "name": "Visha Yoga",
+      "description": "Inauspicious conjunction of Saturn and Moon."
     }
   },
   "muhurtaDescriptions": {
@@ -1803,14 +1836,29 @@
     "vyatipata_description": "Vyatipata Yoga",
     "yamaganda_name": "Yamaganda Yoga",
     "yamaganda_description": "Yamaganda Yoga",
+    "sarvarthSiddhi": "Sarvarth Siddhi Yoga",
     "sarvarthSiddhi_name": "Sarvarth Siddhi Yoga",
     "sarvarthSiddhi_description": "Auspicious yoga formed by Pushya on a Thursday.",
+    "amritSiddhi": "Amrit Siddhi Yoga",
     "amritSiddhi_name": "Amrit Siddhi Yoga",
     "amritSiddhi_description": "Auspicious yoga formed by Pushya on a Thursday.",
+    "guruPushya": "Guru Pushya Yoga",
     "guruPushya_name": "Guru Pushya Yoga",
     "guruPushya_description": "Highly auspicious Guru Pushya Yoga formed by Pushya Nakshatra on a Thursday.",
     "day_ardha_prahar_1_name": "Day Ardha Prahar 1",
     "day_ardha_prahar_1_description": "Inauspicious period. (Friday)",
+    "Dhan Yoga_name": "Dhan Yoga",
+    "Dhan Yoga_description": "This yoga is formed by the association of the lords of wealth houses (2nd, 5th, 9th, 11th). It makes the native wealthy.",
+    "Budhaditya Yoga_name": "Budhaditya Yoga",
+    "Budhaditya Yoga_description": "This yoga is formed when the Sun and Mercury are in the same house. It makes the native intelligent, skillful, and respected.",
+    "Saraswati Yoga_name": "Saraswati Yoga",
+    "Saraswati Yoga_description": "This yoga is formed when Jupiter, Venus, and Mercury are in Kendra (1, 4, 7, 10) or Trikona (1, 5, 9) houses, and Jupiter is in its own, exaltation, or a friendly sign. It bestows intelligence, knowledge, and creativity.",
+    "Amala Yoga_name": "Amala Yoga",
+    "Amala Yoga_description": "This yoga is formed when a benefic planet is in the 10th house from the Ascendant or Moon. It gives wealth, fame, and a good character.",
+    "Raj Yoga_name": "Raj Yoga",
+    "Raj Yoga_description": "This yoga is formed by a relationship between lords of Kendra (1, 4, 7, 10) and Trikona (1, 5, 9) houses. It gives power, position, and success.",
+    "Chandra Mangal Yoga_name": "Chandra Mangal Yoga",
+    "Chandra Mangal Yoga_description": "This yoga is formed when Moon and Mars are in the same house. It makes the native wealthy, courageous, and sometimes impulsive.",
     "day_ardha_prahar_2_name": "Day Ardha Prahar 2",
     "day_ardha_prahar_2_description": "Inauspicious period. (Tuesday, Monday)",
     "day_ardha_prahar_3_name": "Day Ardha Prahar 3",
@@ -1981,5 +2029,13 @@
     "eventTimeline": "Predictions: Event Timeline",
     "dashaLordAnalysis": "Predictions: Dasha Lord Analysis",
     "varshphalPrediction": "Predictions: Varshphal Prediction"
-  }
+  },
+  "sarvarthSiddhi": "Sarvarth Siddhi Yoga",
+  "amritSiddhi": "Amrit Siddhi Yoga",
+  "guruPushya": "Guru Pushya Yoga",
+  "raviPushya": "Ravi Pushya Yoga",
+  "raviYoga": "Ravi Yoga",
+  "mainChart": "Main Chart",
+  "MainChart": "Main Chart",
+  "Main Astrology Chart": "Main Astrology Chart"
 }

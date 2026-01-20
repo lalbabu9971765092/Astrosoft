@@ -271,7 +271,8 @@
     "sunset": "Sunset",
     "dishaShool": "Disha Shool",
     "dinamaan": "Dinamaan",
-    "ratrimaan": "Ratriman"
+    "ratrimaan": "Ratriman",
+    "yamGhanta": "Yam Ghanta"
   },
   "directions": {
     "East": "East",
@@ -1350,7 +1351,10 @@
     "Jagrata": "Awakened",
     "Pramudita": "Delighted",
     "Unknown": "Unknown",
-    "Vriddha": "Aged"
+    "Vriddha": "Aged",
+    "Deepta": "Bright",
+    "Swastha": "Healthy",
+    "Khala": "Khala"
   },
   "avasthas_extra": {
     "Kumara": "A planet in Kumara Avastha is neither too strong nor too weak; it gives moderate results.",
@@ -1745,8 +1749,158 @@
     "guliKaalNight": "An inauspicious period during the night."
   },
   "muhurtaTypes": {
-    "auspicious": "auspicious",
-    "inauspicious": "inauspicious"
+    "auspicious": "Auspicious",
+    "inauspicious": "Inauspicious"
+  },
+  "muhurtas": {
+    "abhijit_muhurta": {
+      "name": "Abhijit Muhurta",
+      "description": "A generally auspicious period around midday, ideal for starting new ventures."
+    },
+    "rahu_kaal": {
+      "name": "Rahu Kaal",
+      "description": "An inauspicious period to avoid new beginnings, travel, or important decisions."
+    },
+    "yam_ghanta": {
+      "name": "Yam Ghanta",
+      "description": "An inauspicious period, generally avoided for new beginnings."
+    },
+    "gulika_kaal_day": {
+      "name": "Gulika Kaal (Day)",
+      "description": "An inauspicious period; actions performed during this time tend to repeat."
+    },
+    "gulika_kaal_night": {
+      "name": "Gulika Kaal (Night)",
+      "description": "An inauspicious period during the night."
+    },
+    "pradosh_kaal": {
+      "name": "Pradosh Kaal",
+      "description": "An auspicious period around sunset, ideal for Shiva worship."
+    },
+    "varjyam": {
+      "name": "Varjyam",
+      "description": "An inauspicious period to be avoided for all important work."
+    },
+    "dur_muhurta_day": {
+      "name": "Dur Muhurta (Day)",
+      "description": "An inauspicious period. Avoid important activities."
+    },
+    "dur_muhurta_day_1": {
+        "name": "Dur Muhurta (Day) 1",
+        "description": "An inauspicious period. Avoid important activities."
+    },
+    "dur_muhurta_day_2": {
+        "name": "Dur Muhurta (Day) 2",
+        "description": "An inauspicious period. Avoid important activities."
+    },
+    "dur_muhurta_night": {
+      "name": "Dur Muhurta (Night)",
+      "description": "An inauspicious period. Avoid important activities."
+    },
+    "bhadra": {
+      "name": "Bhadra",
+      "description": "An inauspicious period (Vishti Karan). Avoid important activities."
+    },
+    "panchak": {
+        "name": "Panchak",
+        "description": "An inauspicious period of five nakshatras. Avoid important activities."
+    },
+    "gand_mool": {
+        "name": "Gand Mool",
+        "description": "Indicates the Moon is in a Gand Mool Nakshatra, which can be challenging."
+    },
+    "sarvarth_siddhi": {
+        "name": "Sarvarth Siddhi Yoga",
+        "description": "An auspicious yoga that helps in fulfilling all desires."
+    },
+    "amrit_siddhi": {
+        "name": "Amrit Siddhi Yoga",
+        "description": "A highly auspicious yoga that gives nectar-like results."
+    },
+    "guru_pushya": {
+        "name": "Guru Pushya Yoga",
+        "description": "A very auspicious yoga when Pushya nakshatra falls on a Thursday."
+    },
+    "ravi_pushya": {
+        "name": "Ravi Pushya Yoga",
+        "description": "An auspicious yoga when Pushya nakshatra falls on a Sunday."
+    },
+    "dwipushkar": {
+        "name": "Dwipushkar Yoga",
+        "description": "An auspicious yoga where any work done is repeated twice."
+    },
+    "tripushkar": {
+        "name": "Tripushkar Yoga",
+        "description": "An auspicious yoga where any work done is repeated thrice."
+    },
+    "visha_yoga": {
+        "name": "Visha Yoga",
+        "description": "An inauspicious yoga. Avoid important activities."
+    },
+    "day_ardha_prahar_1": {
+        "name": "Day Ardha Prahar 1",
+        "description": "Inauspicious period. (Friday)"
+    },
+    "day_ardha_prahar_2": {
+        "name": "Day Ardha Prahar 2",
+        "description": "Inauspicious period. (Tuesday, Monday)"
+    },
+    "day_ardha_prahar_3": {
+        "name": "Day Ardha Prahar 3",
+        "description": "Inauspicious period. (Thursday, Wednesday)"
+    },
+    "day_ardha_prahar_4": {
+        "name": "Day Ardha Prahar 4",
+        "description": "Inauspicious period. (Sunday, Friday)"
+    },
+    "day_ardha_prahar_5": {
+        "name": "Day Ardha Prahar 5",
+        "description": "Inauspicious period. (Sunday, Saturday)"
+    },
+    "day_ardha_prahar_6": {
+        "name": "Day Ardha Prahar 6",
+        "description": "Inauspicious period. (Tuesday, Saturday)"
+    },
+    "day_ardha_prahar_7": {
+        "name": "Day Ardha Prahar 7",
+        "description": "Inauspicious period. (Monday, Wednesday, Thursday)"
+    },
+    "day_ardha_prahar_8": {
+        "name": "Day Ardha Prahar 8",
+        "description": "Inauspicious period. (Thursday, Saturday)"
+    },
+    "night_ardha_prahar_1": {
+        "name": "Night Ardha Prahar 1",
+        "description": "Inauspicious period. (Sunday, Saturday)"
+    },
+    "night_ardha_prahar_2": {
+        "name": "Night Ardha Prahar 2",
+        "description": "Inauspicious period. (Tuesday, Saturday)"
+    },
+    "night_ardha_prahar_3": {
+        "name": "Night Ardha Prahar 3",
+        "description": "Inauspicious period. (Monday, Friday)"
+    },
+    "night_ardha_prahar_4": {
+        "name": "Night Ardha Prahar 4",
+        "description": "Inauspicious period. (Sunday, Wednesday)"
+    },
+    "night_ardha_prahar_5": {
+        "name": "Night Ardha Prahar 5",
+        "description": "Inauspicious period. (Tuesday, Thursday, Wednesday)"
+    },
+    "night_ardha_prahar_6": {
+        "name": "Night Ardha Prahar 6",
+        "description": "Inauspicious period. (Monday, Thursday, Saturday)"
+    },
+    "night_ardha_prahar_7": {
+        "name": "Night Ardha Prahar 7",
+        "description": "Inauspicious period. (Friday, Wednesday)"
+    },
+    "night_ardha_prahar_8": {
+        "name": "Night Ardha Prahar 8",
+        "description": "Inauspicious period. (Thursday, Saturday)"
+    }
   },
   "yogas": {
     "vishaYoga_name": "Visha Yoga",
@@ -1854,7 +2008,21 @@
     "Chandra Mangala Yoga_name": "Chandra Mangala Yoga",
     "Chandra Mangala Yoga_description": "Yoga formed by the conjunction or aspect of Moon and Mars, indicating wealth and sometimes aggression.",
     "Budhaditya Yoga_name": "Budhaditya Yoga",
-    "Budhaditya Yoga_description": "Yoga formed by the conjunction of Sun and Mercury, indicating intelligence and success."
+    "Budhaditya Yoga_description": "Yoga formed by the conjunction of Sun and Mercury, indicating intelligence and success.",
+    "Amala_Yoga_name": "Amala Yoga",
+    "Amala_Yoga_description": "An auspicious yoga formed when a natural benefic is placed in the 10th house from the Ascendant or the Moon.",
+    "Saraswati_Yoga_name": "Saraswati Yoga",
+    "Saraswati_Yoga_description": "An auspicious yoga for learning and knowledge, formed by Jupiter, Venus, and Mercury.",
+    "Kendruma_Yoga_name": "Kendruma Yoga",
+    "Kendruma_Yoga_description": "This yoga is formed when there are no planets in the 2nd and 12th houses from the Moon. It indicates struggles and difficulties.",
+    "Chandra_Mangala_Yoga_name": "Chandra Mangala Yoga",
+    "Chandra_Mangala_Yoga_description": "Yoga formed by the conjunction or aspect of Moon and Mars, indicating wealth and sometimes aggression.",
+    "Budhaditya_Yoga_name": "Budhaditya Yoga",
+    "Budhaditya_Yoga_description": "Yoga formed by the conjunction of Sun and Mercury, indicating intelligence and success.",
+    "Dharma_Karma_Adhipati_Yoga_name": "Dharma Karma Adhipati Yoga",
+    "Dharma_Karma_Adhipati_Yoga_description": "This yoga is formed when the lords of the 9th and 10th houses are in conjunction or mutual aspect. It indicates success, fame, and wealth.",
+    "Kahala_Yoga_name": "Kahala Yoga",
+    "Kahala_Yoga_description": "This yoga is formed when the lords of the 4th and 9th houses are in mutual Kendra. It indicates stubbornness, courage, and military prowess."
   },
   "login": {
     "title": "Sign In",
@@ -1993,5 +2161,23 @@
     "eventTimeline": "Predictions: Event Timeline",
     "dashaLordAnalysis": "Predictions: Dasha Lord Analysis",
     "varshphalPrediction": "Predictions: Varshphal Prediction"
+  },
+  "printableReport": {
+    "basicInputParameters": "Basic Input Parameters",
+    "name": "Name",
+    "gender": "Gender",
+    "dateTime": "Date & Time",
+    "place": "Place",
+    "coordinates": "Coordinates",
+    "birthChartHouseCusps": "Birth Chart House Cusps",
+    "planetDetails": "Planet Details",
+    "dashaPeriods": "Dasha Periods",
+    "ashtakavarga": "Ashtakavarga",
+    "sarvaAshtakavarga": "Sarva Ashtakavarga",
+    "bhinnaAshtakavarga": "Bhinna Ashtakavarga",
+    "transitDetails": "Transit Details",
+    "chart": "Chart",
+    "ashtakavargaFor": "Ashtakavarga for {{name}}",
+    "transitTimeLordship": "Transit Time Lordship"
   }
 }

@@ -196,6 +196,16 @@ const SharedInputLayout = () => {
     }, [t, fetchSavedCharts, calculateInitialTransit]);
 
     useEffect(() => {
+        // Recalculate chart data when language changes, if a chart is already displayed.
+        // This ensures that language-dependent data from the API (like Yoga names) is updated.
+        if (calculationInputParams) {
+            handleCalculateAll();
+        }
+        // We only want this to run when the language changes.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [i18n.language]);
+
+    useEffect(() => {
         try {
             if (houseToRotate && typeof houseToRotate === 'number') {
                 localStorage.setItem('house_to_rotate', String(houseToRotate));

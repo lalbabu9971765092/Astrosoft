@@ -6,6 +6,7 @@ import { RASHI_LORDS, RASHIS, PLANET_EXALTATION_SIGN, PLANET_DEBILITATION_SIGN }
 import { PLANET_NAMES_HI, getPlanetName } from './birthChartYogaUtils.js';
 import { calculateUPBS } from './beneficenceUtils.js'; // Import calculateUPBS
 import { transitInterpretations_en, transitInterpretations_hi } from './transitInterpretations.js';
+import swisseph from 'swisseph-v2';
 /* ======================================================
    Constants & Utilities
 ====================================================== */
@@ -108,8 +109,16 @@ function getCurrentAntar(chartData) {
    Transits
 ====================================================== */
 async function analyzeTransits(chartData, planetaryPowers, lang = 'en') {
-  const jd = getJulianDateUT(chartData.inputParameters.utcDate, chartData.inputParameters.latitude, chartData.inputParameters.longitude);
-  const transits = await calculatePlanetaryPositions(jd.julianDayUT);
+  const utcDate = new Date(chartData.inputParameters.utcDate);
+  const year = utcDate.getUTCFullYear();
+  const month = utcDate.getUTCMonth() + 1;
+  const day = utcDate.getUTCDate();
+  const hour = utcDate.getUTCHours();
+  const minute = utcDate.getUTCMinutes();
+  const second = utcDate.getUTCSeconds();
+  const ut = hour + minute / 60 + second / 3600;
+  const julianDayUT = swisseph.swe_julday(year, month, day, ut, swisseph.SE_GREG_CAL);
+  const transits = await calculatePlanetaryPositions(julianDayUT);
   const natalPositions = chartData.planetaryPositions.sidereal;
   const cuspDegrees = chartData.houses.map(h => toDegrees(h.start_dms));
   

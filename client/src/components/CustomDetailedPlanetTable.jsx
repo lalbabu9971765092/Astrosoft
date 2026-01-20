@@ -44,19 +44,19 @@ const CustomDetailedPlanetTable = ({ planets, houses, planetDetails, planetOrder
         },
         dignity: {
             header: t('planetTableHeaders.dignity'),
-            render: (planetName, data) => data.avasthas?.dignity ?? t('utils.notAvailable', 'N/A')
+            render: (planetName, data) => t(`planetStates.${data.avasthas?.dignity}`, { defaultValue: data.avasthas?.dignity ?? t('utils.notAvailable', 'N/A') })
         },
         balaadi: {
             header: t('planetTableHeaders.balaadi'),
-            render: (planetName, data) => data.avasthas?.balaadi ?? t('utils.notAvailable', 'N/A')
+            render: (planetName, data) => t(`avasthas.${data.avasthas?.balaadi}`, { defaultValue: data.avasthas?.balaadi ?? t('utils.notAvailable', 'N/A') })
         },
         jagradadi: {
             header: t('planetTableHeaders.jagradadi'),
-            render: (planetName, data) => data.avasthas?.jagradadi ?? t('utils.notAvailable', 'N/A')
+            render: (planetName, data) => t(`avasthas.${data.avasthas?.jagradadi}`, { defaultValue: data.avasthas?.jagradadi ?? t('utils.notAvailable', 'N/A') })
         },
         deeptaadi: {
             header: t('planetTableHeaders.deeptaadi'),
-            render: (planetName, data) => data.avasthas?.deeptaadi ?? t('utils.notAvailable', 'N/A')
+            render: (planetName, data) => t(`avasthas.${data.avasthas?.deeptaadi}`, { defaultValue: data.avasthas?.deeptaadi ?? t('utils.notAvailable', 'N/A') })
         },
         speed: {
             header: t('planetTableHeaders.speed'),

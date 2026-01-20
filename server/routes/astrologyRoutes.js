@@ -22,7 +22,8 @@ import {
     calculateSarvaAshtakavarga, ASHTAKAVARGA_PLANETS, calculateSolarReturnJulianDay,
     calculateMuntha, calculateYearLord, calculateMuddaDasha, RASHIS,
     getNumberBasedAscendantDegree, getSubLordDetails, getSubSubLordDetails, NAKSHATRA_SPAN, RASHI_SPAN, calculateKpSignificators, getHouseOfPlanet,
-    calculateUPBS, calculateAllBirthChartYogas
+    calculateUPBS, calculateAllBirthChartYogas,
+    PLANET_EXALTATION_SIGN, PLANET_DEBILITATION_SIGN, PLANET_OWN_SIGNS, PLANET_MOOLATRIKONA, RASHI_LORDS
 } from '../utils/index.js'; // Adjust path if your index is elsewhere or import directly
 import { calculatePanchang } from '../utils/panchangUtils.js';
 import { calculateHousesAndAscendant } from '../utils/coreUtils.js';
@@ -142,8 +143,44 @@ const calculateDivisionalChartData = (siderealPositions, siderealAscendantDeg, d
                     pada: divisionalPada,
                     subLord: divisionalSubLordDetails.lord,
                     subSubLord: divisionalSubSubLordDetails.lord,
-                    // Inherit avasthas from D1 for now, or calculate if specific logic exists
-                    avasthas: siderealData.avasthas ? { ...siderealData.avasthas } : { dignity: 'N/A', balaadi: 'N/A', jagradadi: 'N/A', deeptaadi: 'N/A', speedLongitude: 'N/A', isRetrograde: false, isCombust: false },
+                    // Calculate avasthas for divisional chart
+                    avasthas: {
+                        dignity: (() => {
+                            let divisionalDignity = 'Neutral';
+                            const divisionalRashi = divisionalRashiDetails.name;
+                            const divisionalRashiIndex = RASHIS.indexOf(divisionalRashi);
+                            // Exalted
+                            if (PLANET_EXALTATION_SIGN[planetName] && PLANET_EXALTATION_SIGN[planetName] === divisionalRashi) divisionalDignity = 'Exalted';
+                            // Debilitated
+                            else if (PLANET_DEBILITATION_SIGN[planetName] && PLANET_DEBILITATION_SIGN[planetName] === divisionalRashi) divisionalDignity = 'Debilitated';
+                            // Own Sign
+                            else if (PLANET_OWN_SIGNS[planetName] && PLANET_OWN_SIGNS[planetName].includes(divisionalRashi)) divisionalDignity = 'Own Sign';
+                            // Moolatrikona
+                            else if (PLANET_MOOLATRIKONA[planetName] && PLANET_MOOLATRIKONA[planetName] === divisionalRashi) divisionalDignity = 'Moolatrikona';
+                            // Friend/Enemy/Neutral
+                            else {
+                                const rashiLord = RASHI_LORDS[divisionalRashiIndex];
+                                const relation = getResultingFriendship(planetName, rashiLord);
+                                if (relation === 'Friend') divisionalDignity = 'Friend';
+                                else if (relation === 'Enemy') divisionalDignity = 'Enemy';
+                                else divisionalDignity = 'Neutral';
+                            }
+                            return divisionalDignity;
+                        })(),
+                        balaadi: (() => {
+                            const divisionalLongitudeInRashi = normalizeAngle(divisionalLongitude) % 30;
+                            if (divisionalLongitudeInRashi < 6) return 'Bala';
+                            else if (divisionalLongitudeInRashi < 12) return 'Kumara';
+                            else if (divisionalLongitudeInRashi < 18) return 'Yuva';
+                            else if (divisionalLongitudeInRashi < 24) return 'Vriddha';
+                            else return 'Mrita';
+                        })(),
+                        jagradadi: siderealData.avasthas?.jagradadi || 'N/A',
+                        deeptaadi: siderealData.avasthas?.deeptaadi || 'N/A',
+                        speedLongitude: siderealData.avasthas?.speedLongitude || 'N/A',
+                        isRetrograde: siderealData.avasthas?.isRetrograde || false,
+                        isCombust: siderealData.avasthas?.isCombust || false
+                    },
                 };
             } catch (divisionalError) {
                 logger.warn(`Divisional calculation (${divisionalCalculationFunction.name}) failed for ${planetName}: ${divisionalError.message}`);
