@@ -1501,7 +1501,7 @@ const PrintableReport = ({ calculationInputParams, varshphalYear, setIsPrinting,
                         
                     </div> <div style={{ textAlign: 'right', marginBottom: '20px' }}>
                         <p style={{ fontFamily: 'sans-serif', fontSize: '1.2em', margin: '10px 0' }}>
-                        रबिन्द्र मोहन झा                      
+                     रवीन्द्र मोहन झा                      
                         </p>
                     </div>
                 </>
